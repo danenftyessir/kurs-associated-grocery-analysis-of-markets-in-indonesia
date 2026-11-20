@@ -72,6 +72,8 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 - Harga sangat kaku untuk komoditas yang diatur: ≥ 85% minggu beras, daging sapi, gula berisi rangkaian nilai identik ≥ 5 hari (U22).
 - Kejanggalan diketahui: spasi di akhir `Cabai Merah Keriting ` (ditangani `norm_name`); lonjakan satu hari
   (Papua, Beras level 1, 2017-07-03: 15.800/29.750 lalu 9.500) → QA WP-10; tanggal 2026-11-19 sebagian kosong.
+- Minggu 2022-05-02 (Idulfitri 2022): tidak ada provinsi teramati di Sumatra, Jawa, Bali–NT, Sulawesi, Maluku → sel wilayah
+  NaN di `panel_weekly_region` (WP-08).
 - Snapshot pra-merge (`pihps_pasar_tradisional_harian_2017-2026_retrieved_2026-11-18.zip`) dipensiunkan ke
   `data/raw/_superseded/bi_pihps/` (D-102): inventaris tim menandainya rusak; tidak dipakai, tidak diunggah ke Drive.
 - Harga provinsi = rerata kota sampel (82 kota, 2 pasar/kota, 2 pedagang/komoditas) → derau berbeda antarprovinsi.
@@ -79,6 +81,8 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 ### JISDOR (`jisdor`)
 - Excel BI, header di baris 5: `NO, Tanggal ("5/20/2013 12:00:00 AM"), Kurs ("9.760,00")`.
 - Loader → `date, idr_per_usd`. Nilai terakhir 18.252 (2026-11-18). Perubahan metodologi 2021-04-05 (V3); PADG 7/2026 (U3).
+- Episode depresiasi (Σ de 8 minggu ≥ 3%, `episodes`, WP-06): 13 episode 2018–2026 (2018 ×3, 2020 ×2, 2021, 2022, 2023,
+  2024 ×2, 2025, 2026 ×2), 61 minggu; terbesar Mar–Mei 2020 (Σ maks 0,185).
 
 ### Pink Sheet (`pinksheet`)
 - Sheet `Monthly Prices`: baris 4 nama seri, baris 5 satuan, data mulai baris 6 dengan kode `YYYYMmm`; "…" = kosong.

@@ -7,7 +7,6 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from kagami.utils.todo import todo
 from kagami.utils.config import Config
 from kagami.utils.dates import week_start
 
@@ -112,18 +111,68 @@ def build_world_prices(cfg: Config, pinksheet: pd.DataFrame, jisdor: pd.DataFram
 
 def mark_episode_weeks(drivers: pd.DataFrame, episodes: pd.DataFrame) -> pd.DataFrame:
     """WP-06. Tambah kolom `episode` (1 bila start_week <= week <= end_week suatu episode, selain itu 0)."""
-    todo("WP-06")
+    out = drivers.copy()
+    flag = np.zeros(len(out), dtype=int)
+    for s, e in zip(pd.to_datetime(episodes["start_week"]), pd.to_datetime(episodes["end_week"])):
+        flag |= ((out["week"] >= s) & (out["week"] <= e)).to_numpy().astype(int)
+    out["episode"] = flag
+    return out
 
 
 def find_episodes(cfg: Config, drivers: pd.DataFrame) -> pd.DataFrame:
-    """WP-06. Episode depresiasi: Σ de dalam jendela 8 minggu >= 0.03 (params.episodes).
+    """WP-06. Episode depresiasi: Σ de dalam jendela 8 minggu >= 0.03 (params.episodes; METHODS §M0.5).
 
-    Episode tumpang tindih digabung; start_week = minggu pertama ambang terlampaui.
+    Minggu t = pemicu bila Σ_{s=t-W+1..t} de_s >= ambang (W = window_weeks; butuh W nilai de lengkap).
+    Pemicu yang jendelanya tumpang tindih atau berdempetan (jarak antar pemicu <= W minggu) digabung.
+    start_week = pemicu pertama; end_week = pemicu terakhir; cum_dlog_e = Σ de jendela maksimum dalam episode.
+    Kolom ekstra: peak_week (minggu Σ maksimum), n_trigger_weeks, in_period (start_week >= period.start).
+    Seluruh grid penggerak dipakai (buffer 2017 ikut, agar episode yang melintasi awal periode tidak terpotong).
     -> artefak 'episodes' (episode_id, start_week, end_week, cum_dlog_e).
     """
-    todo("WP-06")
+    p = cfg.params["episodes"]
+    win, thr = int(p["window_weeks"]), float(p["cum_depreciation"])
+    d = drivers.sort_values("week").reset_index(drop=True)
+    roll = d["de"].rolling(win, min_periods=win).sum()
+    trig = np.flatnonzero((roll >= thr).to_numpy())
+    cols = ["episode_id", "start_week", "end_week", "cum_dlog_e", "peak_week", "n_trigger_weeks", "in_period"]
+    if len(trig) == 0:
+        return pd.DataFrame(columns=cols)
+    groups = np.concatenate([[0], np.cumsum(np.diff(trig) > win)])
+    start = pd.Timestamp(cfg.params["period"]["start"])
+    rows = []
+    for g in np.unique(groups):
+        idx = trig[groups == g]
+        r = roll.iloc[idx]
+        rows.append({"start_week": d["week"].iloc[idx[0]], "end_week": d["week"].iloc[idx[-1]],
+                     "cum_dlog_e": float(r.max()), "peak_week": d["week"].iloc[int(r.idxmax())],
+                     "n_trigger_weeks": len(idx)})
+    out = pd.DataFrame(rows)
+    out.insert(0, "episode_id", np.arange(1, len(out) + 1))
+    out["in_period"] = out["start_week"] >= start
+    return out[cols]
 
 
 def fx_variation_table(cfg: Config, drivers: pd.DataFrame) -> pd.DataFrame:
-    """WP-06. Jumlah & besar minggu depresiasi/apresiasi per tahun + total -> artefak 'fx_variation'."""
-    todo("WP-06")
+    """WP-06. Jumlah & besar minggu depresiasi/apresiasi per tahun + total -> artefak 'fx_variation'.
+
+    Hanya minggu period.start .. period.freeze (buffer tidak dihitung). period = tahun kalender minggu (Senin)
+    atau 'total'. n_dep_weeks: de > 0; n_app_weeks: de < 0; mean_dep / mean_app = rerata de pada minggu itu;
+    sd_de. Kolom ekstra: n_weeks, n_zero_weeks (termasuk minggu libur yang diteruskan, D-025), max_de, min_de,
+    n_episode_weeks (bila kolom `episode` ada).
+    """
+    start = pd.Timestamp(cfg.params["period"]["start"])
+    d = drivers[(drivers["week"] >= start) & drivers["de"].notna()].copy()
+    if "episode" not in d:
+        d["episode"] = 0
+
+    def summarize(g: pd.DataFrame) -> dict:
+        de = g["de"]
+        return {"n_weeks": len(g), "n_dep_weeks": int((de > 0).sum()), "n_app_weeks": int((de < 0).sum()),
+                "n_zero_weeks": int((de == 0).sum()), "mean_dep": de[de > 0].mean(), "mean_app": de[de < 0].mean(),
+                "sd_de": de.std(), "max_de": de.max(), "min_de": de.min(), "n_episode_weeks": int(g["episode"].sum())}
+
+    rows = [{"period": str(y), **summarize(g)} for y, g in d.groupby(d["week"].dt.year)]
+    rows.append({"period": "total", **summarize(d)})
+    out = pd.DataFrame(rows)
+    return out[["period", "n_dep_weeks", "n_app_weeks", "mean_dep", "mean_app", "sd_de", "n_weeks",
+                "n_zero_weeks", "max_de", "min_de", "n_episode_weeks"]]

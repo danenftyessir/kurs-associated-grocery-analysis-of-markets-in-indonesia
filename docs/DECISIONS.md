@@ -29,6 +29,9 @@ tidak memberi manfaat. Grid: 464 minggu, 2018-01-01 .. 2026-11-16.
 ### D-007 — Aturan gerbang G-power · FINAL (ambang) · proposal v4 §9.1
 MDE PT(8) nasional > 0,5 untuk ketiga {bawang putih, gula pasir, minyak goreng} → LP mingguan sekunder; event study +
 profil harga dunia rupiah utama; Task 4 kontribusi DM utama. Angka MDE aktual ditambahkan di sini saat WP-09 selesai.
+Pembaruan 2026-11-20 (WP-09, Danen; params SEBELUM G6): MDE_PT(8) nasional bawang putih 2,52, gula pasir 0,90, minyak goreng
+0,465 → syarat "ketiganya > 0,5" TIDAK terpenuhi → LP tetap utama. Sementara: dihitung ulang setelah G6 (21 Nov), keputusan
+resmi di gerbang G-power 23 Nov (`power.gate_g_power` pada `mde.csv`).
 
 ### D-008 — PIHPS v2_merged sebagai sumber kanonik · FINAL (bagian QA v1 diganti oleh D-102) · 2026-11-20
 v2 punya MANIFEST (sha256 + endpoint + retrieved_at) dan tanpa kolom `no`. v1 disimpan hanya untuk QA konsistensi (WP-10).
@@ -161,7 +164,7 @@ Inventaris tim (20 Nov) menandai zip PIHPS tanpa `v2_merged` sebagai rusak. File
 (tidak dihapus), dicabut dari `sources.yaml`, `LOADERS`, dan tes; `qa.compare_pihps_versions` dan cek "v1 vs v2" WP-10 dihapus.
 `v2_merged` tetap satu-satunya sumber PIHPS (D-008). Tidak diunggah ke Drive tim.
 
-### D-103 — Aturan branch: hanya `main`, `dev`, `feat/<topik>` · FINAL (permintaan user) · 2026-11-20 · Danen
+### D-103 — Aturan branch: hanya `main`, `dev`, `feat/<topik>` · FINAL (permintaan user; bagian nama & pesan commit DIGANTI oleh D-108) · 2026-11-20 · Danen
 `main` = versi stabil (gerbang, pembekuan, submission; tanpa commit langsung). `dev` = integrasi, dibuat dari `main`, masuk ke
 `main` lewat PR saat stabil. `feat/<topik>` = satu WP/topik (kode atau dokumen), dibuat dari `dev`, PR ke `dev`, lalu dihapus;
 nama huruf kecil berawalan kode WP bila ada (mis. `feat/wp06-episode`). Tidak ada jenis branch lain (termasuk `fix/`, `hotfix/`,
@@ -184,3 +187,29 @@ Rantai Task 1 dipotong di `fit_lp`/`build_design` (WP-13, terbit 22 Nov); P2 dij
 WP-13→17 (leher botol) dan satu Task per orang (Task 1 selalu mendahului yang lain). Risiko: dua serah-terima di rantai Task 1;
 dimitigasi dengan data sintetis berskema `artifacts.py` dan tenggat kode 22–24 Nov (PEMBAGIAN_TUGAS §4–5). Bukan deviasi praregistrasi
 (tidak mengubah hipotesis atau parameter). Dampak dokumen: PEMBAGIAN_TUGAS §1, §3, §4, §5; papan WORKPLAN (kolom PIC); CLAUDE.md §2.
+
+### D-106 — Panel wilayah: rerata tahan perubahan komposisi (dekomposisi dua arah) · FINAL · 2026-11-20 (WP-08) · Danen
+`panel_weekly_region` = rerata log harga provinsi eligible per wilayah. Rerata biasa melompat bila satu provinsi `missing` pada suatu
+minggu (wilayah 2 provinsi: lompatan = setengah selisih level; pada data asli sampai 0,10 log). Dipilih: per (wilayah, komoditas)
+p(r,t) = a_r + l_t diestimasi dengan alternating projection; rerata wilayah = l_t + rerata a_r, lalu dikurangi minggu pertama.
+Identik dengan rerata biasa bila semua provinsi teramati (median selisih 0). Ditolak: rerata biasa (lompatan palsu masuk LP
+wilayah) dan indeks berantai (celah satu minggu menghilangkan perubahan provinsi itu). Minggu tanpa provinsi teramati → NaN
+(hanya 2022-05-02, Idulfitri). Murni teknis; bukan deviasi praregistrasi.
+
+### D-107 — Konvensi episode, desain LP, dan SE MDE · FINAL (teknis) · 2026-11-20 (WP-06, WP-09, WP-13) · Danen
+(1) Episode (METHODS §M0.5): pemicu berjarak ≤ `episodes.window_weeks` minggu digabung (jendela tumpang tindih atau berdempetan);
+end_week = pemicu terakhir; cum_dlog_e = Σ jendela maksimum; seluruh grid penggerak (buffer 2017) dipakai, `in_period` menandai
+start ≥ period.start. (2) Desain LP (`build_design`): blok kurs berawalan `de`/`dw` (impuls + lag 1..L), kontrol `dp_l*`,
+`db_l0..4`, `idf_*`, `month_2..12`; asimetris memakai lag de⁺ dan de⁻ masing-masing; efek tetap seri via within-transform setelah
+baris NaN dibuang; sampel period.start..freeze. γ(h) memakai kontrol yang sama tanpa Δp & dw. (3) SE MDE (METHODS §M0.6 langkah 2):
+bentuk skor di bawah H0, yaitu residual LP tanpa kurs × de yang dibersihkan dari kontrol + sisa blok kurs, cluster minggu, koreksi CR1.
+Setara SE regresi residual pada de bila β ≈ 0 (tes: selisih < 5%) dan β̂ tidak pernah dihitung, sehingga aturan "MDE sebelum
+melihat β" terjamin. Ditolak: rumus analitik sd(resid)/(sd(de)·√T) (mengabaikan korelasi residual antarprovinsi dalam minggu).
+
+### D-108 — Nama branch menurut fungsi (maks 3 kata) & pesan commit tanpa kode · FINAL (permintaan user) · 2026-11-20 · Danen
+Menggantikan bagian penamaan D-103 (`feat/wp06-episode`) dan aturan "pesan commit diawali kode WP" (CLAUDE.md §4.6). Kode WP
+sulit dilacak orang: satu WP berisi beberapa fungsi dan satu fungsi bisa disentuh beberapa WP. Kini `feat/<fungsi>` = apa yang
+dikerjakan branch itu, maksimal 3 kata, huruf kecil dengan tanda hubung (mis. `feat/depreciation-episodes`, `feat/reference-tables`).
+Pesan commit dalam bahasa Indonesia menjelaskan perubahan tanpa kode WP-xx/D-xxx/U-xx. Ditolak: nama fungsi Python persis
+(terlalu panjang bila satu PR berisi beberapa fungsi). Jenis branch (`main`, `dev`, `feat/`) dan aturan PR D-103 tidak berubah.
+Branch pertama dengan aturan ini: `feat/episode-panel-mde`.

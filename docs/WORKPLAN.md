@@ -42,14 +42,14 @@ WP-07 (paralel dengan WP-05) → WP-22/23
 | WP-03 | Varian + agregasi mingguan + status sel | ✅ | – | 02 | 20 Nov |
 | WP-04 | Kelayakan seri | ✅ | – | 03 | 20 Nov |
 | WP-05 | Penggerak mingguan & harga dunia rupiah | ✅ | – | 02 | 21 Nov |
-| WP-06 | Episode depresiasi & tabel variasi kurs | ⬜ | Danen | 05 | 21 Nov |
+| WP-06 | Episode depresiasi & tabel variasi kurs | ✅ | Danen | 05 | 21 Nov |
 | WP-07 | Tabel buatan tim (concordance, exposure, regulation, province_features) | ⬜ | Ardell | 02 | 22 Nov |
-| WP-08 | Panel 7 wilayah | ⬜ | Danen | 04 | 21 Nov |
-| WP-09 | MDE / analisis daya (G-power) | ⬜ | Danen | 05, 08 | 23 Nov |
+| WP-08 | Panel 7 wilayah | ✅ | Danen | 04 | 21 Nov |
+| WP-09 | MDE / analisis daya (G-power) | ✅ | Danen | 05, 08 | 23 Nov |
 | WP-10 | QA silang & laporan Tahap 0 | ⬜ | Danen | 03–09 | 23 Nov |
 | WP-11 | Praregistrasi & pembekuan (G6) | ⬜ | Danen + Abi | – | 21 Nov |
 | WP-12 | Mesin statistik bersama | ✅ | – | – | 20 Nov |
-| WP-13 | LP nasional + asimetri + PT (`build_design`/`fit_lp` terbit 22 Nov untuk WP-15) | ⬜ | Danen | 05, 09 | 23 Nov |
+| WP-13 | LP nasional + asimetri + PT (`build_design`/`fit_lp` terbit 22 Nov untuk WP-15) | 🔶 | Danen | 05, 09 | 23 Nov |
 | WP-14 | Event study per episode | ⬜ | Danen | 06, 08 | 23 Nov |
 | WP-15 | Deviasi provinsi & profil wilayah | ⬜ | Ardell | 13 | 24 Nov |
 | WP-16 | Bootstrap bersama & plasebo | ⬜ | Ardell | 13, 15 | 24 Nov |
@@ -123,9 +123,16 @@ yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOT
 - Fakta 2018–2026: sd(de) 0,0082; 259 minggu depresiasi / 200 apresiasi; de maks +0,063 (Mar 2020); corr(de, d_dxy) 0,52;
   5 minggu JISDOR tanpa fixing (semua cuti Lebaran) → level diteruskan (D-025).
 
-### WP-06 — Episode depresiasi & tabel variasi kurs
-- File: `src/data/drivers.py::find_episodes`, `fx_variation_table` → `episodes`, `fx_variation`; kolom `episode` di `drivers_weekly`.
-- Selesai bila: [ ] daftar episode sejak 2018 (harus memuat 2018, 2020, 2022, 2024–25, 2026 bila ada); [ ] jumlah episode dicatat di SESSION_LOG (cek kelayakan §9.1 proposal).
+### WP-06 — Episode depresiasi & tabel variasi kurs ✅
+- File: `src/data/drivers.py::find_episodes`, `mark_episode_weeks`, `fx_variation_table` → `episodes`, `fx_variation`; kolom `episode`
+  di `drivers_weekly`. Tes `test_find_episodes_*`, `test_mark_episode_weeks_and_fx_table`, `test_episodes_real_data` (`tests/test_drivers.py`).
+- Selesai: [x] daftar episode sejak 2018 memuat 2018, 2020, 2022, 2024–25, 2026; [x] jumlah dicatat di SESSION_LOG 2026-11-20.
+- Aturan (D-107): pemicu = Σ de 8 minggu ≥ 0,03; pemicu berjarak ≤ 8 minggu digabung; end_week = pemicu terakhir;
+  cum_dlog_e = Σ jendela maksimum. Kolom ekstra: peak_week, n_trigger_weeks, in_period.
+- Hasil (`episodes`): **13 episode**, 61 minggu episode: 2018 (3), 2020 (2; Mar–Mei 2020 cum 0,185), 2021, 2022, 2023, 2024 (2),
+  2025, 2026 (2). Episode 13 (2026-11-02) bisa terpotong oleh freeze. `fx_variation`: 2018–2026 259 minggu depresiasi /
+  200 apresiasi / 5 nol (sama dengan WP-05).
+- Hilir: WP-14 memakai `in_period` dan `start_week`; plasebo dari minggu `episode = 0` (± 12 minggu).
 
 ### WP-07 — Tabel buatan tim
 - File: `src/data/reference.py` → `concordance`, `exposure`, `regulation`, `province_features` di `data/reference/`.
@@ -136,13 +143,22 @@ yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOT
   - [ ] province_features: `dist_hub_km` dihitung dari koordinat `region_crosswalk.csv`; `rice_sufficiency` & `n_kota` diisi atau NaN + U14/U15 dicatat.
 - Input baru (2026-11-20, D-101): `hortikultura_produksi` (produksi bawang putih → rasio impor, U5), `konkordansi_hs` (jembatan Comtrade 2017–2022 → HS8 BPS), `jarak_hub` (cek silang `dist_hub_km`), BPS impor v2 (+bawang putih), regulasi revisi 20 Nov. Loader sudah ada (`src/data/loaders.py`); signature fungsi WP-07 boleh ditambah parameter oleh Ardell (pemilik `reference.py`) + `pipelines/stage0.py` disesuaikan lewat handoff.
 
-### WP-08 — Panel 7 wilayah
-- File: `src/data/panel.py` → `panel_weekly_region` (indeks, bukan level Rp; D-015).
-- Selesai bila: [ ] 7 wilayah × 10 komoditas; [ ] `n_provinces` per minggu; [ ] tidak ada kolom yang memungkinkan rekonstruksi harga Rp provinsi.
+### WP-08 — Panel 7 wilayah ✅
+- File: `src/data/panel.py` → `panel_weekly_region` (indeks, bukan level Rp; D-015). Tes `tests/test_panel.py`.
+- Selesai: [x] 7 wilayah × 10 komoditas × 464 minggu = 32.480 baris; [x] `n_provinces` per minggu; [x] hanya indeks log
+  relatif minggu pertama (tanpa level Rp).
+- Rerata wilayah tahan perubahan komposisi: dekomposisi dua arah efek provinsi + efek minggu (D-106); identik dengan rerata
+  biasa bila semua provinsi teramati (median selisih 0; maks 0,10 log pada minggu komposisi berubah).
+- Satu-satunya minggu kosong: 2022-05-02 (Idulfitri 2022) di 5 wilayah → `log_price_index` NaN, `n_provinces` 0 (50 sel).
 
-### WP-09 — MDE / analisis daya (G-power)
-- File: `src/evaluation/power.py` → `mde`. Spesifikasi METHODS §M0.6. **Wajib selesai sebelum melihat β dari WP-13.**
-- Selesai bila: [ ] MDE PT(8) nasional & 7 wilayah untuk 10 komoditas, h ∈ {4, 8, 12}; [ ] keputusan gerbang G-power ditulis di DECISIONS (D-007 diperbarui dengan angka).
+### WP-09 — MDE / analisis daya (G-power) ✅
+- File: `src/evaluation/power.py` (`compute_mde`, `null_se`, `gate_g_power`) → `mde`. Spesifikasi METHODS §M0.6. Tes `tests/test_power.py`.
+- Selesai: [x] MDE nasional & 7 wilayah, 10 komoditas, h ∈ {4, 8, 12} (240 baris); [x] angka gerbang di D-007 (pembaruan 2026-11-20).
+- SE di bawah H0 dalam bentuk skor (β̂ tidak pernah dihitung; D-107). γ(4/8/12) = 1,44 / 1,32 / 1,03.
+- MDE_PT(8) nasional: bawang putih 2,52, gula pasir 0,90, **minyak goreng 0,465** → tidak ketiganya > 0,5 → **LP tetap utama**
+  (D-007). Hasil SEMENTARA: params belum dibekukan (G6 21 Nov) → jalankan ulang `stage0` setelah G6 dan putuskan G-power 23 Nov.
+  Minyak goreng dekat ambang: perubahan varian/lag di G6 bisa membalik keputusan.
+- MDE_PT(8) terkecil: daging sapi 0,13, beras 0,20; terbesar: cabai rawit 3,75, cabai merah 3,00. Wilayah ≈ 1,5–2× nasional.
 
 ### WP-10 — QA silang & laporan Tahap 0
 - File: `src/data/qa.py` → `stage0_report`.
@@ -158,10 +174,12 @@ Pipeline `pipelines.task1` · notebook `01_task1_profiles` · berat → Kaggle/C
 ### WP-12 — Mesin statistik bersama ✅
 `stats/regression.py` (OLS CR1 cluster, Newey-West, Diebold-Mariano+HLN), `stats/resampling.py`, `stats/meta.py` (DL, REML, EB, BH). Tes `tests/test_stats.py`. Tambah fungsi baru di sini bila dipakai > 1 task.
 
-### WP-13 — LP nasional + asimetri + PT
+### WP-13 — LP nasional + asimetri + PT 🔶
 - File: `src/models/local_projection.py` → baris `profiles` level=national, driver ∈ {e, w, e_pos, e_neg, PT}.
+- Sudah (2026-11-20, tes `tests/test_local_projection.py`): `build_design` (+ `elig`, `unit_col`, `price_col` untuk panel provinsi,
+  wilayah, deviasi), `regressors`, `fit_lp`, `fx_self_response`. Belum: `national_profiles`. β pada data asli BELUM dilihat.
 - Spesifikasi: METHODS §M1.1–M1.2.
-- Selesai bila: [ ] tes pada data sintetis dengan β diketahui (dipulihkan dalam 2 SE); [ ] γ(h) dari LP kurs pada dirinya; [ ] `n_weeks` dilaporkan; [ ] runtime 10 komoditas × 13 horizon < 2 menit.
+- Selesai bila: [x] tes pada data sintetis dengan β diketahui (dipulihkan dalam 2,5 SE, termasuk β⁺/β⁻ dan ω); [x] γ(h) dari LP kurs pada dirinya; [x] `n_weeks` dilaporkan (`fit_lp`); [ ] `national_profiles`; [ ] runtime 10 komoditas × 13 horizon < 2 menit.
 
 ### WP-14 — Event study per episode
 - File: `src/models/event_study.py` → `events`. Selesai bila: [ ] level national & region; [ ] 499 jendela plasebo dari minggu tanpa episode; [ ] p plasebo per horizon.

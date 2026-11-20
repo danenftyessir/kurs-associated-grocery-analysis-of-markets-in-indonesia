@@ -1,0 +1,93 @@
+"""WP-13 (sebagian): build_design, fit_lp, fx_self_response pada data sintetis dengan β diketahui."""
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from kagami.data.drivers import driver_weeks
+from kagami.models.local_projection import build_design, fit_lp, fx_self_response, regressors
+
+
+def _drivers(cfg, seed=1, sd=0.01):
+    rng = np.random.default_rng(seed)
+    weeks = driver_weeks(cfg)
+    de = rng.normal(0, sd, len(weeks))
+    de[0] = np.nan
+    d = pd.DataFrame({"week": weeks, "de": de})
+    d["log_e"] = 9.5 + np.nan_to_num(de).cumsum()
+    d["de_pos"], d["de_neg"] = d["de"].clip(lower=0), d["de"].clip(upper=0)
+    d["db"] = rng.normal(0, 0.03, len(weeks))
+    d["month"] = weeks.month
+    d["idf_rel_week"] = np.nan
+    return d
+
+
+def _panel(cfg, drv, b_pos, b_neg, n_units=20, noise=0.01, seed=2, w=None, b_w=0.0):
+    rng = np.random.default_rng(seed)
+    weeks = drv["week"][drv["week"] >= pd.Timestamp(cfg.params["period"]["start"])]
+    d = drv.set_index("week").loc[weeks]
+    common = b_pos * d["de_pos"].cumsum() + b_neg * d["de_neg"].cumsum()
+    if w is not None:
+        common = common + b_w * w.set_index("week").loc[weeks, "dw"].fillna(0).cumsum()
+    rows = []
+    for u in range(1, n_units + 1):
+        lp = 8 + u / 10 + common.to_numpy() + rng.normal(0, noise, len(weeks)).cumsum() * 0.3
+        rows.append(pd.DataFrame({"week": weeks, "province_id": u, "commodity": "gula_pasir", "log_price": lp}))
+    return pd.concat(rows, ignore_index=True)
+
+
+def test_design_shape_and_names(cfg):
+    drv = _drivers(cfg)
+    panel = _panel(cfg, drv, 0.3, 0.3, n_units=3)
+    D = build_design(cfg, panel, drv, None, "gula_pasir", 4, 4)
+    reg = regressors(D)
+    assert reg[:5] == ["de", "de_l1", "de_l2", "de_l3", "de_l4"]
+    assert {"dp_l1", "dp_l4", "db_l0", "db_l4", "month_12"} <= set(reg) and "month_1" not in reg
+    assert not any(c.startswith("dw") for c in reg)               # world None -> tanpa dw
+    assert D.attrs["n_dropped"] > 0                                # awal (lag Δp) & akhir (t+h) sampel
+    assert np.allclose(D.groupby("unit")[["y", "de"]].mean(), 0)  # within-transform per seri
+    assert (D["group"] == D["week"]).all()
+    assert D["week"].max() <= pd.Timestamp(cfg.params["period"]["freeze"]) - pd.Timedelta(weeks=4)
+
+
+def test_fit_lp_recovers_beta(cfg):
+    drv = _drivers(cfg)
+    panel = _panel(cfg, drv, 0.4, 0.4)
+    for h in (0, 4, 8):
+        r = fit_lp(cfg, build_design(cfg, panel, drv, None, "gula_pasir", h, 4)).set_index("driver")
+        assert abs(r.loc["e", "estimate"] - 0.4) < 2.5 * r.loc["e", "se"]
+        assert r.loc["e", "n_weeks"] > 400
+
+
+def test_fit_lp_asymmetric_and_world(cfg):
+    drv = _drivers(cfg)
+    rng = np.random.default_rng(5)
+    w = pd.DataFrame({"week": drv["week"], "commodity": "gula_pasir", "dw": rng.normal(0, 0.03, len(drv))})
+    panel = _panel(cfg, drv, 0.6, 0.1, w=w, b_w=0.2)
+    r = fit_lp(cfg, build_design(cfg, panel, drv, w, "gula_pasir", 0, 4, asymmetric=True)).set_index("driver")
+    assert set(r.index) == {"e_pos", "e_neg", "w"}
+    for drv_name, b in (("e_pos", 0.6), ("e_neg", 0.1), ("w", 0.2)):
+        assert abs(r.loc[drv_name, "estimate"] - b) < 2.5 * r.loc[drv_name, "se"]
+
+
+def test_design_eligibility_filter(cfg):
+    drv = _drivers(cfg)
+    panel = _panel(cfg, drv, 0.3, 0.3, n_units=4)
+    elig = pd.DataFrame({"province_id": [1, 2, 3, 4], "commodity": "gula_pasir", "eligible": [1, 1, 0, 1]})
+    D = build_design(cfg, panel, drv, None, "gula_pasir", 0, 4, elig=elig)
+    assert set(D["unit"]) == {1, 2, 4}
+
+
+def test_fx_self_response(cfg):
+    drv = _drivers(cfg)
+    assert np.isclose(fx_self_response(cfg, drv, 0, 4), 1.0)        # γ(0) = 1 menurut konstruksi
+    assert abs(fx_self_response(cfg, drv, 8, 4) - 1.0) < 0.3         # de iid -> γ(h) ≈ 1
+
+
+def test_fx_self_response_real(cfg):
+    from kagami.utils.io import exists, read_artifact
+    if not exists(cfg, "drivers_weekly"):
+        pytest.skip("drivers_weekly belum ada")
+    drv = read_artifact(cfg, "drivers_weekly")
+    g = [fx_self_response(cfg, drv, h, cfg.params["lp"]["lags"]) for h in cfg.params["lp"]["key_horizons"]]
+    assert all(np.isfinite(g)) and all(0.2 < x < 3 for x in g)
