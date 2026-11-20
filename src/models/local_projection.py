@@ -5,7 +5,6 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from kagami.utils.todo import todo
 from kagami.utils.config import Config
 from kagami.stats.regression import ols_cluster
 
@@ -160,10 +159,48 @@ def fx_self_response(cfg: Config, drivers: pd.DataFrame, horizon: int, lags: int
     return float(res.beta[list(X.columns).index("de")])
 
 
+PROFILE_COLUMNS = ["level", "unit", "commodity", "driver", "horizon", "estimate", "se", "ci_low", "ci_high",
+                   "n_weeks", "shrunk"]
+
+
 def national_profiles(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame,
-                      world: pd.DataFrame) -> pd.DataFrame:
+                      world: pd.DataFrame, *, elig: pd.DataFrame | None = None,
+                      horizons: list[int] | None = None, commodities: list[str] | None = None) -> pd.DataFrame:
     """WP-13. Loop komoditas x horizon 0..12 x {simetris, asimetris} -> baris artefak 'profiles' level='national'.
 
     driver ∈ {e, w, e_pos, e_neg, PT}. ci = estimate ± 1.96·se (interval bootstrap ditambahkan WP-16).
+    Panel provinsi pooled (efek tetap seri, SE cluster minggu; METHODS §M1.1), L = params.lp.lags.
+    e & w dari spesifikasi simetris; e_pos & e_neg dari spesifikasi asimetris (w tidak diulang).
+    PT = β_e(h) / γ(h) (fx_self_response, drivers yang sama -> rasio ikut dihitung ulang di tiap replikasi bootstrap);
+    se & ci PT = NaN di sini karena interval PT hanya dari bootstrap (METHODS §M1.2, WP-16).
+    elig      : filter seri eligible (disarankan; Task 1 meneruskannya).
+    horizons  : default params.lp.horizons (plasebo boleh memakai params.lp.key_horizons).
+    commodities: default semua komoditas yang ada di panel (urutan configs/commodities.yaml).
+    Kolom ekstra: n_obs.
     """
-    todo("WP-13")
+    L = int(cfg.params["lp"]["lags"])
+    H = [int(h) for h in (horizons if horizons is not None else cfg.params["lp"]["horizons"])]
+    present = set(panel["commodity"].unique())
+    coms = [c for c in (commodities or cfg.commodity_ids()) if c in present]
+    gamma = {h: fx_self_response(cfg, drivers, h, L) for h in H}
+    rows = []
+    for com in coms:
+        for h in H:
+            for asym in (False, True):
+                fit = fit_lp(cfg, build_design(cfg, panel, drivers, world, com, h, L, asym, elig=elig))
+                if asym:
+                    fit = fit[fit["driver"] != "w"]
+                for r in fit.itertuples(index=False):
+                    rows.append({"commodity": com, "driver": r.driver, "horizon": h, "estimate": r.estimate,
+                                 "se": r.se, "n_weeks": r.n_weeks, "n_obs": r.n_obs})
+                    if r.driver == "e":
+                        rows.append({"commodity": com, "driver": "PT", "horizon": h,
+                                     "estimate": r.estimate / gamma[h], "se": np.nan,
+                                     "n_weeks": r.n_weeks, "n_obs": r.n_obs})
+    out = pd.DataFrame(rows, columns=["commodity", "driver", "horizon", "estimate", "se", "n_weeks", "n_obs"])
+    out.insert(0, "unit", "ALL")
+    out.insert(0, "level", "national")
+    out["ci_low"] = out["estimate"] - 1.96 * out["se"]
+    out["ci_high"] = out["estimate"] + 1.96 * out["se"]
+    out["shrunk"] = False
+    return out[PROFILE_COLUMNS + ["n_obs"]]

@@ -74,6 +74,9 @@ PT(i,h) = β(i,h) / γ(h). Interval PT dari bootstrap (rasio replikasi), bukan d
 Untuk setiap episode: Δ log harga dari `start_week−1` ke `start_week+h`, h = 0..12, level nasional (rerata provinsi
 eligible) dan 7 wilayah. Null: 499 jendela dengan awal acak dari minggu yang tidak berada dalam episode (± 12 minggu).
 Laporkan persentil 2,5/97,5 dan p = (1 + #|plasebo| ≥ |aktual|)/(1 + 499).
+Implementasi (D-110): nasional = rerata lintas provinsi eligible dari selisih per provinsi (hanya provinsi teramati di s−1 dan
+s+h); satu set 499 awal plasebo (dengan pengembalian) dipakai bersama semua komoditas & unit; kandidat = minggu dengan s−1 dan
+s+12 di panel, di luar [start−12, end+12] setiap episode. Episode yang terpotong freeze → horizon NaN, tidak dibuang.
 
 ### M1.4 Deviasi provinsi (WP-15)
 $\tilde p_{i,r,t} = p_{i,r,t} - \frac{1}{|R_t|}\sum_{r'} p_{i,r',t}$ (guncangan nasional terhapus).

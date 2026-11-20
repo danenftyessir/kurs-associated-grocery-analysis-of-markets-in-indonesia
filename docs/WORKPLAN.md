@@ -46,11 +46,11 @@ WP-07 (paralel dengan WP-05) → WP-22/23
 | WP-07 | Tabel buatan tim (concordance, exposure, regulation, province_features) | ⬜ | Ardell | 02 | 22 Nov |
 | WP-08 | Panel 7 wilayah | ✅ | Danen | 04 | 21 Nov |
 | WP-09 | MDE / analisis daya (G-power) | ✅ | Danen | 05, 08 | 23 Nov |
-| WP-10 | QA silang & laporan Tahap 0 | ⬜ | Danen | 03–09 | 23 Nov |
-| WP-11 | Praregistrasi & pembekuan (G6) | ⬜ | Danen + Abi | – | 21 Nov |
+| WP-10 | QA silang & laporan Tahap 0 | ✅ | Danen | 03–09 | 23 Nov |
+| WP-11 | Praregistrasi & pembekuan (G6) | ✅ | Danen + Abi | – | 21 Nov |
 | WP-12 | Mesin statistik bersama | ✅ | – | – | 20 Nov |
-| WP-13 | LP nasional + asimetri + PT (`build_design`/`fit_lp` terbit 22 Nov untuk WP-15) | 🔶 | Danen | 05, 09 | 23 Nov |
-| WP-14 | Event study per episode | ⬜ | Danen | 06, 08 | 23 Nov |
+| WP-13 | LP nasional + asimetri + PT (`build_design`/`fit_lp` terbit 22 Nov untuk WP-15) | ✅ | Danen | 05, 09 | 23 Nov |
+| WP-14 | Event study per episode | ✅ | Danen | 06, 08 | 23 Nov |
 | WP-15 | Deviasi provinsi & profil wilayah | ⬜ | Ardell | 13 | 24 Nov |
 | WP-16 | Bootstrap bersama & plasebo | ⬜ | Ardell | 13, 15 | 24 Nov |
 | WP-17 | Penyusutan EB & fitur respons | ⬜ | Ardell | 16 | 24 Nov |
@@ -160,13 +160,21 @@ yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOT
   Minyak goreng dekat ambang: perubahan varian/lag di G6 bisa membalik keputusan.
 - MDE_PT(8) terkecil: daging sapi 0,13, beras 0,20; terbesar: cabai rawit 3,75, cabai merah 3,00. Wilayah ≈ 1,5–2× nasional.
 
-### WP-10 — QA silang & laporan Tahap 0
-- File: `src/data/qa.py` → `stage0_report`.
-- Selesai bila: [ ] outlier satu hari ditandai (contoh: Papua beras 2017-07-03); [ ] Σ BPS bulanan = total tahunan (satuan USD, sudah dicek: rasio 1,000 untuk 2023); [ ] bias PIHPS vs Panel Harga Bapanas; [ ] tabel cakupan per sumber.
+### WP-10 — QA silang & laporan Tahap 0 ✅
+- File: `src/data/qa.py` → `stage0_report` (`results/stage0/stage0_report.md`). Tes `tests/test_qa.py`.
+- Selesai: [x] outlier satu hari ditandai: 59 hari (cabai rawit 16, gula 9, cabai merah 8, ...), tidak dihapus (U17). Contoh Papua
+  2017-07-03 ada di baris "Beras" level 1, bukan di varian Medium I yang dipakai (datar 14.400) → tidak memengaruhi analisis;
+  [x] Σ BPS bulanan = total tahunan: 241/241 HS8 × tahun 2023–2026 rasio 1,000; [x] bias PIHPS vs Bapanas (9 komoditas,
+  D-110): median bias_log beras +0,107 (PIHPS lebih tinggi), lainnya |bias| ≤ 0,03; median korelasi Δ bulanan 0,59 (daging sapi)
+  s.d. 0,93 (bawang merah); [x] tabel cakupan 8 sumber.
+- Laporan juga memuat kelayakan, episode, variasi kurs, MDE, dan keputusan G-power (LP tetap utama).
 
-### WP-11 — Praregistrasi & pembekuan (G6)
-- File: `docs/PREREGISTRATION.md` (draf sudah ada), `configs/*.yaml`.
-- Selesai bila: [ ] U10 diputuskan (varian), D-011/D-012 diubah dari PROVISIONAL ke FINAL; [ ] semua hipotesis, uji, ambang, k-range, B/R terisi; [ ] baris "Dibekukan pada" diisi tanggal + sha256 `configs/params.yaml` & `configs/commodities.yaml`.
+### WP-11 — Praregistrasi & pembekuan (G6) ✅
+- File: `docs/PREREGISTRATION.md`, `configs/*.yaml`. Dibekukan 2026-11-20 23:29 WIB oleh Danen (D-109).
+- Selesai: [x] U10 diputuskan; D-011/D-012/D-013 FINAL tanpa perubahan; [x] hipotesis, uji, ambang, k-range, B/R terisi; koreksi
+  Holm H5 (`params.forecast.h5_correction`); [x] "Dibekukan pada" berisi tanggal + sha256 kedua config.
+- Hilir: perubahan config setelah ini = DEVIASI PRAREGISTRASI di DECISIONS. Ulang `stage0` agar `mde` resmi dihitung di config beku
+  (nilainya tidak berubah karena kunci baru tidak dipakai Tahap 0).
 
 ## Task 1 — profil respons
 Pipeline `pipelines.task1` · notebook `01_task1_profiles` · berat → Kaggle/Colab.
@@ -174,15 +182,24 @@ Pipeline `pipelines.task1` · notebook `01_task1_profiles` · berat → Kaggle/C
 ### WP-12 — Mesin statistik bersama ✅
 `stats/regression.py` (OLS CR1 cluster, Newey-West, Diebold-Mariano+HLN), `stats/resampling.py`, `stats/meta.py` (DL, REML, EB, BH). Tes `tests/test_stats.py`. Tambah fungsi baru di sini bila dipakai > 1 task.
 
-### WP-13 — LP nasional + asimetri + PT 🔶
-- File: `src/models/local_projection.py` → baris `profiles` level=national, driver ∈ {e, w, e_pos, e_neg, PT}.
-- Sudah (2026-11-20, tes `tests/test_local_projection.py`): `build_design` (+ `elig`, `unit_col`, `price_col` untuk panel provinsi,
-  wilayah, deviasi), `regressors`, `fit_lp`, `fx_self_response`. Belum: `national_profiles`. β pada data asli BELUM dilihat.
+### WP-13 — LP nasional + asimetri + PT ✅
+- File: `src/models/local_projection.py` → baris `profiles` level=national, driver ∈ {e, w, e_pos, e_neg, PT}. Tes `tests/test_local_projection.py`.
+- Fungsi: `build_design` (+ `elig`, `unit_col`, `price_col`), `regressors`, `fit_lp`, `fx_self_response`, `national_profiles`
+  (+ `elig`, `horizons`, `commodities`). `task1` meneruskan `eligibility`.
 - Spesifikasi: METHODS §M1.1–M1.2.
-- Selesai bila: [x] tes pada data sintetis dengan β diketahui (dipulihkan dalam 2,5 SE, termasuk β⁺/β⁻ dan ω); [x] γ(h) dari LP kurs pada dirinya; [x] `n_weeks` dilaporkan (`fit_lp`); [ ] `national_profiles`; [ ] runtime 10 komoditas × 13 horizon < 2 menit.
+- Selesai: [x] tes sintetis β diketahui (2,5 SE, termasuk β⁺/β⁻ dan ω); [x] γ(h); [x] `n_weeks`; [x] `national_profiles`: 598 baris
+  (PT/e/e_pos/e_neg 130, w 78), n_weeks 447–459; [x] runtime **23 dtk** (< 2 menit). PT: se & ci NaN sampai bootstrap (WP-16).
+- Hilir (WP-16, Ardell): 23 dtk × B 499 ≈ 3,2 jam per run bootstrap nasional → pakai `horizons`/`commodities` dan B non-fokus 199
+  sesuai aturan > 30 menit, atau paralel `joblib`.
+- Catatan awal (SE cluster): daging ayam β_e(8) −1,67 (−2,62..−0,73) negatif → periksa robustness tanpa Mar–Jun 2020 (WP-28).
 
-### WP-14 — Event study per episode
-- File: `src/models/event_study.py` → `events`. Selesai bila: [ ] level national & region; [ ] 499 jendela plasebo dari minggu tanpa episode; [ ] p plasebo per horizon.
+### WP-14 — Event study per episode ✅
+- File: `src/models/event_study.py` (`event_paths`, `placebo_starts`, `placebo_bands`) → `events` (ditulis `task1`). Tes `tests/test_event_study.py`.
+- Selesai: [x] level national (panel provinsi eligible, rerata selisih per provinsi) & region (`panel_weekly_region`);
+  [x] 499 jendela plasebo bersama dari minggu di luar [start−12, end+12] episode (D-110); [x] p plasebo per horizon.
+- Data asli: 13 episode × 13 h × 10 komoditas = 1.690 baris nasional (0,5 dtk); 100 NaN = episode 13 terpotong freeze.
+  Kandidat plasebo hanya **164 minggu unik** (499 ditarik dengan pengembalian) → resolusi p terbatas; sebut di makalah.
+  h=8: 10/120 sel p < 0,05.
 
 ### WP-15 — Deviasi provinsi & profil wilayah
 - File: `src/models/deviations.py`. Selesai bila: [ ] Σ_r δ = 0 per (komoditas, horizon) (tes); [ ] profil 7 wilayah jalan dari `panel_weekly_region` saja.

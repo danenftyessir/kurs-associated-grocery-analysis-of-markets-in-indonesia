@@ -38,19 +38,31 @@ def run(cfg: Config) -> None:
     write_artifact(cfg, "episodes", eps)
     drv = drivers.mark_episode_weeks(drv, eps)
     write_artifact(cfg, "drivers_weekly", drv)
-    write_artifact(cfg, "fx_variation", drivers.fx_variation_table(cfg, drv))
+    fxv = drivers.fx_variation_table(cfg, drv)
+    write_artifact(cfg, "fx_variation", fxv)
 
     # --- panel wilayah & daya --------------------------------------------------
     region = panel.build_region_panel(cfg, wk, elig)
     write_artifact(cfg, "panel_weekly_region", region)
-    write_artifact(cfg, "mde", power.compute_mde(cfg, wk, region, drv, world, elig))
+    mde = power.compute_mde(cfg, wk, region, drv, world, elig)
+    write_artifact(cfg, "mde", mde)
+    gate = power.gate_g_power(cfg, mde)
 
     # --- QA & laporan ----------------------------------------------------------
+    imp_m, bapanas = loaders.load_bps_import_monthly(cfg), loaders.load_bapanas_panel(cfg)
+    coverage = qa.coverage_table({
+        "pihps (varian representatif)": (daily, "date"), "jisdor": (jisdor, "date"),
+        "pinksheet": (loaders.load_pinksheet(cfg), "month"), "brent": (loaders.load_fred(cfg, "brent"), "date"),
+        "dollar_index": (loaders.load_fred(cfg, "dollar_index"), "date"), "bps_import_monthly": (imp_m, "month"),
+        "comtrade_import": (loaders.load_comtrade(cfg), "month"), "bapanas_panel": (bapanas, "month"),
+    })
     sections = {
+        "coverage": coverage, "eligibility": elig, "episodes": eps, "fx_variation": fxv, "mde": mde,
+        "g_power": pd.DataFrame({"commodity": list(gate["mde_pt8"]), "mde_pt8": list(gate["mde_pt8"].values()),
+                                 "threshold": gate["threshold"], "lp_secondary": gate["lp_secondary"]}),
         "price_outliers": qa.flag_price_outliers(daily),
-        "import_totals": qa.check_import_totals(loaders.load_bps_import_monthly(cfg),
-                                                loaders.load_bps_import_annual(cfg)),
-        "bapanas_bias": qa.check_bapanas_bias(wk, loaders.load_bapanas_panel(cfg)),
+        "import_totals": qa.check_import_totals(imp_m, loaders.load_bps_import_annual(cfg)),
+        "bapanas_bias": qa.check_bapanas_bias(wk, bapanas),
     }
     write_artifact(cfg, "stage0_report", qa.stage0_report(cfg, sections))
 

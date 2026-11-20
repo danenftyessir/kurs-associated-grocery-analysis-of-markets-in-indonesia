@@ -9,6 +9,19 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-20 — Danen: WP-13 ✅, WP-14 ✅, WP-10 ✅
+- WP-13 `national_profiles` (+ elig/horizons/commodities): 598 baris, 23 dtk; task1 meneruskan eligibility. Catatan: daging ayam β_e(8) −1,67 (SE cluster) → cek tanpa 2020.
+- WP-14 `event_paths/placebo_starts/placebo_bands`: 1.690 baris nasional; kandidat plasebo 164 minggu unik (D-110).
+- WP-10 `qa.*` + `coverage_table` → `stage0_report`: 59 lonjakan ditandai; impor 241/241 cocok; bias Bapanas beras +0,107 log. U17, U20 🟢.
+- stage0 ulang dengan config beku: `mde` sama (G-power: LP tetap utama). stage0 kini berhenti di WP-07 (Ardell).
+- Konflik autostash setelah merge (5 dokumen) dipulihkan dari stash@{0}; isi = versi hasil merge + aturan git + G6.
+- Tes baru: test_event_study, test_qa. Handoff: docs/handoff/20261120-2353_danen-ke-ardell_lp-event-qa.md.
+
+### 2026-11-20 — Danen: WP-11 ✅ (G6, praregistrasi beku)
+- Keputusan G6 (Danen): varian D-011, pakan 0,6/0,4 D-012, 5 grup fokus D-013 → FINAL tanpa perubahan; H5 koreksi Holm (`params.forecast.h5_correction`, D-109).
+- Beku 2026-11-20 23:29 WIB; sha256 params 67e08398…, commodities 883eee0a… (PREREGISTRATION §5). β Task 1 belum dilihat.
+- U10 🟢. Berikutnya: ulang stage0 (setelah `git pull --autostash`) → national_profiles → WP-14 → WP-10.
+
 ### 2026-11-20 — Danen: WP-06 ✅, WP-08 ✅, WP-09 ✅ (sementara), WP-13 🔶
 - WP-06 `drivers.find_episodes/mark_episode_weeks/fx_variation_table`: 13 episode (2018 ×3, 2020 ×2, 2021, 2022, 2023, 2024 ×2, 2025, 2026 ×2), 61 minggu; 259/200/5 minggu dep/app/nol.
 - WP-08 `panel.build_region_panel` (dua arah, tahan komposisi, D-106): 32.480 baris; minggu 2022-05-02 kosong di 5 wilayah.
@@ -17,6 +30,7 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 - stage0: tabel WP-07 dipindah ke akhir; kini berhenti di WP-10. Tes baru: test_panel, test_local_projection, test_power (+ episode di test_drivers).
 - Handoff: docs/handoff/20261120-2230_danen-ke-ardell_p1-dan-lp.md. P1 + mde diunggah ke Drive tim lewat Chrome (data/processed: drivers_weekly, panel_weekly_region; results/stage0: episodes, fx_variation, mde). Belum: commit kode.
 - Nama branch kini `feat/<fungsi>` maks 3 kata, pesan commit tanpa kode (D-108; CLAUDE §4.6, PEMBAGIAN §8, HANDOFF); branch sesi ini `feat/episode-panel-mde`.
+- Aturan git diperbarui (D-108): commit `<tipe>: <deskripsi>`, merge `--no-ff` ke dev, branch `feat/` tidak dihapus; CLAUDE §4.6, DECISIONS, PEMBAGIAN §8, HANDOFF §6.
 - Berikutnya: G6 (WP-11) → ulang stage0 → `national_profiles` → WP-14 → WP-10 → G-power 23 Nov.
 
 ### 2026-11-20 — Danen: data mentah & artefak Tahap 0 diunggah ke Drive tim

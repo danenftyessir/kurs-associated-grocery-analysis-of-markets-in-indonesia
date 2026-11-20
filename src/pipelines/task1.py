@@ -20,18 +20,19 @@ REQUIRES = ("drivers_weekly", "world_prices_weekly", "episodes", "panel_weekly_r
 
 def run(cfg: Config) -> None:
     require(cfg, *REQUIRES)
-    drv, world, eps, region = (read_artifact(cfg, n) for n in
-                               ("drivers_weekly", "world_prices_weekly", "episodes", "panel_weekly_region"))
+    drv, world, eps, region, elig = (read_artifact(cfg, n) for n in
+                                     ("drivers_weekly", "world_prices_weekly", "episodes", "panel_weekly_region",
+                                      "eligibility"))
     panel = read_artifact(cfg, "panel_weekly") if exists(cfg, "panel_weekly") else None
     p = cfg.params["inference"]
 
     parts = [deviations.region_profiles(cfg, region, drv, world)]
     events = [event_study.placebo_bands(cfg, region, eps, level="region")]
     if panel is not None:
-        parts += [lp.national_profiles(cfg, panel, drv, world),
+        parts += [lp.national_profiles(cfg, panel, drv, world, elig=elig),
                   deviations.province_deviations(cfg, panel, drv, world)]
-        events.append(event_study.placebo_bands(cfg, panel, eps, level="national"))
-        est = lambda pb, db: lp.national_profiles(cfg, pb, db, world)  # noqa: E731
+        events.append(event_study.placebo_bands(cfg, panel, eps, level="national", elig=elig))
+        est = lambda pb, db: lp.national_profiles(cfg, pb, db, world, elig=elig)  # noqa: E731
         reps = inference.joint_bootstrap(cfg, est, panel, drv, p["bootstrap_B"])
         write_artifact(cfg, "boot_replicates", reps)
         write_artifact(cfg, "placebo_stats", inference.circular_placebo(cfg, est, panel, drv, p["placebo_R"]))
