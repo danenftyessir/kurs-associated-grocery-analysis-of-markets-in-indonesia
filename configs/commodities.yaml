@@ -1,0 +1,120 @@
+# 10 komoditas PIHPS. Kunci = id internal (snake_case), dipakai di semua artefak.
+# pihps_name      : nama baris level-1 di file PIHPS
+# variant         : varian level-2 representatif (aturan U10, PROVISIONAL sampai G6; lihat DECISIONS D-011)
+# role            : focus | control | other   (proposal §4.3)
+# focus_group     : grup konfirmatori H5 (daging_ayam & telur_ayam = satu grup "pakan")
+# exposure_path   : direct_import | imported_input | export_parity | domestic
+# pinksheet       : {kolom Pink Sheet: bobot}; kosong = tidak ada w_it (hanya penggerak kurs)
+# hs_codes        : prefiks HS untuk concordance & rasio impor
+# faostat_items   : item FAOSTAT SUA untuk rasio impor langsung (kosong = tidak tersedia, U5)
+# unit            : satuan harga eceran
+
+beras:
+  pihps_name: Beras
+  variant: Beras Kualitas Medium I
+  role: other
+  focus_group: null
+  exposure_path: direct_import
+  pinksheet: {"Rice, Thai 5%": 1.0}
+  hs_codes: ["1006"]
+  faostat_items: ["Rice"]
+  unit: Rp/kg
+
+bawang_putih:
+  pihps_name: Bawang Putih
+  variant: Bawang Putih Ukuran Sedang
+  role: focus
+  focus_group: bawang_putih
+  exposure_path: direct_import
+  pinksheet: {}
+  hs_codes: ["070320"]
+  faostat_items: []          # SUA Asia tidak memuat "Garlic" kering (hanya "Green garlic") -> U5, pakai BPS/Comtrade
+  unit: Rp/kg
+
+gula_pasir:
+  pihps_name: Gula Pasir
+  variant: Gula Pasir Lokal
+  role: focus
+  focus_group: gula_pasir
+  exposure_path: direct_import
+  pinksheet: {"Sugar, world": 1.0}
+  hs_codes: ["1701"]
+  faostat_items: ["Refined sugar", "Raw cane or beet sugar (centrifugal only)"]
+  unit: Rp/kg
+
+minyak_goreng:
+  pihps_name: Minyak Goreng
+  variant: Minyak Goreng Kemasan Bermerk 1   # D-023: Curah tidak lengkap (U18), jadi robustness Tier 2
+  role: focus
+  focus_group: minyak_goreng
+  exposure_path: export_parity
+  pinksheet: {"Palm oil": 1.0}
+  hs_codes: ["1511", "1517"]
+  faostat_items: ["Palm oil"]
+  unit: Rp/liter
+
+daging_ayam:
+  pihps_name: Daging Ayam
+  variant: Daging Ayam Ras Segar
+  role: focus
+  focus_group: pakan
+  exposure_path: imported_input
+  pinksheet: {"Maize": 0.6, "Soybean meal": 0.4}   # bobot pakan PROVISIONAL (D-012)
+  hs_codes: ["0207", "1005", "2304"]
+  faostat_items: ["Meat of chickens, fresh or chilled"]
+  unit: Rp/kg
+
+telur_ayam:
+  pihps_name: Telur Ayam
+  variant: Telur Ayam Ras Segar
+  role: focus
+  focus_group: pakan
+  exposure_path: imported_input
+  pinksheet: {"Maize": 0.6, "Soybean meal": 0.4}
+  hs_codes: ["0407", "1005", "2304"]
+  faostat_items: ["Hen eggs in shell, fresh"]
+  unit: Rp/kg
+
+daging_sapi:
+  pihps_name: Daging Sapi
+  variant: Daging Sapi Kualitas 1
+  role: focus
+  focus_group: daging_sapi
+  exposure_path: direct_import
+  pinksheet: {"Beef": 1.0}
+  hs_codes: ["0102", "0201", "0202"]
+  faostat_items: ["Meat of cattle with the bone, fresh or chilled", "Meat of cattle boneless, fresh or chilled"]
+  unit: Rp/kg
+
+bawang_merah:
+  pihps_name: Bawang Merah
+  variant: Bawang Merah Ukuran Sedang
+  role: control
+  focus_group: null
+  exposure_path: domestic
+  pinksheet: {}
+  hs_codes: ["070310"]
+  faostat_items: ["Onions and shallots, dry (excluding dehydrated)"]
+  unit: Rp/kg
+
+cabai_merah:
+  pihps_name: Cabai Merah
+  variant: Cabai Merah Keriting
+  role: control
+  focus_group: null
+  exposure_path: domestic
+  pinksheet: {}
+  hs_codes: ["070960", "090421"]
+  faostat_items: ["Chillies and peppers, green (Capsicum spp. and Pimenta spp.)"]
+  unit: Rp/kg
+
+cabai_rawit:
+  pihps_name: Cabai Rawit
+  variant: Cabai Rawit Merah
+  role: control
+  focus_group: null
+  exposure_path: domestic
+  pinksheet: {}
+  hs_codes: ["070960", "090421"]
+  faostat_items: ["Chillies and peppers, green (Capsicum spp. and Pimenta spp.)"]
+  unit: Rp/kg

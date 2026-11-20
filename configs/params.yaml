@@ -1,0 +1,95 @@
+# Parameter analisis. Nilai di sini DIBEKUKAN pada gerbang G6 (2026-11-21).
+# Perubahan setelah G6 wajib dicatat di docs/DECISIONS.md beserta alasan.
+
+seed: 20261121
+
+period:
+  start: "2018-01-01"          # fallback "2020-01-06" bila cakupan 2018-2019 gagal (U2, D-006)
+  start_fallback: "2020-01-06"
+  freeze: "2026-11-21"         # tanggal pembekuan data & hipotesis (G6)
+  driver_buffer_weeks: 52      # penggerak dibangun sejak start - 52 minggu (lag & jendela episode)
+
+calendar:
+  week_rule: iso               # minggu ISO, label = Senin awal minggu
+  idulfitri:                   # 1 Syawal (penetapan pemerintah)
+    - "2017-06-25"
+    - "2018-06-15"
+    - "2019-06-05"
+    - "2020-05-24"
+    - "2021-05-13"
+    - "2022-05-02"
+    - "2023-04-22"
+    - "2024-04-10"
+    - "2025-03-31"
+    - "2026-03-20"
+  idulfitri_window: [-6, 4]    # dummy minggu relatif
+  breaks:
+    jisdor_method_change: "2021-04-05"   # V3 sub-periode
+    padg_7_2026: null                    # U3: isi tanggal berlaku bila sudah dicek
+  exclusions:
+    covid: ["2020-03-01", "2020-06-30"]  # robustness Tier 1
+    brent_extreme_abs_monthly_logchg: 0.25
+
+weekly:
+  short_week_days: 2           # <= 2 hari kerja teramati -> status "short"
+  carry_forward_run_days: 5    # rangkaian nilai identik >= 5 hari kerja -> status "carry_forward"
+
+eligibility:
+  max_missing_share: 0.20
+  max_gap_weeks: 8
+  min_year_coverage: 0.70
+
+episodes:
+  cum_depreciation: 0.03       # depresiasi kumulatif log >= 3%
+  window_weeks: 8
+
+lp:
+  horizons: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  lags: 4
+  lags_robust: [2, 4, 8]
+  key_horizons: [4, 8, 12]
+
+inference:
+  bootstrap_B: 499
+  bootstrap_B_nonfocus: 199    # fallback komputasi (risiko §9.3)
+  block_weeks: 13
+  placebo_R: 499
+  placebo_min_shift_weeks: 52
+  event_placebo_windows: 499
+  fdr_q: 0.05
+
+shrinkage:
+  tau2_method: DL              # DerSimonian-Laird; REML sebagai cek
+  tau2_check: REML
+
+power:
+  mde_alpha: 0.05
+  mde_power: 0.80
+  mde_threshold_pt8: 0.5       # bila MDE PT(8) > 0.5 untuk 3 komoditas -> LP jadi sekunder (D-007)
+  mde_commodities: [bawang_putih, gula_pasir, minyak_goreng]
+
+clustering:
+  k_range: [1, 2, 3, 4, 5, 6]
+  feature_horizons: [4, 8, 12]
+  silhouette_placebo_pct: 95
+  kmeans_restarts: 50
+  jaccard_weak: 0.6
+  planted_deltas: [0.1, 0.2, 0.3, 0.4, 0.5]
+  planted_reps: 200
+
+association:
+  hubs: ["DKI Jakarta", "Jawa Timur", "Sulawesi Selatan"]   # Jakarta, Surabaya, Makassar
+  max_features: 3
+
+forecast:
+  horizons: [4, 8]
+  first_origin: "2021-01-04"
+  origin_step_weeks: 4
+  large_move_pct: 80
+  ridge_alphas: [0.1, 1.0, 10.0, 100.0]
+  feature_changes_weeks: [1, 4, 8]
+  hgb: {max_iter: 300, learning_rate: 0.05, max_leaf_nodes: 31}
+  bps_release_lag_days: 45     # as-of untuk data impor BPS
+
+scenario:
+  shocks_pct: [1, 3, 5]

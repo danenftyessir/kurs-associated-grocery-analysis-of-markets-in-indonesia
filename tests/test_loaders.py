@@ -1,0 +1,64 @@
+"""Setiap loader berjalan pada snapshot mentah dan menghasilkan kolom yang didokumentasikan (docs/DATASETS.md)."""
+
+import pytest
+
+from kagami.data.loaders import LOADERS
+
+EXPECTED = {
+    "jisdor": {"date", "idr_per_usd"},
+    "pihps": {"date", "province_id", "province", "level", "commodity_group", "item", "price"},
+    "pihps_v1": {"date", "province_id", "commodity_group", "item", "price"},
+    "pinksheet": {"month", "series", "unit", "usd_price"},
+    "brent": {"date", "value"},
+    "dollar_index": {"date", "value"},
+    "faostat_sua": {"year", "item", "element", "unit", "value"},
+    "bps_import_monthly": {"month", "hs8_code", "import_value_usd", "import_netweight_kg"},
+    "bps_import_annual": {"hs8_code", "year", "total"},
+    "comtrade_import": {"month", "hs_code", "net_weight_kg", "cif_usd"},
+    "bapanas_panel": {"month", "commodity_bapanas", "province_id", "price_geomean"},
+    "bapanas_het_settings": {"commodity_bapanas", "zone", "price", "start_date", "end_date"},
+    "padi_2024": {"year", "province_id", "production_ton_gkg"},
+    "padi_2025": {"year", "province_id", "production_ton_gkg"},
+    "konsumsi_beras": {"province_id", "year", "kg_per_capita_year"},
+    "neraca_beras": {"tahun", "produksi_beras_ton", "impor_ton"},
+    "het_hap_current": {"commodity", "instrument", "zone_or_scope", "value_min_rp"},
+    "regulation_history": {"instrument", "commodity", "regulation", "signed_or_effective_date"},
+}
+
+
+def test_every_source_has_loader(cfg):
+    assert set(LOADERS) == set(cfg.sources) == set(EXPECTED)
+
+
+@pytest.mark.parametrize("key", sorted(EXPECTED))
+def test_loader(cfg, key):
+    if not cfg.source_path(key).exists():
+        pytest.skip(f"{key} mentah tidak ada")
+    df = LOADERS[key](cfg)
+    assert len(df) > 0
+    assert EXPECTED[key] <= set(df.columns), EXPECTED[key] - set(df.columns)
+
+
+def test_pihps_shape(pihps):
+    assert pihps["province_id"].nunique() == 34
+    assert pihps["commodity_group"].nunique() == 10
+    assert (pihps["level"] == 2).groupby(pihps["province_id"]).sum().min() > 0
+
+
+def test_pihps_variant_groups_by_prefix(pihps):
+    """Regresi D-022: varian yang ditaruh di akhir file v2 tetap masuk grup yang benar."""
+    pairs = pihps[["province_id", "commodity_group", "item"]].drop_duplicates()
+    assert pairs.apply(lambda r: r["item"].startswith(r["commodity_group"]), axis=1).all()
+    assert not pairs.duplicated(["province_id", "item"]).any()
+    aceh = pairs[pairs["province_id"] == 1].set_index("item")["commodity_group"]
+    assert aceh["Cabai Rawit Merah"] == "Cabai Rawit"     # baris terakhir file Aceh
+
+
+@pytest.mark.parametrize("key,col", [("padi_2024", "province_raw"), ("padi_2025", "province_raw"),
+                                     ("konsumsi_beras", "province_raw"), ("bapanas_panel", "province")])
+def test_province_names_all_mapped(cfg, key, col):
+    """Semua nama provinsi (termasuk pemekaran Papua) terpetakan ke 34 provinsi lama."""
+    df = LOADERS[key](cfg)
+    assert df["province_id"].nunique() == 34, key
+    if key == "bapanas_panel":   # loader ini tidak membuang baris; tidak boleh ada yang gagal dipetakan
+        assert df["province_id"].notna().all(), df.loc[df["province_id"].isna(), col].unique()

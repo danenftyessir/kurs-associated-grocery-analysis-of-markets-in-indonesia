@@ -1,0 +1,35 @@
+province_id,province,region,capital,lat,lon,het_zone_beras,java
+1,Aceh,Sumatra,Banda Aceh,5.548,95.324,2,0
+2,Sumatera Utara,Sumatra,Medan,3.595,98.672,2,0
+3,Sumatera Barat,Sumatra,Padang,-0.950,100.354,2,0
+4,Riau,Sumatra,Pekanbaru,0.507,101.448,2,0
+5,Kepulauan Riau,Sumatra,Tanjung Pinang,0.918,104.446,2,0
+6,Jambi,Sumatra,Jambi,-1.610,103.613,2,0
+7,Bengkulu,Sumatra,Bengkulu,-3.800,102.265,2,0
+8,Sumatera Selatan,Sumatra,Palembang,-2.976,104.775,1,0
+9,Kepulauan Bangka Belitung,Sumatra,Pangkal Pinang,-2.129,106.113,2,0
+10,Lampung,Sumatra,Bandar Lampung,-5.397,105.266,1,0
+11,Banten,Jawa,Serang,-6.120,106.150,1,1
+12,Jawa Barat,Jawa,Bandung,-6.917,107.619,1,1
+13,DKI Jakarta,Jawa,Jakarta,-6.200,106.817,1,1
+14,Jawa Tengah,Jawa,Semarang,-6.967,110.417,1,1
+15,DI Yogyakarta,Jawa,Yogyakarta,-7.797,110.371,1,1
+16,Jawa Timur,Jawa,Surabaya,-7.257,112.752,1,1
+17,Bali,Bali-Nusa Tenggara,Denpasar,-8.650,115.216,1,0
+18,Nusa Tenggara Barat,Bali-Nusa Tenggara,Mataram,-8.583,116.117,1,0
+19,Nusa Tenggara Timur,Bali-Nusa Tenggara,Kupang,-10.178,123.607,2,0
+20,Kalimantan Barat,Kalimantan,Pontianak,-0.026,109.343,2,0
+21,Kalimantan Selatan,Kalimantan,Banjarmasin,-3.317,114.590,2,0
+22,Kalimantan Tengah,Kalimantan,Palangka Raya,-2.210,113.920,2,0
+23,Kalimantan Timur,Kalimantan,Samarinda,-0.502,117.154,2,0
+24,Kalimantan Utara,Kalimantan,Tanjung Selor,2.837,117.366,2,0
+25,Gorontalo,Sulawesi,Gorontalo,0.543,123.057,1,0
+26,Sulawesi Selatan,Sulawesi,Makassar,-5.148,119.432,1,0
+27,Sulawesi Tenggara,Sulawesi,Kendari,-3.972,122.515,1,0
+28,Sulawesi Tengah,Sulawesi,Palu,-0.898,119.870,1,0
+29,Sulawesi Utara,Sulawesi,Manado,1.474,124.842,1,0
+30,Sulawesi Barat,Sulawesi,Mamuju,-2.677,118.886,1,0
+31,Maluku,Maluku,Ambon,-3.695,128.181,3,0
+32,Maluku Utara,Maluku,Sofifi,0.737,127.557,3,0
+33,Papua,Papua,Jayapura,-2.533,140.717,3,0
+34,Papua Barat,Papua,Manokwari,-0.861,134.062,3,0

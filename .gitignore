@@ -1,0 +1,34 @@
+# --- Hak data (D-015, U7, U13) -------------------------------------------------
+# Data mentah PIHPS/JISDOR/BPS/Bapanas/Comtrade tidak boleh diredistribusi; dibagikan lewat Drive / dataset Kaggle PRIVAT.
+data/raw/*
+!data/raw/checksums.csv
+# tabel regulasi buatan tim (CC BY 4.0) tetap di-track
+!data/raw/manual_regulation/
+data/raw/_redownload/
+
+# Turunan yang memuat level harga PIHPS per provinsi + artefak hasil generate.
+# Ditukar lewat folder Drive bersama / output Kaggle (PEMBAGIAN_TUGAS §5), bukan git.
+data/interim/
+data/processed/
+results/*
+# ditulis manual oleh Abi (WP-33) tetap di-track
+!results/findings.md
+
+# --- Hasil build ------------------------------------------------------------------
+dist/
+*.egg-info/
+
+# --- Cache & lingkungan -------------------------------------------------------------
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# --- Kredensial (jangan pernah di-commit) -------------------------------------------
+kaggle.json
+.env
+
+# --- File sistem Windows / OneDrive -------------------------------------------------
+desktop.ini
+Thumbs.db

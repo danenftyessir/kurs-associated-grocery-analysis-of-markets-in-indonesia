@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kagami"
+version = "0.1.0"
+description = "KAGAMI (Kurs-Associated Grocery Analysis of Markets in Indonesia): profil respons harga pangan eceran PIHPS terhadap rupiah (INDONERIS 2026)"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "scipy>=1.11",
+    "scikit-learn>=1.4",
+    "pyarrow>=14",
+    "openpyxl>=3.1",
+    "pyyaml>=6",
+    "streamlit>=1.35",
+    "plotly>=5.20",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "nbformat>=5.9"]
+
+[project.scripts]
+kagami = "kagami.cli:main"
+
+[tool.setuptools]
+# Isi paket `kagami` ada langsung di folder src/ (D-024).
+package-dir = { "kagami" = "src" }
+packages = ["kagami", "kagami.utils", "kagami.data", "kagami.features", "kagami.models",
+            "kagami.evaluation", "kagami.stats", "kagami.pipelines", "kagami.viz"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,4 +1,4 @@
-# KAGAMI — Kurs-Associated Grocery Atlas of Markets in Indonesia
+# KAGAMI — Kurs-Associated Grocery Analysis of Markets in Indonesia
 
 *Kagami* (鏡) berarti **cermin**: apakah harga pangan mencerminkan pergerakan rupiah, dan di mana pantulannya paling kuat?
 
@@ -42,4 +42,4 @@ CC BY 4.0. Tabel buatan tim di `data/reference/` berlisensi CC BY 4.0. Rincian: 
 ## Dokumentasi
 [Overview](docs/PROJECT_OVERVIEW.md) · [Arsitektur](docs/ARCHITECTURE.md) · [Notebook](docs/NOTEBOOKS.md) · [Metode](docs/METHODS.md) ·
 [Dataset](docs/DATASETS.md) · [Rencana kerja](docs/WORKPLAN.md) · [Keputusan](docs/DECISIONS.md) ·
-[Isu terbuka](docs/OPEN_ISSUES.md) · [Praregistrasi](docs/PREREGISTRATION.md)
+[Isu terbuka](docs/OPEN_ISSUES.md) · [Praregistrasi](docs/PREREGISTRATION.md) · [Pembagian tugas](docs/PEMBAGIAN_TUGAS.md) · [Handoff](docs/HANDOFF.md)

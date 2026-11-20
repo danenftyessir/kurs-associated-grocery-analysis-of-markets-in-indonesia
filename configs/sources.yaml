@@ -1,0 +1,204 @@
+# Registry sumber data mentah. `path` relatif terhadap Config.raw_dir (lokal: data/raw/).
+# Dipakai oleh: snapshot (checksum), download (Tingkat C),
+# loaders (path), dan docs/DATASETS.md. Path relatif terhadap root project.
+# redistribute: boleh ikut zip juri? (false = hanya skrip unduh + checksum)
+# availability: aturan as-of untuk Task 4 (lihat kagami.task4.features.as_of_join)
+
+jisdor:
+  path: bi_jisdor/jisdor_daily.xlsx
+  publisher: Bank Indonesia
+  role: "Penggerak 1: kurs IDR/USD harian (e_t)"
+  coverage: "2013-05-20 .. 2026-11-18, hari kerja"
+  license: "Tanpa lisensi eksplisit"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bi.go.id/id/statistik/informasi-kurs/jisdor/default.aspx
+  availability: same_day
+
+pihps:
+  path: bi_pihps/pihps_pasar_tradisional_harian_2017-2026_v2_merged_retrieved_2026-11-18.zip
+  publisher: Bank Indonesia (PIHPS Nasional)
+  role: "Outcome: harga eceran harian pasar tradisional, 34 provinsi x 10 komoditas (21 varian)"
+  coverage: "2017-03-28 .. 2026-11-19, hari kerja"
+  license: "Semua Hak Dilindungi; hanya turunan agregat yang dikirim"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bi.go.id/hargapangan
+  availability: same_day
+
+pihps_v1:
+  path: bi_pihps/pihps_pasar_tradisional_harian_2017-2026_retrieved_2026-11-18.zip
+  publisher: Bank Indonesia (PIHPS Nasional)
+  role: "Snapshot awal (pra-merge). Hanya untuk QA konsistensi vs v2 (stage0.qa)"
+  coverage: "2017-03-28 .. 2026-11-19"
+  license: "Semua Hak Dilindungi"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bi.go.id/hargapangan
+  availability: same_day
+
+pinksheet:
+  path: wb_pinksheet/CMO-Historical-Data-Monthly.xlsx
+  publisher: World Bank (Pink Sheet)
+  role: "Penggerak 2: harga dunia USD bulanan -> dikonversi ke rupiah (w_it)"
+  coverage: "1960M01 .. 2026M10 (update 2026-11-03)"
+  license: "CC BY 4.0"
+  redistribute: true
+  retrieval: http
+  url: https://thedocs.worldbank.org/en/doc/18675f1d1639c7a34d463f59263ba0a2-0050012025/related/CMO-Historical-Data-Monthly.xlsx
+  availability: second_business_day_next_month
+
+brent:
+  path: fred/DCOILBRENTEU.csv
+  publisher: FRED / EIA
+  role: "Kontrol energi harian (b_t)"
+  coverage: "2013-01-02 .. 2026-11"
+  license: "Public domain (EIA); cek ulang di halaman seri"
+  redistribute: true
+  retrieval: http
+  url: https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU
+  availability: next_business_day
+
+dollar_index:
+  path: fred/DTWEXBGS.csv
+  publisher: FRED / Federal Reserve Board
+  role: "Robustness: dekomposisi Δe menjadi komponen dolar global vs spesifik rupiah"
+  coverage: "2013-01-02 .. 2026-11"
+  license: "Public domain (FRB); cek ulang di halaman seri"
+  redistribute: true
+  retrieval: http
+  url: https://fred.stlouisfed.org/graph/fredgraph.csv?id=DTWEXBGS
+  availability: next_business_day
+
+faostat_sua:
+  path: faostat/SUA_Crops_Livestock_E_Asia.zip
+  publisher: FAO (FAOSTAT Supply Utilization Accounts)
+  role: "Rasio impor langsung per komoditas (exposure.csv), 2010-2023 tahunan"
+  coverage: "2010 .. 2023, tahunan, Asia"
+  license: "CC BY 4.0"
+  redistribute: true
+  retrieval: http
+  url: https://bulks-faostat.fao.org/production/SUA_Crops_Livestock_E_Asia.zip
+  availability: annual
+
+bps_import_monthly:
+  path: bps_trade/bps_import_hs8_monthly_2023_2026.csv
+  publisher: BPS (portal ekspor-impor)
+  role: "Cek silang rasio impor; nilai & berat impor HS8 bulanan"
+  coverage: "2023-01 .. 2026-09"
+  license: "Cek ketentuan BPS (U7)"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bps.go.id/id/exim
+  availability: bps_release_calendar
+
+bps_import_annual:
+  path: bps_trade
+  glob: "exim_annual_*.xlsx"
+  publisher: BPS (portal ekspor-impor)
+  role: "QA: total tahunan HS8 untuk validasi agregasi bulanan"
+  coverage: "2023 .. 2026 (2026 parsial)"
+  license: "Cek ketentuan BPS (U7)"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bps.go.id/id/exim
+  availability: bps_release_calendar
+
+comtrade_import:
+  path: comtrade/comtrade_idn_import_HS_monthly_2017_2022.csv
+  publisher: UN Comtrade
+  role: "Impor bulanan HS4/HS6 Indonesia 2017-2022 (melengkapi periode sebelum BPS 2023)"
+  coverage: "2017-08 .. 2022-12"
+  license: "UN Comtrade terms; agregat turunan saja"
+  redistribute: false
+  retrieval: manual
+  url: https://comtradeplus.un.org/
+  availability: bps_release_calendar
+
+bapanas_panel:
+  path: bapanas/panelharga_konsumen_bulanan_provinsi_2022_2026.csv
+  publisher: Badan Pangan Nasional (Panel Harga)
+  role: "Opsional: cek bias rerata provinsi PIHPS; outcome cadangan 2022-2026 (robustness Tier 2)"
+  coverage: "2022-01 .. 2026-10, bulanan, 38 provinsi"
+  license: "Dicek sebelum dipakai"
+  redistribute: false
+  retrieval: manual
+  url: https://panelharga.badanpangan.go.id/
+  availability: next_month
+
+bapanas_het_settings:
+  path: bapanas/panelharga_setting_het_hap_riwayat.csv
+  publisher: Badan Pangan Nasional (Panel Harga)
+  role: "Riwayat setting HET/HAP per zona dengan start/end date -> regulation.csv"
+  coverage: "2024 .. 2026"
+  license: "Dicek sebelum dipakai"
+  redistribute: false
+  retrieval: manual
+  url: https://panelharga.badanpangan.go.id/
+  availability: same_day
+
+padi_2024:
+  path: bps_pangan/padi_provinsi_2024.csv
+  publisher: BPS
+  role: "Produksi padi per provinsi (38 prov) -> kecukupan produksi beras (Z_r)"
+  coverage: "2024"
+  license: "Cek ketentuan BPS (U7)"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bps.go.id/
+  availability: annual
+
+padi_2025:
+  path: bps_pangan/padi_provinsi_2025.csv
+  publisher: BPS
+  role: "Produksi padi per provinsi (38 prov) -> kecukupan produksi beras (Z_r)"
+  coverage: "2025"
+  license: "Cek ketentuan BPS (U7)"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bps.go.id/
+  availability: annual
+
+konsumsi_beras:
+  path: bps_pangan/beras_konsumsi_rumah_tangga_provinsi_2023_2025.csv
+  publisher: "BPS/Bapanas (sumber persis perlu dicatat, U11)"
+  role: "Konsumsi beras RT kg/kapita/tahun per provinsi -> penyebut kecukupan produksi"
+  coverage: "2023 .. 2025"
+  license: "Cek"
+  redistribute: false
+  retrieval: manual
+  url: ""
+  availability: annual
+
+neraca_beras:
+  path: bps_pangan/neraca_beras_nasional_2023_2026.csv
+  publisher: "Bapanas (Neraca Pangan)"
+  role: "Cek silang rasio impor beras nasional vs FAOSTAT"
+  coverage: "2023 .. 2026"
+  license: "Cek"
+  redistribute: false
+  retrieval: manual
+  url: ""
+  availability: annual
+
+het_hap_current:
+  path: manual_regulation/het_hap_current.csv
+  publisher: "Disusun tim dari JDIH Bapanas/Kemendag + berita"
+  role: "Nilai HET/HAP berlaku per komoditas x zona (status per 2026-11-19)"
+  coverage: "2024 .. 2026"
+  license: "Dokumen hukum publik; tabel buatan tim CC BY 4.0"
+  redistribute: true
+  retrieval: manual
+  url: ""
+  availability: same_day
+
+regulation_history:
+  path: manual_regulation/regulation_history.csv
+  publisher: "Disusun tim dari JDIH Bapanas/Kemendag + berita"
+  role: "Riwayat perubahan HET/HAP/HPP -> regulation.csv (E2)"
+  coverage: "2020 .. 2025"
+  license: "Dokumen hukum publik; tabel buatan tim CC BY 4.0"
+  redistribute: true
+  retrieval: manual
+  url: ""
+  availability: same_day

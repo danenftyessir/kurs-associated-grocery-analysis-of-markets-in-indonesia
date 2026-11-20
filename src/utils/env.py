@@ -1,0 +1,101 @@
+"""Runtime notebook: deteksi platform (lokal / Kaggle / Colab) dan susun Config dengan lokasi yang tepat (D-027).
+
+| Platform | root (kode)                         | raw_dir                                   | out_dir           | artifact_dirs                         |
+|----------|-------------------------------------|-------------------------------------------|-------------------|---------------------------------------|
+| local    | folder project                      | root/data/raw                             | root              | (kosong)                              |
+| kaggle   | dataset kode di /kaggle/input/...   | dataset input yang memuat `bi_pihps/`     | /kaggle/working   | semua input yang memuat results/ atau data/processed|interim/ |
+| colab    | DRIVE_DIR (project disalin ke Drive)| DRIVE_DIR/data/raw                        | DRIVE_DIR         | (kosong; semua tahap menulis ke Drive) |
+
+Env var KAGAMI_* tetap menang bila diset (lihat utils/config.py).
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+from kagami.utils.artifacts import ARTIFACTS
+from kagami.utils.config import Config
+from kagami.utils.io import find_artifact
+
+KAGGLE_INPUT = Path("/kaggle/input")
+KAGGLE_WORKING = Path("/kaggle/working")
+DEFAULT_DRIVE_DIR = "/content/drive/MyDrive/kagami"
+
+
+def detect_platform() -> str:
+    if os.environ.get("KAGGLE_KERNEL_RUN_TYPE") or KAGGLE_INPUT.exists():
+        return "kaggle"
+    if "google.colab" in sys.modules or os.environ.get("COLAB_RELEASE_TAG"):
+        return "colab"
+    return "local"
+
+
+def _dirs_upto(base: Path, depth: int) -> list[Path]:
+    out, frontier = [], [base]
+    for _ in range(depth):
+        frontier = [c for d in frontier if d.is_dir() for c in sorted(d.iterdir()) if c.is_dir()]
+        out += frontier
+    return out
+
+
+def kaggle_raw_dir(base: Path = KAGGLE_INPUT) -> Path | None:
+    """Folder input pertama yang berisi `bi_pihps/` (= isi data/raw yang diunggah sebagai dataset privat)."""
+    return next((d for d in _dirs_upto(base, 3) if (d / "bi_pihps").is_dir()), None)
+
+
+def kaggle_artifact_dirs(base: Path = KAGGLE_INPUT) -> tuple[Path, ...]:
+    """Input yang memuat artefak (output notebook tahap sebelumnya yang ditambahkan sebagai input)."""
+    marks = ("results", "data/processed", "data/interim")
+    return tuple(d for d in _dirs_upto(base, 2) if any((d / m).is_dir() for m in marks))
+
+
+def init_runtime(platform: str | None = None, drive_dir: str = DEFAULT_DRIVE_DIR, verbose: bool = True) -> Config:
+    """Bangun Config untuk platform saat ini. Dipanggil sel kedua setiap notebook."""
+    platform = platform or detect_platform()
+    if platform == "kaggle":
+        KAGGLE_WORKING.mkdir(parents=True, exist_ok=True)
+        cfg = Config(raw_root=_env_or("KAGAMI_RAW_DIR", kaggle_raw_dir()),
+                     out_root=_env_or("KAGAMI_OUT_DIR", KAGGLE_WORKING),
+                     artifact_dirs=kaggle_artifact_dirs())
+    elif platform == "colab":
+        d = Path(drive_dir)
+        cfg = Config(raw_root=_env_or("KAGAMI_RAW_DIR", d / "data" / "raw"),
+                     out_root=_env_or("KAGAMI_OUT_DIR", d))
+    elif platform == "local":
+        cfg = Config()
+    else:
+        raise ValueError(f"platform tidak dikenal: {platform}")
+    if verbose:
+        print(describe(cfg, platform))
+    return cfg
+
+
+def _env_or(name: str, default: Path | None) -> Path | None:
+    v = os.environ.get(name)
+    return Path(v) if v else default
+
+
+def describe(cfg: Config, platform: str) -> str:
+    raw_ok = cfg.raw_dir.exists()
+    lines = [f"platform     : {platform}",
+             f"root (kode)  : {cfg.root}",
+             f"raw_dir      : {cfg.raw_dir} {'' if raw_ok else '(TIDAK ADA - tahap yang butuh data mentah akan gagal)'}",
+             f"out_dir      : {cfg.out_dir}",
+             f"artifact_dirs: {[str(d) for d in cfg.artifact_dirs] or '-'}"]
+    return "\n".join(lines)
+
+
+def artifact_status(cfg: Config, stage: str | None = None) -> pd.DataFrame:
+    """Tabel artefak (opsional satu tahap): ada/tidak, lokasi baca, WP produsen. Dipakai notebook & CLI status."""
+    rows = []
+    for a in ARTIFACTS.values():
+        if stage and a.stage != stage:
+            continue
+        p = find_artifact(cfg, a.name)
+        rows.append({"artifact": a.name, "stage": a.stage, "wp": a.wp, "ship": a.ship,
+                     "available": p is not None, "location": str(p) if p else ""})
+    return pd.DataFrame(rows)
