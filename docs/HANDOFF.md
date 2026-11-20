@@ -127,7 +127,7 @@ Detail: docs/handoff/<nama-file>.md
 
 ## 6. Siklus & aturan
 
-1. **Pengirim** membuat file handoff di branch `feat/<fungsi>`-nya, lalu commit & push sendiri (agent tidak commit/push; command git hanya bila diminta, CLAUDE.md
+1. **Pengirim** membuat file handoff di branch `feat/<fungsi>`-nya, lalu commit (`docs: ...` atau ikut commit `feat: ...`), push, dan merge ke `dev` sendiri (agent tidak commit/push; command git hanya bila diminta, CLAUDE.md
    §4.6), lalu menempel versi pendek di chat.
 2. **Penerima** mengubah `status: diterima` saat mulai, mencentang kotak saat mengerjakan, dan `status: selesai` saat beres.
    Hanya field `status` dan kotak centang yang boleh diubah penerima; isi lain milik pengirim.

@@ -91,3 +91,25 @@ def test_fx_self_response_real(cfg):
     drv = read_artifact(cfg, "drivers_weekly")
     g = [fx_self_response(cfg, drv, h, cfg.params["lp"]["lags"]) for h in cfg.params["lp"]["key_horizons"]]
     assert all(np.isfinite(g)) and all(0.2 < x < 3 for x in g)
+
+
+def test_national_profiles_synthetic(cfg):
+    from kagami.models.local_projection import PROFILE_COLUMNS, national_profiles
+    drv = _drivers(cfg, seed=21)
+    rng = np.random.default_rng(22)
+    w = pd.DataFrame({"week": drv["week"], "commodity": "gula_pasir", "dw": rng.normal(0, 0.03, len(drv))})
+    panel = _panel(cfg, drv, 0.5, 0.2, n_units=10, w=w, b_w=0.3)
+    prof = national_profiles(cfg, panel, drv, w, horizons=[0, 4])
+    assert list(prof.columns[:len(PROFILE_COLUMNS)]) == PROFILE_COLUMNS
+    assert set(prof["commodity"]) == {"gula_pasir"}                   # komoditas tanpa data dilewati
+    assert (prof["level"] == "national").all() and (prof["unit"] == "ALL").all() and not prof["shrunk"].any()
+    counts = prof.groupby("horizon")["driver"].apply(sorted).to_dict()
+    assert counts[0] == ["PT", "e", "e_neg", "e_pos", "w"]             # w hanya dari spesifikasi simetris
+    p0 = prof[prof["horizon"] == 0].set_index("driver")
+    assert np.isclose(p0.loc["PT", "estimate"], p0.loc["e", "estimate"])   # γ(0) = 1
+    assert np.isnan(p0.loc["PT", "se"]) and np.isnan(p0.loc["PT", "ci_low"])  # interval PT dari bootstrap
+    for d, b in (("e_pos", 0.5), ("e_neg", 0.2), ("w", 0.3)):
+        assert p0.loc[d, "ci_low"] - 0.5 * (p0.loc[d, "ci_high"] - p0.loc[d, "ci_low"]) < b \
+            < p0.loc[d, "ci_high"] + 0.5 * (p0.loc[d, "ci_high"] - p0.loc[d, "ci_low"])
+    assert np.allclose(p0["ci_high"].dropna() - p0["estimate"].dropna().loc[p0["ci_high"].dropna().index],
+                       1.96 * p0["se"].dropna())

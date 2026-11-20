@@ -43,17 +43,17 @@ Bootstrap/plasebo 499 replikasi × ratusan regresi butuh OLS tervektorisasi; dep
 ### D-010 — App Streamlit hanya membaca artefak · FINAL · proposal v4 §7
 Tidak ada login, input data pengguna, atau estimasi saat runtime. Artefak belum ada → label "Menunggu hasil (WP-xx)".
 
-### D-011 — Varian representatif · PROVISIONAL sampai G6 · 2026-11-20
+### D-011 — Varian representatif · FINAL (G6, 2026-11-20) · 2026-11-20
 Beras → Medium I; Bawang Putih/Merah → Ukuran Sedang; Gula → Lokal; Minyak Goreng → ~~Curah~~ Kemasan Bermerk 1 (D-023); Daging Ayam → Ras Segar;
 Telur → Ras Segar; Daging Sapi → Kualitas 1; Cabai Merah → Keriting; Cabai Rawit → Merah.
 Aturan: varian yang paling dekat dengan acuan HET/HAP dan konsumsi massal, dengan cakupan tertinggi.
 Risiko: Minyak Goreng Curah cakupan 0,92 dan relevansi menurun setelah Minyakita (U18) — alternatif `Minyak Goreng Kemasan Bermerk 1`.
 
-### D-012 — Komposit harga dunia pakan = 0,6·log Maize + 0,4·log Soybean meal · PROVISIONAL sampai G6 · 2026-11-20
+### D-012 — Komposit harga dunia pakan = 0,6·log Maize + 0,4·log Soybean meal · FINAL (G6, 2026-11-20) · 2026-11-20
 Untuk daging ayam & telur (jalur input impor). Bobot mendekati komposisi pakan broiler jagung:bungkil kedelai.
 Robustness: bobot 0,5/0,5 dan masing-masing tunggal (Tier 2).
 
-### D-013 — Komoditas fokus = 6 komoditas PIHPS dalam 5 grup konfirmatori · PROVISIONAL sampai G6 · 2026-11-20
+### D-013 — Komoditas fokus = 6 komoditas PIHPS dalam 5 grup konfirmatori · FINAL (G6, 2026-11-20) · 2026-11-20
 Proposal menyebut "5 komoditas fokus: bawang putih, gula, minyak goreng, daging ayam/telur (pakan impor), daging sapi".
 Ditafsirkan: daging ayam dan telur = satu grup `pakan` untuk koreksi multiplisitas H5, tetapi diestimasi terpisah.
 Kontrol domestik: bawang merah, cabai merah, cabai rawit. Lainnya: beras.
@@ -164,7 +164,7 @@ Inventaris tim (20 Nov) menandai zip PIHPS tanpa `v2_merged` sebagai rusak. File
 (tidak dihapus), dicabut dari `sources.yaml`, `LOADERS`, dan tes; `qa.compare_pihps_versions` dan cek "v1 vs v2" WP-10 dihapus.
 `v2_merged` tetap satu-satunya sumber PIHPS (D-008). Tidak diunggah ke Drive tim.
 
-### D-103 — Aturan branch: hanya `main`, `dev`, `feat/<topik>` · FINAL (permintaan user; bagian nama & pesan commit DIGANTI oleh D-108) · 2026-11-20 · Danen
+### D-103 — Aturan branch: hanya `main`, `dev`, `feat/<topik>` · FINAL (permintaan user; bagian nama, pesan commit, merge & hapus branch DIGANTI oleh D-108) · 2026-11-20 · Danen
 `main` = versi stabil (gerbang, pembekuan, submission; tanpa commit langsung). `dev` = integrasi, dibuat dari `main`, masuk ke
 `main` lewat PR saat stabil. `feat/<topik>` = satu WP/topik (kode atau dokumen), dibuat dari `dev`, PR ke `dev`, lalu dihapus;
 nama huruf kecil berawalan kode WP bila ada (mis. `feat/wp06-episode`). Tidak ada jenis branch lain (termasuk `fix/`, `hotfix/`,
@@ -213,3 +213,28 @@ dikerjakan branch itu, maksimal 3 kata, huruf kecil dengan tanda hubung (mis. `f
 Pesan commit dalam bahasa Indonesia menjelaskan perubahan tanpa kode WP-xx/D-xxx/U-xx. Ditolak: nama fungsi Python persis
 (terlalu panjang bila satu PR berisi beberapa fungsi). Jenis branch (`main`, `dev`, `feat/`) dan aturan PR D-103 tidak berubah.
 Branch pertama dengan aturan ini: `feat/episode-panel-mde`.
+Pembaruan 2026-11-20 (permintaan user): (1) pesan commit berformat `<tipe>: <deskripsi>` dengan tipe `feat`, `fix`, `docs`,
+`test`, `refactor`, `chore` (tabel di CLAUDE.md §4.6), deskripsi bahasa Indonesia huruf kecil tanpa kode; (2) `feat/` masuk ke
+`dev` lewat `git merge --no-ff` lalu push (PR tetap boleh), pesan merge `chore: merge feat/<fungsi> ke dev`; command git yang
+disiapkan agent selalu berakhir dengan merge ke `dev`; (3) branch `feat/` TIDAK dihapus setelah merge (lokal maupun remote),
+agar riwayat per pekerjaan tetap bisa dilacak. Menggantikan "PR ke `dev`, lalu dihapus" di D-103.
+
+### D-109 — Pembekuan G6 & koreksi Holm untuk H5 · FINAL (keputusan user) · 2026-11-20 (WP-11) · Danen
+Danen membekukan praregistrasi pada 2026-11-20 23:29 WIB, sehari sebelum tenggat G6: varian D-011, bobot pakan D-012 (0,6/0,4),
+dan 5 grup fokus D-013 menjadi FINAL tanpa perubahan. H5 diuji pada dua grup jalur {direct_import, imported_input}, dengan
+α keluarga 0,05 dan koreksi Holm (`params.forecast.h5_correction: holm`). Proposal tidak menyebut koreksi ini. Ditolak: tanpa koreksi
+(positif palsu lebih tinggi). sha256 params `67e0839820d7…`, commodities `883eee0a30cf…` (lengkap di PREREGISTRATION §5).
+β Task 1 belum dilihat. MDE (D-007) dihitung sebelum pembekuan dengan nilai config yang sama, kecuali kunci `h5_correction`
+dan komentar. Setiap perubahan setelah ini = DEVIASI PRAREGISTRASI.
+
+### D-110 — QA Tahap 0 & event study: konvensi teknis · FINAL (teknis) · 2026-11-20 (WP-10, WP-14) · Danen
+(1) Pemetaan Panel Harga Bapanas → PIHPS (U20) di `qa.BAPANAS_TO_PIHPS`: 9 pasangan yang setara. Beras Premium, Kedelai, dan Cabai
+Merah Besar dikecualikan karena di luar 10 komoditas. Minyakita juga dikecualikan karena minyak goreng program pemerintah, bukan
+Kemasan Bermerk 1. Pemetaan disimpan di kode QA, bukan di `commodities.yaml`, agar config beku G6 tidak berubah (hanya dipakai QA).
+(2) Ambang lonjakan satu hari |Δlog| > 0,5 berbalik (U17) disimpan sebagai konstanta modul QA, bukan di `params.yaml`, dengan alasan
+yang sama. Ambang ini hanya menandai dan tidak memengaruhi estimasi. (3) Event study nasional = rerata lintas provinsi dari selisih per
+provinsi (provinsi yang teramati di kedua minggu), agar tahan perubahan komposisi seperti D-106; level wilayah memakai
+`panel_weekly_region`. (4) Plasebo event study: satu set 499 awal (seed + 1401, dengan pengembalian) dipakai bersama semua komoditas
+dan unit. Kandidat = minggu di luar [start−12, end+12] setiap episode, dengan s−1 dan s+12 di dalam panel. Pada data asli hanya
+164 minggu unik, jadi resolusi p terbatas dan dinyatakan sebagai batasan. (5) PT di `national_profiles`: se & ci NaN sampai bootstrap
+(METHODS §M1.2, tanpa delta method). Bukan deviasi praregistrasi: tidak mengubah hipotesis, uji, atau parameter beku.
