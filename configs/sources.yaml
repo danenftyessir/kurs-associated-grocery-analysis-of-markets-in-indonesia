@@ -35,7 +35,10 @@ pinksheet:
   license: "CC BY 4.0"
   redistribute: true
   retrieval: http
-  url: https://thedocs.worldbank.org/en/doc/18675f1d1639c7a34d463f59263ba0a2-0050012025/related/CMO-Historical-Data-Monthly.xlsx
+  url: https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Historical-Data-Monthly.xlsx
+  # URL berubah tiap rilis (U16): `download` mencari tautan terbaru di landing_url; `url` = cadangan (rilis 2026-11-03).
+  landing_url: https://www.worldbank.org/en/research/commodity-markets
+  link_pattern: 'https?://[^"''\s>]*CMO-Historical-Data-Monthly\.xlsx'
   availability: second_business_day_next_month
 
 brent:

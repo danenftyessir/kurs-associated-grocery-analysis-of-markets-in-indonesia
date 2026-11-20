@@ -1,7 +1,7 @@
 """Task 1 -- profil respons multi-penggerak (proposal §5.2). Notebook: notebooks/01_task1_profiles.ipynb.
 
 BERAT (bootstrap & plasebo 499 replikasi) -> jalankan di Kaggle/Colab.
-Panel provinsi dipakai bila `panel_weekly` ada (izin BI / Tingkat C); selain itu versi wilayah (Tingkat B).
+Panel provinsi dipakai bila `panel_weekly` ada (ikut paket juri, D-104); selain itu versi wilayah.
 """
 
 from __future__ import annotations

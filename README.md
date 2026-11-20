@@ -38,7 +38,8 @@ lalu ikuti [docs/NOTEBOOKS.md](docs/NOTEBOOKS.md). Output setiap notebook tersim
 
 ## Hak data
 Data mentah PIHPS & JISDOR (Bank Indonesia), BPS, Bapanas, dan UN Comtrade **tidak** disertakan; yang disertakan adalah skrip
-unduh, checksum (`data/raw/checksums.csv`), dan keluaran turunan agregat. Pink Sheet (Bank Dunia) dan FAOSTAT berlisensi
+unduh, checksum (`data/raw/checksums.csv`), dan keluaran turunan, termasuk panel mingguan per provinsi yang dibangun dari
+PIHPS (Bank Indonesia) atas izin BI. Pink Sheet (Bank Dunia) dan FAOSTAT berlisensi
 CC BY 4.0. Tabel buatan tim di `data/reference/` berlisensi CC BY 4.0. Rincian: [docs/DATASETS.md](docs/DATASETS.md).
 
 ## Dokumentasi

@@ -58,7 +58,7 @@ Kontrol domestik: bawang merah, cabai merah, cabai rawit. Lainnya: beras.
 ### D-014 — Urutan pemotongan lingkup · FINAL · proposal v4 §9.3
 Tier 2 → analisis dalam-komoditas & Moran's I → Task 3c (WP-24) → M3 (WP-26). Tidak pernah dipotong: Tier 1, plasebo, MDE.
 
-### D-015 — Kebijakan kirim data turunan · FINAL · 2026-11-20
+### D-015 — Kebijakan kirim data turunan · FINAL (bagian panel provinsi diganti oleh D-104) · 2026-11-20
 Dikirim: panel 7 wilayah sebagai **indeks log** (relatif minggu pertama), penggerak mingguan sebagai log & perubahan log,
 seluruh hasil estimasi, tabel buatan tim, sumber CC BY. Tidak dikirim: PIHPS/JISDOR/BPS/Bapanas mentah, panel provinsi
 (kecuali izin BI, U13).
@@ -160,3 +160,17 @@ yang belum diunggah: `bps_kependudukan/penduduk_provinsi_2025.csv`, `bapanas/pan
 Inventaris tim (20 Nov) menandai zip PIHPS tanpa `v2_merged` sebagai rusak. File dipindah ke `data/raw/_superseded/bi_pihps/`
 (tidak dihapus), dicabut dari `sources.yaml`, `LOADERS`, dan tes; `qa.compare_pihps_versions` dan cek "v1 vs v2" WP-10 dihapus.
 `v2_merged` tetap satu-satunya sumber PIHPS (D-008). Tidak diunggah ke Drive tim.
+
+### D-103 — Aturan branch: hanya `main`, `dev`, `feat/<topik>` · FINAL (permintaan user) · 2026-11-20 · Danen
+`main` = versi stabil (gerbang, pembekuan, submission; tanpa commit langsung). `dev` = integrasi, dibuat dari `main`, masuk ke
+`main` lewat PR saat stabil. `feat/<topik>` = satu WP/topik (kode atau dokumen), dibuat dari `dev`, PR ke `dev`, lalu dihapus;
+nama huruf kecil berawalan kode WP bila ada (mis. `feat/wp06-episode`). Tidak ada jenis branch lain (termasuk `fix/`, `hotfix/`,
+branch per anggota). Menggantikan aturan branch per anggota (`danen/...`, `ardell/...`) di PEMBAGIAN_TUGAS §8 versi awal.
+Agent tetap tidak menjalankan git yang mengubah state (CLAUDE.md §4.6).
+
+### D-104 — Panel provinsi mingguan ikut paket juri · FINAL (keputusan user) · 2026-11-20 · Danen
+Izin BI (U13) diperoleh dan mencakup redistribusi data turunan (dikonfirmasi Danen). `panel_weekly` (harga mingguan provinsi ×
+komoditas + status sel) kini `ship=True`, sehingga juri dapat menjalankan ulang Task 1–4 & robustness di tingkat provinsi
+(Tingkat B lengkap) tanpa unduh ulang. Tetap tidak dikirim: PIHPS mentah dan `pihps_daily` (harga harian per varian, setara
+mentah). Penyebutan di makalah/README: "dataset turunan kami yang dibangun dari PIHPS (Bank Indonesia), atas izin BI".
+Menggantikan bagian "panel provinsi tidak dikirim" di D-015.

@@ -245,12 +245,12 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - Selesai bila: [ ] setiap kalimat temuan di findings.md, makalah, app lolos tabel "Jangan tulis/Tulis" (PROJECT_OVERVIEW §6); [ ] setiap angka punya interval; [ ] hasil nol ditulis sebagai batas atas.
 
 ### WP-35 — Tugas manusia `[HUMAN]`
-- [ ] **Abi** · Kirim email permohonan izin penggunaan & redistribusi turunan PIHPS + hosting privat ke BI (U13, U24) → catat tanggal di OPEN_ISSUES.
+- [x] **Abi** · Izin BI (U13) — sudah diperoleh (dikonfirmasi Danen 2026-11-20).
 - [ ] **Abi** · Konfirmasi jalur unduh PIHPS resmi (U19); bila bukan, laporkan agar Danen mengunduh ulang via fitur resmi.
 - [ ] **Abi** · Data manual (PEMBAGIAN_TUGAS §6.2): populasi, n_kota, GKG→beras, verifikasi regulasi, pemetaan Bapanas; PADG 7/2026 (U3).
 - [ ] **Danen** · Prasyarat kolaborasi (PEMBAGIAN_TUGAS §8): repo GitHub privat + .gitignore, folder Drive tim (bagikan terbatas + `python -m kagami drive-push-raw`; D-100, D-101), dataset Kaggle
       `kagami-code` (**PRIVAT**, `python -m kagami bundle`; `kagami-raw` opsional), bagikan ke Ardell. Ulangi bundle setiap `src/` berubah.
-- [ ] **Danen** · Taruh CSV penduduk 2025 & snapshot kab/kota Panel Harga di lokasi DATASETS.md §Menunggu diunggah (U103); cek keaslian Pink Sheet (U101).
+- [ ] **Danen** · Taruh CSV penduduk 2025 & snapshot kab/kota Panel Harga di lokasi DATASETS.md §Menunggu diunggah (U103).
 - [ ] **Danen & Ardell** · Token Drive masing-masing (`drive-auth`) + Kaggle Secret `KAGAMI_DRIVE_TOKEN` (`docs/NOTEBOOKS.md` §Persiapan 2).
 - [ ] **Abi** · Rekam video demonstrasi (alur: masalah → app 6 halaman → Tingkat A/B).
 - [ ] **Abi** · Unggah makalah PDF + zip + video ke Google Drive dan form pendaftaran Gelombang 2.

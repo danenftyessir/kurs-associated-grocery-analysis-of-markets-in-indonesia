@@ -54,7 +54,7 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
   pipelines/        stage0 · task1 · task2 · task3 · task4 · robustness (REQUIRES + run(cfg)) · package (zip juri, bundle)
   viz/              plots: grafik bersama notebook & app
 app/                Home.py (hal. 1) + pages/2..6 + common.py
-tests/              config · loaders · stats · weekly · drivers · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive
+tests/              config · loaders · stats · weekly · drivers · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)
 ```
@@ -117,7 +117,7 @@ Stub yang belum diimplementasikan melempar `NotImplementedYet` dengan pesan `WP-
 |---|---|---|---|---|---|
 | `checksums` | data/raw/checksums.csv | snapshot | WP-01 | ya | source, file, bytes, sha256, retrieved_at, recorded_at |
 | `pihps_daily` | data/interim/pihps_daily.parquet | stage0 | WP-03 | tidak | date, province_id, commodity, variant, price |
-| `panel_weekly` | data/processed/panel_weekly.parquet | stage0 | WP-03 | tidak* | week, province_id, commodity, price, log_price, n_days, status |
+| `panel_weekly` | data/processed/panel_weekly.parquet | stage0 | WP-03 | ya* | week, province_id, commodity, price, log_price, n_days, status |
 | `eligibility` | results/stage0/eligibility.csv | stage0 | WP-04 | ya | province_id, commodity, missing_share, max_gap_weeks, min_year_coverage, eligible |
 | `drivers_weekly` | data/processed/drivers_weekly.parquet | stage0 | WP-05 | ya | week, log_e, de, de_pos, de_neg, log_brent, db, log_dxy, d_dxy, month, idf_rel_week, episode |
 | `world_prices_weekly` | data/processed/world_prices_weekly.parquet | stage0 | WP-05 | ya | week, commodity, log_w_usd, log_w_idr, dw, available_at |
@@ -147,7 +147,8 @@ Stub yang belum diimplementasikan melempar `NotImplementedYet` dengan pesan `WP-
 | `robustness` | results/robustness.csv | robustness | WP-28 | ya | check_id, tier, commodity, horizon, estimate, ci_low, ci_high, baseline_estimate, note |
 | `findings` | results/findings.md | report | WP-33 | ya | (markdown) |
 
-\* `panel_weekly` hanya dikirim bila izin BI diperoleh (U13); ubah `ship` di registry saat itu.
+\* `panel_weekly` dikirim karena izin BI mencakup redistribusi data turunan (U13, D-104). `pihps_daily` (harga harian per
+varian) dan PIHPS mentah tetap tidak dikirim.
 `drivers_weekly` punya kolom ekstra `e_filled`, `brent_filled`, `dxy_filled`; `world_prices_weekly` punya `month` (D-025).
 `panel_weekly` juga punya kolom ekstra `cf_share` (status `carry_forward` = penanda, bukan filter — U22).
 
@@ -161,11 +162,11 @@ Stub yang belum diimplementasikan melempar `NotImplementedYet` dengan pesan `WP-
 
 ## 6. Tingkat reproduksi (proposal §7.3)
 
-| Tingkat | Input | Perintah | Jalan tanpa izin BI? |
+| Tingkat | Input | Perintah | Catatan |
 |---|---|---|---|
-| A | `results/` yang dikirim | `python -m kagami app` | ya |
-| B | `data/processed/` + `data/reference/` yang dikirim | `task1` (versi wilayah via `panel_weekly_region`), `task2`/`task3` dari artefak Task 1 yang dikirim, `task4` (wilayah) | ya |
-| C | unduh ulang mentah | `download` → `snapshot` → `all` | ya (PIHPS diunduh juri sendiri) |
+| A | `results/` yang dikirim | `python -m kagami app` | tanpa internet |
+| B | `data/processed/` (termasuk `panel_weekly` provinsi) + `data/reference/` yang dikirim | `task1`–`task4`, `robustness` pada panel provinsi (dan versi wilayah) | lengkap tanpa unduh ulang (D-104) |
+| C | unduh ulang mentah | `download` → `snapshot` → `all` | PIHPS diunduh juri sendiri lewat fitur resmi |
 
 `pipelines.task1`, `task3`, `task4` otomatis memakai panel provinsi bila `panel_weekly` ada, selain itu versi wilayah.
 

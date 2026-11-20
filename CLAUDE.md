@@ -111,9 +111,10 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 - **Berikutnya — Danen:** WP-06 → WP-08 (terbit P1 21 Nov) → WP-09 (G-power 23 Nov). **Ardell:** WP-07, WP-25 (sintetis).
   **Abi:** email BI, U19, data manual §6.2, naskah praregistrasi.
   Paralel: WP-07, WP-25. Gerbang terdekat: **G6 = 21 Nov** (WP-11: bekukan varian D-011, bobot pakan D-012, grup fokus D-013).
-- **Menunggu manusia (WP-35):** email izin BI (U13), cek endpoint PIHPS resmi (U19), setup Kaggle + folder Drive tim
+- **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
+- **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + folder Drive tim
   (bagikan terbatas, `drive-push-raw`) + token Drive per anggota (U100), unggah CSV penduduk 2025 & kab/kota (U103),
-  cek keaslian Pink Sheet (U101), video, unggah.
+  video, unggah.
 - **Data baru 2026-11-20 (D-101):** BPS impor v2 (+bawang putih), revisi regulasi, `jarak_hub`, `konkordansi_hs`,
   `hortikultura_produksi` — input WP-07 (Ardell). Versi lama di `data/raw/_superseded/`.
 - **Pertukaran artefak & data mentah:** folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D lewat `utils.drive` (D-100).
@@ -215,7 +216,7 @@ Aturan menulis agar tidak cepat basi:
   Path mengandung spasi → selalu beri tanda kutip. OneDrive bisa menyinkronkan/mengubah file; perlakukan perubahan tak
   terduga sebagai disengaja sampai dikonfirmasi.
 - Folder ini repo git (`main`, remote `origin` = github.com/danenftyessir/kurs-associated-grocery-analysis-of-markets-in-indonesia).
-  **Agent dilarang commit/push** — lihat §4.6.
+  **Agent dilarang commit/push** — lihat §4.6. Branch hanya `main`, `dev`, `feat/<topik>` (§4.6, D-103).
 - Perangkat lokal terbatas: tahap berat (task1, task2, task4, robustness) dijalankan di Kaggle/Colab (§17).
 
 ### 4.2 Paket terpasang
@@ -268,11 +269,22 @@ Aturan tim (permintaan Danen, 2026-11-20; diperbarui: command hanya atas permint
 - **Jangan menawarkan atau menyiapkan command git secara otomatis** di akhir pekerjaan. Siapkan hanya bila user memintanya
   (mis. "buatin command git-nya"). Formatnya bila diminta: blok `powershell` siap copas, satu perintah per blok, urut:
   1. `git status` (cek), 2. `git add` dengan **path eksplisit** file yang diubah sesi ini (bukan `git add .` atau `-A`),
-  3. `git commit -m "<pesan>"`, 4. `git push` ke branch anggota (`danen/...`, `ardell/...`) — bukan langsung ke `main`
-  kecuali user memintanya. Pesan commit: bahasa Indonesia, diawali kode WP, contoh `WP-06: episode depresiasi & mark_episode_weeks`.
+  3. `git commit -m "<pesan>"`, 4. `git push` ke branch `feat/<topik>` yang sedang dipakai — tidak pernah langsung ke
+  `main` atau `dev`. Pesan commit: bahasa Indonesia, diawali kode WP, contoh `WP-06: episode depresiasi & mark_episode_weeks`.
 - Sebelum menyusun `git add`, periksa dengan `git status --short` bahwa tidak ada file data mentah/turunan PIHPS yang lolos
   `.gitignore` (lihat §19). Bila ada, laporkan dan perbaiki `.gitignore`, bukan memasukkannya ke `git add`.
 - Branch/PR/merge diputuskan dan dijalankan oleh anggota sendiri. Agent boleh menyiapkan command-nya bila diminta.
+- **Aturan branch (D-103): hanya tiga jenis branch.**
+  | Branch | Isi | Dibuat dari | Masuk ke |
+  |---|---|---|---|
+  | `main` | versi stabil (titik gerbang, pembekuan hasil 27 Nov, versi submission) | – | – (tidak ada commit langsung) |
+  | `dev` | integrasi pekerjaan semua anggota | `main` | `main` lewat PR saat stabil |
+  | `feat/<topik>` | satu WP / satu topik pekerjaan (kode atau dokumen) | `dev` | `dev` lewat PR, lalu dihapus |
+  - Nama `feat/` huruf kecil + tanda hubung, diawali kode WP bila ada: `feat/wp06-episode`, `feat/wp07-reference-tables`,
+    `feat/docs-branch-rules`. Tidak ada nama lain (`fix/`, `hotfix/`, `danen/...`, dll.): perbaikan bug juga `feat/<topik>`.
+  - Tidak ada commit/push langsung ke `main` atau `dev`; semua lewat PR. Satu `feat/` dikerjakan satu anggota.
+  - Abi tidak memakai git (berkas lewat Drive; Danen/Ardell yang meng-commit di `feat/` mereka).
+  - Agent tetap tidak membuat branch/commit/push/PR; bila user meminta command, gunakan skema ini.
 
 ---
 
@@ -413,7 +425,8 @@ Aturan praktis:
 - Interval: `ci_low`, `ci_high` (95%). Setiap estimasi yang dilaporkan wajib punya interval.
 
 ### 8.4 Kebijakan `ship` (dikirim ke juri)
-- Tidak dikirim: `pihps_daily`, `panel_weekly` (kecuali izin BI), semua mentah dengan `redistribute: false`.
+- Tidak dikirim: `pihps_daily`, semua mentah dengan `redistribute: false`. `panel_weekly` (panel provinsi mingguan) DIKIRIM:
+  izin BI mencakup redistribusi data turunan (U13, D-104).
 - Dikirim: panel 7 wilayah sebagai **indeks log** (relatif minggu pertama), penggerak sebagai log/perubahan log,
   semua hasil estimasi, tabel tim, sumber CC BY (Pink Sheet, FAOSTAT, FRED, tabel regulasi tim).
 
@@ -502,7 +515,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `run` · ✔ · tulis artefak `checksums`.
 
 #### src/data/download.py
-- `download` · ✔ · sumber http → `out_dir/data/raw/_redownload/<key>/` + bandingkan hash; manual → cetak instruksi.
+- `find_link` · ✔ · tautan pertama di HTML yang cocok pola (dites tanpa jaringan).
+- `resolve_url` · ✔ · tautan terbaru dari `landing_url`+`link_pattern` bila ada, selain itu `url` (U16).
+- `download` · ✔ · sumber http → `out_dir/data/raw/_redownload/<key>/` (SSL via certifi) + bandingkan hash; manual → instruksi.
 - `run` · ✔ · semua sumber atau daftar kunci.
 
 #### src/data/weekly.py
@@ -711,7 +726,8 @@ Menunggu diunggah (lokasi dialokasikan, U103): `bps_kependudukan/penduduk_provin
 - FAOSTAT SUA tidak memuat bawang putih kering (hanya "Green garlic") → U5; pengganti: `hortikultura_produksi` + impor 070320.
 - `hortikultura_produksi`: total nasional cocok; 148/152 nilai 2023 sama dengan BPS (4 selisih pembulatan); ATAP berhenti 2024.
 - Konkordansi HS: perubahan HS2017→HS2022 hanya 0709.59; uji tumpang tindih Comtrade–BPS 2022 belum bisa (server BPS error, U102).
-- Pink Sheet memuat lembar `Mismatch Details` (bukan rilis resmi) → cek keaslian (U101).
+- Pink Sheet tim = rilis resmi 3 Nov 2026 (identik byte-per-byte; `Mismatch Details` bagian file resmi; U101 🟢).
+  World Bank merevisi angka historis antar rilis → catat tanggal rilis setiap snapshot.
 - Snapshot PIHPS pra-merge (`pihps_v1`) dipensiunkan ke `data/raw/_superseded/bi_pihps/` (D-102): inventaris tim menandainya rusak.
 - Kolom `Totals` exim tahunan BPS = USD (Σ bulanan 2023 / Totals = 1,000) → D-019.
 - Bapanas memakai ejaan "D.I Yogyakarta" (alias sudah ada).
@@ -937,6 +953,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_claude_md.py` | §9 dokumen ini sinkron dengan kode (fungsi publik & status stub) |
 | `test_handoff.py` | format setiap `docs/handoff/*.md`: nama file, frontmatter, bagian wajib, status vs kotak centang |
 | `test_drive.py` | sinkron Drive dengan Drive palsu di memori: path dicerminkan, timpa bukan duplikat, pull ke anggota lain, hanya tahap diminta, lokal tanpa token dilewati, push/pull data mentah bolak-balik (MD5, glob, tidak menimpa) |
+| `test_download.py` | resolusi tautan unduhan terbaru (pola Pink Sheet) & url cadangan, tanpa jaringan |
 | `test_docs_sync.py` | dokumen hidup tidak basi: tautan & path ada, papan WP vs stub, §2 vs papan, ID D-/U- ada, kunci `params.*` ada, sumber/komoditas/notebook/subpaket/tes terdokumentasi (§3.4) |
 
 ### 16.2 Menjalankan
@@ -990,9 +1007,10 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 - Mentah dengan `redistribute: false` (PIHPS, JISDOR, BPS, Comtrade, Bapanas, BPS pangan) tidak boleh masuk zip juri.
 - Zip juri (`python -m kagami package`): kode, configs, app, tes, docs/*.md, data/reference, artefak `ship=True`,
   mentah `redistribute: true`. Gagal bila artefak ship belum ada (kecuali `--allow-missing`).
-- Dataset Kaggle mentah wajib **privat**; jangan membagikan tautan (U24). Tanyakan izin BI (U13) mencakup turunan & hosting.
+- Dataset Kaggle mentah wajib **privat**; jangan membagikan tautan (U24). Izin BI (U13) mencakup redistribusi data turunan: `panel_weekly` ikut paket (D-104); PIHPS mentah & `pihps_daily` tidak.
 - Saat menyebut data: "Dataset turunan kami yang dibangun dari PIHPS (Bank Indonesia)", bukan "dataset kami".
-- Tiga tingkat reproduksi: A app dari results; B tahap dari data turunan (panel wilayah); C unduh ulang mentah.
+- Tiga tingkat reproduksi: A app dari results; B semua tahap dari data turunan yang dikirim (panel provinsi + wilayah, D-104);
+  C unduh ulang mentah.
 
 ---
 
@@ -1035,7 +1053,7 @@ tidak boleh dikutip sebelum dicek.
 | D-012 | Komposit pakan 0,6 Maize + 0,4 Soybean meal | PROVISIONAL (G6) |
 | D-013 | 6 komoditas fokus dalam 5 grup (ayam+telur = pakan) | PROVISIONAL (G6) |
 | D-014 | Urutan pemotongan lingkup | FINAL |
-| D-015 | Kebijakan kirim data turunan | FINAL |
+| D-015 | Kebijakan kirim data turunan (bagian panel provinsi diganti D-104) | FINAL |
 | D-016 | Harga dunia bulanan → mingguan menurut bulan hari Senin | FINAL |
 | D-017 | Kerangka 34 provinsi lama | FINAL |
 | D-018 | Keterpencilan = ln(1 + km ke hub terdekat) | FINAL |
@@ -1052,6 +1070,8 @@ tidak boleh dikutip sebelum dicek.
 | D-100 | Input/output notebook lewat folder Drive tim (Drive API: pull/push) | FINAL |
 | D-101 | Data mentah di Drive tim (push_raw/pull_raw) + alokasi dataset 20 Nov + `_superseded/` | FINAL |
 | D-102 | `pihps_v1` dipensiunkan; QA v1 vs v2 dihapus dari WP-10 | FINAL |
+| D-103 | Branch hanya `main`, `dev`, `feat/<topik>`; semua lewat PR | FINAL |
+| D-104 | Panel provinsi `panel_weekly` ikut paket juri (izin BI mencakup redistribusi turunan) | FINAL |
 
 ---
 
@@ -1069,10 +1089,10 @@ tidak boleh dikutip sebelum dicek.
 | U10 | Varian representatif dibekukan di G6 | 🟡 |
 | U11 | Kecukupan produksi hanya beras | 🟡 |
 | U12 | Bibliografi belum lengkap | 🔴 |
-| U13 | Izin BI (email belum tercatat) | 🔴 `[HUMAN]` |
+| U13 | Izin BI diperoleh 2026-11-20, mencakup redistribusi data turunan (panel provinsi dikirim, D-104) | 🟢 |
 | U14 | Populasi provinsi: CSV penduduk 2025 sudah diunduh, menunggu diunggah (U103) | 🟡 |
 | U15 | `n_kota` per provinsi | 🔴 |
-| U16 | URL Pink Sheet berubah per rilis | 🟡 |
+| U16 | URL Pink Sheet berubah per rilis → `download` resolusi otomatis dari halaman World Bank | 🟢 |
 | U17 | Lonjakan harga satu hari | 🔴 (WP-10) |
 | U19 | Endpoint PIHPS vs "unduh resmi" | 🔴 `[HUMAN]` |
 | U20 | Pemetaan komoditas Bapanas → PIHPS | 🔴 (WP-10) |
@@ -1080,7 +1100,7 @@ tidak boleh dikutip sebelum dicek.
 | U22 | `carry_forward` tinggi = kekakuan harga; bukan filter | 🟡 |
 | U24 | Hosting mentah di Kaggle privat / Drive; folder Drive tim wajib dibagikan terbatas | 🟡 |
 | U100 | Kredensial Drive untuk Kaggle (OAuth client + token per anggota) | 🔴 `[HUMAN]` |
-| U101 | Keaslian Pink Sheet (lembar `Mismatch Details`) | 🔴 `[HUMAN]` |
+| U101 | Keaslian Pink Sheet: identik dengan rilis resmi 3 Nov 2026 | 🟢 |
 | U102 | Uji tumpang tindih Comtrade vs BPS 2022 (server BPS error) | 🔴 |
 | U103 | Unggah CSV penduduk 2025 & snapshot kab/kota Panel Harga | 🔴 `[HUMAN]` |
 | U104 | `pihps_v1` dipensiunkan ke `_superseded/` (D-102) | 🟢 |
@@ -1105,6 +1125,10 @@ Selesai: U1, U2, U18, U23.
 10. **CRLF dari `write_text` di Windows** dan heredoc bash yang rapuh (§4.5).
 11. **Tes vs data asli**: kegagalan tes bisa karena asumsi tes keliru (bulan sintetis mulai Februari, NaN baris pertama);
     periksa dulu sebelum mengubah kode.
+13. **Python Windows tanpa CA lokal** → `CERTIFICATE_VERIFY_FAILED` saat unduh; `download` memakai bundel `certifi`
+    (verifikasi SSL tetap aktif; jangan pernah mematikannya).
+14. **Membandingkan dengan rilis yang salah** memberi kesimpulan salah (selisih pembulatan dikira file rekayasa); selalu
+    cocokkan tanggal rilis/versi sebelum menilai keaslian.
 12. **`find_spec` pada nama fungsi** melempar `ModuleNotFoundError` (dipakai di tes wiring dengan try/except).
 
 ---

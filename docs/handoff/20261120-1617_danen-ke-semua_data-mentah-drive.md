@@ -56,7 +56,7 @@ Hasil yang diharapkan: pesan `[drive] pull-raw: N file -> ...data\raw`; lalu `py
 
 ## Batasan, risiko, yang belum beres
 - Data baru ada di Drive setelah Danen menjalankan `drive-push-raw` dengan token (U100); sebelum itu, hanya di laptop Danen.
-- Menunggu Danen: unggah CSV penduduk 2025 & snapshot kab/kota Panel Harga ke lokasi yang sudah dialokasikan (U103); cek keaslian Pink Sheet (U101). `pihps_v1` sudah dipensiunkan (D-102).
+- Menunggu Danen: unggah CSV penduduk 2025 & snapshot kab/kota Panel Harga ke lokasi yang sudah dialokasikan (U103). Pink Sheet terverifikasi identik dengan rilis resmi (U101 selesai). `pihps_v1` sudah dipensiunkan (D-102).
 - Uji tumpang tindih Comtrade vs BPS 2022 belum bisa (server BPS error, U102): pakai kolom `keyakinan_pemetaan` dan nyatakan sebagai batasan.
 
 ## Balasan

@@ -84,8 +84,12 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 - Sheet `Monthly Prices`: baris 4 nama seri, baris 5 satuan, data mulai baris 6 dengan kode `YYYYMmm`; "…" = kosong.
 - Loader → `month, series, unit, usd_price`; nama dinormalisasi (trim, buang `**`): `Beef **` → `Beef`, `Rice, Thai 5% ` → `Rice, Thai 5%`.
 - Seri dipakai: `Rice, Thai 5%` ($/mt), `Sugar, world` ($/kg), `Palm oil` ($/mt), `Maize` ($/mt), `Soybean meal` ($/mt), `Beef` ($/kg).
-- URL rilis berubah tiap bulan (U16). File memuat lembar tambahan `Mismatch Details` (bukan bagian rilis resmi) → keaslian
-  file perlu dibandingkan dengan salinan resmi World Bank (U101); loader hanya membaca `Monthly Prices`.
+- **Keaslian terverifikasi 2026-11-20 (U101 🟢):** rilis resmi terbaru di worldbank.org ("Updated on November 03, 2026")
+  identik byte-per-byte dengan file tim (SHA-256 `3c8d9d8d…`); lembar `Mismatch Details` memang bagian file resmi.
+  Loader hanya membaca `Monthly Prices`. Rilis lama (Jan 2025) berbeda ≤ 0,005 pada data historis → World Bank merevisi
+  angka lama antar rilis; selalu catat tanggal rilis.
+- URL berubah tiap rilis (U16): `python -m kagami download pinksheet` mencari tautan terbaru di
+  https://www.worldbank.org/en/research/commodity-markets (`landing_url` + `link_pattern` di sources.yaml).
 
 ### FRED (`brent`, `dollar_index`)
 - CSV `observation_date, <SERIES>`; hari libur kosong (dibuang loader). Loader → `date, value`.

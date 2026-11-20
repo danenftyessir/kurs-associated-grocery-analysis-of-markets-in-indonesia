@@ -24,5 +24,5 @@ def province_deviations(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame,
 
 def region_profiles(cfg: Config, region_panel: pd.DataFrame, drivers: pd.DataFrame,
                     world: pd.DataFrame) -> pd.DataFrame:
-    """WP-15. Profil untuk 7 wilayah dari panel_weekly_region (jalan juga di Tingkat B tanpa izin BI)."""
+    """WP-15. Profil untuk 7 wilayah dari panel_weekly_region (peta utama 7 wilayah)."""
     todo("WP-15")

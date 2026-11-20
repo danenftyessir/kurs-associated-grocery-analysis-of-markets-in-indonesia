@@ -9,6 +9,25 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-20 — Danen: panel provinsi ikut paket juri (D-104)
+- Izin BI mencakup redistribusi turunan → `panel_weekly` ship=True (artifacts.py); docstring panel/deviations/task1 diperbarui.
+- ARCHITECTURE §5–6 (Tingkat B kini lengkap di tingkat provinsi), CLAUDE §2/§8.4/§19/§21/§22, README hak data, U13, D-015 → D-104.
+
+### 2026-11-20 — Danen: izin BI aman (U13)
+- U13 🟢: izin BI diperoleh (konfirmasi Danen). Tugas email Abi dicoret (WORKPLAN WP-35, PEMBAGIAN §6.1, handoff onboarding).
+- Cakupan izin untuk redistribusi `panel_weekly` (panel provinsi) ke juri belum dicatat → `ship` tetap False sampai dikonfirmasi.
+
+### 2026-11-20 — Danen: verifikasi Pink Sheet (U101, U16)
+- Unduh resmi: rilis 3 Nov 2026 identik byte-per-byte dengan file tim (SHA-256 3c8d9d8d…); `Mismatch Details` bagian file resmi → U101 🟢.
+- URL di sources.yaml ternyata rilis Jan 2025 (selisih ≤0,005 = revisi historis WB, sempat salah dikira file disusun ulang).
+  download kini mencari tautan terbaru di halaman Commodity Markets (`landing_url`/`link_pattern`) → U16 🟢; tests/test_download.py.
+- Bug: Python Windows tanpa CA → download pakai certifi (SSL tetap diverifikasi). _redownload dibersihkan.
+
+### 2026-11-20 — Danen: aturan branch (D-103)
+- Branch hanya `main` (stabil), `dev` (integrasi), `feat/<topik>` (dari dev, PR ke dev); dev → main lewat PR. Ganti aturan danen/…/ardell/….
+- CLAUDE.md §4.1/§4.6/§21, PEMBAGIAN_TUGAS §8, HANDOFF (contoh branch), handoff onboarding (Ardell: feat/wp07-reference-tables).
+- Branch `dev` belum ada di remote (baru `main`): dibuat Danen.
+
 ### 2026-11-20 — Danen: pihps_v1 dipensiunkan (D-102)
 - Zip PIHPS pra-merge → data/raw/_superseded/bi_pihps/; dicabut dari sources.yaml, LOADERS, tes, qa.compare_pihps_versions, stage0, WP-10.
 - U104 ditutup. Sumber terdaftar: 20 (24 file).

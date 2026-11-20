@@ -91,7 +91,7 @@ kirim handoff jenis `TERBIT` (`docs/HANDOFF.md`) + versi pendek di chat.
 ### 6.1 Daftar tugas
 | Tugas | Keluaran | Tenggat | Untuk |
 |---|---|---|---|
-| Email permohonan izin penggunaan & redistribusi turunan PIHPS + hosting privat (U13, U24) | email terkirim, tanggal dicatat di OPEN_ISSUES U13 | 20 Nov | semua |
+| ~~Email permohonan izin BI (U13, U24)~~ | **selesai**: izin BI sudah diperoleh (2026-11-20) | – | semua |
 | Cek apakah endpoint `WebSite/TabelHarga/GetGridDataDaerah` = fitur unduh resmi PIHPS (U19) | catatan + tangkapan layar di OPEN_ISSUES U19 | 21 Nov | Danen |
 | Tanggal berlaku & isi PADG No. 7/2026 (U3) | tanggal + sumber di OPEN_ISSUES U3 (Danen memasukkan ke params) | 21 Nov | Danen |
 | Data manual §6.2 | CSV di `data/raw/manual_*/` | 22–23 Nov | Ardell (WP-07), Danen (WP-10) |
@@ -134,8 +134,9 @@ dan membuat loader-nya; kode WP-07 harus tetap jalan bila file belum ada (nilai 
 ## 8. Prasyarat kolaborasi (Danen, 20 Nov)
 1. **Repo GitHub** sudah ada: `danenftyessir/kurs-associated-grocery-analysis-of-markets-in-indonesia` (branch `main`).
    `.gitignore` mengecualikan data mentah (kecuali `checksums.csv` & `manual_regulation/`), `data/interim/`, `data/processed/`,
-   `results/` (kecuali `findings.md`), `dist/`, cache, kredensial. Tiap anggota teknis bekerja di clone sendiri dan branch sendiri
-   (`danen/...`, `ardell/...`), merge ke `main` lewat PR. Bekerja bersamaan di satu folder OneDrive berisiko konflik file.
+   `results/` (kecuali `findings.md`), `dist/`, cache, kredensial. Tiap anggota teknis bekerja di clone sendiri. Branch hanya `main` (stabil), `dev`
+   (integrasi), dan `feat/<topik>` (satu WP/topik, dari `dev`, PR ke `dev`); `dev` → `main` lewat PR saat stabil (D-103,
+   CLAUDE.md §4.6). Tidak ada commit langsung ke `main`/`dev`. Branch `dev` dibuat Danen dari `main` sebelum mulai. Bekerja bersamaan di satu folder OneDrive berisiko konflik file.
    **Agent tidak pernah commit/push**; command git siap copas disiapkan agent hanya bila diminta (CLAUDE.md §4.6). Commit, push, PR,
    dan merge dijalankan anggota sendiri. Abi tidak perlu git: kirim file lewat Drive, Danen/Ardell yang meng-commit.
 2. **Folder Drive tim** https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D (D-100): artefak semua tahap (push/pull otomatis) dan `data/raw/` (Danen: `drive-push-raw`;

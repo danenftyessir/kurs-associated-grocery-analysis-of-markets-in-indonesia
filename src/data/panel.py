@@ -1,4 +1,4 @@
-"""Panel 7 wilayah (WP-08) -- data minimum Tingkat B yang boleh dikirim tanpa izin BI."""
+"""Panel 7 wilayah (WP-08) -- peta utama 7 wilayah; ikut paket juri bersama panel provinsi (D-104)."""
 
 from __future__ import annotations
 
