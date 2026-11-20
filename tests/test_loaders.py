@@ -23,6 +23,9 @@ EXPECTED = {
     "neraca_beras": {"tahun", "produksi_beras_ton", "impor_ton"},
     "het_hap_current": {"commodity", "instrument", "zone_or_scope", "value_min_rp"},
     "regulation_history": {"instrument", "commodity", "regulation", "signed_or_effective_date"},
+    "jarak_hub": {"province_id", "dist_hub_km", "ln1p_dist_hub", "nearest_hub"},
+    "konkordansi_hs": {"comtrade_code", "bps_hs8_prefix", "keyakinan_pemetaan"},
+    "hortikultura_produksi": {"commodity_atap", "province_id", "year", "production_ton"},
 }
 
 
@@ -37,6 +40,12 @@ def test_loader(cfg, key):
     df = LOADERS[key](cfg)
     assert len(df) > 0
     assert EXPECTED[key] <= set(df.columns), EXPECTED[key] - set(df.columns)
+
+
+def test_bps_monthly_v2_has_garlic(cfg):
+    """v2 (2026-11-20) memuat bawang putih HS 070320; v1 tidak lengkap (di _superseded/)."""
+    df = LOADERS["bps_import_monthly"](cfg)
+    assert df["hs8_code"].str.startswith("070320").sum() >= 50 and df["hs8_code"].nunique() == 111
 
 
 def test_pihps_shape(pihps):
@@ -55,10 +64,11 @@ def test_pihps_variant_groups_by_prefix(pihps):
 
 
 @pytest.mark.parametrize("key,col", [("padi_2024", "province_raw"), ("padi_2025", "province_raw"),
-                                     ("konsumsi_beras", "province_raw"), ("bapanas_panel", "province")])
+                                     ("konsumsi_beras", "province_raw"), ("bapanas_panel", "province"),
+                                     ("jarak_hub", "province_raw"), ("hortikultura_produksi", "province_raw")])
 def test_province_names_all_mapped(cfg, key, col):
     """Semua nama provinsi (termasuk pemekaran Papua) terpetakan ke 34 provinsi lama."""
     df = LOADERS[key](cfg)
     assert df["province_id"].nunique() == 34, key
-    if key == "bapanas_panel":   # loader ini tidak membuang baris; tidak boleh ada yang gagal dipetakan
+    if key in ("bapanas_panel", "jarak_hub"):   # loader ini tidak membuang baris; tidak boleh ada yang gagal dipetakan
         assert df["province_id"].notna().all(), df.loc[df["province_id"].isna(), col].unique()

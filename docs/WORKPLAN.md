@@ -88,10 +88,10 @@ v2 (2026-11-20): `src/` berlapis (utils/data/features/models/evaluation/stats/pi
 yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOTEBOOKS.md.
 
 ### WP-01 — Snapshot & checksum ✅
-`src/data/snapshot.py`. `python -m kagami snapshot` → `data/raw/checksums.csv` (22 file). Jalankan ulang setiap ada snapshot baru.
+`src/data/snapshot.py`. `python -m kagami snapshot` → `data/raw/checksums.csv` (semua file sumber). Jalankan ulang setiap ada snapshot baru.
 
 ### WP-02 — Loader semua sumber ✅
-`src/data/loaders.py`, registry `LOADERS` = semua kunci `configs/sources.yaml`. Tes: `tests/test_loaders.py` (18 sumber, pemetaan 34 provinsi).
+`src/data/loaders.py`, registry `LOADERS` = semua kunci `configs/sources.yaml`. Tes: `tests/test_loaders.py` (semua sumber, pemetaan 34 provinsi).
 
 ### WP-03 — Varian representatif + agregasi mingguan + status sel ✅
 - File: `src/data/weekly.py` (`select_variants`, `aggregate_weekly`, `_aggregate`, `_carry_forward_flags`); tes `tests/test_weekly.py`.
@@ -134,6 +134,7 @@ yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOT
   - [ ] exposure: `import_ratio_direct` rerata 2018–2023 dari FAOSTAT; bawang putih dari BPS/Comtrade atau ordinal (U5); setiap angka punya `source`.
   - [ ] regulation: gabungan 3 sumber regulasi, tanggal tak terverifikasi ditandai `unverified` (U6).
   - [ ] province_features: `dist_hub_km` dihitung dari koordinat `region_crosswalk.csv`; `rice_sufficiency` & `n_kota` diisi atau NaN + U14/U15 dicatat.
+- Input baru (2026-11-20, D-101): `hortikultura_produksi` (produksi bawang putih → rasio impor, U5), `konkordansi_hs` (jembatan Comtrade 2017–2022 → HS8 BPS), `jarak_hub` (cek silang `dist_hub_km`), BPS impor v2 (+bawang putih), regulasi revisi 20 Nov. Loader sudah ada (`src/data/loaders.py`); signature fungsi WP-07 boleh ditambah parameter oleh Ardell (pemilik `reference.py`) + `pipelines/stage0.py` disesuaikan lewat handoff.
 
 ### WP-08 — Panel 7 wilayah
 - File: `src/data/panel.py` → `panel_weekly_region` (indeks, bukan level Rp; D-015).
@@ -247,7 +248,9 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - [ ] **Abi** · Kirim email permohonan izin penggunaan & redistribusi turunan PIHPS + hosting privat ke BI (U13, U24) → catat tanggal di OPEN_ISSUES.
 - [ ] **Abi** · Konfirmasi jalur unduh PIHPS resmi (U19); bila bukan, laporkan agar Danen mengunduh ulang via fitur resmi.
 - [ ] **Abi** · Data manual (PEMBAGIAN_TUGAS §6.2): populasi, n_kota, GKG→beras, verifikasi regulasi, pemetaan Bapanas; PADG 7/2026 (U3).
-- [ ] **Danen** · Prasyarat kolaborasi (PEMBAGIAN_TUGAS §8): repo GitHub privat + .gitignore, folder Drive bersama, dataset Kaggle
-      `kagami-code` & `kagami-raw` (**PRIVAT**, `python -m kagami bundle --raw`), bagikan ke Ardell. Ulangi bundle setiap `src/` berubah.
+- [ ] **Danen** · Prasyarat kolaborasi (PEMBAGIAN_TUGAS §8): repo GitHub privat + .gitignore, folder Drive tim (bagikan terbatas + `python -m kagami drive-push-raw`; D-100, D-101), dataset Kaggle
+      `kagami-code` (**PRIVAT**, `python -m kagami bundle`; `kagami-raw` opsional), bagikan ke Ardell. Ulangi bundle setiap `src/` berubah.
+- [ ] **Danen** · Taruh CSV penduduk 2025 & snapshot kab/kota Panel Harga di lokasi DATASETS.md §Menunggu diunggah (U103); cek keaslian Pink Sheet (U101); putuskan `pihps_v1` (U104).
+- [ ] **Danen & Ardell** · Token Drive masing-masing (`drive-auth`) + Kaggle Secret `KAGAMI_DRIVE_TOKEN` (`docs/NOTEBOOKS.md` §Persiapan 2).
 - [ ] **Abi** · Rekam video demonstrasi (alur: masalah → app 6 halaman → Tingkat A/B).
 - [ ] **Abi** · Unggah makalah PDF + zip + video ke Google Drive dan form pendaftaran Gelombang 2.

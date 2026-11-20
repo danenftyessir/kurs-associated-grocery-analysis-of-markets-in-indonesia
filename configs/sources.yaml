@@ -82,9 +82,9 @@ faostat_sua:
   availability: annual
 
 bps_import_monthly:
-  path: bps_trade/bps_import_hs8_monthly_2023_2026.csv
+  path: bps_trade/bps_import_hs8_monthly_2023_2026_v2.csv   # v2 2026-11-20: +bawang putih 070320 (v1 di _superseded/)
   publisher: BPS (portal ekspor-impor)
-  role: "Cek silang rasio impor; nilai & berat impor HS8 bulanan"
+  role: "Cek silang rasio impor; nilai & berat impor HS8 bulanan (111 kode HS8, termasuk bawang putih)"
   coverage: "2023-01 .. 2026-09"
   license: "Cek ketentuan BPS (U7)"
   redistribute: false
@@ -182,7 +182,7 @@ neraca_beras:
   availability: annual
 
 het_hap_current:
-  path: manual_regulation/het_hap_current.csv
+  path: manual_regulation/het_hap_current_2026-11-20.csv   # revisi: tanggal, nomor & URL sumber diperbarui
   publisher: "Disusun tim dari JDIH Bapanas/Kemendag + berita"
   role: "Nilai HET/HAP berlaku per komoditas x zona (status per 2026-11-19)"
   coverage: "2024 .. 2026"
@@ -193,7 +193,7 @@ het_hap_current:
   availability: same_day
 
 regulation_history:
-  path: manual_regulation/regulation_history.csv
+  path: manual_regulation/regulation_history_2026-11-20.csv   # revisi: 23 baris, nomor BN & URL diperbarui
   publisher: "Disusun tim dari JDIH Bapanas/Kemendag + berita"
   role: "Riwayat perubahan HET/HAP/HPP -> regulation.csv (E2)"
   coverage: "2020 .. 2025"
@@ -202,3 +202,36 @@ regulation_history:
   retrieval: manual
   url: ""
   availability: same_day
+
+jarak_hub:
+  path: manual_geo/jarak_ibukota_provinsi_ke_hub_38prov.csv
+  publisher: "Disusun tim (koordinat ibu kota perkiraan)"
+  role: "Cek silang dist_hub_km (WP-07): jarak garis lurus ibu kota ke Jakarta/Surabaya/Makassar, 38 provinsi"
+  coverage: "statis, 38 provinsi"
+  license: "Tabel buatan tim CC BY 4.0"
+  redistribute: true
+  retrieval: manual
+  url: ""
+  availability: same_day
+
+konkordansi_hs:
+  path: manual_concordance/konkordansi_hs_comtrade_bps_2017_2026.csv
+  publisher: "Disusun tim (WCO HS2017-HS2022 + daftar HS8 BPS)"
+  role: "Jembatan kode impor Comtrade 2017-2022 (HS4/HS6) ke HS8 BPS 2023-2026 untuk rasio impor (WP-07)"
+  coverage: "15 kode Comtrade; rasio nilai 2022 vs 2023"
+  license: "Tabel buatan tim CC BY 4.0"
+  redistribute: true
+  retrieval: manual
+  url: ""
+  availability: same_day
+
+hortikultura_produksi:
+  path: kementan_hortikultura/produksi_hortikultura_provinsi_2020_2024_atap2024.csv
+  publisher: "Kementan (ATAP 2024), dicek silang dengan BPS"
+  role: "Produksi bawang merah, bawang putih, cabai besar, cabai rawit per provinsi -> rasio impor bawang putih (U5) & kecukupan produksi (U11)"
+  coverage: "2020 .. 2024, tahunan, 38 provinsi + nasional"
+  license: "Statistik publik Kementan; mentah tidak diredistribusi"
+  redistribute: false
+  retrieval: manual
+  url: ""
+  availability: annual

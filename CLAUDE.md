@@ -103,7 +103,7 @@ bukan kegagalan. k = 1, asosiasi nol, rasio MAE ≈ 1 adalah hasil sah. Tabel "J
 
 Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 
-- **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (18 loader), WP-03 (panel mingguan),
+- **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-12 (mesin statistik).
 - **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`.
 - **Tim (PEMBAGIAN_TUGAS.md):** Danen = jalur A data & ekonometrika inti (WP-06, 08–11, 13–17, 28–30); Ardell = jalur B
@@ -111,7 +111,12 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 - **Berikutnya — Danen:** WP-06 → WP-08 (terbit P1 21 Nov) → WP-09 (G-power 23 Nov). **Ardell:** WP-07, WP-25 (sintetis).
   **Abi:** email BI, U19, data manual §6.2, naskah praregistrasi.
   Paralel: WP-07, WP-25. Gerbang terdekat: **G6 = 21 Nov** (WP-11: bekukan varian D-011, bobot pakan D-012, grup fokus D-013).
-- **Menunggu manusia (WP-35):** email izin BI (U13), cek endpoint PIHPS resmi (U19), setup Kaggle/Drive, video, unggah.
+- **Menunggu manusia (WP-35):** email izin BI (U13), cek endpoint PIHPS resmi (U19), setup Kaggle + folder Drive tim
+  (bagikan terbatas, `drive-push-raw`) + token Drive per anggota (U100), unggah CSV penduduk 2025 & kab/kota (U103),
+  cek keaslian Pink Sheet (U101), putuskan `pihps_v1` (U104), video, unggah.
+- **Data baru 2026-11-20 (D-101):** BPS impor v2 (+bawang putih), revisi regulasi, `jarak_hub`, `konkordansi_hs`,
+  `hortikultura_produksi` — input WP-07 (Ardell). Versi lama di `data/raw/_superseded/`.
+- **Pertukaran artefak & data mentah:** folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D lewat `utils.drive` (D-100).
 - `python -m kagami stage0` saat ini berhenti di `NotImplementedYet: WP-06` (sesuai harapan).
 
 ---
@@ -215,7 +220,8 @@ Aturan menulis agar tidak cepat basi:
 
 ### 4.2 Paket terpasang
 numpy 2.3, pandas 2.3, scipy 1.16, scikit-learn 1.8, pyarrow 24, openpyxl 3.1, pyyaml 6, streamlit 1.57, plotly 6.7,
-matplotlib 3.10, pytest 9.1, nbformat 5.10, joblib 1.5. **Tidak ada** statsmodels/linearmodels (D-009) — jangan
+matplotlib 3.10, pytest 9.1, nbformat 5.10, joblib 1.5. Opsional `[drive]` (google-api-python-client, google-auth,
+google-auth-oauthlib) untuk `drive-pull/push/auth` di lokal; belum terpasang di mesin Danen, sudah ada di Kaggle/Colab. **Tidak ada** statsmodels/linearmodels (D-009) — jangan
 menambahkannya; pakai `src/stats/`.
 
 ### 4.3 Struktur paket (D-024)
@@ -237,6 +243,8 @@ cfg = get_config()
 ```
 
   (jalankan dari root project). CLI tanpa instalasi: tambahkan `from kagami.cli import main; main(["status"])`.
+- Hasil cloud ke lokal: `python -m kagami drive-pull all` (butuh token, §7.3). Hasil lokal ke tim: `drive-push <tahap>`.
+- Data mentah dari Drive tim: `python -m kagami drive-pull-raw` (tidak menimpa). Danen memperbarui: `drive-push-raw`.
 
 ### 4.5 Jebakan perkakas yang sudah terjadi
 - `Path.write_text` di Windows menulis **CRLF**. Semua file teks project sudah dinormalkan ke LF; saat mengedit lewat
@@ -279,9 +287,11 @@ datmin/
 ├── configs/
 │   ├── params.yaml           SEMUA angka analisis (dibekukan di G6)
 │   ├── commodities.yaml      10 komoditas: varian, peran, jalur eksposur, padanan Pink Sheet, HS, FAOSTAT
-│   └── sources.yaml          18 sumber mentah: path relatif raw_dir, lisensi, redistribute, retrieval, availability
+│   ├── sources.yaml          21 sumber mentah: path relatif raw_dir, lisensi, redistribute, retrieval, availability
+│   └── runtime.yaml          folder Drive tim (ID), kredensial Drive, folder kerja Colab (bukan parameter analisis)
 ├── data/
-│   ├── raw/<sumber>/         snapshot mentah (TIDAK pernah ditimpa); raw/checksums.csv
+│   ├── raw/<sumber>/         snapshot mentah (TIDAK pernah ditimpa; salinan di Drive tim, D-101); raw/checksums.csv
+│   ├── raw/_superseded/      versi lama yang digantikan (tidak dipakai, tidak diunggah)
 │   ├── reference/            tabel buatan tim: region_crosswalk.csv, province_aliases.csv (+ hasil WP-07)
 │   ├── interim/              pihps_daily.parquet, forecast_preds.parquet (boleh dihapus)
 │   └── processed/            panel_weekly, panel_weekly_region, drivers_weekly, world_prices_weekly
@@ -290,7 +300,7 @@ datmin/
 ├── src/                      paket kagami (§6, §9)
 ├── app/                      Streamlit: Home.py (hal. 1), pages/2..6, common.py
 ├── tests/                    §16
-├── docs/                     proposal & juknis (PDF) + dokumen kerja (§0.2)
+├── docs/                     proposal & juknis (PDF) + dokumen kerja (§0.2); docs/arsip/ = inventaris dataset xlsx (arsip)
 │   └── handoff/              satu file per serah-terima antar anggota (format docs/HANDOFF.md, dites)
 └── dist/                     (dibuat oleh bundle/package; boleh dihapus)
 ```
@@ -337,7 +347,7 @@ Aturan praktis:
 | `artifact_dirs` | folder BACA tambahan (output tahap sebelumnya) | kosong; env `KAGAMI_ARTIFACT_DIRS` (pemisah `os.pathsep`) |
 | `read_dirs` | urutan baca: out_dir → artifact_dirs → root | – |
 | `reference_dir` | `root/data/reference` (tabel tim yang ikut kode) | – |
-| `params`, `commodities`, `sources` | isi YAML (cached) | – |
+| `params`, `commodities`, `sources`, `runtime` | isi YAML (cached) | – |
 | `regions`, `province_aliases` | CSV referensi (cached) | – |
 | `source_path(key)` | `raw_dir / sources[key].path` | – |
 | `source_files(key)` | daftar file konkret (mengurai `glob`) | – |
@@ -350,10 +360,23 @@ Aturan praktis:
 | Platform | Deteksi | root | raw_dir | out_dir | artifact_dirs |
 |---|---|---|---|---|---|
 | local | default | folder project | `data/raw` | folder project | – |
-| kaggle | env `KAGGLE_KERNEL_RUN_TYPE` atau `/kaggle/input` ada | dataset `kagami-code` | folder input berisi `bi_pihps/` (kedalaman ≤ 3) | `/kaggle/working` | input yang memuat `results/`, `data/processed/` atau `data/interim/` (kedalaman ≤ 2) |
-| colab | `google.colab` ter-import / env `COLAB_RELEASE_TAG` | `DRIVE_DIR` | `DRIVE_DIR/data/raw` | `DRIVE_DIR` | – |
+| kaggle | env `KAGGLE_KERNEL_RUN_TYPE` atau `/kaggle/input` ada | dataset `kagami-code` | dataset `kagami-raw` bila dilampirkan (folder berisi `bi_pihps/`, kedalaman ≤ 3), selain itu `/kaggle/temp/kagami_raw` (pull dari Drive) | `/kaggle/working` | input yang memuat `results/`, `data/processed/` atau `data/interim/` (cadangan) |
+| colab | `google.colab` ter-import / env `COLAB_RELEASE_TAG` | `DRIVE_DIR` | `DRIVE_DIR/data/raw` bila ada, selain itu `/content/kagami_raw` (pull dari Drive) | `/content/kagami_out` (`runtime.yaml`) | – |
 
-`DRIVE_DIR` default `/content/drive/MyDrive/kagami`. Env `KAGAMI_*` selalu menang.
+`DRIVE_DIR` default `/content/drive/MyDrive/kagami` (kode & mentah). Env `KAGAMI_*` selalu menang.
+
+### 7.3 Folder Drive tim (D-100)
+- Semua artefak antar tahap/anggota disimpan di folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D (ID di `configs/runtime.yaml`),
+  dengan struktur = path artefak (`results/task1/profiles.parquet`, `data/processed/...`).
+- Data mentah di `data/raw/` folder itu (D-101): `utils.drive.push_raw` (MD5 sama dilewati) / `pull_raw` (hanya file yang
+  belum ada, tidak menimpa); CLI `drive-push-raw` / `drive-pull-raw`; notebook 00 memanggil `pull_raw`.
+- `utils.drive.pull(cfg, names)` → unduh ke `cfg.out_dir`; `utils.drive.push(cfg, stages)` → unggah semua artefak milik tahap
+  itu (timpa versi lama). Notebook memanggil keduanya; lokal lewat CLI `drive-pull` / `drive-push`.
+- Kredensial: Colab login Google interaktif; Kaggle Secret `KAGAMI_DRIVE_TOKEN` (token OAuth akun anggota, Internet ON);
+  lokal `~/.kagami/drive_token.json` (env `KAGAMI_DRIVE_TOKEN_FILE`) dari `python -m kagami drive-auth --client-secret F`.
+- Default `strict`: Kaggle/Colab gagal keras bila Drive tak tersedia; lokal dilewati dengan pesan.
+- Agent tidak boleh membuat/mengisi token, login ke akun Google/Kaggle user, atau mengubah izin berbagi folder — `[HUMAN]`.
+- Token & `client_secret*.json` tidak pernah di-commit (`.gitignore`). Folder dibagikan terbatas ke akun anggota (U24).
 
 ### 7.3 Aturan
 - Kode tahap TIDAK PERNAH menulis ke `raw_dir` atau `root`; semua tulisan lewat `write_artifact` → `out_dir`.
@@ -406,7 +429,8 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 
 #### src/cli.py
 - `status` · ✔ · cetak sumber mentah (ada/tidak) dan artefak (ada, lokasi, WP, ship).
-- `main` · ✔ · argparse: status, snapshot, download, stage0..robustness, all, package, bundle [--raw], app.
+- `main` · ✔ · argparse: status, snapshot, download, stage0..robustness, all, package, bundle [--raw], app,
+  drive-pull [TAHAP|all], drive-push TAHAP, drive-push-raw, drive-pull-raw, drive-auth --client-secret.
 
 #### src/utils/config.py
 - `get_config` · ✔ · `Config()` dengan default + env var.
@@ -426,6 +450,16 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `write_artifact` · ✔ · tulis + validasi kolom.
 - `read_artifact` · ✔ · baca + validasi kolom; `ArtifactMissing`.
 - `require` · ✔ · gagal cepat bila input tahap belum ada.
+
+#### src/utils/drive.py
+(kelas `GoogleDriveClient` = pembungkus Drive API v3; `DriveClient` = protokol untuk tes; `DriveUnavailable`)
+- `credentials` · ✔ · kredensial Google per platform (Colab login, Kaggle Secret, file token lokal).
+- `connect` · ✔ · bangun klien Drive API v3; `DriveUnavailable` bila library/kredensial tidak ada.
+- `pull` · ✔ · unduh artefak `names` dari folder Drive tim ke out_dir; laporkan yang belum ada di Drive.
+- `push` · ✔ · unggah artefak milik `stages` dari out_dir ke folder Drive tim (path dicerminkan, timpa versi lama).
+- `authorize_local` · ✔ · OAuth di browser → simpan token JSON (isi untuk Kaggle Secret).
+- `push_raw` · ✔ · unggah semua file sumber + checksums ke `data/raw/` Drive tim; MD5 sama dilewati (D-101).
+- `pull_raw` · ✔ · unduh file sumber yang belum ada di raw_dir (termasuk sumber glob); tidak pernah menimpa (D-101).
 
 #### src/utils/dates.py
 - `week_start` · ✔ · tanggal → Senin minggu ISO (normalize).
@@ -458,6 +492,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `load_neraca_beras` · ✔ · kolom asli neraca beras nasional.
 - `load_het_hap_current` · ✔ · kolom asli tabel HET/HAP berlaku.
 - `load_regulation_history` · ✔ · kolom asli riwayat regulasi.
+- `load_jarak_hub` · ✔ · → province_raw, province_id, capital, lat, lon, km_jakarta/surabaya/makassar, nearest_hub, dist_hub_km, ln1p_dist_hub (38 prov).
+- `load_konkordansi_hs` · ✔ · konkordansi Comtrade → HS8 BPS, kode sebagai string, kolom asli.
+- `load_hortikultura` · ✔ · → commodity_atap, province_raw, province_id, year, production_ton, note (baris nasional dibuang).
 
 #### src/data/snapshot.py
 - `sha256_file` · ✔ · hash file bertahap.
@@ -647,16 +684,22 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 | `brent` | FRED DCOILBRENTEU | 2013..2026-11-11 | kontrol | ya |
 | `dollar_index` | FRED DTWEXBGS | 2013..2026-11-13 | robustness | ya |
 | `faostat_sua` | FAOSTAT SUA Asia | 2010..2023 | rasio impor | ya (CC BY) |
-| `bps_import_monthly` | impor HS8 bulanan | 2023-01..2026-09 | cek silang | tidak |
+| `bps_import_monthly` | impor HS8 bulanan **v2** (111 kode, +bawang putih 070320) | 2023-01..2026-09 | cek silang | tidak |
 | `bps_import_annual` | 5 xlsx exim tahunan (Totals = USD) | 2023..2026 | QA | tidak |
-| `comtrade_import` | UN Comtrade HS4/HS6 bulanan | 2017-01..2022-12 | rasio impor pra-2023 | tidak |
+| `comtrade_import` | UN Comtrade HS4/HS6 bulanan (tanpa kedelai 1201) | 2017-01..2022-12 | rasio impor pra-2023 | tidak |
+| `konkordansi_hs` | Comtrade HS2017/2022 → HS8 BPS + keyakinan (buatan tim) | statis | jembatan impor (WP-07) | ya |
 | `bapanas_panel` | Panel Harga Bapanas bulanan, 38 prov | 2022-01..2026-10 | cek bias / Tier 2 | tidak |
 | `bapanas_het_settings` | riwayat setting HET/HAP | 2024..2026 | regulasi | tidak |
 | `padi_2024`, `padi_2025` | produksi padi GKG per provinsi (38) | 2024, 2025 | kecukupan beras | tidak |
 | `konsumsi_beras` | konsumsi beras RT kg/kap/tahun | 2023..2025 | kecukupan beras | tidak |
 | `neraca_beras` | neraca beras nasional | 2023..2026 | cek silang | tidak |
-| `het_hap_current` | HET/HAP berlaku (buatan tim) | per 2026-11-19 | regulasi | ya |
-| `regulation_history` | riwayat HET/HAP/HPP (buatan tim) | 2020..2025 | regulasi (E2) | ya |
+| `het_hap_current` | HET/HAP berlaku (buatan tim; revisi 20 Nov, 30 baris) | per 2026-11-19 | regulasi | ya |
+| `regulation_history` | riwayat HET/HAP/HPP (buatan tim; revisi 20 Nov, 23 baris) | 2020..2025 | regulasi (E2) | ya |
+| `hortikultura_produksi` | produksi bawang merah/putih, cabai besar/rawit per provinsi (ATAP Kementan) | 2020..2024 | rasio impor bawang putih, kecukupan | tidak |
+| `jarak_hub` | jarak ibu kota ke Jakarta/Surabaya/Makassar (buatan tim, 38 prov) | statis | cek silang dist_hub_km | ya |
+
+Menunggu diunggah (lokasi dialokasikan, U103): `bps_kependudukan/penduduk_provinsi_2025.csv`,
+`bapanas/panelharga_konsumen_kabkota_snapshot_2026-10.csv`. Versi lama: `data/raw/_superseded/` (DATASETS.md).
 
 ### 10.2 Fakta data yang sudah diverifikasi
 - Panel mingguan: 157.760 sel = 34 × 10 × 464 minggu (2018-01-01..2026-11-16). `pihps_daily` 800.642 hari teramati.
@@ -667,7 +710,11 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - Penggerak 2018–2026: sd(de) 0,0082; 259 minggu depresiasi / 200 apresiasi; de maks +0,063 (Mar 2020);
   corr(de, d_dxy) 0,52; 5 minggu tanpa fixing JISDOR (semua cuti Lebaran) diisi level sebelumnya (D-025).
 - `world_prices_weekly`: 3.096 baris (6 komoditas × 516 minggu); NaN hanya 3 minggu Nov 2026 (Pink Sheet Nov belum rilis).
-- FAOSTAT SUA tidak memuat bawang putih kering (hanya "Green garlic") → U5.
+- FAOSTAT SUA tidak memuat bawang putih kering (hanya "Green garlic") → U5; pengganti: `hortikultura_produksi` + impor 070320.
+- `hortikultura_produksi`: total nasional cocok; 148/152 nilai 2023 sama dengan BPS (4 selisih pembulatan); ATAP berhenti 2024.
+- Konkordansi HS: perubahan HS2017→HS2022 hanya 0709.59; uji tumpang tindih Comtrade–BPS 2022 belum bisa (server BPS error, U102).
+- Pink Sheet memuat lembar `Mismatch Details` (bukan rilis resmi) → cek keaslian (U101).
+- Inventaris tim menyebut `pihps_v1` "rusak", tetapi loader membacanya normal (U104).
 - Kolom `Totals` exim tahunan BPS = USD (Σ bulanan 2023 / Totals = 1,000) → D-019.
 - Bapanas memakai ejaan "D.I Yogyakarta" (alias sudah ada).
 
@@ -755,7 +802,7 @@ e = log JISDOR rerata mingguan; de = Δe; w = log harga dunia padanan dalam rupi
 ### Tahap 0 (notebook 00, ringan)
 - WP-06 episode: Σ de 8 minggu ≥ 3%, gabung tumpang tindih; daftar episode harus memuat 2018, 2020, 2022, 2024–25,
   2026 bila ada; catat jumlahnya. Lalu `mark_episode_weeks` → kolom `episode` → baru `drivers_weekly` bisa ditulis.
-- WP-07 tabel tim: setiap angka punya `source`; tanggal regulasi tak terverifikasi tetap `unverified`; populasi provinsi
+- WP-07 tabel tim: input baru `hortikultura_produksi`, `konkordansi_hs`, `jarak_hub` (D-101); setiap angka punya `source`; tanggal regulasi tak terverifikasi tetap `unverified`; populasi provinsi
   belum ada (U14) → `rice_sufficiency` NaN bila tak terselesaikan; konversi GKG→beras didokumentasikan (U21).
 - WP-08 panel wilayah: hanya seri eligible; indeks log relatif minggu pertama (bukan Rp).
 - WP-09 MDE: SEBELUM melihat β; MDE_β = 2,80·SE; MDE_PT = MDE_β/γ; tulis keputusan G-power di D-007.
@@ -865,7 +912,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
   vektorisasi, hindari loop baris; join selalu pada `week`/`province_id`/`commodity`.
 - RNG: `np.random.default_rng(cfg.seed + offset)`; offset berbeda per fungsi/tahap dan dicatat; jangan `np.random.seed`.
 - Komputasi berat: vektorisasi numpy; paralel dengan `joblib` (tersedia di Kaggle/Colab) bila perlu; ukur waktu.
-- Cetak progres singkat dengan prefiks `[tahap]` (contoh `[snapshot] 22 file -> ...`); tidak perlu logging framework.
+- Cetak progres singkat dengan prefiks `[tahap]` (contoh `[snapshot] 25 file -> ...`); tidak perlu logging framework.
 - Error eksplisit lebih baik daripada hasil diam-diam salah (contoh: `select_variants` raise bila varian tidak ada).
 - Jangan menghapus data diam-diam: tandai (flag/status) dan laporkan.
 - File teks: UTF-8, LF.
@@ -880,7 +927,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 |---|---|
 | `tests/conftest.py` | alias `kagami` → `src/` tanpa instalasi; fixture `cfg`, `pihps` (skip bila mentah tak ada) |
 | `test_config.py` | desain komoditas (10; peran 6/3/1; 5 grup fokus), wilayah (34, 7, hub, zona), sumber ada, varian ada di PIHPS, seri Pink Sheet ada |
-| `test_loaders.py` | 18 loader pada data asli + kolom; bentuk PIHPS; grup varian dari prefiks (regresi D-022); nama provinsi terpetakan 34 |
+| `test_loaders.py` | loader semua sumber pada data asli + kolom; BPS v2 memuat bawang putih; bentuk PIHPS; grup varian dari prefiks (regresi D-022); nama provinsi terpetakan 34 |
 | `test_stats.py` | OLS & SE cluster, DL/REML/EB, BH, block bootstrap, circular shift, DM |
 | `test_weekly.py` | status sel sintetis, grid, week_start, select_variants (asli & error), aggregate asli, aturan kelayakan |
 | `test_drivers.py` | grid penggerak, de & pengisian minggu libur, jendela Idulfitri, harga dunia (komposit, dw bulanan, available_at) |
@@ -891,6 +938,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app |
 | `test_claude_md.py` | §9 dokumen ini sinkron dengan kode (fungsi publik & status stub) |
 | `test_handoff.py` | format setiap `docs/handoff/*.md`: nama file, frontmatter, bagian wajib, status vs kotak centang |
+| `test_drive.py` | sinkron Drive dengan Drive palsu di memori: path dicerminkan, timpa bukan duplikat, pull ke anggota lain, hanya tahap diminta, lokal tanpa token dilewati, push/pull data mentah bolak-balik (MD5, glob, tidak menimpa) |
 | `test_docs_sync.py` | dokumen hidup tidak basi: tautan & path ada, papan WP vs stub, §2 vs papan, ID D-/U- ada, kunci `params.*` ada, sumber/komoditas/notebook/subpaket/tes terdokumentasi (§3.4) |
 
 ### 16.2 Menjalankan
@@ -910,16 +958,17 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 ## 17. Notebook & cloud
 
 - Enam notebook di `notebooks/`, satu per tahap. Struktur: markdown pengantar → sel 0 setup (identik) → sel 1
-  `init_runtime` (identik) → cek input (`require`) → `pipelines.<tahap>.run(cfg)` → diagnostik `viz.plots` → simpan output.
+  `init_runtime` (identik) → `drive.pull` + cek input (`require`) → `pipelines.<tahap>.run(cfg)` → `drive.push` →
+  diagnostik `viz.plots`. Tes memastikan setiap notebook punya pull & push untuk tahapnya.
 - Logika analisis TIDAK boleh ditulis di notebook. Kebutuhan baru → fungsi di `src/` (+ viz bila grafik).
 - Simpan notebook **tanpa output**. Sel 0–1 harus identik di semua notebook (tes). Bila mengubah sel 0/1, ubah keenamnya.
 - Mengedit notebook: pakai `nbformat` (baca → ubah `cell.source` → tulis) atau tool NotebookEdit; jangan edit JSON manual.
 - Beban: 00 & 03 ringan (lokal); 01, 02, 04 berat; 05 sedang–berat → Kaggle/Colab.
-- Urutan: 00 → (01 ∥ 04) → 02, 03 → 05. Di Kaggle, output notebook sebelumnya ditambahkan sebagai input.
+- Urutan: 00 → (01 ∥ 04) → 02, 03 → 05. Input diambil dari folder Drive tim (§7.3), bukan dari output notebook lain.
 - Distribusi kode/data: `python -m kagami bundle [--raw]` → `dist/kagami_code.zip`,
-  `dist/kagami_raw_PRIVATE.zip`. Dataset Kaggle `kagami-code` & `kagami-raw` (**PRIVAT**) atau Google Drive
+  `dist/kagami_raw_PRIVATE.zip`. Dataset Kaggle `kagami-code` (**PRIVAT**; `kagami-raw` opsional karena data mentah di Drive tim) atau Google Drive
   `MyDrive/kagami/`. Pengunggahan = tugas `[HUMAN]`; agent tidak masuk ke akun Kaggle/Google user.
-- Setelah hasil cloud selesai: user menyalin `results/`, `data/processed/`, `data/reference/` kembali ke project lokal.
+- Hasil cloud ke project lokal: `python -m kagami drive-pull all` (tanpa salin manual).
 - Langkah rinci: `docs/NOTEBOOKS.md`.
 
 ---
@@ -1002,6 +1051,8 @@ tidak boleh dikutip sebelum dicek.
 | D-026 | `src/` berlapis (permintaan user) | FINAL |
 | D-027 | Notebook per tahap lokal/Kaggle/Colab (permintaan user) | FINAL |
 | D-028 | Nama proyek KAGAMI; paket/CLI `kagami` (keputusan user) | FINAL |
+| D-100 | Input/output notebook lewat folder Drive tim (Drive API: pull/push) | FINAL |
+| D-101 | Data mentah di Drive tim (push_raw/pull_raw) + alokasi dataset 20 Nov + `_superseded/` | FINAL |
 
 ---
 
@@ -1011,8 +1062,8 @@ tidak boleh dikutip sebelum dicek.
 |---|---|---|
 | U3 | Tanggal & isi PADG 7/2026 → `params.calendar.breaks.padg_7_2026` | 🔴 |
 | U4 | Periode impor BPS terbaru (s.d. 2026-09 tersedia) | 🟡 |
-| U5 | FAOSTAT tanpa bawang putih kering → BPS/Comtrade atau ordinal | 🟡 |
-| U6 | Tanggal regulasi banyak belum terverifikasi JDIH | 🟡 |
+| U5 | FAOSTAT tanpa bawang putih kering → `hortikultura_produksi` + impor BPS v2/Comtrade 070320 | 🟡 |
+| U6 | Regulasi direvisi 20 Nov; sisa: HET Minyakita, tanggal Perbadan 4/5/6/2024, Kepbadan 299/2025, HET beras premium | 🟡 |
 | U7 | Ketentuan BPS & FRED → mentah tidak dikirim | 🟡 |
 | U8 | Kelayakan uji asimetri (tergantung MDE) | 🔴 |
 | U9 | Daya deteksi heterogenitas provinsi | 🔴 |
@@ -1020,7 +1071,7 @@ tidak boleh dikutip sebelum dicek.
 | U11 | Kecukupan produksi hanya beras | 🟡 |
 | U12 | Bibliografi belum lengkap | 🔴 |
 | U13 | Izin BI (email belum tercatat) | 🔴 `[HUMAN]` |
-| U14 | Populasi provinsi untuk kecukupan beras | 🔴 |
+| U14 | Populasi provinsi: CSV penduduk 2025 sudah diunduh, menunggu diunggah (U103) | 🟡 |
 | U15 | `n_kota` per provinsi | 🔴 |
 | U16 | URL Pink Sheet berubah per rilis | 🟡 |
 | U17 | Lonjakan harga satu hari | 🔴 (WP-10) |
@@ -1028,7 +1079,12 @@ tidak boleh dikutip sebelum dicek.
 | U20 | Pemetaan komoditas Bapanas → PIHPS | 🔴 (WP-10) |
 | U21 | Konversi GKG → beras | 🔴 (WP-07) |
 | U22 | `carry_forward` tinggi = kekakuan harga; bukan filter | 🟡 |
-| U24 | Hosting mentah di Kaggle privat / Drive | 🟡 |
+| U24 | Hosting mentah di Kaggle privat / Drive; folder Drive tim wajib dibagikan terbatas | 🟡 |
+| U100 | Kredensial Drive untuk Kaggle (OAuth client + token per anggota) | 🔴 `[HUMAN]` |
+| U101 | Keaslian Pink Sheet (lembar `Mismatch Details`) | 🔴 `[HUMAN]` |
+| U102 | Uji tumpang tindih Comtrade vs BPS 2022 (server BPS error) | 🔴 |
+| U103 | Unggah CSV penduduk 2025 & snapshot kab/kota Panel Harga | 🔴 `[HUMAN]` |
+| U104 | `pihps_v1` ditandai "rusak" di inventaris; pensiunkan atau pertahankan untuk QA | 🔴 keputusan |
 Selesai: U1, U2, U18, U23.
 
 ---

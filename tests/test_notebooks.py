@@ -34,8 +34,12 @@ def test_notebook_valid_and_consistent(path):
     first = _code(nbformat.read(NOTEBOOKS[0], 4))[:2]
     assert _code(nb)[:2] == first, "sel setup & init harus identik di semua notebook"
     assert all(not c.get("outputs") for c in nb.cells if c.cell_type == "code"), "simpan notebook tanpa output"
-    for mod in re.findall(r"from (kagami\.[\w.]+) import", "\n".join(_code(nb))):
+    code = "\n".join(_code(nb))
+    for mod in re.findall(r"from (kagami\.[\w.]+) import", code):
         importlib.import_module(mod)
+    stage = re.search(r"from kagami\.pipelines import (\w+)\n\1\.run\(cfg", code).group(1)
+    assert f"drive.pull(cfg, {stage}.REQUIRES)" in code, "input harus di-pull dari Drive tim (D-100)"
+    assert re.search(rf'drive\.push\(cfg, stages=\(.*"{stage}"', code), "output harus di-push ke Drive tim (D-100)"
 
 
 def test_setup_cells_run_locally(monkeypatch):

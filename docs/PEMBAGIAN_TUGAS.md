@@ -39,6 +39,7 @@ penuh dengan data sintetis.
 | `src/pipelines/` | `stage0.py`, `task1.py`, `robustness.py` | `task2.py`, `task3.py`, `task4.py`, `package.py` | – |
 | `src/viz/plots.py` | tambah fungsi untuk nb00/01/05 (aditif) | pemilik file; fungsi untuk app & nb02/03/04 | – |
 | `src/stats/` | pemilik (fungsi baru + tes) | boleh menambah fungsi baru (aditif) + tes | – |
+| `src/utils/`, `src/cli.py`, `configs/runtime.yaml` | pemilik (infra: config, runtime, Drive, CLI) | perubahan lewat handoff `PERMINTAAN` | – |
 | `notebooks/` | `00_stage0_data`, `01_task1_profiles`, `05_robustness` | `02_task2_patterns`, `03_task3_association`, `04_task4_forecast` | – |
 | `app/` | – | pemilik | menyediakan teks/copy di `docs/paper/app_copy.md` |
 | `configs/params.yaml` | semua bagian kecuali milik Ardell | `clustering`, `association`, `forecast`, `scenario` | – |
@@ -81,9 +82,9 @@ Ardell mengisi 24 Nov dengan WP-07 final dan WP-18/19 versi sintetis sehingga ti
 | P4 | 23 Nov | Ardell | `forecast_eval`, `ablation` | Danen (WP-29 validasi V2) | WP-28 Tier 1 lebih dulu |
 | P5 | 27 Nov | Danen & Ardell | semua artefak `ship` | Abi (WP-33/34), Ardell (WP-31/32) | Abi menulis bagian makalah yang tidak butuh angka |
 
-Cara terbit: jalankan notebook tahapnya → output disalin ke folder Drive bersama `MyDrive/kagami/` (`results/`,
-`data/processed/`, `data/reference/`) atau output notebook Kaggle dibagikan ke anggota lain → tulis 1 baris di
-handoff jenis `TERBIT` (`docs/HANDOFF.md`) + versi pendek di chat.
+Cara terbit: jalankan notebook tahapnya → sel "Simpan ke Drive tim" mengunggah otomatis ke folder Drive tim
+(https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D; lokal: `python -m kagami drive-push <tahap>`) → konsumen mengambilnya otomatis di sel "Cek input" →
+kirim handoff jenis `TERBIT` (`docs/HANDOFF.md`) + versi pendek di chat.
 
 ## 6. Rincian jalur Abi (tanpa source code)
 
@@ -109,7 +110,7 @@ dan membuat loader-nya; kode WP-07 harus tetap jalan bila file belum ada (nilai 
 
 | File | Kolom | Sumber yang disarankan |
 |---|---|---|
-| `data/raw/manual_population/populasi_provinsi.csv` | `province_raw, year, population, source_url` (38 provinsi; tahun 2024–2025) | BPS: proyeksi penduduk menurut provinsi |
+| ~~`data/raw/manual_population/populasi_provinsi.csv`~~ | **tidak perlu**: CSV penduduk 2025 BPS sudah diunduh Danen (lokasi `data/raw/bps_kependudukan/`, U14/U103) | – |
 | `data/raw/manual_pihps/n_kota.csv` | `province_id, province, n_kota, kota_list, source_url` (34 provinsi) | Situs/FAQ PIHPS: daftar kota sampel |
 | `data/raw/manual_conversion/gkg_beras.csv` | `year, factor, source_url, note` | BPS: angka konversi GKG ke beras |
 | `data/raw/manual_regulation/regulation_verified.csv` | kolom sama dengan `regulation_history.csv` + `jdih_url, verified_on` | JDIH Bapanas / Kemendag |
@@ -137,8 +138,10 @@ dan membuat loader-nya; kode WP-07 harus tetap jalan bila file belum ada (nilai 
    (`danen/...`, `ardell/...`), merge ke `main` lewat PR. Bekerja bersamaan di satu folder OneDrive berisiko konflik file.
    **Agent tidak pernah commit/push**; command git siap copas disiapkan agent hanya bila diminta (CLAUDE.md §4.6). Commit, push, PR,
    dan merge dijalankan anggota sendiri. Abi tidak perlu git: kirim file lewat Drive, Danen/Ardell yang meng-commit.
-2. **Folder Drive bersama** `MyDrive/kagami/` untuk data mentah dan artefak (tempat terbit P1–P5; juga dipakai Colab).
-3. **Kaggle**: dataset privat `kagami-code` & `kagami-raw` dibuat Danen lalu dibagikan ke Ardell sebagai collaborator;
+2. **Folder Drive tim** https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D (D-100): artefak semua tahap (push/pull otomatis) dan `data/raw/` (Danen: `drive-push-raw`;
+   anggota: `drive-pull-raw`, D-101). Bagikan **hanya** ke akun Ardell & Abi (Editor), bukan "siapa saja yang punya link" (U24).
+   Kaggle butuh token OAuth per anggota sebagai Secret `KAGAMI_DRIVE_TOKEN` (`docs/NOTEBOOKS.md` §Persiapan).
+3. **Kaggle**: dataset privat `kagami-code` dibuat Danen lalu dibagikan ke Ardell sebagai collaborator (`kagami-raw` opsional);
    notebook masing-masing dijalankan di akun sendiri.
 4. Ardell & Danen: `pip install -e ".[dev]"`, `pytest` hijau sebelum mulai.
 

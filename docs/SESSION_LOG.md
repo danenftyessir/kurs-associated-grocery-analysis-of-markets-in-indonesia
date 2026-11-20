@@ -9,6 +9,21 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-20 — Danen: data mentah ke Drive tim + dataset baru (D-101)
+- utils.drive.push_raw/pull_raw + CLI drive-push-raw/drive-pull-raw; notebook 00 memanggil pull_raw; Kaggle/Colab punya fallback raw_dir.
+- Inventaris 20 Nov: BPS impor v2 (+bawang putih), revisi regulasi 20 Nov, + jarak_hub, konkordansi_hs, hortikultura_produksi
+  (loader + tes). Versi lama → data/raw/_superseded/; inventaris xlsx → docs/arsip/. checksums: 25 file.
+- Isu baru U101 (Pink Sheet), U102 (overlap Comtrade–BPS), U103 (unggah penduduk & kab/kota), U104 (pihps_v1). U5/U6/U14 diperbarui.
+- Handoff: docs/handoff/20261120-1617_danen-ke-semua_data-mentah-drive.md. Belum: drive-push-raw sungguhan (butuh token Danen).
+
+### 2026-11-20 — Danen: output notebook langsung ke Drive tim (D-100)
+- src/utils/drive.py (pull/push/credentials/connect/authorize_local) + configs/runtime.yaml (folder ID 15T5ry1V…) + CLI drive-pull/push/auth;
+  extra opsional `[drive]`; .gitignore menolak client_secret*.json & drive_token*.json. Colab menulis ke /content/kagami_out lalu push.
+- 6 notebook: drive.pull(cfg, <tahap>.REQUIRES) sebelum cek input, drive.push setelah run; teks "unduh manual" diganti.
+- tests/test_drive.py (Drive palsu) + tes notebook/runtime diperbarui. Dokumen disinkronkan (NOTEBOOKS ditulis ulang, ARCHITECTURE,
+  CLAUDE §2/§4/§5/§7.3/§9/§16/§17/§21/§22, README, PEMBAGIAN, HANDOFF, WORKPLAN, onboarding). U100 baru: token Drive Kaggle [HUMAN].
+- Belum diuji ke Drive sungguhan (butuh token/login); lokal tanpa library Google → pesan jelas.
+
 ### 2026-11-20 — Danen: dokumen selalu mutakhir + git hanya bila diminta
 - CLAUDE.md §3.4: matriks jenis perubahan → dokumen wajib diperbarui; aturan menulis anti-basi; catatan bertanggal = jejak sejarah.
 - tests/test_docs_sync.py (12 cek): tautan/path, papan WP vs todo(), §2 Selesai vs papan, ID D-/U-, params.*, sumber, komoditas,

@@ -28,6 +28,8 @@ venv/
 # --- Kredensial (jangan pernah di-commit) -------------------------------------------
 kaggle.json
 .env
+client_secret*.json
+drive_token*.json
 
 # --- File sistem Windows / OneDrive -------------------------------------------------
 desktop.ini

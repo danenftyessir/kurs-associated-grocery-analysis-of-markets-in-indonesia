@@ -56,7 +56,7 @@ Satu sampai dua kalimat: apa yang sudah siap/berubah dan apa yang perlu penerima
 ## Yang diserahkan
 | Item | Lokasi | Versi | Catatan |
 |---|---|---|---|
-| `drivers_weekly` | Drive `MyDrive/kagami/data/processed/` | commit `abc1234` (branch `danen/wp-08`) | 516 minggu, kolom `episode` sudah terisi |
+| `drivers_weekly` | Drive tim `data/processed/` | commit `abc1234` (branch `danen/wp-08`) | 516 minggu, kolom `episode` sudah terisi |
 
 ## Perubahan kontrak
 - Artefak/kolom/skema: tidak ada | aditif: <sebutkan>
@@ -105,7 +105,7 @@ Bagian wajib di isi: **Ringkasan**, **Yang diserahkan**, **Yang perlu dilakukan 
 
 | Jenis | Wajib ada di "Yang diserahkan" / "Angka penting" |
 |---|---|
-| `TERBIT` | Nama artefak persis seperti di registry; lokasi (Drive/Kaggle output); commit kode yang menghasilkannya; jumlah baris; hasil `python -m kagami status`; bahwa data bukan sintetis |
+| `TERBIT` | Nama artefak persis seperti di registry; lokasi (folder Drive tim, sudah di-push); commit kode yang menghasilkannya; jumlah baris; hasil `python -m kagami status`; bahwa data bukan sintetis |
 | `PERMINTAAN` | File/fungsi milik penerima yang perlu diubah; perubahan yang diminta; alasan; **solusi sementara** yang dipakai peminta agar tetap tidak menunggu |
 | `SERAH-TERIMA-WP` | Branch & commit terakhir; fungsi yang sudah ✔ dan yang masih stub; tes yang ada/gagal; jebakan yang ditemukan; sisa langkah dari heading WP |
 | `DATA-MANUAL` | Path CSV; kesesuaian dengan skema PEMBAGIAN_TUGAS §6.2; sumber (URL) per kolom; cakupan (provinsi/tahun); nilai yang tidak ditemukan |
@@ -131,7 +131,7 @@ Detail: docs/handoff/<nama-file>.md
    §4.6), lalu menempel versi pendek di chat.
 2. **Penerima** mengubah `status: diterima` saat mulai, mencentang kotak saat mengerjakan, dan `status: selesai` saat beres.
    Hanya field `status` dan kotak centang yang boleh diubah penerima; isi lain milik pengirim.
-3. **Abi** (tanpa git): tulis handoff dengan template yang sama di Google Docs/Drive `MyDrive/kagami/handoff/` dan tempel versi
+3. **Abi** (tanpa git): tulis handoff dengan template yang sama di folder Drive tim `handoff/` dan tempel versi
    pendek di chat; penerima (Danen/Ardell) menyalinnya ke `docs/handoff/` saat commit berikutnya.
 4. Handoff tidak menggantikan sumber kebenaran: keputusan tetap dicatat di DECISIONS, isu di OPEN_ISSUES, status WP di WORKPLAN.
 5. Handoff `terbuka` lebih dari 1 hari setelah `tenggat_respon` → pengirim menulis handoff `BLOKIR` atau memakai solusi sementara.

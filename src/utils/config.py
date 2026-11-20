@@ -99,6 +99,11 @@ class Config:
     def sources(self) -> dict[str, dict[str, Any]]:
         return self._yaml("sources.yaml")
 
+    @cached_property
+    def runtime(self) -> dict[str, Any]:
+        """Pengaturan runtime (folder Drive tim, kredensial, folder kerja Colab); bukan parameter analisis."""
+        return self._yaml("runtime.yaml")
+
     # ---- tabel referensi buatan tim ----------------------------------------
     @cached_property
     def regions(self) -> pd.DataFrame:

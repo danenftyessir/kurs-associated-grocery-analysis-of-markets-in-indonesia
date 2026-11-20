@@ -7,6 +7,11 @@
   all               stage0 -> task1 -> task2 -> task3 -> task4 -> robustness
   package           zip submission juri (allowlist hak data)
   bundle [--raw]    zip kode untuk Kaggle/Colab (+ zip data mentah PRIVAT bila --raw)
+  drive-pull [TAHAP|all ..]   unduh artefak input tahap (atau semua) dari folder Drive tim ke out_dir
+  drive-push TAHAP ..         unggah artefak hasil tahap ke folder Drive tim
+  drive-push-raw              unggah semua data mentah (+checksums) ke data/raw/ di Drive tim (MD5 sama dilewati)
+  drive-pull-raw              unduh data mentah yang belum ada di raw_dir dari Drive tim (tidak menimpa)
+  drive-auth --client-secret F  buat token OAuth Drive (sekali per anggota; isi untuk Kaggle Secret)
   app               jalankan Streamlit (Tingkat A)
 """
 
@@ -18,6 +23,8 @@ import sys
 
 from kagami.data import download, snapshot
 from kagami.pipelines import package, robustness, stage0, task1, task2, task3, task4
+from kagami.utils import drive
+from kagami.utils.artifacts import ARTIFACTS
 from kagami.utils.config import get_config
 from kagami.utils.env import artifact_status
 
@@ -29,6 +36,8 @@ PIPELINE = {
     "task4": task4.run,
     "robustness": robustness.run,
 }
+PIPELINE_REQUIRES = {"stage0": stage0.REQUIRES, "task1": task1.REQUIRES, "task2": task2.REQUIRES,
+                     "task3": task3.REQUIRES, "task4": task4.REQUIRES, "robustness": robustness.REQUIRES}
 
 
 def status(cfg) -> None:
@@ -46,8 +55,10 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="kagami", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("command", choices=["status", "snapshot", "download", *PIPELINE, "all", "package",
-                                        "bundle", "app"])
-    ap.add_argument("keys", nargs="*", help="kunci sumber untuk `download`")
+                                        "bundle", "app", "drive-pull", "drive-push", "drive-auth",
+                                        "drive-push-raw", "drive-pull-raw"])
+    ap.add_argument("keys", nargs="*", help="kunci sumber (`download`) atau nama tahap (`drive-pull`, `drive-push`)")
+    ap.add_argument("--client-secret", help="drive-auth: file client_secret OAuth (Desktop app) dari Google Cloud")
     ap.add_argument("--tier2", action="store_true", help="robustness: sertakan Tier 2")
     ap.add_argument("--allow-missing", action="store_true", help="package: izinkan artefak belum lengkap")
     ap.add_argument("--raw", action="store_true", help="bundle: sertakan zip data mentah PRIVAT")
@@ -74,6 +85,23 @@ def main(argv: list[str] | None = None) -> int:
         package.code_bundle(cfg)
         if args.raw:
             package.raw_bundle(cfg)
+    elif args.command == "drive-pull":
+        stages = args.keys or ["all"]
+        names = list(ARTIFACTS) if "all" in stages else sorted({n for s in stages for n in PIPELINE_REQUIRES[s]})
+        drive.pull(cfg, names, strict=True)
+    elif args.command == "drive-push":
+        if not args.keys:
+            ap.error("drive-push butuh nama tahap, mis. `drive-push stage0`")
+        stages = set(args.keys) | ({"snapshot"} if "stage0" in args.keys else set())
+        drive.push(cfg, stages, strict=True)
+    elif args.command == "drive-push-raw":
+        drive.push_raw(cfg, strict=True)
+    elif args.command == "drive-pull-raw":
+        drive.pull_raw(cfg, strict=True)
+    elif args.command == "drive-auth":
+        if not args.client_secret:
+            ap.error("drive-auth butuh --client-secret <file client_secret.json>")
+        drive.authorize_local(cfg, args.client_secret)
     elif args.command == "app":
         return subprocess.call([sys.executable, "-m", "streamlit", "run", str(cfg.path("app/Home.py"))])
     return 0

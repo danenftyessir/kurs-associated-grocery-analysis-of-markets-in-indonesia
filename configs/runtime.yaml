@@ -1,0 +1,23 @@
+# Pengaturan runtime (BUKAN parameter analisis; tidak dibekukan G6). Dipakai src/utils/drive.py & src/utils/env.py.
+
+drive:
+  # Folder Google Drive tim tempat artefak notebook disimpan & dibaca (D-100). Struktur di dalamnya mencerminkan path
+  # artefak (results/..., data/processed/..., data/interim/..., data/reference/...). Folder harus dibagikan TERBATAS
+  # ke anggota tim (bukan "siapa saja yang punya link") karena memuat turunan PIHPS (U24).
+  folder_id: 15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D
+  folder_url: https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D
+  scopes: ["https://www.googleapis.com/auth/drive"]
+  # Kaggle: nama Kaggle Secret berisi token OAuth (JSON authorized_user) hasil `python -m kagami drive-auth`.
+  token_secret: KAGAMI_DRIVE_TOKEN
+  # Lokal: lokasi file token (di luar repo). Override dengan env KAGAMI_DRIVE_TOKEN_FILE.
+  token_file: ~/.kagami/drive_token.json
+
+colab:
+  # Folder kerja lokal Colab untuk menulis artefak sebelum di-push ke Drive tim.
+  out_dir: /content/kagami_out
+  # Data mentah bila DRIVE_DIR/data/raw tidak ada: diunduh dari Drive tim oleh drive.pull_raw (D-101).
+  raw_dir: /content/kagami_raw
+
+kaggle:
+  # Data mentah bila dataset kagami-raw tidak dilampirkan: diunduh dari Drive tim oleh drive.pull_raw (D-101).
+  raw_dir: /kaggle/temp/kagami_raw

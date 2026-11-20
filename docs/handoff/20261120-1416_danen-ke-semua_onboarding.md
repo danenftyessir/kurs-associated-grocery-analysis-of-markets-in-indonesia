@@ -18,8 +18,8 @@ Ardell mulai jalur B (WP-07, WP-25) dan Abi mulai jalur C (email BI, cek endpoin
 | Item | Lokasi | Versi | Catatan |
 |---|---|---|---|
 | Kode + dokumen | repo `danenftyessir/kurs-associated-grocery-analysis-of-markets-in-indonesia`, branch `main` | commit import skeleton (setelah di-push Danen) | data mentah tidak ada di repo (`.gitignore`) |
-| Data mentah | Drive bersama `MyDrive/kagami/data/raw/` | snapshot 2026-11-18/19, hash di `data/raw/checksums.csv` | disiapkan Danen (PEMBAGIAN_TUGAS §8) |
-| Artefak yang sudah ada | Drive `MyDrive/kagami/` (`data/interim/`, `data/processed/`, `results/stage0/`) | dibuat dari kode di atas | `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly` |
+| Data mentah | folder Drive tim `data/raw/` | snapshot 2026-11-18/19, hash di `data/raw/checksums.csv` | disiapkan Danen (PEMBAGIAN_TUGAS §8) |
+| Artefak yang sudah ada | folder Drive tim (`data/interim/`, `data/processed/`, `results/stage0/`; `python -m kagami drive-pull all`) | dibuat dari kode di atas | `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly` |
 | Pembagian tugas & jadwal | `docs/PEMBAGIAN_TUGAS.md` | – | PIC per WP juga ada di papan `docs/WORKPLAN.md` |
 
 ## Perubahan kontrak
@@ -31,7 +31,7 @@ Ardell mulai jalur B (WP-07, WP-25) dan Abi mulai jalur C (email BI, cek endpoin
 
 **Ardell**
 - [ ] Clone repo, buat branch `ardell/setup`, jalankan `pip install -e ".[dev]"` lalu `pytest` (79 passed per 2026-11-20 14:16; tes loader di-skip bila data mentah belum disalin).
-- [ ] Salin `MyDrive/kagami/data/raw/` ke `data/raw/` di clone (tidak di-commit), lalu `python -m kagami status`.
+- [ ] Buat token Drive (`docs/NOTEBOOKS.md` §Persiapan 2), lalu `python -m kagami drive-pull-raw`, `python -m kagami drive-pull all`, dan `python -m kagami status`.
 - [ ] Baca `CLAUDE.md` (§0, §3.0, §4.6, §6, §9), `docs/PEMBAGIAN_TUGAS.md`, heading WP-07 & WP-25 di `docs/WORKPLAN.md`.
 - [ ] Mulai WP-07 (tabel referensi, NaN-aman bila CSV manual Abi belum ada) dan WP-25 (fitur as-of dengan data sintetis/`panel_weekly`).
 
@@ -39,13 +39,13 @@ Ardell mulai jalur B (WP-07, WP-25) dan Abi mulai jalur C (email BI, cek endpoin
 - [ ] Baca `docs/PEMBAGIAN_TUGAS.md` §6 (daftar tugas & skema CSV data manual) dan `docs/PROJECT_OVERVIEW.md`.
 - [ ] Kirim email permohonan izin ke BI (U13, sekaligus tanyakan hosting privat U24); catat tanggal kirim lewat handoff `KEPUTUSAN`/`BLOKIR` atau chat.
 - [ ] Cek apakah endpoint `WebSite/TabelHarga/GetGridDataDaerah` = fitur unduh resmi PIHPS (U19); laporkan ke Danen.
-- [ ] Mulai data manual §6.2 (prioritas: PADG 7/2026 untuk U3, populasi provinsi, n_kota) dan naskah praregistrasi (G6 = 21 Nov).
+- [ ] Mulai data manual §6.2 (prioritas: PADG 7/2026 untuk U3, n_kota; populasi tidak perlu, sudah ada CSV BPS) dan naskah praregistrasi (G6 = 21 Nov).
 
 ## Cara memverifikasi
 ```powershell
 python -m kagami status
 ```
-Hasil yang diharapkan: 18 sumber mentah bertanda `[x]`; artefak `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`,
+Hasil yang diharapkan: 21 sumber mentah bertanda `[x]`; artefak `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`,
 `world_prices_weekly` bertanda `[x]` bila folder artefak dari Drive ikut disalin.
 
 ## Angka penting

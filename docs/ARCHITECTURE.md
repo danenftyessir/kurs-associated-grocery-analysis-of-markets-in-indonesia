@@ -28,7 +28,9 @@ Task 4 hanya butuh Tahap 0 → paralel dengan Task 1.
 
 ```
 configs/            params.yaml (angka analisis; DIBEKUKAN di G6) · commodities.yaml · sources.yaml (path relatif raw_dir)
-data/raw/<sumber>/  snapshot mentah lokal, tidak pernah ditimpa; checksums.csv = hash + retrieved_at
+                    · runtime.yaml (folder Drive tim, kredensial, folder kerja Colab; bukan parameter analisis)
+data/raw/<sumber>/  snapshot mentah lokal (salinan dari/ke Drive tim, D-101), tidak pernah ditimpa; checksums.csv = hash;
+                    _superseded/ = versi lama (tidak dipakai, tidak diunggah)
 data/reference/     tabel buatan tim (CC BY 4.0): region_crosswalk, province_aliases, + hasil WP-07
 data/interim/       antara, boleh dihapus (pihps_daily, forecast_preds)
 data/processed/     panel & penggerak mingguan
@@ -37,7 +39,8 @@ notebooks/          00_stage0_data · 01_task1_profiles · 02_task2_patterns · 
                     04_task4_forecast · 05_robustness
 src/                paket `kagami` (package-dir di pyproject, D-024)
   cli.py            entry point CLI; PIPELINE = urutan tahap
-  utils/            config (lokasi kode/raw/out + yaml), env (runtime lokal/Kaggle/Colab), artifacts (registry),
+  utils/            config (lokasi kode/raw/out + yaml), env (runtime lokal/Kaggle/Colab), drive (sinkron Drive tim),
+                    artifacts (registry),
                     io (write/read/require artefak), dates (week_start), todo (stub "WP-xx")
   data/             loaders ✔, snapshot ✔, download ✔, weekly ✔ (varian, agregasi, kelayakan),
                     drivers ✔ (penggerak, harga dunia; episode = WP-06), reference, panel (7 wilayah), qa
@@ -51,7 +54,7 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
   pipelines/        stage0 · task1 · task2 · task3 · task4 · robustness (REQUIRES + run(cfg)) · package (zip juri, bundle)
   viz/              plots: grafik bersama notebook & app
 app/                Home.py (hal. 1) + pages/2..6 + common.py
-tests/              config · loaders · stats · weekly · drivers · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync
+tests/              config · loaders · stats · weekly · drivers · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)
 ```
@@ -74,10 +77,14 @@ Aturan lapisan: `data` → `features` → `models` → `evaluation`; `stats` & `
 | | root (kode) | raw_dir (mentah) | out_dir (tulis) | artifact_dirs (baca tambahan) |
 |---|---|---|---|---|
 | lokal | folder project | `data/raw` | folder project | – |
-| Kaggle | dataset `kagami-code` | dataset PRIVAT `kagami-raw` (folder berisi `bi_pihps/`) | `/kaggle/working` | output notebook sebelumnya yang ditambahkan sebagai input |
-| Colab | `DRIVE_DIR` (project di Google Drive) | `DRIVE_DIR/data/raw` | `DRIVE_DIR` | – |
+| Kaggle | dataset `kagami-code` | dataset `kagami-raw` bila dilampirkan, selain itu `/kaggle/temp/kagami_raw` (pull dari Drive) | `/kaggle/working` | (cadangan) output notebook lain yang ditambahkan sebagai input |
+| Colab | `DRIVE_DIR` (project di Google Drive) | `DRIVE_DIR/data/raw` bila ada, selain itu `/content/kagami_raw` (pull dari Drive) | `/content/kagami_out` (`runtime.yaml`) | – |
 
 - Tulis selalu ke `out_dir`; baca dari lokasi pertama yang memuat artefak: `out_dir` → `artifact_dirs` → `root`.
+- **Pertukaran antar tahap/anggota lewat folder Drive tim** (https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D; D-100): notebook memanggil
+  `utils.drive.pull(cfg, <tahap>.REQUIRES)` di awal dan `utils.drive.push(cfg, stages=...)` di akhir; lokal lewat
+  `python -m kagami drive-pull/drive-push`. Struktur di Drive = path artefak relatif out_dir. Kredensial: Colab login
+  interaktif; Kaggle Secret `KAGAMI_DRIVE_TOKEN`; lokal `~/.kagami/drive_token.json` (`drive-auth`).
 - Override manual: env `KAGAMI_ROOT`, `KAGAMI_RAW_DIR`, `KAGAMI_OUT_DIR`, `KAGAMI_ARTIFACT_DIRS` (pemisah `os.pathsep`).
 - Sel pertama setiap notebook (identik di semua notebook, dites) menemukan folder kode dan mendaftarkan `kagami`
   tanpa `pip install`; hanya dependensi yang hilang yang dipasang.
@@ -93,6 +100,11 @@ Aturan lapisan: `data` → `features` → `models` → `evaluation`; `stats` & `
 | `python -m kagami stage0` / `task1` / … / `robustness [--tier2]` | satu tahap (= notebook yang sama) |
 | `python -m kagami all` | semua tahap berurutan |
 | `python -m kagami bundle [--raw]` | `dist/kagami_code.zip` untuk Kaggle/Colab (+ `kagami_raw_PRIVATE.zip`) |
+| `python -m kagami drive-pull [TAHAP/all ...]` | unduh artefak input tahap (atau semua) dari folder Drive tim ke out_dir |
+| `python -m kagami drive-push TAHAP ...` | unggah artefak hasil tahap ke folder Drive tim |
+| `python -m kagami drive-push-raw` | unggah semua data mentah + checksums ke `data/raw/` Drive tim (MD5 sama dilewati) |
+| `python -m kagami drive-pull-raw` | unduh data mentah yang belum ada di raw_dir dari Drive tim (tidak menimpa) |
+| `python -m kagami drive-auth --client-secret F` | buat token OAuth Drive (sekali per anggota; isi Kaggle Secret) |
 | `python -m kagami package [--allow-missing]` | `dist/kagami_submission.zip` (juri) |
 | `python -m kagami app` | Streamlit (Tingkat A) |
 | `pytest` | seluruh tes (loader butuh data mentah; di-skip bila tidak ada) |

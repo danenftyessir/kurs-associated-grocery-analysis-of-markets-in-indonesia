@@ -264,6 +264,41 @@ def load_regulation_history(cfg: Config) -> pd.DataFrame:
     return pd.read_csv(cfg.source_path("regulation_history"))
 
 
+# ---------------------------------------------------------------------------
+# Tabel tim & statistik tambahan (masuk 2026-11-20)
+# ---------------------------------------------------------------------------
+def load_jarak_hub(cfg: Config) -> pd.DataFrame:
+    """-> province_raw, province_id, capital, lat, lon, km_jakarta, km_surabaya, km_makassar, nearest_hub,
+    dist_hub_km, ln1p_dist_hub (38 provinsi; pemekaran Papua dipetakan ke induk, jadi province_id bisa berulang)."""
+    df = pd.read_csv(cfg.source_path("jarak_hub"))
+    out = pd.DataFrame({
+        "province_raw": df["provinsi"], "province_id": map_province(cfg, df["provinsi"]), "capital": df["ibu_kota"],
+        "lat": df["lat_perkiraan"], "lon": df["lon_perkiraan"], "km_jakarta": df["km_ke_jakarta"],
+        "km_surabaya": df["km_ke_surabaya"], "km_makassar": df["km_ke_makassar"], "nearest_hub": df["hub_terdekat"],
+        "dist_hub_km": df["jarak_hub_terdekat_km_garis_lurus"], "ln1p_dist_hub": df["ln1p_jarak_km"],
+    })
+    return out
+
+
+def load_konkordansi_hs(cfg: Config) -> pd.DataFrame:
+    """Konkordansi Comtrade (HS4/HS6) -> HS8 BPS; kode dibaca sebagai string (jaga nol depan), kolom asli."""
+    return pd.read_csv(cfg.source_path("konkordansi_hs"), dtype={"comtrade_code": str, "bps_hs8_prefix": str})
+
+
+def load_hortikultura(cfg: Config) -> pd.DataFrame:
+    """-> commodity_atap, province_raw, province_id, year, production_ton, note.
+
+    commodity_atap ∈ {bawang_merah, bawang_putih, cabai_besar_group, cabai_rawit}; baris nasional dibuang
+    (province_id NaN). '-' di sumber = tanpa data (production_ton NaN, note diisi)."""
+    df = pd.read_csv(cfg.source_path("hortikultura_produksi"))
+    out = pd.DataFrame({
+        "commodity_atap": df["komoditas"], "province_raw": df["provinsi"], "province_id": map_province(cfg, df["provinsi"]),
+        "year": df["tahun"].astype(int), "production_ton": pd.to_numeric(df["produksi_ton"], errors="coerce"),
+        "note": df["catatan"],
+    })
+    return out.dropna(subset=["province_id"]).reset_index(drop=True)
+
+
 # Registry: kunci sources.yaml -> loader. Dipakai oleh tests & `kagami status`.
 LOADERS = {
     "jisdor": load_jisdor,
@@ -284,4 +319,7 @@ LOADERS = {
     "neraca_beras": load_neraca_beras,
     "het_hap_current": load_het_hap_current,
     "regulation_history": load_regulation_history,
+    "jarak_hub": load_jarak_hub,
+    "konkordansi_hs": load_konkordansi_hs,
+    "hortikultura_produksi": load_hortikultura,
 }

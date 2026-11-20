@@ -1,11 +1,12 @@
-"""Runtime notebook: deteksi platform (lokal / Kaggle / Colab) dan susun Config dengan lokasi yang tepat (D-027).
+"""Runtime notebook: deteksi platform (lokal / Kaggle / Colab) dan susun Config dengan lokasi yang tepat (D-027, D-100).
 
-| Platform | root (kode)                         | raw_dir                                   | out_dir           | artifact_dirs                         |
-|----------|-------------------------------------|-------------------------------------------|-------------------|---------------------------------------|
-| local    | folder project                      | root/data/raw                             | root              | (kosong)                              |
-| kaggle   | dataset kode di /kaggle/input/...   | dataset input yang memuat `bi_pihps/`     | /kaggle/working   | semua input yang memuat results/ atau data/processed|interim/ |
-| colab    | DRIVE_DIR (project disalin ke Drive)| DRIVE_DIR/data/raw                        | DRIVE_DIR         | (kosong; semua tahap menulis ke Drive) |
+| Platform | root (kode)                         | raw_dir                               | out_dir                         | artifact_dirs |
+|----------|-------------------------------------|---------------------------------------|---------------------------------|---------------|
+| local    | folder project                      | root/data/raw                         | root                            | (kosong)      |
+| kaggle   | dataset kode di /kaggle/input/...   | dataset `bi_pihps/` atau /kaggle/temp/kagami_raw (pull) | /kaggle/working                 | input yang memuat results/ atau data/processed|interim/ (cadangan) |
+| colab    | DRIVE_DIR (project disalin ke Drive)| DRIVE_DIR/data/raw atau /content/kagami_raw | runtime.yaml colab.out_dir      | (kosong)      |
 
+Input/output antar tahap disinkronkan dengan folder Drive tim lewat `utils.drive.pull/push` (D-100).
 Env var KAGAMI_* tetap menang bila diset (lihat utils/config.py).
 """
 
@@ -58,13 +59,18 @@ def init_runtime(platform: str | None = None, drive_dir: str = DEFAULT_DRIVE_DIR
     platform = platform or detect_platform()
     if platform == "kaggle":
         KAGGLE_WORKING.mkdir(parents=True, exist_ok=True)
-        cfg = Config(raw_root=_env_or("KAGAMI_RAW_DIR", kaggle_raw_dir()),
+        rt = Config().runtime
+        raw = kaggle_raw_dir() or Path(rt["kaggle"]["raw_dir"])          # dataset kagami-raw opsional (D-101)
+        cfg = Config(raw_root=_env_or("KAGAMI_RAW_DIR", raw),
                      out_root=_env_or("KAGAMI_OUT_DIR", KAGGLE_WORKING),
                      artifact_dirs=kaggle_artifact_dirs())
     elif platform == "colab":
         d = Path(drive_dir)
-        cfg = Config(raw_root=_env_or("KAGAMI_RAW_DIR", d / "data" / "raw"),
-                     out_root=_env_or("KAGAMI_OUT_DIR", d))
+        rt = Config().runtime
+        work = Path(rt["colab"]["out_dir"])   # dibuat otomatis saat artefak pertama ditulis
+        raw = d / "data" / "raw" if (d / "data" / "raw").is_dir() else Path(rt["colab"]["raw_dir"])
+        cfg = Config(raw_root=_env_or("KAGAMI_RAW_DIR", raw),
+                     out_root=_env_or("KAGAMI_OUT_DIR", work))
     elif platform == "local":
         cfg = Config()
     else:

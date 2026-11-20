@@ -32,7 +32,9 @@ Satu notebook per tahap di `notebooks/` (`00_stage0_data` … `05_robustness`); 
 python -m kagami bundle --raw
 ```
 
-lalu ikuti [docs/NOTEBOOKS.md](docs/NOTEBOOKS.md). Data mentah hanya boleh diunggah ke dataset Kaggle **privat** / Drive pribadi.
+lalu ikuti [docs/NOTEBOOKS.md](docs/NOTEBOOKS.md). Output setiap notebook tersimpan otomatis di folder Drive tim
+(https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D) dan input tahap berikutnya diambil dari sana; di lokal: `python -m kagami drive-pull all`. Data mentah juga ada di sana
+(`data/raw/`): `python -m kagami drive-pull-raw`. Data mentah hanya boleh diunggah ke dataset Kaggle **privat** / Drive pribadi.
 
 ## Hak data
 Data mentah PIHPS & JISDOR (Bank Indonesia), BPS, Bapanas, dan UN Comtrade **tidak** disertakan; yang disertakan adalah skrip

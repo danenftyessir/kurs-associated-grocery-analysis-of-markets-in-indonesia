@@ -1,5 +1,7 @@
 """D-027: lokasi kode / mentah / output terpisah; artefak dicari lintas lokasi (lokal, Kaggle, Colab)."""
 
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -46,4 +48,8 @@ def test_colab_layout(cfg, tmp_path, monkeypatch):
     for v in ("KAGAMI_RAW_DIR", "KAGAMI_OUT_DIR"):
         monkeypatch.delenv(v, raising=False)
     c = init_runtime("colab", drive_dir=str(tmp_path), verbose=False)
-    assert c.raw_dir == tmp_path / "data" / "raw" and c.out_dir == tmp_path
+    assert c.raw_dir == Path(c.runtime["colab"]["raw_dir"])          # DRIVE_DIR/data/raw tidak ada -> pull_raw (D-101)
+    assert c.out_dir == Path(c.runtime["colab"]["out_dir"])          # tulis lokal, lalu push ke Drive tim (D-100)
+    (tmp_path / "data" / "raw").mkdir(parents=True)
+    c2 = init_runtime("colab", drive_dir=str(tmp_path), verbose=False)
+    assert c2.raw_dir == tmp_path / "data" / "raw"                   # salinan mentah di DRIVE_DIR tetap dipakai bila ada
