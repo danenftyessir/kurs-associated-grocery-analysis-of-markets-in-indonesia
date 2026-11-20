@@ -64,7 +64,7 @@ tidak ada yang menunggu.
 | `README.md` | – | – | pemilik (bagian deskripsi & GitHub) |
 
 Satu file yang dipakai dua orang (`association.py`, dan pipeline yang memanggil fungsi pemilik lain) dibagi per **fungsi**: tiap orang
-hanya mengubah badan fungsi WP-nya di branch `feat/<topik>` sendiri, sehingga merge tidak bentrok. Pemilik pipeline menulis kerangka dan
+hanya mengubah badan fungsi WP-nya di branch `feat/<fungsi>` sendiri, sehingga merge tidak bentrok. Pemilik pipeline menulis kerangka dan
 memanggil fungsi pemilik lain menurut kontrak docstring; blok pemanggil fungsi sendiri boleh ditambahkan pemilik fungsi lewat PR kecil
 terpisah (kabari lewat handoff `TERBIT`).
 
@@ -158,7 +158,7 @@ dan membuat loader-nya; kode WP-07 harus tetap jalan bila file belum ada (nilai 
 1. **Repo GitHub** sudah ada: `danenftyessir/kurs-associated-grocery-analysis-of-markets-in-indonesia` (branch `main`).
    `.gitignore` mengecualikan data mentah (kecuali `checksums.csv` & `manual_regulation/`), `data/interim/`, `data/processed/`,
    `results/` (kecuali `findings.md`), `dist/`, cache, kredensial. Tiap anggota teknis bekerja di clone sendiri. Branch hanya `main` (stabil), `dev`
-   (integrasi), dan `feat/<topik>` (satu WP/topik, dari `dev`, PR ke `dev`); `dev` → `main` lewat PR saat stabil (D-103,
+   (integrasi), dan `feat/<fungsi>` (fungsi pekerjaannya, maks 3 kata, mis. `feat/reference-tables`; dari `dev`, PR ke `dev`; pesan commit tanpa kode; D-108); `dev` → `main` lewat PR saat stabil (D-103,
    CLAUDE.md §4.6). Tidak ada commit langsung ke `main`/`dev`. Branch `dev` dibuat Danen dari `main` sebelum mulai. Bekerja bersamaan di satu folder OneDrive berisiko konflik file.
    **Agent tidak pernah commit/push**; command git siap copas disiapkan agent hanya bila diminta (CLAUDE.md §4.6). Commit, push, PR,
    dan merge dijalankan anggota sendiri. Abi tidak perlu git: kirim file lewat Drive, Danen/Ardell yang meng-commit.

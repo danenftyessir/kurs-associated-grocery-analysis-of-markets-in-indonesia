@@ -9,6 +9,22 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-20 — Danen: WP-06 ✅, WP-08 ✅, WP-09 ✅ (sementara), WP-13 🔶
+- WP-06 `drivers.find_episodes/mark_episode_weeks/fx_variation_table`: 13 episode (2018 ×3, 2020 ×2, 2021, 2022, 2023, 2024 ×2, 2025, 2026 ×2), 61 minggu; 259/200/5 minggu dep/app/nol.
+- WP-08 `panel.build_region_panel` (dua arah, tahan komposisi, D-106): 32.480 baris; minggu 2022-05-02 kosong di 5 wilayah.
+- WP-13 sebagian: `build_design`, `regressors`, `fit_lp`, `fx_self_response` (D-107); β data asli belum dilihat. γ(4/8/12) = 1,44/1,32/1,03.
+- WP-09 `power.compute_mde/null_se/gate_g_power`: MDE_PT(8) nasional bawang putih 2,52, gula 0,90, minyak goreng 0,465 → LP tetap utama (sementara, sebelum G6; D-007).
+- stage0: tabel WP-07 dipindah ke akhir; kini berhenti di WP-10. Tes baru: test_panel, test_local_projection, test_power (+ episode di test_drivers).
+- Handoff: docs/handoff/20261120-2230_danen-ke-ardell_p1-dan-lp.md. P1 + mde diunggah ke Drive tim lewat Chrome (data/processed: drivers_weekly, panel_weekly_region; results/stage0: episodes, fx_variation, mde). Belum: commit kode.
+- Nama branch kini `feat/<fungsi>` maks 3 kata, pesan commit tanpa kode (D-108; CLAUDE §4.6, PEMBAGIAN §8, HANDOFF); branch sesi ini `feat/episode-panel-mde`.
+- Berikutnya: G6 (WP-11) → ulang stage0 → `national_profiles` → WP-14 → WP-10 → G-power 23 Nov.
+
+### 2026-11-20 — Danen: data mentah & artefak Tahap 0 diunggah ke Drive tim
+- Lewat Chrome Danen (token Drive belum ada, U100): struktur `data/raw/<13 sumber>/`, `data/interim/`, `data/processed/`, `results/stage0/`.
+- Terunggah: 23/24 file mentah + checksums.csv; pihps_daily, panel_weekly, world_prices_weekly, eligibility. Folder dikonfirmasi dibagikan terbatas (U24).
+- `faostat/SUA_Crops_Livestock_E_Asia.zip` (14 MB > batas unggah ekstensi) diseret manual oleh Danen; dicek ada di Drive → 24/24 lengkap.
+- Handoff: docs/handoff/20261120-2010_danen-ke-semua_data-di-drive.md. CLAUDE.md §2 diperbarui.
+
 ### 2026-11-20 — Danen: pembagian tugas ulang Danen–Ardell (D-105)
 - Tiap Task dipegang berdua: Danen WP-06, 08, 09, 10, 11, 13, 14, 18, 21, 22, 27, 28, 29, 30; Ardell WP-07, 15, 16, 17, 19, 20, 23, 24, 25, 26, 31, 32.
 - Diperbarui: PEMBAGIAN_TUGAS §1/§3/§4/§5, papan WORKPLAN (PIC WP-15–18, 21, 22, 27), CLAUDE.md §2/§21, DECISIONS D-105.

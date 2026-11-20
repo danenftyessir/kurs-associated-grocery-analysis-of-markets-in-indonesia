@@ -34,13 +34,21 @@ dalam periode terisi ≥ 70% minggu.
 ### M0.5 Episode (WP-06)
 Minggu *t* memicu episode bila Σ_{s=t−7..t} de_s ≥ 0,03. Rangkaian pemicu yang berdempetan/tumpang tindih digabung.
 `start_week` = minggu pertama pemicu; `cum_dlog_e` = depresiasi kumulatif maksimum dalam episode.
+Implementasi (D-107): pemicu berjarak ≤ 8 minggu digabung; `end_week` = pemicu terakhir; minggu `start_week..end_week` → `episode = 1`.
+`fx_variation`: per tahun 2018..2026 + total, minggu de > 0 / de < 0 / de = 0, rerata, sd, ekstrem.
 
 ### M0.6 MDE (WP-09, sebelum melihat β)
 1. LP tanpa kurs (lag Δp, db, S(t)) per komoditas & horizon → residual.
 2. SE_β ≈ SE dari regresi residual pada `de` dengan cluster per minggu (atau rumus analitik
-   sd(resid)/(sd(de)·√T_eff); dokumentasikan yang dipakai).
+   sd(resid)/(sd(de)·√T_eff); dokumentasikan yang dipakai). **Dipakai (D-107):** bentuk skor di bawah H0 —
+   SE = √(c·Σ_t(Σ_r x̃·û)²)/Σx̃², û = residual LP tanpa kurs, x̃ = de dibersihkan dari kontrol + lag de + dw; c = CR1.
+   Nasional = panel provinsi eligible pooled; wilayah = satu LP per wilayah dari `panel_weekly_region`.
 3. MDE_β = (z_{0,975} + z_{0,80}) · SE_β ≈ 2,80 · SE_β; MDE_PT(h) = MDE_β(h) / γ(h).
 4. Gerbang: MDE_PT(8) > 0,5 untuk ketiga {bawang putih, gula pasir, minyak goreng} → D-007 berlaku.
+
+### M0.7 Panel 7 wilayah (WP-08)
+Seri eligible saja. Per (wilayah, komoditas): p(r,t) = a_r + l_t (alternating projection; tahan perubahan komposisi, D-106);
+rerata wilayah m(t) = l_t + rerata a_r; `log_price_index` = m(t) − m(minggu pertama). `n_provinces` = provinsi teramati minggu t.
 
 ## M1 — Task 1 profil respons
 
