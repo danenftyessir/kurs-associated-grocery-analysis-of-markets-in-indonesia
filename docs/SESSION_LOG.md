@@ -9,6 +9,35 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-21 — Danen: WP-29 🔶 (validasi V2 & V4)
+- `robustness.validation` + `lp_implied_paths`; `evaluate` kini punya subset `case_study` (origin 2026); `events` + `placebo_median`.
+- V4 data asli: implikasi LP di dalam interval kelebihan event 26/30 sel (17/18 fokus); tanda per episode ± 0,5 → arah antar-episode tidak konsisten.
+- V2 episode 12 (2026-05-18): 0/30 sel di luar pita plasebo. V2-forecast menunggu P4.
+- Bug desain ditemukan pada data asli: titik tengah pita plasebo bias oleh ekor (minyak goreng −0,09) → median (D-114).
+- Pipeline robustness: REQUIRES + episodes. Berikutnya: G-power 23 Nov → WP-18/21/22/27/29 asli.
+
+### 2026-11-21 — Danen: WP-27 🔶 (evaluasi DM & ablation, sintetis)
+- `forecast_eval.evaluate/ablation/n_nonoverlap` + `stats.meta.holm`; sel ALL/komoditas/wilayah/jalur H5, subset all & large_move.
+- DM pada MAE per origin (HAC lag ceil(h/4)−1); H5 = M2, h 8, large_move, 2 jalur, DM satu sisi + Holm (D-113).
+- Bug ditemukan tes: p NaN membuat keluarga Holm menyusut → kini dihitung 1. α H5 dari PREREGISTRATION (tak ada kunci beku).
+- Tes baru: test_forecast_eval (+ holm). Handoff ke Ardell: kontrak `forecast_preds` (model `M2_nofx`, large_move).
+- Berikutnya: G-power 23 Nov → WP-29 (V4 data asli) → WP-18/21/22/27 asli.
+
+### 2026-11-21 — Danen: WP-21 🔶 (struktur tertanam, sintetis)
+- `planted.recovery_curve` + `best_silhouette`, `placebo_threshold`, `plant_structure`, `detection_limit`; Ward bisa disuntikkan (WP-19 masih stub).
+- δ = selisih respons RMS per fitur antar pasangan kelompok (simpleks acak), ditanam sebelum z-score (D-112). Versi j·δ segaris ditolak: k = 3 tak pernah terpilih.
+- Sintetis (derau 0,3, 12 fitur): recovery δ 0,5 = 0,85 (k=2) / 0,90 (k=3); 200 replikasi ± 20 dtk. Tes baru: test_planted.
+- Handoff ke Ardell diperluas: `task2` meneruskan matriks plasebo mentah ke `recovery_curve`.
+- Berikutnya: G-power 23 Nov → WP-18/21/22 asli (P2/P3/WP-19) → WP-27 (P4) → WP-29.
+
+### 2026-11-21 — Danen: WP-28 ✅, WP-18 🔶, WP-22 🔶 (kode sintetis)
+- WP-28 `robustness.tier1` + `fx_decomposition`: 6 cek × h 4/8/12 × driver e/w; data asli 382 baris, 21 dtk. Pipeline robustness kini membaca panel & eligibility.
+- Daging ayam β_e(8): tanpa COVID & Brent ekstrem −0,96 (−2,05..0,14); komponen spesifik rupiah −1,89 (−3,02..−0,76) → bukan semata COVID.
+- Aturan Brent ekstrem membuang juga Mar 2026 (+0,40) dan Nov 2026 (parsial); d_dxy menjelaskan 27% varians de.
+- WP-18 `heterogeneity_stats/placebo_pvalues` dan WP-22 `kendall_exact` (+ `all_permutations`, `kendall_permutation_test`, 10! eksak) dites sintetis.
+- D-111 (konvensi teknis). Tes baru: test_robustness, test_heterogeneity. Handoff ke Ardell: `se` wajib di placebo_stats provinsi.
+- Berikutnya: G-power 23 Nov → WP-21 (sintetis) → WP-18/22 asli (P2/P3) → WP-27 (P4) → WP-29.
+
 ### 2026-11-20 — Danen: WP-13 ✅, WP-14 ✅, WP-10 ✅
 - WP-13 `national_profiles` (+ elig/horizons/commodities): 598 baris, 23 dtk; task1 meneruskan eligibility. Catatan: daging ayam β_e(8) −1,67 (SE cluster) → cek tanpa 2020.
 - WP-14 `event_paths/placebo_starts/placebo_bands`: 1.690 baris nasional; kandidat plasebo 164 minggu unik (D-110).

@@ -6,7 +6,7 @@ Status: 🔴 terbuka · 🟡 default sementara dipakai · 🟢 selesai. Tutup is
 
 | # | Isu | Default sementara | Tenggat | WP | Status |
 |---|---|---|---|---|---|
-| U1 | Juknis INDONERIS 2026 | Mengikuti juknis resmi (docs/Juknis...pdf) | – | – | 🟢 |
+| U1 | Juknis INDONERIS 2026 | Mengikuti juknis resmi (docs/spec/Juknis...pdf) | – | – | 🟢 |
 | U2 | Cakupan PIHPS 2018–2019 | Mulai 2020 bila tidak tersedia | 20 Nov | WP-04 | 🟢 2026-11-20: 337/340 seri layak sejak 2018 → mulai 2018 (D-006) |
 | U3 | Tanggal berlaku & isi PADG No. 7/2026 | Tandai minggu sekitar perubahan; robustness tanpa minggu itu | 21 Nov | WP-05, WP-28 | 🔴 isi `params.calendar.breaks.padg_7_2026` |
 | U4 | Periode impor BPS terbaru | FAOSTAT sumber utama rasio impor | 21 Nov | WP-07 | 🟡 BPS bulanan s.d. 2026-09 tersedia |

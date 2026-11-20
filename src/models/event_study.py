@@ -110,7 +110,7 @@ def placebo_bands(cfg: Config, panel: pd.DataFrame, episodes: pd.DataFrame, leve
     Gabung dengan event_paths -> artefak 'events'.
     Satu set awal plasebo (params.inference.event_placebo_windows, RNG seed + 1401) dipakai bersama untuk semua
     komoditas & unit. placebo_p = (1 + #|plasebo| >= |aktual|) / (1 + n_plasebo_valid) (METHODS §M1.3).
-    Kolom ekstra: n_placebo.
+    Kolom ekstra: n_placebo, placebo_median (pusat null; dipakai validasi V2/V4, D-114).
     """
     H = int(max(cfg.params["lp"]["horizons"]))
     n = int(cfg.params["inference"]["event_placebo_windows"])
@@ -124,10 +124,11 @@ def placebo_bands(cfg: Config, panel: pd.DataFrame, episodes: pd.DataFrame, leve
         arr, units = _aggregate(_paths(P, starts, H), P.columns, level)        # (n, h, unit)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", RuntimeWarning)
-            lo, hi = np.nanpercentile(arr, [2.5, 97.5], axis=0)
+            lo, med, hi = np.nanpercentile(arr, [2.5, 50, 97.5], axis=0)
         h_i, u_i = np.meshgrid(np.arange(H + 1), np.arange(len(units)), indexing="ij")
         b = pd.DataFrame({"unit": np.asarray(units, dtype=object)[u_i.ravel()], "commodity": com,
-                          "horizon": h_i.ravel(), "placebo_lo": lo.ravel(), "placebo_hi": hi.ravel()})
+                          "horizon": h_i.ravel(), "placebo_lo": lo.ravel(), "placebo_hi": hi.ravel(),
+                          "placebo_median": med.ravel()})
         b["_null"] = [arr[:, h, u] for h, u in zip(h_i.ravel(), u_i.ravel())]
         bands.append(b)
     out = actual.merge(pd.concat(bands, ignore_index=True), on=["unit", "commodity", "horizon"], how="left")
@@ -142,4 +143,4 @@ def placebo_bands(cfg: Config, panel: pd.DataFrame, episodes: pd.DataFrame, leve
     pv = out.apply(p_value, axis=1, result_type="expand")
     out["placebo_p"], out["n_placebo"] = pv[0], pv[1].astype(int)
     return out[["episode_id", "level", "unit", "commodity", "horizon", "dlog_price", "placebo_lo", "placebo_hi",
-                "placebo_p", "n_placebo"]]
+                "placebo_p", "n_placebo", "placebo_median"]]
