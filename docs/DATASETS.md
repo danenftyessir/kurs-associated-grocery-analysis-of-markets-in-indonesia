@@ -2,7 +2,7 @@
 
 Registry mesin: [`configs/sources.yaml`](../configs/sources.yaml) (path relatif `Config.raw_dir`; lokal = `data/raw/`).
 Loader: `src/data/loaders.py` (`LOADERS`). Hash & waktu ambil: `data/raw/checksums.csv` (`python -m kagami snapshot`).
-Fakta di bawah diverifikasi pada snapshot 2026-11-20 (25 file). Inventaris tim versi spreadsheet:
+Fakta di bawah diverifikasi pada snapshot 2026-11-20 (24 file). Inventaris tim versi spreadsheet:
 `docs/arsip/Inventaris Dataset (20 Nov 2026).xlsx` (arsip; dokumen ini yang berlaku).
 
 ## Distribusi ke anggota (D-101)
@@ -18,7 +18,6 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 | Kunci | Isi | Cakupan terverifikasi | Peran | Kirim mentah? |
 |---|---|---|---|---|
 | `pihps` | PIHPS harian pasar tradisional, 34 prov × 31 baris (10 komoditas + 21 varian) | 2017-03-28 .. 2026-11-19 | Outcome | Tidak |
-| `pihps_v1` | Snapshot PIHPS pra-merge (punya kolom `no`); inventaris tim menandainya "rusak" (U104) | sama | QA v1 vs v2 | Tidak |
 | `jisdor` | JISDOR IDR/USD harian | 2013-05-20 .. 2026-11-18 (3.269 hari) | Penggerak 1 | Tidak |
 | `pinksheet` | Pink Sheet bulanan USD | 1960-01 .. 2026-10 (update 3 Nov 2026) | Penggerak 2 | Ya (CC BY 4.0) |
 | `brent` | FRED DCOILBRENTEU harian | 2013-01-02 .. 2026-11-11 | Kontrol | Ya |
@@ -48,6 +47,7 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 ### Versi lama (tidak dipakai; `data/raw/_superseded/`, tidak diunggah ke Drive)
 | File | Digantikan oleh | Alasan |
 |---|---|---|
+| `_superseded/bi_pihps/pihps_pasar_tradisional_harian_2017-2026_retrieved_2026-11-18.zip` | `bi_pihps/..._v2_merged_...zip` | snapshot pra-merge, ditandai rusak di inventaris (D-102) |
 | `_superseded/bps_trade/bps_import_hs8_monthly_2023_2026.csv` | `bps_trade/bps_import_hs8_monthly_2023_2026_v2.csv` | v1 hanya 16 baris bawang putih 070320 (v2: 59) |
 | `_superseded/manual_regulation/het_hap_current_2026-11-19.csv` | `manual_regulation/het_hap_current_2026-11-20.csv` | tanggal, nomor, URL sumber diperbarui |
 | `_superseded/manual_regulation/regulation_history_2026-11-19.csv` | `manual_regulation/regulation_history_2026-11-20.csv` | 20 → 23 baris; nomor BN & URL diperbarui |
@@ -56,7 +56,7 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 
 ## Detail per sumber (format mentah → keluaran loader)
 
-### PIHPS (`pihps`, `pihps_v1`)
+### PIHPS (`pihps`)
 - Zip berisi 34 CSV `pihps_provNN_<Nama>.csv` (+ `MANIFEST.csv`, `ERRORS.json` kosong di v2). Format lebar: kolom
   `province_id, province, level, commodity, <tanggal...>`. Baris level 1 = komoditas, level 2 = varian di bawahnya.
 - MANIFEST v2: endpoint `WebSite/TabelHarga/GetGridDataDaerah`, `price_type=1 (Pasar Tradisional)`, harian,
@@ -72,7 +72,8 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 - Harga sangat kaku untuk komoditas yang diatur: ≥ 85% minggu beras, daging sapi, gula berisi rangkaian nilai identik ≥ 5 hari (U22).
 - Kejanggalan diketahui: spasi di akhir `Cabai Merah Keriting ` (ditangani `norm_name`); lonjakan satu hari
   (Papua, Beras level 1, 2017-07-03: 15.800/29.750 lalu 9.500) → QA WP-10; tanggal 2026-11-19 sebagian kosong.
-- `pihps_v1` terbaca normal oleh loader (34 provinsi, tes lolos), tetapi inventaris tim menyebutnya "rusak" → U104.
+- Snapshot pra-merge (`pihps_pasar_tradisional_harian_2017-2026_retrieved_2026-11-18.zip`) dipensiunkan ke
+  `data/raw/_superseded/bi_pihps/` (D-102): inventaris tim menandainya rusak; tidak dipakai, tidak diunggah ke Drive.
 - Harga provinsi = rerata kota sampel (82 kota, 2 pasar/kota, 2 pedagang/komoditas) → derau berbeda antarprovinsi.
 
 ### JISDOR (`jisdor`)
@@ -151,7 +152,8 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 | Nama asli di `data/` | Path sekarang | Dipindah |
 |---|---|---|
 | `Informasi Kurs Jisdor.xlsx` | `data/raw/bi_jisdor/jisdor_daily.xlsx` | 2026-11-20 |
-| `pihps_..._v2_merged_retrieved_2026-11-18.zip`, `pihps_..._retrieved_2026-11-18.zip` | `data/raw/bi_pihps/` (nama tetap) | 2026-11-20 |
+| `pihps_..._v2_merged_retrieved_2026-11-18.zip` | `data/raw/bi_pihps/` (nama tetap) | 2026-11-20 |
+| `pihps_..._retrieved_2026-11-18.zip` (pra-merge) | `data/raw/_superseded/bi_pihps/` (D-102) | 2026-11-20 |
 | `CMO-Historical-Data-Monthly.xlsx` | `data/raw/wb_pinksheet/` | 2026-11-20 |
 | `DCOILBRENTEU.csv`, `DTWEXBGS.csv` | `data/raw/fred/` | 2026-11-20 |
 | `SUA_Crops_Livestock_E_Asia.zip` | `data/raw/faostat/` | 2026-11-20 |

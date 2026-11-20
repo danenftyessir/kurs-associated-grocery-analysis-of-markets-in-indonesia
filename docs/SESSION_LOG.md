@@ -9,6 +9,10 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-20 — Danen: pihps_v1 dipensiunkan (D-102)
+- Zip PIHPS pra-merge → data/raw/_superseded/bi_pihps/; dicabut dari sources.yaml, LOADERS, tes, qa.compare_pihps_versions, stage0, WP-10.
+- U104 ditutup. Sumber terdaftar: 20 (24 file).
+
 ### 2026-11-20 — Danen: data mentah ke Drive tim + dataset baru (D-101)
 - utils.drive.push_raw/pull_raw + CLI drive-push-raw/drive-pull-raw; notebook 00 memanggil pull_raw; Kaggle/Colab punya fallback raw_dir.
 - Inventaris 20 Nov: BPS impor v2 (+bawang putih), revisi regulasi 20 Nov, + jarak_hub, konkordansi_hs, hortikultura_produksi

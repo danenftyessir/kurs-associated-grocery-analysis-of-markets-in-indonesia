@@ -113,7 +113,7 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
   Paralel: WP-07, WP-25. Gerbang terdekat: **G6 = 21 Nov** (WP-11: bekukan varian D-011, bobot pakan D-012, grup fokus D-013).
 - **Menunggu manusia (WP-35):** email izin BI (U13), cek endpoint PIHPS resmi (U19), setup Kaggle + folder Drive tim
   (bagikan terbatas, `drive-push-raw`) + token Drive per anggota (U100), unggah CSV penduduk 2025 & kab/kota (U103),
-  cek keaslian Pink Sheet (U101), putuskan `pihps_v1` (U104), video, unggah.
+  cek keaslian Pink Sheet (U101), video, unggah.
 - **Data baru 2026-11-20 (D-101):** BPS impor v2 (+bawang putih), revisi regulasi, `jarak_hub`, `konkordansi_hs`,
   `hortikultura_produksi` — input WP-07 (Ardell). Versi lama di `data/raw/_superseded/`.
 - **Pertukaran artefak & data mentah:** folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D lewat `utils.drive` (D-100).
@@ -287,7 +287,7 @@ datmin/
 ├── configs/
 │   ├── params.yaml           SEMUA angka analisis (dibekukan di G6)
 │   ├── commodities.yaml      10 komoditas: varian, peran, jalur eksposur, padanan Pink Sheet, HS, FAOSTAT
-│   ├── sources.yaml          21 sumber mentah: path relatif raw_dir, lisensi, redistribute, retrieval, availability
+│   ├── sources.yaml          20 sumber mentah: path relatif raw_dir, lisensi, redistribute, retrieval, availability
 │   └── runtime.yaml          folder Drive tim (ID), kredensial Drive, folder kerja Colab (bukan parameter analisis)
 ├── data/
 │   ├── raw/<sumber>/         snapshot mentah (TIDAK pernah ditimpa; salinan di Drive tim, D-101); raw/checksums.csv
@@ -530,7 +530,6 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `build_region_panel` · ⬜ WP-08 · rerata log provinsi eligible per wilayah → indeks relatif minggu pertama + n_provinces.
 
 #### src/data/qa.py
-- `compare_pihps_versions` · ⬜ WP-10 · v1 vs v2: sel berbeda / hanya di satu versi.
 - `flag_price_outliers` · ⬜ WP-10 · lonjakan satu hari |Δlog| > 0,5 yang berbalik (ditandai, tidak dihapus).
 - `check_import_totals` · ⬜ WP-10 · Σ BPS bulanan vs total tahunan.
 - `check_bapanas_bias` · ⬜ WP-10 · rerata bulanan PIHPS vs Panel Harga Bapanas.
@@ -678,7 +677,6 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 | Kunci | Isi | Cakupan | Peran | Redistribusi |
 |---|---|---|---|---|
 | `pihps` | PIHPS v2 merged, 34 prov × 31 baris (10 komoditas + 21 varian), harian | 2017-03-28..2026-11-19 | outcome | tidak |
-| `pihps_v1` | snapshot pra-merge | sama | QA saja (D-008) | tidak |
 | `jisdor` | JISDOR harian | 2013-05-20..2026-11-18 | penggerak 1 | tidak |
 | `pinksheet` | World Bank CMO bulanan USD | 1960-01..2026-10 | penggerak 2 | ya (CC BY) |
 | `brent` | FRED DCOILBRENTEU | 2013..2026-11-11 | kontrol | ya |
@@ -714,7 +712,7 @@ Menunggu diunggah (lokasi dialokasikan, U103): `bps_kependudukan/penduduk_provin
 - `hortikultura_produksi`: total nasional cocok; 148/152 nilai 2023 sama dengan BPS (4 selisih pembulatan); ATAP berhenti 2024.
 - Konkordansi HS: perubahan HS2017→HS2022 hanya 0709.59; uji tumpang tindih Comtrade–BPS 2022 belum bisa (server BPS error, U102).
 - Pink Sheet memuat lembar `Mismatch Details` (bukan rilis resmi) → cek keaslian (U101).
-- Inventaris tim menyebut `pihps_v1` "rusak", tetapi loader membacanya normal (U104).
+- Snapshot PIHPS pra-merge (`pihps_v1`) dipensiunkan ke `data/raw/_superseded/bi_pihps/` (D-102): inventaris tim menandainya rusak.
 - Kolom `Totals` exim tahunan BPS = USD (Σ bulanan 2023 / Totals = 1,000) → D-019.
 - Bapanas memakai ejaan "D.I Yogyakarta" (alias sudah ada).
 
@@ -806,7 +804,7 @@ e = log JISDOR rerata mingguan; de = Δe; w = log harga dunia padanan dalam rupi
   belum ada (U14) → `rice_sufficiency` NaN bila tak terselesaikan; konversi GKG→beras didokumentasikan (U21).
 - WP-08 panel wilayah: hanya seri eligible; indeks log relatif minggu pertama (bukan Rp).
 - WP-09 MDE: SEBELUM melihat β; MDE_β = 2,80·SE; MDE_PT = MDE_β/γ; tulis keputusan G-power di D-007.
-- WP-10 QA: v1 vs v2, outlier, total impor, bias Bapanas (pemetaan komoditas U20), laporan markdown.
+- WP-10 QA: outlier, total impor, bias Bapanas (pemetaan komoditas U20), laporan markdown.
 
 ### Task 1 (notebook 01, berat)
 - LP dengan lag-augmentation (L = 4), efek tetap seri, SE cluster per **minggu**; asimetri via de⁺/de⁻.
@@ -912,7 +910,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
   vektorisasi, hindari loop baris; join selalu pada `week`/`province_id`/`commodity`.
 - RNG: `np.random.default_rng(cfg.seed + offset)`; offset berbeda per fungsi/tahap dan dicatat; jangan `np.random.seed`.
 - Komputasi berat: vektorisasi numpy; paralel dengan `joblib` (tersedia di Kaggle/Colab) bila perlu; ukur waktu.
-- Cetak progres singkat dengan prefiks `[tahap]` (contoh `[snapshot] 25 file -> ...`); tidak perlu logging framework.
+- Cetak progres singkat dengan prefiks `[tahap]` (contoh `[snapshot] <n> file -> ...`); tidak perlu logging framework.
 - Error eksplisit lebih baik daripada hasil diam-diam salah (contoh: `select_variants` raise bila varian tidak ada).
 - Jangan menghapus data diam-diam: tandai (flag/status) dan laporkan.
 - File teks: UTF-8, LF.
@@ -1030,7 +1028,7 @@ tidak boleh dikutip sebelum dicek.
 | D-005 | Inferensi berbasis minggu (cluster minggu) | FINAL |
 | D-006 | Periode mulai 2018-01-01 (337/340 layak) | FINAL |
 | D-007 | Aturan G-power (MDE PT(8) > 0,5) | FINAL ambang; angka menunggu WP-09 |
-| D-008 | PIHPS v2_merged kanonik; v1 untuk QA | FINAL |
+| D-008 | PIHPS v2_merged kanonik (bagian "v1 untuk QA" diganti D-102) | FINAL |
 | D-009 | Mesin statistik numpy/scipy sendiri | FINAL |
 | D-010 | App hanya membaca artefak | FINAL |
 | D-011 | Varian representatif | PROVISIONAL (G6) |
@@ -1053,6 +1051,7 @@ tidak boleh dikutip sebelum dicek.
 | D-028 | Nama proyek KAGAMI; paket/CLI `kagami` (keputusan user) | FINAL |
 | D-100 | Input/output notebook lewat folder Drive tim (Drive API: pull/push) | FINAL |
 | D-101 | Data mentah di Drive tim (push_raw/pull_raw) + alokasi dataset 20 Nov + `_superseded/` | FINAL |
+| D-102 | `pihps_v1` dipensiunkan; QA v1 vs v2 dihapus dari WP-10 | FINAL |
 
 ---
 
@@ -1084,7 +1083,7 @@ tidak boleh dikutip sebelum dicek.
 | U101 | Keaslian Pink Sheet (lembar `Mismatch Details`) | 🔴 `[HUMAN]` |
 | U102 | Uji tumpang tindih Comtrade vs BPS 2022 (server BPS error) | 🔴 |
 | U103 | Unggah CSV penduduk 2025 & snapshot kab/kota Panel Harga | 🔴 `[HUMAN]` |
-| U104 | `pihps_v1` ditandai "rusak" di inventaris; pensiunkan atau pertahankan untuk QA | 🔴 keputusan |
+| U104 | `pihps_v1` dipensiunkan ke `_superseded/` (D-102) | 🟢 |
 Selesai: U1, U2, U18, U23.
 
 ---

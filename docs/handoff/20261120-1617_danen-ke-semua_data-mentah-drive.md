@@ -18,7 +18,7 @@ hortikultura) yang menjadi input WP-07; tugas pengumpulan populasi manual Abi gu
 ## Yang diserahkan
 | Item | Lokasi | Versi | Catatan |
 |---|---|---|---|
-| Semua data mentah (21 sumber) + `checksums.csv` | folder Drive tim `data/raw/` | snapshot 2026-11-20 (25 file) | tersedia setelah Danen menjalankan `python -m kagami drive-push-raw` |
+| Semua data mentah (20 sumber) + `checksums.csv` | folder Drive tim `data/raw/` | snapshot 2026-11-20 (24 file) | tersedia setelah Danen menjalankan `python -m kagami drive-push-raw` |
 | `bps_import_monthly` v2 | `data/raw/bps_trade/bps_import_hs8_monthly_2023_2026_v2.csv` | 2026-11-20 | 111 kode HS8; 59 baris bawang putih 070320 (v1: 16) |
 | `het_hap_current`, `regulation_history` | `data/raw/manual_regulation/*_2026-11-20.csv` | revisi 2026-11-20 | 30 & 23 baris; nomor BN & URL diperbarui |
 | `hortikultura_produksi` (baru) | `data/raw/kementan_hortikultura/` | ATAP 2024 | produksi bawang merah/putih, cabai besar/rawit per provinsi 2020–2024 |
@@ -45,18 +45,18 @@ hortikultura) yang menjadi input WP-07; tugas pengumpulan populasi manual Abi gu
 ```powershell
 python -m kagami drive-pull-raw
 ```
-Hasil yang diharapkan: pesan `[drive] pull-raw: N file -> ...data\raw`; lalu `python -m kagami status` menampilkan 21 sumber bertanda `[x]`.
+Hasil yang diharapkan: pesan `[drive] pull-raw: N file -> ...data\raw`; lalu `python -m kagami status` menampilkan 20 sumber bertanda `[x]`.
 
 ## Angka penting
 | Besaran | Nilai | Sumber artefak |
 |---|---|---|
-| Sumber mentah terdaftar | 21 (25 file) | `checksums` |
+| Sumber mentah terdaftar | 20 (24 file) | `checksums` |
 | Baris bawang putih 070320 di impor BPS bulanan | 59 (v1: 16) | `bps_import_monthly` |
 | Produksi hortikultura | 780 baris, 2020–2024 | `hortikultura_produksi` |
 
 ## Batasan, risiko, yang belum beres
 - Data baru ada di Drive setelah Danen menjalankan `drive-push-raw` dengan token (U100); sebelum itu, hanya di laptop Danen.
-- Menunggu Danen: unggah CSV penduduk 2025 & snapshot kab/kota Panel Harga ke lokasi yang sudah dialokasikan (U103); cek keaslian Pink Sheet (U101); keputusan `pihps_v1` yang ditandai "rusak" (U104).
+- Menunggu Danen: unggah CSV penduduk 2025 & snapshot kab/kota Panel Harga ke lokasi yang sudah dialokasikan (U103); cek keaslian Pink Sheet (U101). `pihps_v1` sudah dipensiunkan (D-102).
 - Uji tumpang tindih Comtrade vs BPS 2022 belum bisa (server BPS error, U102): pakai kolom `keyakinan_pemetaan` dan nyatakan sebagai batasan.
 
 ## Balasan

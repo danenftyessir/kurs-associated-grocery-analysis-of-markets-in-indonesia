@@ -45,7 +45,7 @@ Ardell mulai jalur B (WP-07, WP-25) dan Abi mulai jalur C (email BI, cek endpoin
 ```powershell
 python -m kagami status
 ```
-Hasil yang diharapkan: 21 sumber mentah bertanda `[x]`; artefak `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`,
+Hasil yang diharapkan: 20 sumber mentah bertanda `[x]`; artefak `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`,
 `world_prices_weekly` bertanda `[x]` bila folder artefak dari Drive ikut disalin.
 
 ## Angka penting

@@ -34,7 +34,7 @@ Status: 🔴 terbuka · 🟡 default sementara dipakai · 🟢 selesai. Tutup is
 | U101 | Pink Sheet memuat lembar tambahan `Mismatch Details` (bukan rilis resmi) | Loader hanya membaca `Monthly Prices` | 22 Nov | WP-05 | 🔴 `[HUMAN]` Danen: bandingkan dengan salinan resmi World Bank; bila beda, snapshot baru + snapshot/drive-push-raw |
 | U102 | Uji tumpang tindih Comtrade vs BPS (Apr–Des 2022) untuk konkordansi HS | Konkordansi dipakai dengan kolom keyakinan; dinyatakan sebagai batasan | 24 Nov | WP-07 | 🔴 server ekspor-impor BPS error ('Unknown Error Occured'); coba ulang |
 | U103 | CSV penduduk 2025 & snapshot Panel Harga kab/kota masih di Downloads Danen | Lokasi sudah dialokasikan (DATASETS.md §Menunggu diunggah) | 21 Nov | WP-07 | 🔴 `[HUMAN]` Danen: taruh di lokasi itu, daftarkan di sources.yaml (agent), snapshot, drive-push-raw |
-| U104 | Inventaris tim menandai zip PIHPS tanpa `v2_merged` (`pihps_v1`) "rusak"; loader tetap membacanya (34 provinsi) | Tetap dipakai hanya untuk QA v1 vs v2 (WP-10) | 22 Nov | WP-10 | 🔴 putuskan: pensiunkan `pihps_v1` (pindah ke `_superseded/`) atau pertahankan untuk QA |
+| U104 | Inventaris tim menandai zip PIHPS tanpa `v2_merged` (`pihps_v1`) "rusak" | – | 22 Nov | WP-10 | 🟢 2026-11-20: dipensiunkan ke `data/raw/_superseded/bi_pihps/`; QA v1 vs v2 dihapus dari WP-10 (D-102) |
 
 ## Risiko (proposal v4 §9.3)
 

@@ -146,7 +146,7 @@ yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOT
 
 ### WP-10 — QA silang & laporan Tahap 0
 - File: `src/data/qa.py` → `stage0_report`.
-- Selesai bila: [ ] v1 vs v2 PIHPS; [ ] outlier satu hari ditandai (contoh: Papua beras 2017-07-03); [ ] Σ BPS bulanan = total tahunan (satuan USD, sudah dicek: rasio 1,000 untuk 2023); [ ] bias PIHPS vs Panel Harga Bapanas; [ ] tabel cakupan per sumber.
+- Selesai bila: [ ] outlier satu hari ditandai (contoh: Papua beras 2017-07-03); [ ] Σ BPS bulanan = total tahunan (satuan USD, sudah dicek: rasio 1,000 untuk 2023); [ ] bias PIHPS vs Panel Harga Bapanas; [ ] tabel cakupan per sumber.
 
 ### WP-11 — Praregistrasi & pembekuan (G6)
 - File: `docs/PREREGISTRATION.md` (draf sudah ada), `configs/*.yaml`.
@@ -250,7 +250,7 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - [ ] **Abi** · Data manual (PEMBAGIAN_TUGAS §6.2): populasi, n_kota, GKG→beras, verifikasi regulasi, pemetaan Bapanas; PADG 7/2026 (U3).
 - [ ] **Danen** · Prasyarat kolaborasi (PEMBAGIAN_TUGAS §8): repo GitHub privat + .gitignore, folder Drive tim (bagikan terbatas + `python -m kagami drive-push-raw`; D-100, D-101), dataset Kaggle
       `kagami-code` (**PRIVAT**, `python -m kagami bundle`; `kagami-raw` opsional), bagikan ke Ardell. Ulangi bundle setiap `src/` berubah.
-- [ ] **Danen** · Taruh CSV penduduk 2025 & snapshot kab/kota Panel Harga di lokasi DATASETS.md §Menunggu diunggah (U103); cek keaslian Pink Sheet (U101); putuskan `pihps_v1` (U104).
+- [ ] **Danen** · Taruh CSV penduduk 2025 & snapshot kab/kota Panel Harga di lokasi DATASETS.md §Menunggu diunggah (U103); cek keaslian Pink Sheet (U101).
 - [ ] **Danen & Ardell** · Token Drive masing-masing (`drive-auth`) + Kaggle Secret `KAGAMI_DRIVE_TOKEN` (`docs/NOTEBOOKS.md` §Persiapan 2).
 - [ ] **Abi** · Rekam video demonstrasi (alur: masalah → app 6 halaman → Tingkat A/B).
 - [ ] **Abi** · Unggah makalah PDF + zip + video ke Google Drive dan form pendaftaran Gelombang 2.

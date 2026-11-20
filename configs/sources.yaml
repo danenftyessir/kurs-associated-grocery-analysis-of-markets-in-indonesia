@@ -26,16 +26,6 @@ pihps:
   url: https://www.bi.go.id/hargapangan
   availability: same_day
 
-pihps_v1:
-  path: bi_pihps/pihps_pasar_tradisional_harian_2017-2026_retrieved_2026-11-18.zip
-  publisher: Bank Indonesia (PIHPS Nasional)
-  role: "Snapshot awal (pra-merge). Hanya untuk QA konsistensi vs v2 (stage0.qa)"
-  coverage: "2017-03-28 .. 2026-11-19"
-  license: "Semua Hak Dilindungi"
-  redistribute: false
-  retrieval: manual
-  url: https://www.bi.go.id/hargapangan
-  availability: same_day
 
 pinksheet:
   path: wb_pinksheet/CMO-Historical-Data-Monthly.xlsx

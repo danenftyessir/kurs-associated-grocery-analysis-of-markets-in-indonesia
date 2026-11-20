@@ -8,11 +8,6 @@ from kagami.utils.todo import todo
 from kagami.utils.config import Config
 
 
-def compare_pihps_versions(v1: pd.DataFrame, v2: pd.DataFrame) -> pd.DataFrame:
-    """WP-10. Bandingkan snapshot v1 vs v2 (merged): sel berbeda, sel hanya-di-satu-versi, per provinsi."""
-    todo("WP-10")
-
-
 def flag_price_outliers(daily: pd.DataFrame) -> pd.DataFrame:
     """WP-10. Tandai lonjakan satu hari (mis. Papua 2017-07-03 beras: 29.750 lalu 9.500).
 

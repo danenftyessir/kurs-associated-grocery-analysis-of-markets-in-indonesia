@@ -57,7 +57,6 @@ def run(cfg: Config) -> None:
 
     # --- QA & laporan ----------------------------------------------------------
     sections = {
-        "pihps_v1_vs_v2": qa.compare_pihps_versions(loaders.load_pihps(cfg, "pihps_v1"), pihps),
         "price_outliers": qa.flag_price_outliers(daily),
         "import_totals": qa.check_import_totals(loaders.load_bps_import_monthly(cfg),
                                                 loaders.load_bps_import_annual(cfg)),

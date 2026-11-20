@@ -64,7 +64,7 @@ def load_pihps(cfg: Config, key: str = "pihps") -> pd.DataFrame:
 
     File per provinsi berformat lebar (kolom = tanggal). Baris level 1 = komoditas, level 2 = varian.
     Grup varian ditentukan dari PREFIKS nama (mis. 'Cabai Rawit Merah' -> 'Cabai Rawit'), BUKAN dari urutan
-    baris: file v2 'merged' menaruh varian hasil penggabungan di akhir file (D-022). v1 punya kolom 'no' ekstra.
+    baris: file v2 'merged' menaruh varian hasil penggabungan di akhir file (D-022). Kolom 'no' (format snapshot lama) dibuang bila ada.
     """
     frames = []
     with zipfile.ZipFile(cfg.source_path(key)) as zf:
@@ -303,7 +303,6 @@ def load_hortikultura(cfg: Config) -> pd.DataFrame:
 LOADERS = {
     "jisdor": load_jisdor,
     "pihps": load_pihps,
-    "pihps_v1": lambda cfg: load_pihps(cfg, key="pihps_v1"),
     "pinksheet": load_pinksheet,
     "brent": lambda cfg: load_fred(cfg, "brent"),
     "dollar_index": lambda cfg: load_fred(cfg, "dollar_index"),

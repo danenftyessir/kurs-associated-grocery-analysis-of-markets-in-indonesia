@@ -30,7 +30,7 @@ tidak memberi manfaat. Grid: 464 minggu, 2018-01-01 .. 2026-11-16.
 MDE PT(8) nasional > 0,5 untuk ketiga {bawang putih, gula pasir, minyak goreng} → LP mingguan sekunder; event study +
 profil harga dunia rupiah utama; Task 4 kontribusi DM utama. Angka MDE aktual ditambahkan di sini saat WP-09 selesai.
 
-### D-008 — PIHPS v2_merged sebagai sumber kanonik · FINAL · 2026-11-20
+### D-008 — PIHPS v2_merged sebagai sumber kanonik · FINAL (bagian QA v1 diganti oleh D-102) · 2026-11-20
 v2 punya MANIFEST (sha256 + endpoint + retrieved_at) dan tanpa kolom `no`. v1 disimpan hanya untuk QA konsistensi (WP-10).
 
 ### D-009 — Mesin statistik numpy/scipy sendiri, tanpa statsmodels/linearmodels · FINAL · 2026-11-20
@@ -155,3 +155,8 @@ Alokasi dataset baru (inventaris 20 Nov): BPS impor bulanan v2 (`bps_trade/`, +b
 (`manual_regulation/*_2026-11-20.csv`), `manual_geo/` (jarak hub), `manual_concordance/` (konkordansi HS),
 `kementan_hortikultura/` (produksi ATAP). Versi lama → `data/raw/_superseded/` (tidak dipakai, tidak diunggah). Lokasi untuk file
 yang belum diunggah: `bps_kependudukan/penduduk_provinsi_2025.csv`, `bapanas/panelharga_konsumen_kabkota_snapshot_2026-10.csv`.
+
+### D-102 — Snapshot PIHPS pra-merge (`pihps_v1`) dipensiunkan · FINAL (keputusan user) · 2026-11-20 · Danen
+Inventaris tim (20 Nov) menandai zip PIHPS tanpa `v2_merged` sebagai rusak. File dipindah ke `data/raw/_superseded/bi_pihps/`
+(tidak dihapus), dicabut dari `sources.yaml`, `LOADERS`, dan tes; `qa.compare_pihps_versions` dan cek "v1 vs v2" WP-10 dihapus.
+`v2_merged` tetap satu-satunya sumber PIHPS (D-008). Tidak diunggah ke Drive tim.
