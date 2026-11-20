@@ -9,6 +9,11 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-20 — Danen: pembagian tugas ulang Danen–Ardell (D-105)
+- Tiap Task dipegang berdua: Danen WP-06, 08, 09, 10, 11, 13, 14, 18, 21, 22, 27, 28, 29, 30; Ardell WP-07, 15, 16, 17, 19, 20, 23, 24, 25, 26, 31, 32.
+- Diperbarui: PEMBAGIAN_TUGAS §1/§3/§4/§5, papan WORKPLAN (PIC WP-15–18, 21, 22, 27), CLAUDE.md §2/§21, DECISIONS D-105.
+- Handoff: docs/handoff/20261120-1900_danen-ke-ardell_pembagian-ulang.md. Belum: Ardell mengonfirmasi (status terbuka).
+
 ### 2026-11-20 — Danen: panel provinsi ikut paket juri (D-104)
 - Izin BI mencakup redistribusi turunan → `panel_weekly` ship=True (artifacts.py); docstring panel/deviations/task1 diperbarui.
 - ARCHITECTURE §5–6 (Tingkat B kini lengkap di tingkat provinsi), CLAUDE §2/§8.4/§19/§21/§22, README hak data, U13, D-015 → D-104.

@@ -9,13 +9,25 @@ Status WP: papan di `docs/WORKPLAN.md` (kolom PIC). Koordinasi asinkron lewat **
 
 | Anggota | Jalur | Inti tanggung jawab | WP |
 |---|---|---|---|
-| **Danen** | A — Data & ekonometrika inti (jalur kritis) | Tahap 0 sisa, MDE, Task 1 (LP, event study, deviasi, bootstrap, plasebo, EB), robustness, keputusan G6/G-power | WP-06, 08, 09, 10, 11 (keputusan + hash), 13, 14, 15, 16, 17, 28, 29, 30 |
-| **Ardell** | B — Data mining, prediksi & produk | Tabel referensi, Task 2 (heterogenitas, clustering, stabilitas, struktur tertanam), Task 3 (asosiasi), Task 4 (rolling-origin), app, paket juri | WP-07, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 31, 32 |
+| **Danen** | A — Tahap 0, estimator nasional, uji & evaluasi, robustness | Tahap 0 sisa (episode, panel wilayah, MDE, QA), Task 1 estimator (LP nasional, event study), Task 2 uji heterogenitas & struktur tertanam, Task 3 Kendall, Task 4 evaluasi DM & ablation, robustness & validasi, keputusan G6/G-power, infra (Drive, Kaggle, CLI) | WP-06, 08, 09, 10, 11 (keputusan + hash), 13, 14, 18, 21, 22, 27, 28, 29, 30 |
+| **Ardell** | B — Data mining, inferensi provinsi, prediksi & produk | Tabel referensi, Task 1 sisi provinsi (deviasi, bootstrap & plasebo, EB & fitur respons), Task 2 clustering & stabilitas, Task 3 meta-regresi & FE, Task 4 fitur & model, app, paket juri | WP-07, 15, 16, 17, 19, 20, 23, 24, 25, 26, 31, 32 |
 | **Abi** | C — Riset, data manual, makalah, video, administrasi (tanpa kode) | Pengumpulan data manual, verifikasi regulasi & pustaka, naskah praregistrasi, makalah, findings, audit klaim, video, email izin, unggah | WP-11 (naskah), 33, 34, 35 + input data manual untuk WP-07 & WP-10 |
 
-Alasan pembagian: rantai WP-06 → 08 → 09 → 13 → 15 → 16 → 17 bersifat berurutan, jadi dipegang satu orang agar tidak ada
-serah-terima di tengah rantai. Ardell memegang semua tahap yang **mengonsumsi** keluaran rantai itu, yang bisa dikembangkan
-penuh dengan data sintetis.
+Alasan pembagian (D-105, menggantikan pembagian awal): setiap Task dipegang **berdua**, bukan satu Task per orang, dan beban
+kira-kira seimbang (sekitar 19 satuan kerja per orang). Rantai Task 1 dipotong di satu titik yang kontraknya jelas: Danen
+memegang estimator nasional (WP-13/14) dan menerbitkan `build_design` + `fit_lp` pada **22 Nov**; Ardell memegang sisi
+provinsi (WP-15/16/17) dan menerbitkan P2. Hilirnya bersilang: Danen menguji (WP-18, 21, 22, 27) keluaran yang dibuat Ardell,
+dan Ardell membangun (WP-19, 20, 23–26) di atas estimator Danen. Semua serah-terima memakai kontrak artefak + data sintetis, jadi
+tidak ada yang menunggu.
+
+| Task | Danen | Ardell |
+|---|---|---|
+| Tahap 0 | WP-06 episode, 08 panel wilayah, 09 MDE, 10 QA, 11 G6 | WP-07 tabel referensi |
+| Task 1 | WP-13 LP nasional, 14 event study | WP-15 deviasi provinsi, 16 bootstrap & plasebo, 17 EB & fitur |
+| Task 2 | WP-18 heterogenitas (G-het), 21 struktur tertanam | WP-19 clustering, 20 stabilitas |
+| Task 3 | WP-22 Kendall | WP-23 meta-regresi, 24 FE interaksi |
+| Task 4 | WP-27 evaluasi DM & ablation | WP-25 fitur as-of, 26 model M0–M3 |
+| Robustness / produk | WP-28, 29, 30 | WP-31 app, 32 paket juri |
 
 ## 2. Prinsip kerja paralel
 
@@ -33,16 +45,16 @@ penuh dengan data sintetis.
 | Area | Danen | Ardell | Abi |
 |---|---|---|---|
 | `src/data/` | `drivers.py` (episode), `panel.py`, `qa.py` | `reference.py`, tambahan loader sumber manual di `loaders.py` | – |
-| `src/features/` | `response.py` | `clustering.py`, `forecast.py` | – |
-| `src/models/` | `local_projection.py`, `deviations.py`, `event_study.py` | `clustering.py`, `association.py`, `forecasting.py` | – |
-| `src/evaluation/` | `power.py`, `inference.py`, `robustness.py` | `heterogeneity.py`, `stability.py`, `planted.py`, `forecast_eval.py` | – |
-| `src/pipelines/` | `stage0.py`, `task1.py`, `robustness.py` | `task2.py`, `task3.py`, `task4.py`, `package.py` | – |
+| `src/features/` | – | `response.py`, `clustering.py`, `forecast.py` | – |
+| `src/models/` | `local_projection.py`, `event_study.py`, `association.py::kendall_exact` | `deviations.py`, `clustering.py`, `forecasting.py`, `association.py::meta_regression`/`fe_interaction` | – |
+| `src/evaluation/` | `power.py`, `heterogeneity.py`, `planted.py`, `forecast_eval.py`, `robustness.py` | `inference.py`, `stability.py` | – |
+| `src/pipelines/` | `stage0.py`, `task1.py`, `task3.py`, `robustness.py` | `task2.py`, `task4.py`, `package.py` | – |
 | `src/viz/plots.py` | tambah fungsi untuk nb00/01/05 (aditif) | pemilik file; fungsi untuk app & nb02/03/04 | – |
 | `src/stats/` | pemilik (fungsi baru + tes) | boleh menambah fungsi baru (aditif) + tes | – |
 | `src/utils/`, `src/cli.py`, `configs/runtime.yaml` | pemilik (infra: config, runtime, Drive, CLI) | perubahan lewat handoff `PERMINTAAN` | – |
-| `notebooks/` | `00_stage0_data`, `01_task1_profiles`, `05_robustness` | `02_task2_patterns`, `03_task3_association`, `04_task4_forecast` | – |
+| `notebooks/` | `00_stage0_data`, `01_task1_profiles`, `03_task3_association`, `05_robustness` | `02_task2_patterns`, `04_task4_forecast` (Ardell juga menjalankan `01` untuk P2) | – |
 | `app/` | – | pemilik | menyediakan teks/copy di `docs/paper/app_copy.md` |
-| `configs/params.yaml` | semua bagian kecuali milik Ardell | `clustering`, `association`, `forecast`, `scenario` | – |
+| `configs/params.yaml` | semua bagian kecuali milik Ardell | `clustering`, `association`, `forecast`, `scenario` (parameter `inference` & `shrinkage` dipakai Ardell di WP-16/17 tetapi dibekukan Danen di G6; perubahan lewat handoff `PERMINTAAN`) | – |
 | `configs/commodities.yaml` | pemilik | – | – |
 | `configs/sources.yaml` | – | pemilik entri sumber manual baru | – |
 | `tests/` | tes modul miliknya | tes modul miliknya (+ generator sintetis) | – |
@@ -51,6 +63,11 @@ penuh dengan data sintetis.
 | `docs/paper/`, `results/findings.md` | menyediakan angka (lewat artefak) | menyediakan angka (lewat artefak) | pemilik |
 | `README.md` | – | – | pemilik (bagian deskripsi & GitHub) |
 
+Satu file yang dipakai dua orang (`association.py`, dan pipeline yang memanggil fungsi pemilik lain) dibagi per **fungsi**: tiap orang
+hanya mengubah badan fungsi WP-nya di branch `feat/<topik>` sendiri, sehingga merge tidak bentrok. Pemilik pipeline menulis kerangka dan
+memanggil fungsi pemilik lain menurut kontrak docstring; blok pemanggil fungsi sendiri boleh ditambahkan pemilik fungsi lewat PR kecil
+terpisah (kabari lewat handoff `TERBIT`).
+
 File bersama (`CLAUDE.md`, `docs/WORKPLAN.md`, `docs/SESSION_LOG.md`, `docs/DECISIONS.md`, `docs/OPEN_ISSUES.md`,
 `src/utils/artifacts.py`, `pyproject.toml`): aturan di §7.
 
@@ -58,29 +75,35 @@ File bersama (`CLAUDE.md`, `docs/WORKPLAN.md`, `docs/SESSION_LOG.md`, `docs/DECI
 
 | Tanggal | Danen (A) | Ardell (B) | Abi (C) |
 |---|---|---|---|
-| Jum 20 | Prasyarat kolaborasi (§8); **WP-06** episode + `mark_episode_weeks` | **WP-07** kerangka tabel referensi (loader manual, skema, NaN-aman); generator sintetis Task 1 | **WP-35** email izin BI (U13 + U24); cek endpoint PIHPS (U19); mulai data manual (§6.2) |
-| Sab 21 | **WP-08** panel wilayah → **terbit P1**; keputusan **G6** (varian, bobot pakan, grup fokus) + hash | **WP-25** fitur as-of (pakai `panel_weekly` & penggerak yang sudah ada) | Naskah **PREREGISTRATION** (G6); data manual: PADG 7/2026 (U3), populasi (U14), n_kota (U15) |
-| Min 22 | **WP-09** MDE; **WP-10** QA (pakai tabel pemetaan Bapanas dari Abi bila sudah ada) | **WP-26** model M0–M3 (sintetis → asli setelah P1) | Faktor GKG→beras (U21), verifikasi regulasi JDIH (U6), pemetaan Bapanas (U20); makalah: pendahuluan |
-| Sen 23 | **G-power**; **WP-13** LP nasional; **WP-14** event study | **WP-27** evaluasi DM & ablation; run Task 4 penuh di Kaggle → **terbit P4** | Makalah: kajian pustaka + verifikasi rujukan (U12) |
-| Sel 24 | **WP-15** deviasi; **WP-16** bootstrap & plasebo (Kaggle); **WP-17** EB & fitur → **terbit P2** | **WP-07** final dengan data manual Abi → **terbit P3**; **WP-18**, **WP-19** (sintetis) | Makalah: dataset & metode (dari METHODS.md), matriks evaluasi; naskah video |
-| Rab 25 | Cadangan run Kaggle Task 1; mulai **WP-28** Tier 1 | Run asli **WP-18** (G-het) & **WP-19**; **WP-20**, **WP-21** | Copy app (`docs/paper/app_copy.md`); storyboard video |
-| Kam 26 | **WP-28**, **WP-29** validasi (pakai P4) | **WP-22**, **WP-23**, **WP-24** (asli) ; **WP-31** app mulai | Makalah: kerangka hasil & analisis (tabel/gambar yang akan diisi) |
-| Jum 27 | **Pembekuan hasil**; **WP-30** opsional; handoff `ANGKA-MAKALAH` ke Abi | **WP-31** app final; Task 2–3 final → **terbit P5** | **WP-33** isi hasil & analisis + `results/findings.md` |
+| Jum 20 | Prasyarat kolaborasi (§8); **WP-06** episode + `mark_episode_weeks` | **WP-07** kerangka tabel referensi (loader manual, skema, NaN-aman); generator sintetis Task 1 (panel provinsi, profil nasional) | **WP-35** email izin BI (U13 + U24); cek endpoint PIHPS (U19); mulai data manual (§6.2) |
+| Sab 21 | **WP-08** panel wilayah → **terbit P1**; keputusan **G6** (varian, bobot pakan, grup fokus) + hash | **WP-25** fitur as-of (pakai `panel_weekly` & penggerak yang sudah ada); kerangka **WP-15/16/17** (sintetis) | Naskah **PREREGISTRATION** (G6); data manual: PADG 7/2026 (U3), populasi (U14), n_kota (U15) |
+| Min 22 | **WP-09** MDE; **WP-13** `build_design` + `fit_lp` lolos tes → handoff `TERBIT` ke Ardell; generator sintetis Task 4 untuk **WP-27** | **WP-26** model M0–M3 (sintetis → asli setelah P1); **WP-19** clustering (sintetis) | Faktor GKG→beras (U21), verifikasi regulasi JDIH (U6), pemetaan Bapanas (U20); makalah: pendahuluan |
+| Sen 23 | **G-power**; **WP-13** LP nasional final; **WP-14** event study; **WP-10** QA | **WP-15** deviasi provinsi (asli, pakai `fit_lp`); run **WP-26** penuh di Kaggle → `forecast_preds` | Makalah: kajian pustaka + verifikasi rujukan (U12) |
+| Sel 24 | Mulai **WP-28** Tier 1; **WP-18**, **WP-22** (sintetis) | **WP-16** bootstrap & plasebo (Kaggle); **WP-17** EB & fitur → jalankan `task1` penuh → **terbit P2**; **WP-07** final dengan data manual Abi → **terbit P3** | Makalah: dataset & metode (dari METHODS.md), matriks evaluasi; naskah video |
+| Rab 25 | **WP-18** asli (G-het); **WP-22** Kendall asli; **WP-27** evaluasi DM & ablation → **terbit P4** | **WP-19** asli; **WP-20** stabilitas; mulai **WP-23** meta-regresi | Copy app (`docs/paper/app_copy.md`); storyboard video |
+| Kam 26 | **WP-21** struktur tertanam; **WP-28**; **WP-29** validasi (pakai P4) | **WP-23**, **WP-24** (asli); **WP-31** app mulai | Makalah: kerangka hasil & analisis (tabel/gambar yang akan diisi) |
+| Jum 27 | **Pembekuan hasil**; **WP-30** opsional; handoff `ANGKA-MAKALAH` ke Abi | **WP-31** app final; Task 1–3 final → **terbit P5** | **WP-33** isi hasil & analisis + `results/findings.md` |
 | Sab 28 | Dukungan **G7** (jalan ulang Task 1 versi wilayah) | **WP-32** paket juri + **G7** | **WP-34** audit klaim (G8); rekam video |
 | Min 29 | Perbaikan bug saja | Perbaikan bug saja | **Submit**: makalah PDF + zip + video; GitHub publik (opsional) |
 
-Catatan jadwal: G-het bergeser dari 24 ke 25 Nov karena bergantung pada keluaran bootstrap/plasebo Task 1 (P2);
-Ardell mengisi 24 Nov dengan WP-07 final dan WP-18/19 versi sintetis sehingga tidak ada hari kosong.
+Catatan jadwal: G-het bergeser dari 24 ke 25 Nov karena bergantung pada keluaran bootstrap/plasebo Task 1 (P2).
+Sebelum P2, Danen mengisi 24 Nov dengan WP-28 dan kode WP-18/22 versi sintetis; sebelum `fit_lp` terbit (22 Nov), Ardell
+mengisi 21–22 Nov dengan WP-25/26/19 dan kerangka WP-15/16/17 versi sintetis, sehingga tidak ada hari kosong. Bila WP-13
+telat, WP-15 tetap dikembangkan dengan sintetis dan dijalankan asli begitu `fit_lp` terbit.
 
 ## 5. Titik terbit artefak (bukan titik tunggu)
 
 | Kode | Kapan | Penerbit | Artefak | Konsumen | Sebelum terbit konsumen mengerjakan |
 |---|---|---|---|---|---|
-| P1 | 21 Nov | Danen | `drivers_weekly`, `episodes`, `fx_variation`, `panel_weekly_region` | Ardell (Task 4) | WP-25/26 dengan `panel_weekly` + `build_national_drivers` di memori, kolom `episode` = 0 sementara |
-| P2 | 24 Nov | Danen | `profiles`, `boot_replicates`, `placebo_stats`, `events`, `response_features` | Ardell (Task 2, 3), Danen (robustness) | WP-18–24 dengan generator sintetis berskema sama |
-| P3 | 24 Nov | Ardell | `concordance`, `exposure`, `regulation`, `province_features` | Ardell (Task 3), Abi (makalah: dataset) | – (Task 1 tidak membutuhkannya) |
-| P4 | 23 Nov | Ardell | `forecast_eval`, `ablation` | Danen (WP-29 validasi V2) | WP-28 Tier 1 lebih dulu |
+| P1 | 21 Nov | Danen | `drivers_weekly`, `episodes`, `fx_variation`, `panel_weekly_region` | Ardell (Task 4, WP-15/16/17) | WP-25/26 dengan `panel_weekly` + `build_national_drivers` di memori, kolom `episode` = 0 sementara; WP-15/16/17 dengan sintetis |
+| P2 | 24 Nov | Ardell (jalankan `task1` penuh dengan kode WP-13/14 Danen di `dev`) | `profiles`, `boot_replicates`, `placebo_stats`, `events`, `response_features` | Danen (WP-18, 21, 22, 28), Ardell (Task 2, 3) | WP-18/21/22/28 dan WP-19–24 dengan generator sintetis berskema sama |
+| P3 | 24 Nov | Ardell | `concordance`, `exposure`, `regulation`, `province_features` | Danen (WP-22 Kendall), Ardell (WP-23/24), Abi (makalah: dataset) | – (Task 1 tidak membutuhkannya) |
+| P4 | 25 Nov | Ardell (`forecast_preds`, 23–24 Nov) → Danen (`forecast_eval`, `ablation`, 25 Nov) | `forecast_eval`, `ablation` | Danen (WP-29 validasi V2), Ardell (app), Abi | WP-27 dengan `forecast_preds` sintetis; WP-28 Tier 1 lebih dulu |
 | P5 | 27 Nov | Danen & Ardell | semua artefak `ship` | Abi (WP-33/34), Ardell (WP-31/32) | Abi menulis bagian makalah yang tidak butuh angka |
+
+Serah-terima **kode** (bukan artefak, lewat `dev` + handoff `TERBIT`): Danen → Ardell `build_design` & `fit_lp` (WP-13) paling lambat
+22 Nov; Ardell → Danen `ward_labels` & `select_k` (WP-19) paling lambat 23 Nov untuk WP-21; Ardell → Danen `rolling_predictions`
+(WP-26) paling lambat 24 Nov untuk WP-27.
 
 Cara terbit: jalankan notebook tahapnya → sel "Simpan ke Drive tim" mengunggah otomatis ke folder Drive tim
 (https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D; lokal: `python -m kagami drive-push <tahap>`) → konsumen mengambilnya otomatis di sel "Cek input" →

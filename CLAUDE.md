@@ -106,10 +106,12 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-12 (mesin statistik).
 - **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`.
-- **Tim (PEMBAGIAN_TUGAS.md):** Danen = jalur A data & ekonometrika inti (WP-06, 08–11, 13–17, 28–30); Ardell = jalur B
-  data mining, prediksi & produk (WP-07, 18–27, 31–32); Abi = jalur C non-teknis (WP-11 naskah, 33–35, data manual).
-- **Berikutnya — Danen:** WP-06 → WP-08 (terbit P1 21 Nov) → WP-09 (G-power 23 Nov). **Ardell:** WP-07, WP-25 (sintetis).
-  **Abi:** email BI, U19, data manual §6.2, naskah praregistrasi.
+- **Tim (PEMBAGIAN_TUGAS.md, D-105):** tiap Task dipegang berdua. Danen = jalur A (WP-06, 08, 09, 10, 11, 13, 14, 18, 21, 22, 27, 28, 29, 30):
+  Tahap 0, estimator nasional, uji heterogenitas & struktur tertanam, Kendall, evaluasi DM, robustness. Ardell = jalur B (WP-07, 15, 16, 17,
+  19, 20, 23, 24, 25, 26, 31, 32): tabel referensi, sisi provinsi Task 1, clustering, meta-regresi, model Task 4, app, paket juri.
+  Abi = jalur C non-teknis (WP-11 naskah, 33–35, data manual).
+- **Berikutnya — Danen:** WP-06 → WP-08 (terbit P1 21 Nov) → WP-09 + `fit_lp` WP-13 (22 Nov) → G-power 23 Nov. **Ardell:** WP-07, WP-25
+  (sintetis), kerangka WP-15/16/17. **Abi:** email BI, U19, data manual §6.2, naskah praregistrasi.
   Paralel: WP-07, WP-25. Gerbang terdekat: **G6 = 21 Nov** (WP-11: bekukan varian D-011, bobot pakan D-012, grup fokus D-013).
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
 - **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + folder Drive tim
@@ -1072,6 +1074,7 @@ tidak boleh dikutip sebelum dicek.
 | D-102 | `pihps_v1` dipensiunkan; QA v1 vs v2 dihapus dari WP-10 | FINAL |
 | D-103 | Branch hanya `main`, `dev`, `feat/<topik>`; semua lewat PR | FINAL |
 | D-104 | Panel provinsi `panel_weekly` ikut paket juri (izin BI mencakup redistribusi turunan) | FINAL |
+| D-105 | Pembagian tugas Danen–Ardell ulang: tiap Task dipegang berdua, beban seimbang | FINAL |
 
 ---
 

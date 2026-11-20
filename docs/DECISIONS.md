@@ -174,3 +174,13 @@ komoditas + status sel) kini `ship=True`, sehingga juri dapat menjalankan ulang 
 (Tingkat B lengkap) tanpa unduh ulang. Tetap tidak dikirim: PIHPS mentah dan `pihps_daily` (harga harian per varian, setara
 mentah). Penyebutan di makalah/README: "dataset turunan kami yang dibangun dari PIHPS (Bank Indonesia), atas izin BI".
 Menggantikan bagian "panel provinsi tidak dikirim" di D-015.
+
+### D-105 — Pembagian tugas Danen–Ardell: tiap Task dipegang berdua · FINAL (permintaan user) · 2026-11-20 · Danen
+Pembagian awal menaruh seluruh Task 1 + robustness di Danen dan seluruh Task 2–4 + app + paket juri di Ardell, sehingga Danen
+menjadi leher botol jalur kritis dan Ardell menunggu keluaran Task 1. Pembagian baru memotong tiap Task: Danen = WP-06, 08, 09, 10, 11,
+13, 14, 18, 21, 22, 27, 28, 29, 30; Ardell = WP-07, 15, 16, 17, 19, 20, 23, 24, 25, 26, 31, 32 (beban ± 19 satuan kerja per orang).
+Rantai Task 1 dipotong di `fit_lp`/`build_design` (WP-13, terbit 22 Nov); P2 dijalankan Ardell dengan kode Danen di `dev`; P4 dipecah
+(`forecast_preds` oleh Ardell, `forecast_eval`/`ablation` oleh Danen, 25 Nov). Alternatif ditolak: satu orang memegang seluruh rantai
+WP-13→17 (leher botol) dan satu Task per orang (Task 1 selalu mendahului yang lain). Risiko: dua serah-terima di rantai Task 1;
+dimitigasi dengan data sintetis berskema `artifacts.py` dan tenggat kode 22–24 Nov (PEMBAGIAN_TUGAS §4–5). Bukan deviasi praregistrasi
+(tidak mengubah hipotesis atau parameter). Dampak dokumen: PEMBAGIAN_TUGAS §1, §3, §4, §5; papan WORKPLAN (kolom PIC); CLAUDE.md §2.
