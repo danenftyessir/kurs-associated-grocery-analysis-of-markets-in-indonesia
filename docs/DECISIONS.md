@@ -238,3 +238,53 @@ provinsi (provinsi yang teramati di kedua minggu), agar tahan perubahan komposis
 dan unit. Kandidat = minggu di luar [start−12, end+12] setiap episode, dengan s−1 dan s+12 di dalam panel. Pada data asli hanya
 164 minggu unik, jadi resolusi p terbatas dan dinyatakan sebagai batasan. (5) PT di `national_profiles`: se & ci NaN sampai bootstrap
 (METHODS §M1.2, tanpa delta method). Bukan deviasi praregistrasi: tidak mengubah hipotesis, uji, atau parameter beku.
+
+### D-111 — Robustness Tier 1, heterogenitas, Kendall: konvensi teknis · FINAL (teknis) · 2026-11-21 (WP-28, WP-18, WP-22) · Danen
+(1) Tier 1 memakai sub-sampel berbasis jendela: observasi minggu t dipakai hanya bila seluruh jendela datanya
+[t−(L+1) minggu, t+h minggu] (p_{t−1}, lag Δp & lag penggerak s.d. p_{t+h}) berada di dalam sub-periode (pra/pasca 2021-04-05) atau
+tidak beririsan dengan periode yang dibuang (COVID dan bulan Brent ekstrem). Ditolak: memotong hanya menurut t (y dan lag masih
+membawa minggu yang dibuang). Desain sampel penuh di-demean ulang per seri pada sub-sampel (setara within-transform pada sub-sampel).
+(2) Bulan Brent ekstrem = |Δ log rerata bulanan Brent| > `brent_extreme_abs_monthly_logchg`. Pada data asli: Mar–Jun 2020, Mar 2026
+(+0,40) dan Nov 2026 (−0,27, bulan parsial s.d. 11 Nov). Aturan beku diterapkan apa adanya; Nov 2026 hampir tidak berdampak karena
+jendela t+h di sana sudah melewati freeze. (3) Frekuensi bulanan (tidak dirinci di proposal): rerata log mingguan per bulan kalender,
+h_bulan = round(h·12/52) → 1/2/3, L_bulan = max(1, round(L·12/52)) = 1, kontrol Idulfitri = rerata bulanan dummy mingguan, SE cluster
+bulan. (4) Dekomposisi de = a + b·d_dxy + ε: kedua komponen masuk satu LP (driver e_global, e_idr); data asli b = 0,72, R² 0,27.
+(5) Interval Tier 1 = ±1,96·SE cluster; bootstrap tidak diulang per cek (biaya); dinyatakan di makalah. (6) Heterogenitas (WP-18):
+driver e, deviasi tanpa susut; baris provinsi `profiles` dan `placebo_stats` wajib membawa `se` (kolom ekstra; permintaan ke WP-16);
+p plasebo satu sisi atas; BH per statistik; `reject` hanya untuk Q (statistik H0-Het yang dibekukan). ρ̄ melewati pasangan komoditas
+dengan < 3 provinsi bersama. (7) Kendall (WP-22): τ-b (rasio impor punya ties nol); `p_value` = p eksak dua sisi atas semua n!
+urutan, `p_greater` = satu sisi arah E1; interval = τ ± 1,96·SE jackknife LOCO (dipotong ke [−1, 1]). Bukan deviasi praregistrasi.
+
+### D-112 — Uji struktur tertanam: definisi δ dan input mentah · FINAL (teknis) · 2026-11-21 (WP-21) · Danen
+Proposal: "kelompok provinsi buatan dengan selisih respons 0,1–0,5 ditambahkan ke noise plasebo". (1) δ dibaca dalam satuan respons
+(Δlog harga per log penggerak), jadi struktur ditanam pada matriks fitur plasebo **sebelum** z-score; `recovery_curve` menerima
+matriks plasebo mentah dan menstandardisasi sendiri (z-score per kolom, sama dengan `feature_matrix`). (2) Pusat k_true kelompok =
+simpleks beraturan berorientasi acak: setiap pasangan kelompok berjarak δ·√F (selisih RMS per fitur = δ). Ditolak: geser kelompok j
+sebesar j·δ di semua fitur. Pada tes sintetis (derau sd 0,3, 12 fitur, δ = 0,5) cara itu memberi ARI 0,96 di k = 3 tetapi k = 3 tidak
+pernah terpilih karena tiga kelompok segaris (silhouette lebih suka k = 2), sehingga batas deteksi k = 3 menjadi artefak geometri.
+(3) Ambang = persentil `silhouette_placebo_pct` dari silhouette maksimum (Ward, Euclidean, k ∈ k_range ≥ 2) semua matriks plasebo,
+dihitung sekali; aturan pemilihan k sama dengan `select_k` (WP-19). (4) ARI ≥ 0,8 dan k_true ∈ {2, 3} = konstanta modul (METHODS
+§M2.5, WORKPLAN), bukan parameter baru. RNG seed + 2101. Bukan deviasi praregistrasi (δ, reps, persentil tidak berubah).
+
+### D-113 — Evaluasi Task 4: DM, sel H5, keluarga Holm · FINAL (teknis) · 2026-11-21 (WP-27) · Danen
+(1) DM dihitung pada deret MAE per origin (rerata galat absolut lintas seri dalam sel), bukan pada galat per baris: galat antar seri
+dalam satu origin berkorelasi kuat sehingga perlakuan per baris membuat SE terlalu kecil. Horizon dalam satuan origin = ceil(h/4) → HAC
+lag 0 (h = 4) dan 1 (h = 8), sesuai METHODS ("lag h−1 dalam satuan origin yang tumpang tindih"), + HLN. (2) Sel evaluasi: ALL,
+per komoditas, per wilayah, dan per jalur H5. Jalur = komoditas `role: focus` dengan exposure_path direct_import {bawang putih, gula,
+daging sapi} atau imported_input {daging ayam, telur}; beras (direct_import, role other) tidak masuk. (3) H5: p DM satu sisi (H1: M2
+lebih akurat dari M1), Holm atas keluarga tetap 2 jalur. Bila p satu jalur tak terdefinisi (mis. prediksi identik), p dihitung 1
+agar keluarga tidak menyusut (menyusut = koreksi lebih longgar; ditemukan oleh tes). (4) α keluarga 0,05 diambil dari PREREGISTRATION
+sebagai konstanta modul (`H5_ALPHA`) karena tidak ada kuncinya di `params.yaml` beku (`power.mde_alpha` untuk MDE). (5) Model ablation di
+`forecast_preds` bernama `M2_nofx` (kontrak dengan WP-26). Bukan deviasi praregistrasi.
+
+### D-114 — Validasi V2 & V4: konvensi teknis · FINAL (teknis) · 2026-11-21 (WP-29, WP-14, WP-27) · Danen
+(1) V4 membandingkan, per komoditas × h ∈ key_horizons, kelebihan respons episode (dlog_price nasional − median plasebo) dengan
+respons yang diimplikasikan LP nasional: Σ_{j=0..h} β_e(h−j)·de_{s+j} + Σ_j ω(h−j)·dw_{s+j} (superposisi impuls mingguan dari LP linear,
+memakai penggerak yang benar-benar terjadi di jendela episode). Ditolak: membandingkan langsung dengan β(h)·cum_dlog_e episode (episode
+punya panjang dan pola de berbeda, dan cum_dlog_e dihitung pada jendela pemicu, bukan jendela event). (2) Pusat null = median plasebo
+(kolom baru `events.placebo_median`, aditif). Ditolak: titik tengah pita 2,5–97,5: pada data asli memberi kelebihan minyak goreng −0,09
+dan bawang putih −0,17 dengan interval sempit karena ekor null miring (lonjakan 2021–22), artefak bukan sinyal. (3) Interval V4 =
+rerata ± 1,96·sd/√n antar episode; ringkasan kesesuaian: porsi tanda sama dan korelasi antar episode. (4) V2 = episode yang mulai di
+tahun kalender freeze dengan outcome lengkap (interval = pita plasebo relatif median) dan subset origin `case_study` (tahun freeze) di
+`forecast_eval` (rasio MAE vs M1, deskriptif; ci NaN, DM p dan n_origins di note). Task 4 hanya punya h 4/8 (params beku), jadi h = 12
+V2 hanya dari sisi episode. (5) Baris validasi memakai tier = 'V'. Bukan deviasi praregistrasi.

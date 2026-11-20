@@ -54,7 +54,7 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
   pipelines/        stage0 · task1 · task2 · task3 · task4 · robustness (REQUIRES + run(cfg)) · package (zip juri, bundle)
   viz/              plots: grafik bersama notebook & app
 app/                Home.py (hal. 1) + pages/2..6 + common.py
-tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
+tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)
 ```

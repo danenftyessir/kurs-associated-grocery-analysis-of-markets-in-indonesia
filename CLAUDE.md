@@ -23,8 +23,8 @@ aturan, data, metode ringkas, jebakan yang sudah ditemukan, dan template. Bagian
 
 | Topik | Sumber kebenaran |
 |---|---|
-| Desain penelitian (RQ, hipotesis, metode, lingkup) | `docs/Proposal v4 — RupiahPass ... .pdf` (nama file lama, jangan diganti) → diringkas di `docs/PROJECT_OVERVIEW.md` |
-| Aturan lomba | `docs/Juknis Data Mining Indoneris 2026.pdf` |
+| Desain penelitian (RQ, hipotesis, metode, lingkup) | `docs/spec/Proposal v4 — RupiahPass ... .pdf` (nama file lama, jangan diganti) → diringkas di `docs/PROJECT_OVERVIEW.md` |
+| Aturan lomba | `docs/spec/Juknis Data Mining Indoneris 2026.pdf` |
 | Rumus & parameter metode | `docs/METHODS.md` + `configs/params.yaml` |
 | Status & urutan pekerjaan | `docs/WORKPLAN.md` (papan status) |
 | Kontrak artefak (path, kolom wajib, ship) | `src/utils/artifacts.py` (tabel di `docs/ARCHITECTURE.md` §5 adalah salinannya) |
@@ -106,19 +106,26 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-06 (13 episode), WP-08 (panel 7 wilayah),
   WP-09 (MDE), WP-10 (QA & `stage0_report`), WP-11 (G6: praregistrasi beku 2026-11-20 23:29, D-109), WP-12 (mesin statistik),
-  WP-13 (LP nasional; 23 dtk untuk 10 komoditas × 13 h × 2 spesifikasi), WP-14 (event study).
+  WP-13 (LP nasional; 23 dtk untuk 10 komoditas × 13 h × 2 spesifikasi), WP-14 (event study), WP-28 (Tier 1; 21 dtk, artefak
+  `robustness` ditulis bersama validasi).
+- **Sedang (🔶, kode siap & dites sintetis, menunggu data asli):** WP-18 (G-het, butuh P2 dengan `se` di `placebo_stats`),
+  WP-22 (Kendall, butuh P2 + P3), WP-21 (struktur tertanam, butuh `ward_labels` WP-19 + matriks plasebo mentah dari `task2`),
+  WP-27 (evaluasi DM & ablation, butuh `forecast_preds` WP-26 dengan model `M2_nofx`), WP-29 (V4 & V2-episode jalan pada data asli;
+  V2-forecast butuh P4).
 - **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`,
   `episodes`, `drivers_weekly`, `fx_variation`, `panel_weekly_region`, `mde`, `stage0_report`. Semua di Drive tim kecuali
   `stage0_report` (P1 + `mde` diunggah 2026-11-20 lewat browser).
 - **G-power (D-007):** MDE_PT(8) bawang putih 2,52, gula 0,90, minyak goreng 0,465 → LP tetap utama (resmi: `mde` dihitung ulang
   dengan config beku G6, angka sama). Keputusan diumumkan 23 Nov.
-- **Catatan β awal (SE cluster, belum bootstrap):** daging ayam β_e(8) = −1,67 (−2,62..−0,73), negatif; kemungkinan efek
-  Mar 2020 (COVID) → cek Tier 1 tanpa Mar–Jun 2020 (WP-28) sebelum ditafsirkan.
+- **Catatan β (SE cluster, belum bootstrap):** daging ayam β_e(8) = −1,67 (−2,62..−0,73). Tier 1 (WP-28): tanpa Mar–Jun 2020 &
+  bulan Brent ekstrem −0,96 (−2,05..0,14), komponen spesifik rupiah −1,89 (−3,02..−0,76) → bukan semata COVID; tulis asosiasional.
+  Aturan Brent ekstrem juga membuang Mar 2026 (+0,40 log) dan Nov 2026 (bulan parsial) (D-111).
 - **Tim (PEMBAGIAN_TUGAS.md, D-105):** tiap Task dipegang berdua. Danen = jalur A (WP-06, 08, 09, 10, 11, 13, 14, 18, 21, 22, 27, 28, 29, 30):
   Tahap 0, estimator nasional, uji heterogenitas & struktur tertanam, Kendall, evaluasi DM, robustness. Ardell = jalur B (WP-07, 15, 16, 17,
   19, 20, 23, 24, 25, 26, 31, 32): tabel referensi, sisi provinsi Task 1, clustering, meta-regresi, model Task 4, app, paket juri.
   Abi = jalur C non-teknis (WP-11 naskah, 33–35, data manual).
-- **Berikutnya — Danen:** G-power 23 Nov (umumkan) → kode WP-18/22 (sintetis) → WP-28 Tier 1 → WP-27 setelah P4. **Ardell:** WP-07, WP-25
+- **Berikutnya — Danen:** G-power 23 Nov (umumkan) → WP-18/21/22/27/29 asli saat P2/P3/P4/WP-19 terbit
+  (butuh `se` di `placebo_stats`, handoff ke Ardell) → WP-27 setelah P4 → WP-29. **Ardell:** WP-07, WP-25
   (sintetis), kerangka WP-15/16/17. **Abi:** U19, data manual §6.2.
   Paralel: WP-07, WP-25. Gerbang terdekat: **G-power = 23 Nov**. Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
@@ -612,14 +619,16 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 #### src/models/event_study.py
 - `event_paths` · ✔ · Δ log harga p(s+h) − p(s−1), h 0..12, episode `in_period`; nasional = rerata selisih per provinsi eligible.
 - `placebo_starts` · ✔ · kandidat awal plasebo di luar [start−12, end+12] setiap episode (data asli: 164 minggu).
-- `placebo_bands` · ✔ · 499 jendela plasebo bersama (seed + 1401) → placebo_lo/hi/p, n_placebo; gabung jadi artefak events.
+- `placebo_bands` · ✔ · 499 jendela plasebo bersama (seed + 1401) → placebo_lo/hi/p, n_placebo, placebo_median; gabung jadi artefak events.
 
 #### src/models/clustering.py
 - `ward_labels` · ⬜ WP-19 · Ward Euclidean; k=1 → semua 0.
 - `select_k` · ⬜ WP-19 · silhouette maks asli vs p95 plasebo → cluster_selection.
 
 #### src/models/association.py
-- `kendall_exact` · ⬜ WP-22 · Kendall τ PT(8) vs rasio impor, permutasi eksak, LOCO.
+- `all_permutations` · ✔ · semua n! permutasi (int8, n ≤ 10) tanpa itertools.
+- `kendall_permutation_test` · ✔ · τ-b + p permutasi eksak dua sisi & satu sisi (statistik S).
+- `kendall_exact` · ✔ · E1: τ-b PT(8) nasional vs import_ratio_direct, p eksak 10!, interval jackknife LOCO → assoc level=commodity.
 - `meta_regression` · ⬜ WP-23 · meta-regresi efek acak δ ~ Z(r); interval max(bootstrap, CR2); jackknife.
 - `fe_interaction` · ⬜ WP-24 · FE komoditas×minggu, interaksi Δe × Z(r) (dapat dipotong).
 
@@ -641,8 +650,8 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `bootstrap_ci` · ⬜ WP-16 · CI = yang lebih lebar dari ±1,96·SE dan persentil bootstrap.
 
 #### src/evaluation/heterogeneity.py
-- `heterogeneity_stats` · ⬜ WP-18 · Q, τ², I² per komoditas (h=8) + ρ̄ lintas komoditas.
-- `placebo_pvalues` · ⬜ WP-18 · p plasebo + q BH → artefak heterogeneity.
+- `heterogeneity_stats` · ✔ · Q, τ², I² (DL, tanpa susut) per komoditas (h=8, driver e) + ρ̄ lintas komoditas; butuh kolom `se` (juga di placebo_stats).
+- `placebo_pvalues` · ✔ · p plasebo satu sisi (1+#≥)/(1+R) + q BH per statistik; `reject` = Q dengan q ≤ fdr_q → artefak heterogeneity.
 
 #### src/evaluation/stability.py
 - `kmeans_agreement` · ⬜ WP-20 · K-Means (n_init=50) + ARI vs Ward.
@@ -650,16 +659,23 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `compare_partitions` · ⬜ WP-20 · ARI vs zona HET, Jawa/luar Jawa, kuantil n_kota.
 
 #### src/evaluation/planted.py
-- `recovery_curve` · ⬜ WP-21 · δ 0,1..0,5 × k_true 2/3 × planted_reps → recovery_rate, ari_mean.
+- `best_silhouette` · ✔ · (k*, s*) silhouette Euclidean Ward maksimum atas k ≥ 2.
+- `placebo_threshold` · ✔ · p95 silhouette maksimum matriks plasebo terstandardisasi (aturan select_k).
+- `plant_structure` · ✔ · k_true kelompok acak, pusat simpleks berorientasi acak, selisih RMS per fitur = δ (D-112).
+- `recovery_curve` · ✔ · δ 0,1..0,5 × k_true 2/3 × planted_reps pada matriks plasebo MENTAH → recovery_rate, ari_mean (+ n_reps, k_correct_rate, threshold); ward bisa disuntikkan.
+- `detection_limit` · ✔ · δ terkecil dengan recovery ≥ 0,8 per k_true (batas deteksi untuk findings).
 
 #### src/evaluation/forecast_eval.py
-- `evaluate` · ⬜ WP-27 · MAE/RMSE, rasio vs M1, DM HAC, n_origins, n_nonoverlap.
-- `ablation` · ⬜ WP-27 · MAE(M2 tanpa fx) − MAE(M2).
+- `n_nonoverlap` · ✔ · jumlah origin berjarak ≥ h minggu (pilih rakus).
+- `evaluate` · ✔ · MAE/RMSE per horizon × model × subset × (komoditas|wilayah|jalur H5|ALL), rasio vs M1, DM HAC pada selisih MAE per origin (lag ceil(h/4)−1), n_origins, n_nonoverlap; H5 Holm (keluarga 2 jalur, p NaN = 1).
+- `ablation` · ✔ · MAE(`M2_nofx`) − MAE(M2) per sel yang sama, subset all/large_move.
 
 #### src/evaluation/robustness.py
 (konstanta `TIER1` 6 cek, `TIER2` 4 cek)
-- `tier1` · ⬜ WP-28 · 6 cek wajib vs baseline.
-- `validation` · ⬜ WP-29 · V2 studi kasus 2026, V4 LP vs event study.
+- `fx_decomposition` · ✔ · de = a + b·d_dxy + ε → de_global (fitted) & de_idr (ε); attrs a, b, r2.
+- `tier1` · ✔ · 6 cek wajib vs baseline (h 4/8/12, driver e & w; sub-sampel lewat jendela [t−L−1, t+h]; LP bulanan); 21 dtk lokal.
+- `lp_implied_paths` · ✔ · respons LP nasional terimplikasi per jendela: Σ β_e(h−j)·de + Σ ω(h−j)·dw.
+- `validation` · ✔ · V4 (kelebihan event di atas median plasebo vs implikasi LP, per komoditas × h kunci) + V2 (episode tahun freeze; rasio MAE Task 4 subset case_study bila forecast_eval ada).
 - `tier2` · ⬜ WP-30 · opsional (dipotong pertama).
 
 ### 9.6 Mesin statistik (WP-12, semua ✔ dan dites di `tests/test_stats.py`)
@@ -679,6 +695,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `reml_tau2` · ✔ · τ² REML (Fisher scoring).
 - `eb_shrink` · ✔ · μ + τ²/(τ²+s²)·(est − μ); τ²=0 → semua μ.
 - `bh_fdr` · ✔ · q-value Benjamini–Hochberg.
+- `holm` · ✔ · p terkoreksi Holm step-down (NaN dikeluarkan dari keluarga; pemanggil yang menentukan pengisian).
 
 ### 9.7 Pipelines (orkestrasi; satu modul = satu notebook = satu perintah CLI)
 
@@ -978,7 +995,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `tests/conftest.py` | alias `kagami` → `src/` tanpa instalasi; fixture `cfg`, `pihps` (skip bila mentah tak ada) |
 | `test_config.py` | desain komoditas (10; peran 6/3/1; 5 grup fokus), wilayah (34, 7, hub, zona), sumber ada, varian ada di PIHPS, seri Pink Sheet ada |
 | `test_loaders.py` | loader semua sumber pada data asli + kolom; BPS v2 memuat bawang putih; bentuk PIHPS; grup varian dari prefiks (regresi D-022); nama provinsi terpetakan 34 |
-| `test_stats.py` | OLS & SE cluster, DL/REML/EB, BH, block bootstrap, circular shift, DM |
+| `test_stats.py` | OLS & SE cluster, DL/REML/EB, BH (Holm di test_forecast_eval), block bootstrap, circular shift, DM |
 | `test_weekly.py` | status sel sintetis, grid, week_start, select_variants (asli & error), aggregate asli, aturan kelayakan |
 | `test_drivers.py` | grid penggerak, de & pengisian minggu libur, jendela Idulfitri, harga dunia (komposit, dw bulanan, available_at), episode (gabung, berdempetan, data asli) & tabel variasi kurs |
 | `test_panel.py` | panel 7 wilayah: indeks minggu pertama, tanpa lompatan saat komposisi berubah, hanya eligible, data asli |
@@ -986,6 +1003,10 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_power.py` | SE skor H0 = SE cluster bila β = 0, skala derau, gerbang G-power, MDE data asli |
 | `test_event_study.py` | jalur event (lonjakan terlihat, tahan komposisi, horizon terpotong = NaN), kandidat plasebo, p plasebo, wilayah data asli |
 | `test_qa.py` | lonjakan satu hari vs perubahan level, total impor, bias Bapanas & pemetaan, laporan Tahap 0 |
+| `test_robustness.py` | Tier 1: jendela sampel, demean ulang sub-sampel, dekomposisi kurs, semua cek ada, β pulih (h=0), efek khusus COVID terdeteksi; validasi: implikasi LP, V4 cocok/berlawanan, V2 episode & forecast, pusat median plasebo |
+| `test_forecast_eval.py` | n_nonoverlap, Holm, kontrak forecast_eval, rasio M1 = 1, DM mendeteksi sinyal kurs, H5 (keluarga tetap 2), panel wilayah, ablation |
+| `test_planted.py` | struktur tertanam: simpleks δ·√F, z-score, silhouette, ambang plasebo ≈ 5% lolos, kurva naik & dapat diulang, batas deteksi |
+| `test_heterogeneity.py` | Q/τ²/I² = DL, ρ̄, wajib `se`, p plasebo & BH (sintetis); permutasi n!, Kendall eksak vs brute force, E1 10 komoditas |
 | `test_runtime.py` | lokasi default, tulis out/baca artefak tahap sebelumnya, override raw, deteksi Kaggle, layout Colab |
 | `test_notebooks.py` | satu notebook per tahap, valid, sel 0–1 identik, tanpa output, sel setup jalan lokal |
 | `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis |
@@ -1119,6 +1140,10 @@ tidak boleh dikutip sebelum dicek.
 | D-108 | Branch `feat/<fungsi>` maks 3 kata; commit `<tipe>: <deskripsi>` tanpa kode; merge `--no-ff` ke dev; branch tidak dihapus | FINAL |
 | D-109 | Pembekuan G6 (varian, pakan, grup fokus tanpa perubahan) + koreksi Holm H5 | FINAL |
 | D-110 | QA & event study: pemetaan Bapanas, ambang lonjakan di kode QA, jalur event tahan komposisi, plasebo bersama | FINAL (teknis) |
+| D-111 | Tier 1 (jendela sampel, bulanan, dekomposisi), heterogenitas (`se` wajib, p satu sisi, BH per statistik), Kendall (τ-b, p eksak, interval jackknife) | FINAL (teknis) |
+| D-114 | Validasi V2/V4: kelebihan event di atas median plasebo vs implikasi LP (superposisi impuls), V2 = episode & origin tahun freeze, `placebo_median` di events | FINAL (teknis) |
+| D-113 | Evaluasi Task 4: DM pada MAE per origin (HAC lag ceil(h/4)−1), sel jalur H5, keluarga Holm tetap 2 (p NaN = 1), α H5 dari PREREGISTRATION, model ablation `M2_nofx` | FINAL (teknis) |
+| D-112 | Struktur tertanam: δ = selisih respons RMS per fitur antar setiap pasangan kelompok (simpleks acak), ditanam sebelum z-score pada matriks plasebo mentah | FINAL (teknis) |
 
 ---
 
