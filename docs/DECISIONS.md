@@ -369,4 +369,5 @@ Dampak: tidak ada perubahan hipotesis atau uji; hash `params.yaml` berubah (dica
 nasional, deviasi provinsi, bootstrap, dan plasebo (lalu Task 2 gagal karena `placebo_stats` tidak ada); Task 3 tanpa meta-regresi
 & FE; Task 4 per wilayah. Kini setiap pipeline itu punya `OPTIONAL` (task1/task4: `panel_weekly`; task3: `panel_weekly`, `profiles`,
 `boot_replicates`, `eligibility`, `drivers_weekly`) yang ditarik notebook, dan pipeline mencetak PERINGATAN bila panel provinsi
-tidak ada. Tes `test_notebooks.py` memastikan notebook menarik `OPTIONAL`.
+tidak ada. Tes `test_notebooks.py` memastikan notebook menarik `OPTIONAL`. CLI `drive-pull <tahap>` juga menarik
+`REQUIRES` + `OPTIONAL` (`cli.PIPELINE_REQUIRES`).
