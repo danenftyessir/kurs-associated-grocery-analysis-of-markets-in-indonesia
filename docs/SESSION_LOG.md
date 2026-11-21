@@ -9,6 +9,14 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-21 — Danen: merge 6 branch Ardell, stage0 + WP-07 lokal, E1 sementara, D-120
+- Merge `feat/reference-tables` .. `feat/app-package` ke dev (0 konflik); simulasi: 276 lolos, 6 gagal (dokumen/paket, handoff PERMINTAAN ke Ardell).
+- `stage0` lokal 27 dtk: concordance 10, exposure 10, regulation 72 (5 unverified), province_features 34 (populasi/n_kota NaN).
+- Bug pemetaan: FAOSTAT "Rice" = padi → rasio beras 1e-6; diganti beras giling + patah (D-120, DEVIASI) → 0,033.
+- E1 sementara (PT(8) titik nasional): τ-b −0,045 (−0,65..0,56), p eksak 0,93 → tidak terdeteksi. Resmi menunggu `response_features` (P2).
+- Atas instruksi Danen, 7 tes merah pasca-merge diperbaiki langsung (dokumen sinkron untuk modul Ardell, 2 tes test_package); suite 287 lolos.
+- D-121: DEVIASI untuk kunci params Ardell (`import_ratio_years` [2018, 2023], `run_m3`); hash params baru di PREREGISTRATION.
+
 ### 2026-11-21 — Danen: perbaikan `ols_cluster` grup kosong (D-119)
 - Laporan Ardell: perbaikan `ols_cluster` (macOS) menunggu Danen. Ditemukan regresi D-118: grup NaN/NaT → bincount crash.
 - `stats.regression.ols_cluster` membuang baris grup kosong; tes regresi di test_stats.py; suite 190 lolos; hasil nasional tidak berubah.

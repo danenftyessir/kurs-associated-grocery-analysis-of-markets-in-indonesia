@@ -25,6 +25,9 @@ def test_concordance_missing_series_raises(cfg):
 
 
 # --------------------------------------------------------------------------- exposure
+_RICE = "Rice, milled"   # item FAOSTAT beras di commodities.yaml (D-120)
+
+
 def _fao(cfg, item, prod, imp, exp, years=range(2018, 2024)):
     rows = []
     for y in years:
@@ -34,7 +37,7 @@ def _fao(cfg, item, prod, imp, exp, years=range(2018, 2024)):
 
 
 def test_exposure_fao_ratio_and_ordinals(cfg):
-    fao = _fao(cfg, "Rice", prod=90.0, imp=20.0, exp=10.0)              # 20 / (90 + 20 - 10) = 0,2
+    fao = _fao(cfg, _RICE, prod=90.0, imp=20.0, exp=10.0)              # 20 / (90 + 20 - 10) = 0,2
     neraca = pd.DataFrame({"produksi_beras_ton": [80.0], "impor_ton": [20.0], "ekspor_ton": [0.0]})
     e = R.build_exposure(cfg, fao, pd.DataFrame(), pd.DataFrame(), neraca).set_index("commodity")
     assert np.isclose(e.loc["beras", "import_ratio_direct"], 0.2)
@@ -46,8 +49,8 @@ def test_exposure_fao_ratio_and_ordinals(cfg):
 
 
 def test_exposure_fao_window_excludes_outside_years(cfg):
-    fao = pd.concat([_fao(cfg, "Rice", 90.0, 20.0, 10.0, years=range(2018, 2024)),
-                     _fao(cfg, "Rice", 10.0, 90.0, 0.0, years=[2017, 2024])])    # di luar jendela 2018-2023
+    fao = pd.concat([_fao(cfg, _RICE, 90.0, 20.0, 10.0, years=range(2018, 2024)),
+                     _fao(cfg, _RICE, 10.0, 90.0, 0.0, years=[2017, 2024])])    # di luar jendela 2018-2023
     e = R.build_exposure(cfg, fao, pd.DataFrame(), pd.DataFrame(), pd.DataFrame()).set_index("commodity")
     assert np.isclose(e.loc["beras", "import_ratio_direct"], 0.2)
 

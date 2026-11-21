@@ -2,6 +2,10 @@
 
 **Status: BEKU (2026-11-20 23:29 WIB).** Perubahan apa pun pada isi dokumen ini, `configs/params.yaml`, atau
 `configs/commodities.yaml` dicatat di DECISIONS.md dengan label DEVIASI PRAREGISTRASI.
+Deviasi tercatat: D-120 (item FAOSTAT beras → "Rice, milled" + "Rice, broken"; sha256 `configs/commodities.yaml` sesudahnya
+`f88184eb03a6213dc6a115883586bfcf602548e8e9d3a2a0670ec07134011813`); D-121 (kunci `association.import_ratio_years`,
+`forecast.run_m3`; sha256 `configs/params.yaml` sesudahnya `dd2b675110e4a13c7a097c8cc6f4900efb125a24627063f51efc9684b0484c3a`).
+Hash di §5 tetap hash saat pembekuan.
 
 ## 1. Data & sampel
 - Outcome: PIHPS pasar tradisional, varian representatif per `configs/commodities.yaml` (D-011, FINAL): Beras Kualitas Medium I,

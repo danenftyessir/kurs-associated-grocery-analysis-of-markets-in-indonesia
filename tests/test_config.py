@@ -49,3 +49,20 @@ def test_pinksheet_series_exist(cfg):
     for k, v in cfg.commodities.items():
         for s in v["pinksheet"]:
             assert s in series, f"{k}: seri Pink Sheet '{s}' tidak ditemukan"
+
+
+def test_faostat_items_exist_and_rice_is_milled(cfg):
+    """Regresi D-120: item FAOSTAT ada di data, dan beras memakai beras giling (bukan "Rice" = padi, impor ~0)."""
+    assert "Rice" not in cfg.commodities["beras"]["faostat_items"]
+    if not cfg.source_path("faostat_sua").exists():
+        pytest.skip("FAOSTAT tidak ada")
+    from kagami.data.loaders import load_faostat_sua
+    from kagami.data.reference import _fao_import_ratio
+    fao = load_faostat_sua(cfg)
+    items = set(fao["item"])
+    for k, v in cfg.commodities.items():
+        for it in v.get("faostat_items") or []:
+            assert it in items, f"{k}: item FAOSTAT '{it}' tidak ditemukan"
+    years = tuple(cfg.params["association"]["import_ratio_years"])
+    ratio, _ = _fao_import_ratio(fao, cfg.commodities["beras"]["faostat_items"], years)
+    assert 0.01 < ratio < 0.15      # impor beras ~1-3 juta t vs pasokan ~32 juta t

@@ -43,7 +43,7 @@ WP-07 (paralel dengan WP-05) → WP-22/23
 | WP-04 | Kelayakan seri | ✅ | – | 03 | 20 Nov |
 | WP-05 | Penggerak mingguan & harga dunia rupiah | ✅ | – | 02 | 21 Nov |
 | WP-06 | Episode depresiasi & tabel variasi kurs | ✅ | Danen | 05 | 21 Nov |
-| WP-07 | Tabel buatan tim (concordance, exposure, regulation, province_features) | ⬜ | Ardell | 02 | 22 Nov |
+| WP-07 | Tabel buatan tim (concordance, exposure, regulation, province_features) | 🔶 | Ardell | 02 | 22 Nov |
 | WP-08 | Panel 7 wilayah | ✅ | Danen | 04 | 21 Nov |
 | WP-09 | MDE / analisis daya (G-power) | ✅ | Danen | 05, 08 | 23 Nov |
 | WP-10 | QA silang & laporan Tahap 0 | ✅ | Danen | 03–09 | 23 Nov |
@@ -51,24 +51,24 @@ WP-07 (paralel dengan WP-05) → WP-22/23
 | WP-12 | Mesin statistik bersama | ✅ | – | – | 20 Nov |
 | WP-13 | LP nasional + asimetri + PT (`build_design`/`fit_lp` terbit 22 Nov untuk WP-15) | ✅ | Danen | 05, 09 | 23 Nov |
 | WP-14 | Event study per episode | ✅ | Danen | 06, 08 | 23 Nov |
-| WP-15 | Deviasi provinsi & profil wilayah | ⬜ | Ardell | 13 | 24 Nov |
-| WP-16 | Bootstrap bersama & plasebo | ⬜ | Ardell | 13, 15 | 24 Nov |
-| WP-17 | Penyusutan EB & fitur respons | ⬜ | Ardell | 16 | 24 Nov |
+| WP-15 | Deviasi provinsi & profil wilayah | 🔶 | Ardell | 13 | 24 Nov |
+| WP-16 | Bootstrap bersama & plasebo | 🔶 | Ardell | 13, 15 | 24 Nov |
+| WP-17 | Penyusutan EB & fitur respons | 🔶 | Ardell | 16 | 24 Nov |
 | WP-18 | Heterogenitas vs plasebo (G-het) | 🔶 | Danen | 16 | 25 Nov |
-| WP-19 | Clustering & pemilihan k | ⬜ | Ardell | 17 | 25 Nov |
-| WP-20 | Stabilitas & pembanding partisi | ⬜ | Ardell | 19 | 25 Nov |
+| WP-19 | Clustering & pemilihan k | 🔶 | Ardell | 17 | 25 Nov |
+| WP-20 | Stabilitas & pembanding partisi | 🔶 | Ardell | 19 | 25 Nov |
 | WP-21 | Uji struktur tertanam | 🔶 | Danen | 19 | 26 Nov |
 | WP-22 | Asosiasi level komoditas (Kendall) | 🔶 | Danen | 07, 17 | 25 Nov |
-| WP-23 | Meta-regresi provinsi | ⬜ | Ardell | 07, 16 | 26 Nov |
-| WP-24 | Robustness FE komoditas×minggu (3c) | ⬜ | Ardell | 23 | 26 Nov (dapat dipotong) |
-| WP-25 | Fitur Task 4 + as-of join | ⬜ | Ardell | 05, 08 | 22 Nov |
-| WP-26 | Model M0–M3 rolling-origin | ⬜ | Ardell | 25 | 24 Nov |
+| WP-23 | Meta-regresi provinsi | 🔶 | Ardell | 07, 16 | 26 Nov |
+| WP-24 | Robustness FE komoditas×minggu (3c) | 🔶 | Ardell | 23 | 26 Nov (dapat dipotong) |
+| WP-25 | Fitur Task 4 + as-of join | 🔶 | Ardell | 05, 08 | 22 Nov |
+| WP-26 | Model M0–M3 rolling-origin | 🔶 | Ardell | 25 | 24 Nov |
 | WP-27 | Evaluasi DM & ablation | 🔶 | Danen | 26 | 25 Nov |
 | WP-28 | Robustness Tier 1 | ✅ | Danen | 13 | 26 Nov |
 | WP-29 | Validasi V2 & V4 | 🔶 | Danen | 14, 27 | 26 Nov |
 | WP-30 | Robustness Tier 2 | 🔶 | Danen | 28 | opsional |
-| WP-31 | Halaman Streamlit final | ⬜ | Ardell | 17–29 | 27 Nov |
-| WP-32 | Paket juri & uji jalan ulang (G7) | ⬜ | Ardell | 31 | 28 Nov |
+| WP-31 | Halaman Streamlit final | 🔶 | Ardell | 17–29 | 27 Nov |
+| WP-32 | Paket juri & uji jalan ulang (G7) | 🔶 | Ardell | 31 | 28 Nov |
 | WP-33 | Temuan & makalah | ⬜ | Abi | 17–29 | 28 Nov |
 | WP-34 | Audit klaim (G8) | ⬜ | Abi | 31, 33 | 28 Nov |
 | WP-35 | Tugas manusia | ⬜ | Abi (+ Danen: bundle & Kaggle) | – | lihat item |
@@ -249,6 +249,9 @@ Pipeline `pipelines.task3` · notebook `03_task3_association` · ringan.
   Tes `tests/test_heterogeneity.py` (dicocokkan dengan brute force 6!).
 - Selesai bila: [x] p permutasi eksak (10! = 3.628.800 permutasi int8, ± 5 dtk); [x] leave-one-commodity-out (jackknife_min/max, interval
   τ ± 1,96·SE jackknife); [ ] jalan pada P2 (`response_features`) + P3 (`exposure`) asli.
+- Sementara (2026-11-21, `exposure` asli dari `stage0` + PT(8) titik dari `national_profiles` lokal, sebelum `response_features`):
+  τ-b = −0,045 (jackknife −0,65..0,56), p eksak dua sisi 0,93, p satu sisi 0,60, n = 10 → tidak ada asosiasi terdeteksi di antara
+  10 komoditas. Rasio impor beras dikoreksi ke beras giling (D-120, DEVIASI PRAREGISTRASI); dengan item lama τ = −0,13.
 
 ### WP-23 — Meta-regresi provinsi
 - File: `src/models/association.py::meta_regression` → `assoc` level=province. Selesai bila: [ ] ≤ 3 fitur praregistrasi; [ ] interval bootstrap vs CR2, yang lebih lebar dilaporkan; [ ] jackknife provinsi.

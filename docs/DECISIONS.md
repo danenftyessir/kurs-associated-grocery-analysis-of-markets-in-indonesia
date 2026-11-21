@@ -339,3 +339,26 @@ baris itu ke cluster terakhir (SE sedikit salah). Kini baris dengan grup kosong 
 cluster difaktorkan ulang. Hasil LP nasional, Tier 1, dan `mde` tidak berubah (desain nasional tidak punya minggu kosong).
 Dilaporkan Ardell sebagai masalah `ols_cluster` (di macOS); penyebab persisnya di mesin Ardell belum dikonfirmasi.
 Tes `test_ols_cluster_drops_missing_groups`.
+
+### D-120 — Item FAOSTAT beras = beras giling · FINAL · DEVIASI PRAREGISTRASI · 2026-11-21 (WP-07, WP-22) · Danen
+`configs/commodities.yaml` (beku G6) memetakan beras ke item FAOSTAT SUA "Rice", yang di SUA adalah **padi/gabah**: produksi
+54–59 juta t, impor 6–229 t per tahun → `import_ratio_direct` beras 1,3·10⁻⁶ (hasil `stage0` pertama, 2026-11-21). Impor beras
+Indonesia tercatat di "Rice, milled" (1,85 juta t 2018; 2,72 juta t 2023) dan "Rice, broken" (± 0,35 juta t/th). Diganti menjadi
+["Rice, milled", "Rice, broken"] → rasio 2018–2023 = **0,033** (cek silang neraca BPS 0,059). Alternatif ditolak: neraca BPS
+(sumber & metode berbeda dari 9 komoditas lain); membiarkan "Rice" (salah pemetaan, bukan pilihan analisis). Keputusan diambil
+sebelum E1 dihitung. Dampak: urutan beras pada E1 naik dari ke-7 menjadi ke-5; τ-b E1 sementara −0,045 (p 0,93) vs −0,13 dengan item
+lama — kesimpulan sama (tidak terdeteksi). sha256 `commodities.yaml` (LF) sesudahnya `f88184eb…011813` (dicatat di kepala PREREGISTRATION).
+Tes `tests/test_config.py::test_faostat_items_exist_and_rice_is_milled`; `tests/test_reference.py` memakai item yang sama.
+
+### D-121 — Dua kunci `params.yaml` baru dari WP-07/WP-26 · FINAL · DEVIASI PRAREGISTRASI · 2026-11-21 (WP-07, WP-22, WP-26) · Danen
+Dicatat Danen atas nama Ardell (bagian `association` & `forecast` milik Ardell, PEMBAGIAN_TUGAS §3). Kedua kunci ditambahkan Ardell
+pada commit 2026-11-21 16:19, setelah pembekuan G6 (2026-11-20 23:29), tanpa entri deviasi.
+1. `association.import_ratio_years: [2018, 2023]` — jendela rerata tahunan `exposure.import_ratio_direct` (impor / (produksi + impor
+   − ekspor), FAOSTAT SUA) yang dipakai E1 (WP-22). Praregistrasi menyebut "rasio impor langsung" tanpa jendela tahun. Pilihan:
+   awal = awal periode outcome (`period.start` 2018-01-01); akhir = tahun FAOSTAT SUA terakhir (2023). Item yang tidak terisi di
+   tahun tertentu memakai tahun yang ada (telur 2018–2022 tiga tahun bernilai, cabai 2018–2022; tercatat di kolom `source`).
+   Alternatif ditolak: satu tahun terakhir (lebih bising, impor beras naik tajam 2023); seluruh 2010–2023 (di luar periode
+   outcome). Jendela ditetapkan di kode sebelum E1 dihitung pada data asli (E1 pertama kali dihitung 2026-11-21 malam, D-120).
+2. `forecast.run_m3: true` — sakelar operasional untuk urutan pemotongan D-014 (M3 dipotong terakhir). Nilai `true` = analisis
+   praregistrasi tidak berubah; mengubah ke `false` = pemotongan lingkup yang wajib dicatat sebagai keputusan baru.
+Dampak: tidak ada perubahan hipotesis atau uji; hash `params.yaml` berubah (dicatat di kepala PREREGISTRATION).

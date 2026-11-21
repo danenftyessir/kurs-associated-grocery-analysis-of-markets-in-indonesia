@@ -120,7 +120,8 @@ A8 = β⁺(8) − β⁻(8) (level komoditas).
 
 ## M3 — Task 3 asosiasi
 
-- **3a (WP-22):** Kendall τ-b antara PT(8) nasional dan `import_ratio_direct` (N = 10), p permutasi eksak dua sisi (+ satu sisi
+- **3a (WP-22):** Kendall τ-b antara PT(8) nasional dan `import_ratio_direct` (rerata tahunan 2018–2023,
+  `association.import_ratio_years`, D-121; beras = beras giling, D-120) (N = 10), p permutasi eksak dua sisi (+ satu sisi
   arah E1); leave-one-commodity-out → jackknife_min/max dan interval τ ± 1,96·SE jackknife. Tabel jalur eksposur vs PT(8), W8 (+ interval).
 - **3b (WP-23):** meta-regresi efek acak δ(i,r,h) ~ Z(r) (≤ 3 fitur: ln jarak ke hub terdekat
   {Jakarta, Surabaya, Makassar}, kecukupan produksi bila ada, n_kota), bobot 1/(s²+τ²). Interval: bootstrap blok mingguan

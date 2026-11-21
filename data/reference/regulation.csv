@@ -1,0 +1,73 @@
+commodity,instrument,zone,value_rp,start_date,end_date,regulation,verification,commodity_raw,in_scope,source,date_status,value_min_rp,value_max_rp
+bawang_merah,HAP,Nasional,41500.0,2022-06-13,2024-12-30,Panel Harga Bapanas (setting),unverified,Bawang Merah,True,bapanas_het_settings,range,41500.0,41500.0
+bawang_merah,HAP,Nasional,,2022-12-19,,Perbadan 11/2022,confirmed,Kedelai; bawang merah; cabai; daging sapi/kerbau; gula,True,regulation_history,signed_only,,
+bawang_merah,HAP,Nasional,,2024-09-25,,Perbadan 12/2024,verified,Kedelai; bawang merah; bawang putih; cabai rawit; cabai keriting; gula; daging sapi/kerbau,True,regulation_history,signed_only,,
+bawang_merah,HAP_konsumen,Nasional,,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Bawang merah,True,het_hap_current,signed_only,36500.0,41500.0
+bawang_merah,HAP_produsen,Nasional,,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Bawang merah,True,het_hap_current,signed_only,25000.0,30000.0
+bawang_putih,HAP,Nasional,,2024-09-25,,Perbadan 12/2024,verified,Kedelai; bawang merah; bawang putih; cabai rawit; cabai keriting; gula; daging sapi/kerbau,True,regulation_history,signed_only,,
+bawang_putih,HAP_konsumen,Nasional,38000.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Bawang putih,True,het_hap_current,signed_only,38000.0,38000.0
+bawang_putih,HAP_konsumen,Timur/3T,40000.0,2024-09-25,,Perbadan 12/2024 (Lampiran catatan f),verified,Bawang putih,True,het_hap_current,signed_only,40000.0,40000.0
+bawang_putih,HAP_produsen,Nasional,28500.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Bawang putih,True,het_hap_current,signed_only,28500.0,28500.0
+beras,HET,Semua zona,,2024-06-02,,Perpanjangan relaksasi (surat 160/TS.02.02/K/5/2024),confirmed,Beras medium dan premium,True,regulation_history,effective,12500.0,15800.0
+beras,HET,Zona 1,14900.0,,2024-05-31,Relaksasi HET (surat Kepala Bapanas),unverified,Beras premium,True,regulation_history,unknown,14900.0,14900.0
+beras,HET,Zona 1,10900.0,2023-03-31,,Perbadan 7/2023,verified,Beras medium,True,regulation_history,effective,10900.0,10900.0
+beras,HET,Zona 1,13900.0,2023-03-31,,Perbadan 7/2023,verified,Beras premium,True,regulation_history,effective,13900.0,13900.0
+beras,HET,Zona 1,12500.0,2024-04-24,2024-05-31,Relaksasi HET (surat Kepala Bapanas),confirmed,Beras medium,True,regulation_history,range,12500.0,12500.0
+beras,HET,Zona 1,,2024-06-03,,Perbadan 5/2024 (perubahan Perbadan 7/2023),partial,Beras medium dan premium,True,regulation_history,signed_only,12500.0,14900.0
+beras,HET,Zona 1,13500.0,2025-08-22,,Kepbadan 299/2025 (Penetapan HET Beras),confirmed,Beras medium,True,het_hap_current,effective,13500.0,13500.0
+beras,HET,Zona 1,14900.0,2025-08-22,,Kepbadan 299/2025 (satu keputusan dengan HET medium),partial,Beras premium,True,het_hap_current,unlabeled,14900.0,14900.0
+beras,HET,Zona 1-3,,2025-08-22,,Kepbadan 299/2025,confirmed,Beras medium,True,regulation_history,signed_only,13500.0,15500.0
+beras,HET,Zona 2,14000.0,2025-08-22,,Kepbadan 299/2025,confirmed,Beras medium,True,het_hap_current,effective,14000.0,14000.0
+beras,HET,Zona 2,15400.0,2025-08-22,,Kepbadan 299/2025,partial,Beras premium,True,het_hap_current,unlabeled,15400.0,15400.0
+beras,HET,Zona 3,15500.0,2025-08-22,,Kepbadan 299/2025,confirmed,Beras medium,True,het_hap_current,effective,15500.0,15500.0
+beras,HET,Zona 3,15800.0,2025-08-22,,Kepbadan 299/2025,partial,Beras premium,True,het_hap_current,unlabeled,15800.0,15800.0
+cabai_merah,HAP,Nasional,55000.0,2022-06-13,2024-12-30,Panel Harga Bapanas (setting),unverified,Cabai Merah Keriting,True,bapanas_het_settings,range,55000.0,55000.0
+cabai_merah,HAP,Nasional,,2022-12-19,,Perbadan 11/2022,confirmed,Kedelai; bawang merah; cabai; daging sapi/kerbau; gula,True,regulation_history,signed_only,,
+cabai_merah,HAP,Nasional,,2024-09-25,,Perbadan 12/2024,verified,Kedelai; bawang merah; bawang putih; cabai rawit; cabai keriting; gula; daging sapi/kerbau,True,regulation_history,signed_only,,
+cabai_merah,HAP_konsumen,Nasional,,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Cabai merah keriting,True,het_hap_current,signed_only,37000.0,55000.0
+cabai_merah,HAP_produsen,Nasional,,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Cabai merah keriting,True,het_hap_current,signed_only,22000.0,29600.0
+cabai_rawit,HAP,Nasional,57000.0,2022-06-13,2024-12-30,Panel Harga Bapanas (setting),unverified,Cabai Rawit Merah,True,bapanas_het_settings,range,57000.0,57000.0
+cabai_rawit,HAP,Nasional,,2022-12-19,,Perbadan 11/2022,confirmed,Kedelai; bawang merah; cabai; daging sapi/kerbau; gula,True,regulation_history,signed_only,,
+cabai_rawit,HAP,Nasional,,2024-09-25,,Perbadan 12/2024,verified,Kedelai; bawang merah; bawang putih; cabai rawit; cabai keriting; gula; daging sapi/kerbau,True,regulation_history,signed_only,,
+cabai_rawit,HAP_konsumen,Nasional,,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Cabai rawit merah,True,het_hap_current,signed_only,40000.0,57000.0
+cabai_rawit,HAP_produsen,Nasional,,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Cabai rawit merah,True,het_hap_current,signed_only,25000.0,31500.0
+daging_ayam,HAP,Nasional,,2022-10-05,,Perbadan 5/2022,confirmed,Telur; daging ayam; jagung,True,regulation_history,signed_only,,
+daging_ayam,HAP,Nasional,,2024-06-13,,Perbadan 6/2024,partial,Telur; daging ayam; jagung,True,regulation_history,signed_only,,
+daging_ayam,HAP_konsumen,Nasional,40000.0,2024-06-13,,Perbadan 6/2024 (mengubah Lampiran Perbadan 5/2022),partial,Daging ayam ras,True,het_hap_current,signed_only,40000.0,40000.0
+daging_ayam,HAP_produsen,Nasional,25000.0,2024-06-13,,Perbadan 6/2024 (mengubah Lampiran Perbadan 5/2022),partial,Daging ayam ras,True,het_hap_current,signed_only,25000.0,25000.0
+daging_kerbau_beku_impor,HAP_konsumen,Nasional,80000.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Daging kerbau beku (impor),False,het_hap_current,signed_only,80000.0,80000.0
+daging_sapi,HAP,Nasional,,2022-12-19,,Perbadan 11/2022,confirmed,Kedelai; bawang merah; cabai; daging sapi/kerbau; gula,True,regulation_history,signed_only,,
+daging_sapi,HAP,Nasional,,2024-09-25,,Perbadan 12/2024,verified,Kedelai; bawang merah; bawang putih; cabai rawit; cabai keriting; gula; daging sapi/kerbau,True,regulation_history,signed_only,,
+daging_sapi,HAP_konsumen,Nasional,130000.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Daging sapi,True,het_hap_current,signed_only,130000.0,130000.0
+daging_sapi,HAP_konsumen,Nasional,140000.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Daging sapi,True,het_hap_current,signed_only,140000.0,140000.0
+daging_sapi,HAP_konsumen,Nasional,105000.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Daging sapi,True,het_hap_current,signed_only,105000.0,105000.0
+gabah_kering_panen_gkp_di_petani,HPP,Nasional,4200.0,2020-03-19,,Permendag 24/2020,confirmed,Gabah kering panen (GKP) di petani,False,regulation_history,effective,4200.0,4200.0
+gabah_kering_panen_gkp_di_petani,HPP,Nasional,5000.0,2023-03-24,,Perbadan 6/2023,verified,Gabah kering panen (GKP) di petani,False,regulation_history,effective,5000.0,5000.0
+gabah_kering_panen_gkp_di_petani,HPP,Nasional,6000.0,2024-04-03,2024-06-30,Kepbadan 167/2024 (fleksibilitas harga pembelian gabah/beras),confirmed,Gabah kering panen (GKP) di petani,False,regulation_history,range,6000.0,6000.0
+gabah_kering_panen_gkp_di_petani,HPP,Nasional,6000.0,2024-06-03,,Perbadan 4/2024 (perubahan Perbadan 6/2023),partial,Gabah kering panen (GKP) di petani,False,regulation_history,signed_only,6000.0,6000.0
+gabah_kering_panen_gkp_di_petani,HPP,Nasional,6500.0,2025-01-15,,Kepbadan 2/2025,confirmed,Gabah kering panen (GKP) di petani,False,regulation_history,effective,6500.0,6500.0
+gabah_kering_panen_gkp_di_petani,HPP,Nasional,6500.0,2025-01-24,,Kepbadan 14/2025,confirmed,Gabah kering panen (GKP) di petani,False,regulation_history,effective,6500.0,6500.0
+gula_pasir,HAP,Nasional,,2022-12-19,,Perbadan 11/2022,confirmed,Kedelai; bawang merah; cabai; daging sapi/kerbau; gula,True,regulation_history,signed_only,,
+gula_pasir,HAP,Nasional,,2024-09-25,,Perbadan 12/2024,verified,Kedelai; bawang merah; bawang putih; cabai rawit; cabai keriting; gula; daging sapi/kerbau,True,regulation_history,signed_only,,
+gula_pasir,HAP_konsumen,Non-Timur/3T,17500.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Gula konsumsi,True,het_hap_current,signed_only,17500.0,17500.0
+gula_pasir,HAP_konsumen,Timur/3T,18500.0,2024-09-25,,Perbadan 12/2024 (Lampiran catatan f),verified,Gula konsumsi,True,het_hap_current,signed_only,18500.0,18500.0
+gula_pasir,HAP_produsen,Nasional,14500.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Gula konsumsi,True,het_hap_current,signed_only,14500.0,14500.0
+jagung,HAP,Nasional,,2022-10-05,,Perbadan 5/2022,confirmed,Telur; daging ayam; jagung,False,regulation_history,signed_only,,
+jagung,HAP,Nasional,,2024-06-13,,Perbadan 6/2024,partial,Telur; daging ayam; jagung,False,regulation_history,signed_only,,
+kedelai,HAP,Nasional,,2022-12-19,,Perbadan 11/2022,confirmed,Kedelai; bawang merah; cabai; daging sapi/kerbau; gula,False,regulation_history,signed_only,,
+kedelai,HAP,Nasional,,2024-09-25,,Perbadan 12/2024,verified,Kedelai; bawang merah; bawang putih; cabai rawit; cabai keriting; gula; daging sapi/kerbau,False,regulation_history,signed_only,,
+kedelai_biji_kering_impor,HAP,Nasional,12000.0,2024-06-02,2024-12-30,Panel Harga Bapanas (setting),unverified,Kedelai Biji Kering (Impor),False,bapanas_het_settings,range,12000.0,12000.0
+kedelai_impor,HAP_konsumen,Nasional,12000.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Kedelai impor,False,het_hap_current,signed_only,12000.0,12000.0
+kedelai_lokal,HAP_konsumen,Nasional,11400.0,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Kedelai lokal,False,het_hap_current,signed_only,11400.0,11400.0
+minyak_goreng,HET,Nasional,14000.0,2022-03-16,,Permendag 11/2022,confirmed,Minyak goreng curah,True,regulation_history,effective,14000.0,14000.0
+minyak_goreng,HET,Nasional,14000.0,2022-07-08,,Permendag 41/2022,confirmed,Minyakita,True,regulation_history,effective,14000.0,14000.0
+minyak_goreng,HET,Nasional,14000.0,2022-10-03,,Permendag 49/2022,verified,Minyakita,True,regulation_history,effective,14000.0,14000.0
+minyak_goreng,HET,Nasional,15700.0,2024-08-14,,"Kepmendag 1028/2024 (HET); dasar Permendag 18/2024, direvisi Permendag 43/2025 tanpa mengubah HET",confirmed,Minyak goreng rakyat (Minyakita),True,het_hap_current,signed_only,15700.0,15700.0
+minyak_goreng,HET,Nasional,15700.0,2024-08-14,,Permendag 18/2024,partial,Minyakita,True,regulation_history,effective,15700.0,15700.0
+minyak_goreng,HET,Nasional,15700.0,2024-08-14,,"Kepmendag 1028/2024 (Penetapan HET Minyak Goreng Rakyat, DMO, DPO)",confirmed,Minyakita,True,regulation_history,signed_only,15700.0,15700.0
+minyak_goreng,HET,Nasional,15700.0,2025-12-12,,Permendag 43/2025 (merevisi Permendag 18/2024),confirmed,Minyakita,True,regulation_history,effective,15700.0,15700.0
+sapi_hidup_bakalan_impor,HAP_produsen,Nasional,,2024-09-25,,Perbadan 12/2024 (Lampiran),verified,Sapi hidup (bakalan impor),False,het_hap_current,signed_only,56000.0,58000.0
+telur_ayam,HAP,Nasional,,2022-10-05,,Perbadan 5/2022,confirmed,Telur; daging ayam; jagung,True,regulation_history,signed_only,,
+telur_ayam,HAP,Nasional,,2024-06-13,,Perbadan 6/2024,partial,Telur; daging ayam; jagung,True,regulation_history,signed_only,,
+telur_ayam,HAP_konsumen,Nasional,30000.0,2024-06-13,,Perbadan 6/2024 (mengubah Lampiran Perbadan 5/2022),partial,Telur ayam ras,True,het_hap_current,signed_only,30000.0,30000.0
+telur_ayam,HAP_produsen,Nasional,26500.0,2024-06-13,,Perbadan 6/2024 (mengubah Lampiran Perbadan 5/2022),partial,Telur ayam ras,True,het_hap_current,signed_only,26500.0,26500.0

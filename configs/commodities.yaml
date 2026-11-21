@@ -17,7 +17,7 @@ beras:
   exposure_path: direct_import
   pinksheet: {"Rice, Thai 5%": 1.0}
   hs_codes: ["1006"]
-  faostat_items: ["Rice"]
+  faostat_items: ["Rice, milled", "Rice, broken"]   # bukan "Rice" (= padi/gabah, impor ~0); DEVIASI PRAREGISTRASI D-120
   unit: Rp/kg
 
 bawang_putih:

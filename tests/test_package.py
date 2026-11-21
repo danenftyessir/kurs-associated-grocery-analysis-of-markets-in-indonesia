@@ -1,5 +1,6 @@
 """WP-32: paket juri lengkap, tidak membocorkan data tanpa hak redistribusi, dan dapat dijalankan dari folder baru."""
 
+import os
 import subprocess
 import sys
 import zipfile
@@ -9,7 +10,7 @@ import pandas as pd
 from kagami.pipelines import package
 from kagami.utils.artifacts import ARTIFACTS
 from kagami.utils.config import Config
-from kagami.utils.io import write_artifact
+from kagami.utils.io import exists, write_artifact
 
 SNIPPET = (
     "import importlib.util, sys\n"
@@ -53,7 +54,11 @@ def test_missing_ship_artifacts_are_reported_and_blocked(cfg, tmp_path):
     c = _cfg(cfg, tmp_path)
     _, missing = package.collect_submission(c)
     ship = {a.name for a in ARTIFACTS.values() if a.ship} - {"checksums"}      # checksums ikut kode (ada di repo)
-    assert set(missing) == ship                                # belum ada satu pun artefak hasil
+    # root = folder kode asli; di mesin yang sudah menjalankan tahap (mis. stage0 / tabel data/reference) sebagian artefak
+    # ship sudah ada di root dan sah ikut zip -> yang wajib dilaporkan hilang = artefak ship yang tidak ada di read_dirs.
+    assert set(missing) == {n for n in ship if not exists(c, n)}
+    if not missing:
+        return
     try:
         package.submission(c)
     except SystemExit as e:
@@ -67,7 +72,10 @@ def test_extracted_package_runs_cli(cfg, tmp_path):
     zpath = package.submission(c, allow_missing=True)
     out = tmp_path / "fresh"
     zipfile.ZipFile(zpath).extractall(out)
-    r = subprocess.run([sys.executable, "-I", "-c", SNIPPET], cwd=out, capture_output=True, text=True, timeout=120,
-                       env={"PATH": "/usr/bin:/bin"} | {"KAGAMI_RAW_DIR": str(tmp_path / "none")})
+    # -E (abaikan PYTHONPATH dll.) + lingkungan asli tanpa KAGAMI_*: kagami diambil dari folder hasil ekstrak (SNIPPET),
+    # pustaka pihak ketiga tetap terlihat walau terpasang di user site-packages (Windows butuh APPDATA).
+    env = {k: v for k, v in os.environ.items() if not k.startswith("KAGAMI_")} | {"KAGAMI_RAW_DIR": str(tmp_path / "none")}
+    r = subprocess.run([sys.executable, "-E", "-c", SNIPPET], cwd=out, capture_output=True, text=True, timeout=120,
+                       env=env)
     assert r.returncode == 0, r.stderr[-800:]
     assert "episodes" in r.stdout or "artefak" in r.stdout.lower()
