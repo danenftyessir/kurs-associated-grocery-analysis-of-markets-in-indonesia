@@ -1,10 +1,19 @@
-"""Panel 7 wilayah (WP-08) -- peta utama 7 wilayah; ikut paket juri bersama panel provinsi (D-104)."""
+"""Panel 7 wilayah (WP-08) -- peta utama 7 wilayah; ikut paket juri bersama panel provinsi (D-104).
+
+Juga panel alternatif untuk robustness Tier 2 (WP-30): varian non-representatif, agregasi observasi terakhir,
+outcome Panel Harga Bapanas. Panel alternatif hanya dipakai `evaluation.robustness.tier2`, tidak ditulis sebagai artefak.
+"""
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
+from kagami.data.loaders import norm_name
+from kagami.data.qa import BAPANAS_TO_PIHPS
+from kagami.data.weekly import aggregate_weekly, eligibility
 from kagami.utils.config import Config
+from kagami.utils.dates import week_start
 
 _MAX_ITER, _TOL = 500, 1e-10   # konstanta numerik dekomposisi dua arah (bukan parameter analisis)
 
@@ -52,3 +61,63 @@ def build_region_panel(cfg: Config, weekly: pd.DataFrame, elig: pd.DataFrame) ->
     g["n_provinces"] = g["n_provinces"].astype(int)
     return g[["week", "region", "commodity", "log_price_index", "n_provinces"]].sort_values(
         ["commodity", "region", "week"]).reset_index(drop=True)
+
+
+# ------------------------------------------------------------------------------------ robustness Tier 2
+def build_variant_panels(cfg: Config, pihps: pd.DataFrame) -> pd.DataFrame:
+    """WP-30. Panel mingguan untuk setiap varian level-2 PIHPS NON-representatif dalam grup komoditas yang sama
+    (mis. Minyak Goreng Curah, D-023; Beras Kualitas Super I). Aturan sama dengan panel utama: rerata hari
+    teramati (weekly.aggregate_weekly) dan kelayakan per seri (weekly.eligibility).
+
+    Input : keluaran loaders.load_pihps.
+    Output: week, province_id, commodity, variant, log_price, status, eligible (eligible konstan per seri).
+    Komoditas tanpa varian lain tidak muncul.
+    """
+    lv2 = pihps[pihps["level"] == 2]
+    items = lv2["item"].map(norm_name)
+    frames = []
+    for cid, spec in cfg.commodities.items():
+        grp = lv2["commodity_group"] == spec["pihps_name"]
+        for v in sorted(set(items[grp]) - {norm_name(spec["variant"])}):
+            d = lv2.loc[grp & (items == v), ["date", "province_id", "price"]].dropna(subset=["price"])
+            d = d[d["price"] > 0].assign(commodity=cid, variant=v)
+            d["province_id"] = d["province_id"].astype(int)
+            w = aggregate_weekly(cfg, d)
+            w = w[w["commodity"] == cid]
+            el = eligibility(cfg, w)[["province_id", "commodity", "eligible"]]
+            frames.append(w.merge(el, on=["province_id", "commodity"]).assign(variant=v))
+    cols = ["week", "province_id", "commodity", "variant", "log_price", "status", "eligible"]
+    if not frames:
+        return pd.DataFrame(columns=cols)
+    return pd.concat(frames, ignore_index=True)[cols]
+
+
+def last_observation_panel(cfg: Config, daily: pd.DataFrame) -> pd.DataFrame:
+    """WP-30. Agregasi mingguan alternatif: harga = hari TERAMATI terakhir minggu ISO (bukan rerata).
+
+    Input : artefak 'pihps_daily' (date, province_id, commodity, price). Periode period.start..period.freeze.
+    Output: week, province_id, commodity, price, log_price (hanya minggu teramati; build_design mengisi grid).
+    """
+    per = cfg.params["period"]
+    d = daily[(daily["date"] >= pd.Timestamp(per["start"])) & (daily["date"] <= pd.Timestamp(per["freeze"]))]
+    d = d[d["price"] > 0].sort_values("date").assign(week=lambda x: week_start(x["date"]))
+    out = d.groupby(["province_id", "commodity", "week"], as_index=False)["price"].last()
+    out["log_price"] = np.log(out["price"])
+    return out[["week", "province_id", "commodity", "price", "log_price"]]
+
+
+def build_bapanas_panel(cfg: Config, bapanas: pd.DataFrame) -> pd.DataFrame:
+    """WP-30. Panel Harga Bapanas bulanan sebagai outcome alternatif (Tier 2 `bapanas_outcome`).
+
+    Pemetaan komoditas qa.BAPANAS_TO_PIHPS (U20, D-110; Minyakita dikecualikan); provinsi pemekaran sudah
+    dipetakan ke induk (loader) -> log harga = rerata log price_geomean per (bulan, province_id, commodity).
+    Output: week (= awal bulan, label bulan untuk LP bulanan), province_id, commodity, log_price.
+    """
+    b = bapanas[bapanas["commodity_bapanas"].isin(BAPANAS_TO_PIHPS) & (bapanas["price_geomean"] > 0)]
+    b = b.dropna(subset=["province_id"]).assign(
+        commodity=lambda x: x["commodity_bapanas"].map(BAPANAS_TO_PIHPS),
+        log_price=lambda x: np.log(x["price_geomean"]),
+        week=lambda x: pd.to_datetime(x["month"]).dt.to_period("M").dt.to_timestamp())
+    b["province_id"] = b["province_id"].astype(int)
+    out = b.groupby(["week", "province_id", "commodity"], as_index=False)["log_price"].mean()
+    return out[["week", "province_id", "commodity", "log_price"]]

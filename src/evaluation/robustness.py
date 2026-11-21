@@ -9,9 +9,9 @@ import numpy as np
 import pandas as pd
 
 from kagami.models import local_projection as lp
+from kagami.models.association import kendall_exact
 from kagami.stats.regression import ols_cluster
 from kagami.utils.config import Config
-from kagami.utils.todo import todo
 
 TIER1 = (
     "horizon_8_vs_12",
@@ -27,6 +27,9 @@ TIER2 = (
     "alternative_exposure_remoteness",
     "bapanas_outcome",
 )
+# Pengodean ordinal jalur eksposur (Tier 2 alternative_exposure): paparan langsung ke harga impor = 2, tidak langsung
+# (input impor, paritas ekspor) = 1, domestik = 0. Struktural, mengikuti arah E1 (PREREGISTRATION; D-116).
+PATH_ORDINAL = {"direct_import": 2, "imported_input": 1, "export_parity": 1, "domestic": 0}
 
 ROBUSTNESS_COLUMNS = ["check_id", "tier", "commodity", "horizon", "estimate", "ci_low", "ci_high",
                       "baseline_estimate", "note"]
@@ -352,6 +355,121 @@ def validation(cfg: Config, profiles: pd.DataFrame, events: pd.DataFrame, episod
     return pd.DataFrame(rows, columns=cols)
 
 
-def tier2(cfg: Config) -> pd.DataFrame:
-    """WP-30. Opsional; yang pertama dipotong bila waktu habis."""
-    todo("WP-30")
+def tier2(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.DataFrame, *,
+          elig: pd.DataFrame | None = None, variant_panels: pd.DataFrame | None = None,
+          world_variants: pd.DataFrame | None = None, last_obs_panel: pd.DataFrame | None = None,
+          profiles: pd.DataFrame | None = None, exposure: pd.DataFrame | None = None,
+          bapanas: pd.DataFrame | None = None, commodities: list[str] | None = None,
+          horizons: list[int] | None = None) -> pd.DataFrame:
+    """WP-30. Robustness Tier 2 (opsional, pertama dipotong; D-014). LP nasional seperti tier1; deskriptif (D-116).
+
+    Setiap cek hanya jalan bila inputnya diberikan (pipelines.robustness.tier2_inputs menyiapkan dari data mentah):
+      alternative_variants : (a) variant_panels (data.panel.build_variant_panels): LP pada varian PIHPS lain
+                             dengan kelayakannya sendiri, variant = nama varian; (b) world_variants
+                             (data.drivers.build_world_variants): komposit harga dunia alternatif, variant = "w:<nama>".
+                             baseline = LP utama (varian & bobot G6).
+      last_observation_aggregation : last_obs_panel (data.panel.last_observation_panel), elig panel utama.
+      alternative_exposure_remoteness : Kendall τ-b eksak PT(8) nasional (profiles) vs PATH_ORDINAL jalur eksposur;
+                             baseline = τ dengan import_ratio_direct (exposure, bila ada). Keterpencilan alternatif
+                             butuh meta-regresi (WP-23) dan belum dijalankan di sini.
+      bapanas_outcome      : LP bulanan (seperti tier1 monthly_frequency) dengan Panel Harga Bapanas sebagai outcome
+                             (data.panel.build_bapanas_panel); baseline = LP bulanan PIHPS pada BULAN YANG SAMA.
+    h = params.lp.key_horizons; driver e & w. Interval ±1,96·SE cluster (Kendall: jackknife LOCO).
+    Keluaran: kolom kontrak 'robustness' (tier = 2) + driver, variant, se, baseline_se, baseline_in_ci, n_weeks, n_obs.
+    """
+    pl = cfg.params["lp"]
+    L = int(pl["lags"])
+    L_m = max(1, round(L / _WEEKS_PER_MONTH))
+    H = [int(h) for h in (horizons if horizons is not None else pl["key_horizons"])]
+    present = set(panel["commodity"].unique())
+    coms = [c for c in (commodities or cfg.commodity_ids()) if c in present]
+    rows: list[dict] = []
+    cache: dict[tuple[str, int], dict[str, tuple[float, float]]] = {}
+
+    def baseline(com: str, h: int) -> dict[str, tuple[float, float]]:
+        if (com, h) not in cache:
+            f = _fit(cfg, lp.build_design(cfg, panel, drivers, world, com, h, L, elig=elig))
+            cache[(com, h)] = {r.driver: (r.estimate, r.se) for r in f.itertuples(index=False)}
+        return cache[(com, h)]
+
+    def add(check, com, h, fit, base, variant, note):
+        for r in fit.itertuples(index=False):
+            if r.driver not in base or r.driver not in ("e", "w"):
+                continue
+            be, bse = base[r.driver]
+            lo, hi = r.estimate - 1.96 * r.se, r.estimate + 1.96 * r.se
+            rows.append({"check_id": check, "tier": 2, "commodity": com, "horizon": h, "driver": r.driver,
+                         "variant": variant, "estimate": r.estimate, "se": r.se, "ci_low": lo, "ci_high": hi,
+                         "baseline_estimate": be, "baseline_se": bse,
+                         "baseline_in_ci": bool(lo <= be <= hi) if np.isfinite(be) and np.isfinite(lo) else np.nan,
+                         "n_weeks": r.n_weeks, "n_obs": r.n_obs, "note": note})
+
+    # varian PIHPS alternatif
+    if variant_panels is not None and len(variant_panels):
+        for (com, v), g in variant_panels.groupby(["commodity", "variant"], sort=True):
+            if com not in coms:
+                continue
+            el = g[["province_id", "commodity", "eligible"]].drop_duplicates(["province_id", "commodity"])
+            n_el = int(el["eligible"].astype(bool).sum())
+            rep = cfg.commodities[com]["variant"]
+            for h in H:
+                D = lp.build_design(cfg, g, drivers, world, com, h, L, elig=el)
+                add(TIER2[0], com, h, _fit(cfg, D), baseline(com, h), v,
+                    f"varian {v} ({n_el} provinsi eligible) vs baseline {rep}")
+    # komposit harga dunia alternatif
+    if world_variants is not None and len(world_variants):
+        for (com, v), wv in world_variants.groupby(["commodity", "variant"], sort=True):
+            if com not in coms:
+                continue
+            w_alt = pd.concat([world[world["commodity"] != com], wv[list(world.columns.intersection(wv.columns))]],
+                              ignore_index=True)
+            weights = cfg.commodities[com]["pinksheet"]
+            for h in H:
+                D = lp.build_design(cfg, panel, drivers, w_alt, com, h, L, elig=elig)
+                add(TIER2[0], com, h, _fit(cfg, D), baseline(com, h), f"w:{v}",
+                    f"harga dunia {v} vs baseline komposit {weights} (D-012)")
+    # agregasi observasi terakhir
+    if last_obs_panel is not None and len(last_obs_panel):
+        for com in coms:
+            for h in H:
+                D = lp.build_design(cfg, last_obs_panel, drivers, world, com, h, L, elig=elig)
+                add(TIER2[1], com, h, _fit(cfg, D), baseline(com, h), "last_obs",
+                    "harga mingguan = hari teramati terakhir (baseline: rerata hari teramati)")
+    # eksposur alternatif (Kendall E1)
+    if profiles is not None and len(profiles):
+        pt = profiles[(profiles["level"] == "national") & (profiles["driver"] == "PT") & (profiles["horizon"] == 8)]
+        feats = pt[["commodity", "estimate"]].rename(columns={"estimate": "PT8"}).assign(level="national")
+        alt = pd.DataFrame({"commodity": list(cfg.commodities),
+                            "import_ratio_direct": [float(PATH_ORDINAL[s["exposure_path"]])
+                                                    for s in cfg.commodities.values()]})
+        k = kendall_exact(cfg, alt, feats).iloc[0]
+        base_tau = np.nan
+        if exposure is not None and exposure["import_ratio_direct"].notna().sum() > 2:
+            base_tau = float(kendall_exact(cfg, exposure, feats).iloc[0]["estimate"])
+        rows.append({"check_id": TIER2[2], "tier": 2, "commodity": "ALL", "horizon": 8, "driver": "PT",
+                     "variant": "exposure_path_ordinal", "estimate": k["estimate"], "se": np.nan,
+                     "ci_low": k["ci_low"], "ci_high": k["ci_high"], "baseline_estimate": base_tau,
+                     "baseline_se": np.nan,
+                     "baseline_in_ci": (bool(k["ci_low"] <= base_tau <= k["ci_high"]) if np.isfinite(base_tau)
+                                        else np.nan),
+                     "n_weeks": np.nan, "n_obs": k["n"],
+                     "note": f"Kendall τ-b PT(8) nasional vs ordinal jalur {PATH_ORDINAL}; p eksak dua sisi "
+                             f"{k['p_value']:.3f}, satu sisi {k['p_greater']:.3f}; ci jackknife LOCO; baseline = τ "
+                             "dengan import_ratio_direct (NaN bila exposure belum ada); keterpencilan alternatif "
+                             "menunggu meta-regresi WP-23"})
+    # outcome Bapanas (bulanan)
+    if bapanas is not None and len(bapanas):
+        for com in [c for c in coms if c in set(bapanas["commodity"])]:
+            for h in H:
+                h_m = max(1, round(h / _WEEKS_PER_MONTH))
+                Db = _monthly_design(cfg, bapanas, drivers, world, com, h_m, L_m, None)
+                if Db.empty:
+                    continue
+                Dp = _monthly_design(cfg, panel, drivers, world, com, h_m, L_m, elig)
+                Dp = _restrict(Dp, Dp["week"].isin(set(Db["week"])).to_numpy())
+                base = {r.driver: (r.estimate, r.se) for r in _fit(cfg, Dp).itertuples(index=False)}
+                add(TIER2[3], com, h, _fit(cfg, Db), base, f"h_m={h_m}",
+                    f"Panel Harga Bapanas bulanan h={h_m} bulan, L={L_m}, {Db['week'].min():%Y-%m}.."
+                    f"{Db['week'].max():%Y-%m}; baseline = PIHPS bulanan pada bulan yang sama; SE cluster bulan")
+    out = pd.DataFrame(rows, columns=ROBUSTNESS_COLUMNS + _EXTRA)
+    return out[ROBUSTNESS_COLUMNS + _EXTRA]

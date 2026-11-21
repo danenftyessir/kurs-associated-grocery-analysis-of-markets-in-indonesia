@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kagami.data.drivers import build_national_drivers, build_world_prices, driver_weeks
+from kagami.data.drivers import build_national_drivers, build_world_prices, build_world_variants, driver_weeks
 
 
 @pytest.fixture(scope="module")
@@ -143,3 +143,19 @@ def test_episodes_real_data(cfg):
     assert (eps["cum_dlog_e"] >= cfg.params["episodes"]["cum_depreciation"]).all()
     t = fx_variation_table(cfg, mark_episode_weeks(drv, eps)).set_index("period")
     assert t.loc["total", "n_dep_weeks"] == 259 and t.loc["total", "n_app_weeks"] == 200
+
+
+def test_world_variants(cfg, weeks):
+    """WP-30: komposit pakan alternatif (bobot sama, seri tunggal) hanya untuk komoditas >= 2 seri."""
+    months = pd.date_range(weeks[0].to_period("M").to_timestamp(), weeks[-1], freq="MS")
+    ps = pd.concat([pd.DataFrame({"month": months, "series": s, "usd_price": v})
+                    for s, v in {"Maize": 200.0, "Soybean meal": 400.0, "Palm oil": 900.0}.items()])
+    j = _daily(weeks, lambda i: 15000.0).rename(columns={"v": "idr_per_usd"})
+    w = build_world_variants(cfg, ps, j)
+    multi = {c for c, v in cfg.commodities.items() if len(v["pinksheet"] or {}) >= 2}
+    assert set(w["commodity"]) == multi == {"daging_ayam", "telur_ayam"}
+    assert set(w["variant"]) == {"equal_weights", "Maize", "Soybean meal"}
+    ay = w[w["commodity"] == "daging_ayam"].groupby("variant")["log_w_usd"].first()
+    assert np.isclose(ay["Maize"], np.log(200)) and np.isclose(ay["Soybean meal"], np.log(400))
+    assert np.isclose(ay["equal_weights"], 0.5 * np.log(200) + 0.5 * np.log(400))
+    assert cfg.commodities["daging_ayam"]["pinksheet"] == {"Maize": 0.6, "Soybean meal": 0.4}   # config tidak berubah

@@ -66,7 +66,7 @@ WP-07 (paralel dengan WP-05) → WP-22/23
 | WP-27 | Evaluasi DM & ablation | 🔶 | Danen | 26 | 25 Nov |
 | WP-28 | Robustness Tier 1 | ✅ | Danen | 13 | 26 Nov |
 | WP-29 | Validasi V2 & V4 | 🔶 | Danen | 14, 27 | 26 Nov |
-| WP-30 | Robustness Tier 2 | ⬜ | Danen | 28 | opsional |
+| WP-30 | Robustness Tier 2 | 🔶 | Danen | 28 | opsional |
 | WP-31 | Halaman Streamlit final | ⬜ | Ardell | 17–29 | 27 Nov |
 | WP-32 | Paket juri & uji jalan ulang (G7) | ⬜ | Ardell | 31 | 28 Nov |
 | WP-33 | Temuan & makalah | ⬜ | Abi | 17–29 | 28 Nov |
@@ -299,7 +299,18 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
   null yang miring, mis. lonjakan minyak goreng 2021–22) → diganti median plasebo (D-114).
 
 ### WP-30 — Robustness Tier 2
-- File: `src/evaluation/robustness.py::tier2`. Opsional; pertama dipotong.
+- File: `src/evaluation/robustness.py::tier2`; input dari `data/panel.py` (`build_variant_panels`, `last_observation_panel`,
+  `build_bapanas_panel`), `data/drivers.py::build_world_variants`, `pipelines/robustness.py::tier2_inputs`. Opsional; pertama dipotong.
+  Tes `tests/test_robustness.py`, `tests/test_drivers.py`. D-116. CLI `python -m kagami robustness --tier2`.
+- Selesai: [x] varian alternatif (11 varian PIHPS + 3 komposit pakan × 2 komoditas); [x] agregasi observasi terakhir; [x] Kendall
+  ordinal jalur; [x] outcome Bapanas bulanan; [x] data asli: 187 baris, ±40 dtk lokal (termasuk menyiapkan input dari mentah);
+  [ ] keterpencilan alternatif (butuh `meta_regression` WP-23, Ardell); [ ] baseline τ dengan `import_ratio_direct` (butuh `exposure` WP-07).
+- Data asli (β_e/ω nasional, h 4/8/12): baseline di dalam interval cek pada **184/186 sel**. Dua pengecualian, tanda sama:
+  gula Kualitas Premium β_e(4) 0,36 (0,15..0,57) vs Lokal 0,69; Minyak Goreng Curah ω(8) 0,36 (0,26..0,45) vs Kemasan 0,21
+  (Curah lebih peka terhadap harga sawit dunia, sesuai dugaan D-023). Daging ayam β_e(8) stabil: komposit jagung −1,79,
+  bungkil kedelai −1,64, bobot sama −1,64, observasi terakhir −1,57 (baseline −1,67). Bapanas bulanan 2022–2026 mengikuti PIHPS bulanan
+  pada bulan yang sama (42/42 sel). Kendall τ-b PT(8) vs ordinal jalur = −0,03 (−0,75..0,70), p eksak 1,00 → di antara 10 komoditas
+  tidak ada asosiasi monoton jalur eksposur dengan PT(8) (deskriptif, E1).
 
 ## Produk & submission
 

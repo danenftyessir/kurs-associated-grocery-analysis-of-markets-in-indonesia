@@ -153,6 +153,11 @@ sub-periode / tidak beririsan dengan periode yang dibuang; desain di-demean ulan
 bulanan Brent| > ambang. Dekomposisi: kedua komponen masuk satu LP. Bulanan: log harga = rerata log mingguan per bulan,
 h_bulan = round(h·12/52), L_bulan = max(1, round(L·12/52)), kontrol Idulfitri = rerata bulanan dummy mingguan, SE cluster bulan.
 Interval Tier 1 = ±1,96·SE cluster (bootstrap tidak diulang per cek).
+Implementasi Tier 2 (D-116; deskriptif, LP nasional h kunci, driver e & w): (a) setiap varian level-2 PIHPS non-representatif dalam grup
+yang sama, agregasi & kelayakan sendiri; komposit pakan bobot sama dan seri tunggal (D-012); (b) harga mingguan = hari teramati terakhir;
+(c) Kendall τ-b eksak PT(8) vs ordinal jalur (impor langsung 2, input impor & paritas ekspor 1, domestik 0), baseline = τ dengan
+import_ratio_direct; keterpencilan alternatif lewat meta-regresi (WP-23); (d) Panel Harga Bapanas bulanan sebagai outcome (LP bulanan
+seperti Tier 1), baseline = LP bulanan PIHPS pada bulan yang sama. Butuh data mentah → tidak termasuk reproduksi Tingkat B.
 V4 (D-114): kelebihan event = dlog_price − median plasebo (nasional); implikasi LP untuk jendela berawal s =
 Σ_{j=0..h} β_e(h−j)·de_{s+j} + Σ_j ω(h−j)·dw_{s+j}; per komoditas × h kunci: rerata kelebihan (± 1,96·sd/√n antar episode) vs rerata
 implikasi, porsi tanda sama, korelasi antar episode. V2: episode yang mulai di tahun freeze (kelebihan vs pita plasebo relatif median)

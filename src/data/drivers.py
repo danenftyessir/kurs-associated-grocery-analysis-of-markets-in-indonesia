@@ -109,6 +109,35 @@ def build_world_prices(cfg: Config, pinksheet: pd.DataFrame, jisdor: pd.DataFram
     return out[["week", "commodity", "month", "log_w_usd", "log_w_idr", "dw", "available_at"]]
 
 
+class _CommodityOverride:
+    """Config dengan `commodities` diganti (sisanya diteruskan ke Config asli); hanya untuk build_world_variants."""
+
+    def __init__(self, cfg: Config, commodities: dict):
+        self._cfg, self.commodities = cfg, commodities
+
+    def __getattr__(self, name):
+        return getattr(self._cfg, name)
+
+
+def build_world_variants(cfg: Config, pinksheet: pd.DataFrame, jisdor: pd.DataFrame) -> pd.DataFrame:
+    """WP-30. Komposit harga dunia alternatif untuk komoditas dengan >= 2 seri Pink Sheet (pakan: daging ayam,
+    telur; D-012 robustness): bobot sama 1/k dan setiap seri tunggal. Konstruksi identik build_world_prices.
+
+    Output: kolom build_world_prices + variant (mis. "equal_weights", "Maize", "Soybean meal").
+    """
+    frames = []
+    for cid, spec in cfg.commodities.items():
+        series = list(spec["pinksheet"] or {})
+        if len(series) < 2:
+            continue
+        alts = {"equal_weights": {s: 1 / len(series) for s in series}} | {s: {s: 1.0} for s in series}
+        for name, weights in alts.items():
+            sub = _CommodityOverride(cfg, {cid: {**spec, "pinksheet": weights}})
+            frames.append(build_world_prices(sub, pinksheet, jisdor).assign(variant=name))
+    cols = ["week", "commodity", "month", "log_w_usd", "log_w_idr", "dw", "available_at", "variant"]
+    return pd.concat(frames, ignore_index=True)[cols] if frames else pd.DataFrame(columns=cols)
+
+
 def mark_episode_weeks(drivers: pd.DataFrame, episodes: pd.DataFrame) -> pd.DataFrame:
     """WP-06. Tambah kolom `episode` (1 bila start_week <= week <= end_week suatu episode, selain itu 0)."""
     out = drivers.copy()
