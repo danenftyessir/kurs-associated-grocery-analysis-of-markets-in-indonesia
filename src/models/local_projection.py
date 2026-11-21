@@ -76,6 +76,22 @@ def build_design(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world:
     attrs['n_dropped']). Efek tetap seri α_{i,r,h} via within-transform per unit SETELAH pembuangan baris.
     Keluaran: week, unit, y, regresor..., group (= week, untuk cluster). attrs: n_dropped, n_weeks, commodity, horizon.
     """
+    parts = _design_parts(cfg, panel, drivers, world, commodity, lags, asymmetric, elig, unit_col, price_col)
+    y, X, names, wk, un, n_dropped = _design_arrays(parts, horizon)
+    weeks = parts["weeks"][wk]
+    df = pd.DataFrame({"week": weeks, "unit": parts["units"].to_numpy()[un], "y": y})
+    df = pd.concat([df, pd.DataFrame(X, columns=names)], axis=1)
+    df["group"] = df["week"]
+    df.attrs.update(n_dropped=n_dropped, n_weeks=int(len(np.unique(wk))), commodity=commodity, horizon=horizon)
+    return df
+
+
+def _design_parts(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.DataFrame | None,
+                  commodity: str, lags: int, asymmetric: bool, elig: pd.DataFrame | None,
+                  unit_col: str | None, price_col: str | None) -> dict:
+    """Bagian desain yang TIDAK bergantung pada horizon: matriks log harga minggu x unit, Δp, blok kurs & kontrol.
+
+    Dipakai build_design (satu horizon) dan national_profiles (semua horizon tanpa membangun ulang; D-118)."""
     unit_col = _detect(panel, unit_col, ("province_id", "region", "unit"), "unit")
     price_col = _detect(panel, price_col, ("log_price", "log_price_index", "dev"), "log harga")
     p = panel.loc[panel["commodity"] == commodity, ["week", unit_col, "commodity", price_col]]
@@ -85,37 +101,57 @@ def build_design(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world:
     P = p.pivot_table(index="week", columns=unit_col, values=price_col, aggfunc="first", dropna=False)
     P = P.reindex(pd.date_range(P.index.min(), P.index.max(), freq="W-MON"))
     P = P.reindex(columns=sorted(P.columns))
-    weeks, units = P.index, P.columns
-    Y = P.shift(-horizon) - P.shift(1)
-    dP = P.diff()
-
+    weeks = P.index
     common = pd.concat([_fx_block(drivers, world, commodity, lags, asymmetric), _common_controls(drivers)],
                        axis=1).reindex(weeks)
-    nW, nU = len(weeks), len(units)
-    data: dict[str, np.ndarray] = {
-        "week": np.repeat(weeks.to_numpy(), nU),
-        "unit": np.tile(units.to_numpy(), nW),
-        "y": Y.to_numpy().ravel(),
-    }
     fx_cols = [c for c in common.columns if c.startswith(("de", "dw"))]
-    for c in fx_cols:
-        data[c] = np.repeat(common[c].to_numpy(dtype=float), nU)
-    for l in range(1, lags + 1):
-        data[f"dp_l{l}"] = dP.shift(l).to_numpy().ravel()
-    for c in common.columns:
-        if c not in fx_cols:
-            data[c] = np.repeat(common[c].to_numpy(dtype=float), nU)
-    df = pd.DataFrame(data)
-    df = df[np.repeat(_period_weeks(cfg, weeks), nU)]
-    reg = [c for c in df.columns if c not in _META]
-    keep = df[["y", *reg]].notna().all(axis=1)
-    n_dropped = int((~keep).sum())
-    df = df[keep].reset_index(drop=True)
-    num = ["y", *reg]
-    df[num] = df[num] - df.groupby("unit")[num].transform("mean")
-    df["group"] = df["week"]
-    df.attrs.update(n_dropped=n_dropped, n_weeks=int(df["week"].nunique()), commodity=commodity, horizon=horizon)
-    return df[["week", "unit", "y", *reg, "group"]]
+    ctrl_cols = [c for c in common.columns if c not in fx_cols]
+    return {"weeks": weeks, "units": P.columns, "P": P.to_numpy(dtype=float),
+            "dP": P.diff().to_numpy(dtype=float), "fx": common[fx_cols].to_numpy(dtype=float),
+            "ctrl": common[ctrl_cols].to_numpy(dtype=float), "fx_cols": fx_cols, "ctrl_cols": ctrl_cols,
+            "lags": lags, "period": _period_weeks(cfg, weeks)}
+
+
+def _shift(A: np.ndarray, k: int) -> np.ndarray:
+    """Geser baris seperti DataFrame.shift(k) (k > 0 ke bawah, k < 0 ke atas), isi NaN."""
+    out = np.full_like(A, np.nan)
+    if k > 0:
+        out[k:] = A[:-k]
+    elif k < 0:
+        out[:k] = A[-k:]
+    else:
+        out[:] = A
+    return out
+
+
+def _design_arrays(parts: dict, horizon: int) -> tuple[np.ndarray, np.ndarray, list[str], np.ndarray,
+                                                         np.ndarray, int]:
+    """Susun y^{(h)} & regresor (urutan: blok kurs, dp_l1..dp_lL, kontrol) dari _design_parts, buang baris NaN
+    dalam periode, lalu within-transform per unit. Return (y, X, nama regresor, indeks minggu, indeks unit, n_dropped)."""
+    P, L = parts["P"], parts["lags"]
+    nW, nU = P.shape
+    names = [*parts["fx_cols"], *(f"dp_l{l}" for l in range(1, L + 1)), *parts["ctrl_cols"]]
+    if "X" not in parts:                       # regresor tidak bergantung pada horizon -> dibangun sekali
+        nf, nc = len(parts["fx_cols"]), len(parts["ctrl_cols"])
+        X = np.empty((nW * nU, nf + L + nc))
+        X[:, :nf] = np.repeat(parts["fx"], nU, axis=0)
+        for l in range(1, L + 1):
+            X[:, nf + l - 1] = _shift(parts["dP"], l).ravel()
+        X[:, nf + L:] = np.repeat(parts["ctrl"], nU, axis=0)
+        in_p = np.repeat(parts["period"], nU)
+        parts.update(X=X, in_p=in_p, x_ok=in_p & np.isfinite(X).all(axis=1))
+    y = (_shift(P, -horizon) - _shift(P, 1)).ravel()
+    keep = parts["x_ok"] & np.isfinite(y)
+    n_dropped = int(parts["in_p"].sum() - keep.sum())
+    idx = np.flatnonzero(keep)
+    y, X, wk, un = y[idx], parts["X"][idx], idx // nU, idx % nU
+    if len(y):
+        cnt = np.bincount(un, minlength=nU).astype(float)
+        cnt[cnt == 0] = 1.0
+        y = y - (np.bincount(un, weights=y, minlength=nU) / cnt)[un]
+        for j in range(X.shape[1]):
+            X[:, j] -= (np.bincount(un, weights=X[:, j], minlength=nU) / cnt)[un]
+    return y, X, names, wk, un, n_dropped
 
 
 def regressors(design: pd.DataFrame) -> list[str]:
@@ -141,6 +177,17 @@ def fit_lp(cfg: Config, design: pd.DataFrame) -> pd.DataFrame:
                          "se": [res.se[pos[c]] for c in imp],
                          "n_weeks": int(design["week"].nunique()), "n_obs": res.n_obs,
                          "n_clusters": res.n_clusters})
+
+
+def _fit_arrays(y: np.ndarray, X: np.ndarray, names: list[str], wk: np.ndarray) -> list[tuple]:
+    """fit_lp pada larik (cluster = indeks minggu) -> [(driver, estimate, se, n_weeks, n_obs)] per impuls."""
+    imp = [c for c in names if c in IMPULSES]
+    if len(y) == 0:
+        return [(IMPULSES[c], np.nan, np.nan, 0, 0) for c in imp]
+    res = ols_cluster(y, X, wk)
+    n_weeks = int(len(np.unique(wk)))
+    return [(IMPULSES[c], float(res.beta[names.index(c)]), float(res.se[names.index(c)]), n_weeks, res.n_obs)
+            for c in imp]
 
 
 def fx_self_response(cfg: Config, drivers: pd.DataFrame, horizon: int, lags: int) -> float:
@@ -183,20 +230,26 @@ def national_profiles(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame,
     present = set(panel["commodity"].unique())
     coms = [c for c in (commodities or cfg.commodity_ids()) if c in present]
     gamma = {h: fx_self_response(cfg, drivers, h, L) for h in H}
+    fits: dict[tuple[str, int, bool], list[tuple]] = {}
+    for com in coms:
+        for asym in (False, True):
+            parts = _design_parts(cfg, panel, drivers, world, com, L, asym, elig, None, None)  # sekali per spesifikasi
+            for h in H:
+                y, X, names, wk, _, _ = _design_arrays(parts, h)
+                fits[(com, h, asym)] = _fit_arrays(y, X, names, wk)
     rows = []
     for com in coms:
         for h in H:
             for asym in (False, True):
-                fit = fit_lp(cfg, build_design(cfg, panel, drivers, world, com, h, L, asym, elig=elig))
-                if asym:
-                    fit = fit[fit["driver"] != "w"]
-                for r in fit.itertuples(index=False):
-                    rows.append({"commodity": com, "driver": r.driver, "horizon": h, "estimate": r.estimate,
-                                 "se": r.se, "n_weeks": r.n_weeks, "n_obs": r.n_obs})
-                    if r.driver == "e":
+                for drv, est, se, n_weeks, n_obs in fits[(com, h, asym)]:
+                    if asym and drv == "w":
+                        continue
+                    rows.append({"commodity": com, "driver": drv, "horizon": h, "estimate": est,
+                                 "se": se, "n_weeks": n_weeks, "n_obs": n_obs})
+                    if drv == "e":
                         rows.append({"commodity": com, "driver": "PT", "horizon": h,
-                                     "estimate": r.estimate / gamma[h], "se": np.nan,
-                                     "n_weeks": r.n_weeks, "n_obs": r.n_obs})
+                                     "estimate": est / gamma[h], "se": np.nan,
+                                     "n_weeks": n_weeks, "n_obs": n_obs})
     out = pd.DataFrame(rows, columns=["commodity", "driver", "horizon", "estimate", "se", "n_weeks", "n_obs"])
     out.insert(0, "unit", "ALL")
     out.insert(0, "level", "national")

@@ -190,8 +190,8 @@ Pipeline `pipelines.task1` · notebook `01_task1_profiles` · berat → Kaggle/C
   (+ `elig`, `horizons`, `commodities`). `task1` meneruskan `eligibility`.
 - Spesifikasi: METHODS §M1.1–M1.2.
 - Selesai: [x] tes sintetis β diketahui (2,5 SE, termasuk β⁺/β⁻ dan ω); [x] γ(h); [x] `n_weeks`; [x] `national_profiles`: 598 baris
-  (PT/e/e_pos/e_neg 130, w 78), n_weeks 447–459; [x] runtime **23 dtk** (< 2 menit). PT: se & ci NaN sampai bootstrap (WP-16).
-- Hilir (WP-16, Ardell): 23 dtk × B 499 ≈ 3,2 jam per run bootstrap nasional → pakai `horizons`/`commodities` dan B non-fokus 199
+  (PT/e/e_pos/e_neg 130, w 78), n_weeks 447–459; [x] runtime **23 dtk** (< 2 menit); sejak D-118 **± 6 dtk** (hasil identik). PT: se & ci NaN sampai bootstrap (WP-16).
+- Hilir (WP-16, Ardell): semula 23 dtk × B 499 ≈ 3,2 jam per run bootstrap nasional; sejak D-118 ± 6 dtk × 499 ≈ 50 menit → pakai `horizons`/`commodities` dan B non-fokus 199
   sesuai aturan > 30 menit, atau paralel `joblib`.
 - Catatan awal (SE cluster): daging ayam β_e(8) −1,67 (−2,62..−0,73) negatif → periksa robustness tanpa Mar–Jun 2020 (WP-28).
 

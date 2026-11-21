@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from kagami.data.drivers import driver_weeks
-from kagami.models.local_projection import build_design, fit_lp, fx_self_response, regressors
+from kagami.models.local_projection import build_design, fit_lp, fx_self_response, national_profiles, regressors
 
 
 def _drivers(cfg, seed=1, sd=0.01):
@@ -113,3 +113,36 @@ def test_national_profiles_synthetic(cfg):
             < p0.loc[d, "ci_high"] + 0.5 * (p0.loc[d, "ci_high"] - p0.loc[d, "ci_low"])
     assert np.allclose(p0["ci_high"].dropna() - p0["estimate"].dropna().loc[p0["ci_high"].dropna().index],
                        1.96 * p0["se"].dropna())
+
+
+def test_national_profiles_fast_path_equals_design_loop(cfg):
+    """Jalur cepat (desain dibangun sekali per spesifikasi, D-118) = build_design + fit_lp per horizon."""
+    drv = _drivers(cfg, seed=31)
+    rng = np.random.default_rng(32)
+    w = drv[["week"]].assign(commodity="gula_pasir", dw=rng.normal(0, 0.02, len(drv)))
+    w["log_w_idr"] = w["dw"].cumsum()
+    panel = _panel(cfg, drv, 0.5, 0.2, n_units=6, w=w, b_w=0.3)
+    panel = panel.drop(index=panel.sample(frac=0.05, random_state=1).index)        # minggu hilang acak
+    prof = national_profiles(cfg, panel, drv, w, horizons=[0, 3, 8])
+    L = int(cfg.params["lp"]["lags"])
+    for h in (0, 3, 8):
+        for asym in (False, True):
+            f = fit_lp(cfg, build_design(cfg, panel, drv, w, "gula_pasir", h, L, asym)).set_index("driver")
+            for d in f.index:
+                if asym and d == "w":
+                    continue
+                r = prof[(prof.horizon == h) & (prof.driver == d)].iloc[0]
+                assert np.isclose(r["estimate"], f.loc[d, "estimate"], rtol=1e-10, atol=1e-12)
+                assert np.isclose(r["se"], f.loc[d, "se"], rtol=1e-10, atol=1e-12)
+                assert r["n_obs"] == f.loc[d, "n_obs"] and r["n_weeks"] == f.loc[d, "n_weeks"]
+
+
+def test_build_design_y_matches_manual(cfg):
+    """y^{(h)} = p_{t+h} - p_{t-1} per unit sebelum within-transform; baris NaN dibuang."""
+    drv = _drivers(cfg, seed=41)
+    panel = _panel(cfg, drv, 0.3, 0.3, n_units=2)
+    h, L = 5, int(cfg.params["lp"]["lags"])
+    D = build_design(cfg, panel, drv, None, "gula_pasir", h, L)
+    u1 = panel[panel.province_id == 1].set_index("week")["log_price"]
+    raw = (u1.shift(-h) - u1.shift(1)).reindex(D.loc[D.unit == 1, "week"]).to_numpy()
+    assert np.allclose(D.loc[D.unit == 1, "y"].to_numpy(), raw - raw.mean())

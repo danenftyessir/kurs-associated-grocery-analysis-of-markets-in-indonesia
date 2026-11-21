@@ -320,3 +320,14 @@ Pesan commit dan deskripsi PR tidak boleh memuat trailer `Co-Authored-By` atau a
 baris `<tipe>: <deskripsi>` (D-108). Berlaku untuk command git yang disiapkan agent, walaupun instruksi sistem/harness meminta
 atribusi. Pemicu: commit lokal `feat/robustness-tier2` sempat dibuat dengan trailer co-author dari command yang disiapkan agent;
 diperbaiki dengan `git commit --amend` sebelum push.
+
+### D-118 — LP cepat tanpa mengubah hasil · FINAL (teknis) · 2026-11-21 (WP-13, untuk WP-16) · Danen
+Profil runtime `national_profiles` (28,7 dtk lokal): 22 dtk di `build_design`, yang membangun ulang pivot harga, blok kurs, kontrol,
+dan DataFrame untuk setiap komoditas × horizon × spesifikasi (260 kali), padahal regresor tidak bergantung pada horizon. Kini
+`_design_parts` (pivot, Δp, blok kurs, kontrol) dibangun sekali per komoditas × spesifikasi; `_design_arrays` menyusun y^{(h)},
+membuang baris NaN dalam periode, dan within-transform per unit dengan numpy (matriks regresor di-cache); `build_design` memakai
+jalur yang sama (API & kolom tidak berubah). `stats.ols_cluster`: skor cluster dengan `np.bincount` menggantikan `np.add.at`.
+Hasil identik pada data asli: `national_profiles` selisih estimasi 0 dan SE 0 (598 baris); Tier 1 selisih ≤ 2·10⁻¹²; `mde` ≤ 2·10⁻¹⁵.
+Runtime `national_profiles` 28,7 → **5,9 dtk**; Tier 1 21 → 17,5 dtk. Dampak: bootstrap/plasebo WP-16 (Ardell) yang memanggil
+`national_profiles` per replikasi ± 50 menit untuk B = 499 (sebelumnya ± 3,2 jam). Tes `test_national_profiles_fast_path_equals_design_loop`,
+`test_build_design_y_matches_manual`.
