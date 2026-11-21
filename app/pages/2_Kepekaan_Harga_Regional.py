@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from common import commodity_labels, footer, need, not_detected_badge, page_header
+from common import commodity_labels, footer, load, need, not_detected_badge, page_header
 from kagami.viz import plots
 
 page_header("Kepekaan Harga Regional", "Komoditas mana di wilayah saya yang historisnya paling peka?")
@@ -25,6 +25,17 @@ if got:
         h8 = d[d["horizon"] == 8]
         if len(h8):
             st.markdown(f"**Status h = 8:** {not_detected_badge(h8['ci_low'].iloc[0], h8['ci_high'].iloc[0])}")
+    feats = load("response_features")
+    if feats is not None and not feats.empty:
+        st.subheader("Peta kepekaan")
+        metric = st.radio("Ukuran", ["R4", "R8", "R12", "PT8"], index=1, horizontal=True)
+        lv = st.selectbox("Peta level", [x for x in ("region", "province") if x in set(feats["level"])] or ["national"])
+        st.plotly_chart(plots.sensitivity_heatmap(feats, lv, metric), use_container_width=True)
+        rank = feats[(feats["level"] == "province") & (feats["commodity"] == com)].sort_values("R8", ascending=False)
+        if len(rank):
+            st.markdown("**Peringkat provinsi (R8, respons nasional + deviasi tersusut)**")
+            st.dataframe(rank[["unit", "R4", "R8", "R12", "t_half"]], hide_index=True, use_container_width=True)
+            st.caption("Respons yang interval-nya memuat nol adalah batas atas kepekaan, bukan bukti nol.")
     st.subheader("Event study per episode depresiasi")
     ev = got["events"]
     st.dataframe(ev[ev["commodity"] == com], hide_index=True, use_container_width=True)

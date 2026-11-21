@@ -1,0 +1,109 @@
+"""Halaman Streamlit dengan artefak sintetis berskema kontrak: setiap halaman terender tanpa exception (WP-31)."""
+
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+import streamlit as st
+from streamlit.testing.v1 import AppTest
+
+from kagami.utils.artifacts import ARTIFACTS
+from kagami.utils.config import Config
+from kagami.utils.io import write_artifact
+
+APP = Path(__file__).resolve().parents[1] / "app"
+PAGES = [APP / "Home.py", *sorted((APP / "pages").glob("*.py"))]
+COMS = ["bawang_putih", "gula_pasir", "daging_ayam"]
+REGIONS = ["Sumatra", "Jawa"]
+
+
+def _profiles():
+    rows = []
+    for com in COMS:
+        for level, units in (("national", ["ALL"]), ("region", REGIONS), ("province", ["1", "2", "3"])):
+            for drv in ("e", "w", "PT"):
+                for h in range(13):
+                    est = 0.05 * h
+                    rows.append({"level": level, "unit": units[0] if len(units) == 1 else units[h % len(units)],
+                                 "commodity": com, "driver": drv, "horizon": h, "estimate": est, "se": 0.02,
+                                 "ci_low": est - 0.04, "ci_high": est + 0.04, "n_weeks": 400, "shrunk": False})
+    return pd.DataFrame(rows).drop_duplicates(["level", "unit", "commodity", "driver", "horizon"])
+
+
+def _features():
+    rows = [{"level": lv, "unit": u, "commodity": c, "R4": .1, "R8": .2, "R12": .3, "W4": .0, "W8": .1, "W12": .1,
+             "PT8": .5, "t_half": 4.0, "A8": np.nan}
+            for c in COMS for lv, u in (("national", "ALL"), ("region", "Jawa"), ("province", "1"), ("province", "2"))]
+    return pd.DataFrame(rows)
+
+
+def _artifacts():
+    prof = _profiles()
+    ids = [1, 2, 3]
+    return {
+        "profiles": prof, "response_features": _features(),
+        "events": pd.DataFrame({"episode_id": [1], "level": ["national"], "unit": ["ALL"], "commodity": [COMS[0]],
+                                "horizon": [4], "dlog_price": [0.01], "placebo_lo": [-0.02], "placebo_hi": [0.02],
+                                "placebo_p": [0.3]}),
+        "episodes": pd.DataFrame({"episode_id": [1], "start_week": ["2020-03-02"], "end_week": ["2020-04-27"],
+                                  "cum_dlog_e": [0.12]}),
+        "heterogeneity": pd.DataFrame({"commodity": COMS, "horizon": 8, "statistic": "Q", "value": [10., 20., 30.],
+                                       "p_placebo": [.5, .1, .01], "q_fdr": [.5, .15, .03]}),
+        "cluster_selection": pd.DataFrame({"k": [1, 2], "silhouette": [np.nan, .1], "placebo_p95": [.2, .2],
+                                           "accepted": [True, False]}),
+        "clusters": pd.DataFrame({"province_id": ids * 2, "method": ["ward"] * 3 + ["kmeans"] * 3, "k": 2,
+                                  "cluster": ["K1", "K1", "K2"] * 2, "jaccard": [.9, .9, .5] + [np.nan] * 3,
+                                  "weak": [False, False, True] + [False] * 3}),
+        "coassign": pd.DataFrame({"province_i": np.repeat(ids, 3), "province_j": np.tile(ids, 3), "share": 1.0}),
+        "partition_compare": pd.DataFrame({"partition": ["het_zone_beras"], "ari": [.1], "n_groups": [3]}),
+        "planted_recovery": pd.DataFrame({"delta": [.1, .5], "k_true": [2, 2], "recovery_rate": [.1, .9],
+                                          "ari_mean": [.2, .9]}),
+        "exposure": pd.DataFrame({"commodity": COMS, "exposure_path": ["direct_import"] * 3,
+                                  "import_ratio_direct": [.9, .5, .01], "imported_input_ordinal": [0, 0, 2],
+                                  "world_price_link": [False, True, True], "source": "dummy"}),
+        "assoc": pd.DataFrame({"level": ["province"], "feature": ["ln_dist_hub"], "outcome": ["e_h4"],
+                               "estimate": [-.1], "ci_low": [-.2], "ci_high": [.0], "p_value": [.04],
+                               "method": ["meta_regression_re_one_sided"], "jackknife_min": [-.15],
+                               "jackknife_max": [-.05], "commodity": ["ALL"]}),
+        "forecast_eval": pd.DataFrame({"horizon": [8, 8], "model": ["M2", "M3"], "subset": ["all", "all"],
+                                       "commodity": [COMS[0]] * 2, "region": ["ALL"] * 2, "mae": [.1, .1],
+                                       "rmse": [.1, .1], "mae_ratio_vs_m1": [.9, 1.0], "rmse_ratio_vs_m1": [.9, 1.0],
+                                       "dm_stat": [1., 0.], "dm_p": [.1, .5], "n_origins": [60, 60],
+                                       "n_nonoverlap": [30, 30], "h5_p_holm": [.2, np.nan]}),
+        "ablation": pd.DataFrame({"horizon": [8], "commodity": [COMS[0]], "region": ["ALL"], "mae_full": [.1],
+                                  "mae_without_fx": [.11], "delta_mae": [.01]}),
+        "findings": "# Temuan\n\nDummy.", "robustness": pd.DataFrame({
+            "check_id": ["T1"], "tier": [1], "commodity": [COMS[0]], "horizon": [8], "estimate": [.1],
+            "ci_low": [0.], "ci_high": [.2], "baseline_estimate": [.1], "note": ["dummy"]}),
+        "eligibility": pd.DataFrame({"province_id": [1], "commodity": [COMS[0]], "missing_share": [0.],
+                                     "max_gap_weeks": [0], "min_year_coverage": [1.], "eligible": [True]}),
+        "mde": pd.DataFrame({"commodity": COMS, "level": "national", "horizon": 8, "mde_beta": .1, "mde_pt": .2}),
+    }
+
+
+@pytest.fixture
+def with_artifacts(tmp_path, monkeypatch, cfg):
+    c = Config(root=cfg.root, out_root=tmp_path)
+    for name, df in _artifacts().items():
+        write_artifact(c, name, df)
+    monkeypatch.setenv("KAGAMI_OUT_DIR", str(tmp_path))
+    monkeypatch.syspath_prepend(str(APP))
+    sys.modules.pop("common", None)
+    st.cache_data.clear()
+    yield tmp_path
+    sys.modules.pop("common", None)
+    st.cache_data.clear()
+
+
+@pytest.mark.parametrize("page", PAGES, ids=lambda p: p.stem)
+def test_page_runs_with_data(page, with_artifacts):
+    at = AppTest.from_file(str(page), default_timeout=90).run()
+    assert not at.exception, [e.value for e in at.exception]
+    waiting = [i.value for i in at.info if "Menunggu hasil" in i.value]
+    assert page.stem in ("Home",) or not waiting, waiting              # semua artefak halaman ini tersedia
+
+
+def test_every_artifact_in_registry():
+    assert {"profiles", "clusters", "assoc"} <= set(ARTIFACTS)
