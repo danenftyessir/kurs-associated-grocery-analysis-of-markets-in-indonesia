@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kagami.evaluation.power import compute_mde, gate_g_power, null_se
+from kagami.evaluation.power import asymmetry_null_se, compute_mde, gate_g_power, null_se
 from kagami.models.local_projection import build_design, fit_lp, regressors
 from kagami.stats.regression import ols_cluster
 
@@ -59,3 +59,24 @@ def test_compute_mde_real(cfg):
     nat = m[m.level == "national"].set_index(["commodity", "horizon"])["mde_beta"]
     reg = m[m.level == "region"].groupby(["commodity", "horizon"])["mde_beta"].median()
     assert (nat < reg.reindex(nat.index)).mean() > 0.8                                    # pooled nasional lebih presisi
+
+
+def test_asymmetry_null_se_matches_wald_se(cfg):
+    """β⁺ = β⁻ (H0 asimetri benar) -> SE skor δ ≈ SE cluster selisih β̂⁻ - β̂⁺ dari regresi penuh."""
+    drv = _drivers(cfg, seed=21)
+    panel = _panel(cfg, drv, 0.4, 0.4, n_units=15, seed=22)
+    D = build_design(cfg, panel, drv, None, "gula_pasir", 8, 4, asymmetric=True)
+    se_a, n = asymmetry_null_se(D)
+    reg = regressors(D)
+    X = D[reg].to_numpy(float).copy()
+    i_pos, i_neg = reg.index("de_pos"), reg.index("de_neg")
+    X[:, i_pos] = X[:, i_pos] + X[:, i_neg]                            # de⁺ -> de; koef. de⁻ = δ = β⁻ - β⁺
+    r = ols_cluster(D["y"].to_numpy(), X, D["group"].to_numpy())
+    assert n == len(D) and abs(se_a / r.se[i_neg] - 1) < 0.05
+
+
+def test_gate_h2_in_pt_units(cfg):
+    m = pd.DataFrame({"commodity": ["bawang_putih", "gula_pasir", "minyak_goreng", "beras"], "level": "national",
+                      "horizon": 8, "mde_pt": [2.0, 0.9, 0.4, 0.2], "mde_asym_pt": [6.0, 1.7, 0.51, 0.44]})
+    g = gate_g_power(cfg, m)
+    assert g["h2_confirmatory"] == {"bawang_putih": False, "gula_pasir": False, "minyak_goreng": False, "beras": True}

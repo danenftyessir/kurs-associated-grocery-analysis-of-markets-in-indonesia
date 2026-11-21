@@ -115,8 +115,9 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 - **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`,
   `episodes`, `drivers_weekly`, `fx_variation`, `panel_weekly_region`, `mde`, `stage0_report`. Semua di Drive tim kecuali
   `stage0_report` (P1 + `mde` diunggah 2026-11-20 lewat browser).
-- **G-power (D-007):** MDE_PT(8) bawang putih 2,52, gula 0,90, minyak goreng 0,465 → LP tetap utama (resmi: `mde` dihitung ulang
-  dengan config beku G6, angka sama). Keputusan diumumkan 23 Nov.
+- **G-power (D-007, diputuskan 2026-11-21, D-115):** MDE_PT(8) bawang putih 2,52, gula 0,90, minyak goreng 0,465 → **LP tetap
+  utama**. H2 (asimetri) konfirmatori hanya untuk **beras** (MDE asimetri PT(8) 0,44) dan **daging sapi** (0,32); 8 komoditas lain
+  deskriptif (1,0–9,3). Pengumuman: handoff `docs/handoff/20261121-1400_danen-ke-semua_g-power.md`.
 - **Catatan β (SE cluster, belum bootstrap):** daging ayam β_e(8) = −1,67 (−2,62..−0,73). Tier 1 (WP-28): tanpa Mar–Jun 2020 &
   bulan Brent ekstrem −0,96 (−2,05..0,14), komponen spesifik rupiah −1,89 (−3,02..−0,76) → bukan semata COVID; tulis asosiasional.
   Aturan Brent ekstrem juga membuang Mar 2026 (+0,40 log) dan Nov 2026 (bulan parsial) (D-111).
@@ -124,10 +125,10 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
   Tahap 0, estimator nasional, uji heterogenitas & struktur tertanam, Kendall, evaluasi DM, robustness. Ardell = jalur B (WP-07, 15, 16, 17,
   19, 20, 23, 24, 25, 26, 31, 32): tabel referensi, sisi provinsi Task 1, clustering, meta-regresi, model Task 4, app, paket juri.
   Abi = jalur C non-teknis (WP-11 naskah, 33–35, data manual).
-- **Berikutnya — Danen:** G-power 23 Nov (umumkan) → WP-18/21/22/27/29 asli saat P2/P3/P4/WP-19 terbit
+- **Berikutnya — Danen:** WP-18/21/22/27/29 asli saat P2/P3/P4/WP-19 terbit
   (butuh `se` di `placebo_stats`, handoff ke Ardell) → WP-27 setelah P4 → WP-29. **Ardell:** WP-07, WP-25
   (sintetis), kerangka WP-15/16/17. **Abi:** U19, data manual §6.2.
-  Paralel: WP-07, WP-25. Gerbang terdekat: **G-power = 23 Nov**. Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
+  Paralel: WP-07, WP-25. Gerbang terdekat: **G-het = 25 Nov** (G-power sudah diputuskan 21 Nov). Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
 - **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + token Drive per anggota (U100),
   unggah CSV penduduk 2025 & kab/kota (U103), video, unggah.
@@ -640,9 +641,10 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 ### 9.5 Lapisan evaluation
 
 #### src/evaluation/power.py
-- `compute_mde` · ✔ · MDE β & PT dari residual LP tanpa kurs, nasional & 7 wilayah, h 4/8/12 (+ unit, se_beta, gamma, n_weeks, n_obs).
+- `asymmetry_null_se` · ✔ · SE δ = β⁻ − β⁺ di bawah H0 asimetri (bentuk skor, tanpa β̂; D-115).
+- `compute_mde` · ✔ · MDE β & PT dari residual LP tanpa kurs, nasional & 7 wilayah, h 4/8/12 (+ unit, se_beta, gamma, n_weeks, n_obs; nasional + se_asym, mde_asym_beta, mde_asym_pt).
 - `null_se` · ✔ · SE cluster-minggu di bawah H0 (bentuk skor; β̂ tidak dihitung; D-107).
-- `gate_g_power` · ✔ · keputusan gerbang D-007 dari artefak mde.
+- `gate_g_power` · ✔ · keputusan gerbang D-007 dari artefak mde + h2_confirmatory per komoditas (MDE asimetri PT(8) ≤ 0,5).
 
 #### src/evaluation/inference.py
 - `joint_bootstrap` · ⬜ WP-16 · moving-block 13 minggu, satu indeks per replikasi untuk semua seri.
@@ -1000,7 +1002,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_drivers.py` | grid penggerak, de & pengisian minggu libur, jendela Idulfitri, harga dunia (komposit, dw bulanan, available_at), episode (gabung, berdempetan, data asli) & tabel variasi kurs |
 | `test_panel.py` | panel 7 wilayah: indeks minggu pertama, tanpa lompatan saat komposisi berubah, hanya eligible, data asli |
 | `test_local_projection.py` | desain LP (nama kolom, within, sampel), β/β⁺/β⁻/ω sintetis dipulihkan, filter eligible, γ(h) |
-| `test_power.py` | SE skor H0 = SE cluster bila β = 0, skala derau, gerbang G-power, MDE data asli |
+| `test_power.py` | SE skor H0 = SE cluster bila β = 0, skala derau, SE asimetri = SE Wald selisih bila β⁺ = β⁻, gerbang G-power & H2, MDE data asli |
 | `test_event_study.py` | jalur event (lonjakan terlihat, tahan komposisi, horizon terpotong = NaN), kandidat plasebo, p plasebo, wilayah data asli |
 | `test_qa.py` | lonjakan satu hari vs perubahan level, total impor, bias Bapanas & pemetaan, laporan Tahap 0 |
 | `test_robustness.py` | Tier 1: jendela sampel, demean ulang sub-sampel, dekomposisi kurs, semua cek ada, β pulih (h=0), efek khusus COVID terdeteksi; validasi: implikasi LP, V4 cocok/berlawanan, V2 episode & forecast, pusat median plasebo |
@@ -1107,7 +1109,7 @@ tidak boleh dikutip sebelum dicek.
 | D-004 | Clustering selalu jalan, dinilai vs plasebo | FINAL |
 | D-005 | Inferensi berbasis minggu (cluster minggu) | FINAL |
 | D-006 | Periode mulai 2018-01-01 (337/340 layak) | FINAL |
-| D-007 | Aturan G-power (MDE PT(8) > 0,5) | FINAL ambang; angka sementara 20 Nov: LP tetap utama (minyak goreng 0,465) |
+| D-007 | Aturan G-power (MDE PT(8) > 0,5) | FINAL; diputuskan D-115: LP tetap utama |
 | D-008 | PIHPS v2_merged kanonik (bagian "v1 untuk QA" diganti D-102) | FINAL |
 | D-009 | Mesin statistik numpy/scipy sendiri | FINAL |
 | D-010 | App hanya membaca artefak | FINAL |
@@ -1141,6 +1143,7 @@ tidak boleh dikutip sebelum dicek.
 | D-109 | Pembekuan G6 (varian, pakan, grup fokus tanpa perubahan) + koreksi Holm H5 | FINAL |
 | D-110 | QA & event study: pemetaan Bapanas, ambang lonjakan di kode QA, jalur event tahan komposisi, plasebo bersama | FINAL (teknis) |
 | D-111 | Tier 1 (jendela sampel, bulanan, dekomposisi), heterogenitas (`se` wajib, p satu sisi, BH per statistik), Kendall (τ-b, p eksak, interval jackknife) | FINAL (teknis) |
+| D-115 | Gerbang G-power resmi: LP tetap utama; MDE asimetri (satuan PT) → H2 konfirmatori beras & daging sapi (keputusan Danen) | FINAL |
 | D-114 | Validasi V2/V4: kelebihan event di atas median plasebo vs implikasi LP (superposisi impuls), V2 = episode & origin tahun freeze, `placebo_median` di events | FINAL (teknis) |
 | D-113 | Evaluasi Task 4: DM pada MAE per origin (HAC lag ceil(h/4)−1), sel jalur H5, keluarga Holm tetap 2 (p NaN = 1), α H5 dari PREREGISTRATION, model ablation `M2_nofx` | FINAL (teknis) |
 | D-112 | Struktur tertanam: δ = selisih respons RMS per fitur antar setiap pasangan kelompok (simpleks acak), ditanam sebelum z-score pada matriks plasebo mentah | FINAL (teknis) |
@@ -1156,7 +1159,7 @@ tidak boleh dikutip sebelum dicek.
 | U5 | FAOSTAT tanpa bawang putih kering → `hortikultura_produksi` + impor BPS v2/Comtrade 070320 | 🟡 |
 | U6 | Regulasi direvisi 20 Nov; sisa: HET Minyakita, tanggal Perbadan 4/5/6/2024, Kepbadan 299/2025, HET beras premium | 🟡 |
 | U7 | Ketentuan BPS & FRED → mentah tidak dikirim | 🟡 |
-| U8 | Kelayakan uji asimetri (tergantung MDE) | 🔴 |
+| U8 | Kelayakan uji asimetri: H2 konfirmatori beras & daging sapi, lainnya deskriptif (D-115) | 🟢 |
 | U9 | Daya deteksi heterogenitas provinsi | 🔴 |
 | U10 | Varian representatif dibekukan di G6 | 🟢 |
 | U11 | Kecukupan produksi hanya beras | 🟡 |

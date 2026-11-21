@@ -45,6 +45,8 @@ Implementasi (D-107): pemicu berjarak ≤ 8 minggu digabung; `end_week` = pemicu
    Nasional = panel provinsi eligible pooled; wilayah = satu LP per wilayah dari `panel_weekly_region`.
 3. MDE_β = (z_{0,975} + z_{0,80}) · SE_β ≈ 2,80 · SE_β; MDE_PT(h) = MDE_β(h) / γ(h).
 4. Gerbang: MDE_PT(8) > 0,5 untuk ketiga {bawang putih, gula pasir, minyak goreng} → D-007 berlaku.
+5. MDE asimetri (H2, D-115): parametrisasi β⁺·de⁺ + β⁻·de⁻ = β⁺·de + δ·de⁻; SE(δ) bentuk skor di bawah δ = 0 (û = residual y pada
+   semua regresor kecuali de⁻ lag 0); MDE_asym = 2,80·SE(δ), satuan PT = /γ(h). H2 konfirmatori bila MDE_asym PT(8) nasional ≤ 0,5.
 
 ### M0.7 Panel 7 wilayah (WP-08)
 Seri eligible saja. Per (wilayah, komoditas): p(r,t) = a_r + l_t (alternating projection; tahan perubahan komposisi, D-106);

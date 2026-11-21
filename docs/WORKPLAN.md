@@ -152,12 +152,14 @@ yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOT
 - Satu-satunya minggu kosong: 2022-05-02 (Idulfitri 2022) di 5 wilayah → `log_price_index` NaN, `n_provinces` 0 (50 sel).
 
 ### WP-09 — MDE / analisis daya (G-power) ✅
-- File: `src/evaluation/power.py` (`compute_mde`, `null_se`, `gate_g_power`) → `mde`. Spesifikasi METHODS §M0.6. Tes `tests/test_power.py`.
+- File: `src/evaluation/power.py` (`compute_mde`, `null_se`, `asymmetry_null_se`, `gate_g_power`) → `mde`. Spesifikasi METHODS §M0.6. Tes `tests/test_power.py`.
 - Selesai: [x] MDE nasional & 7 wilayah, 10 komoditas, h ∈ {4, 8, 12} (240 baris); [x] angka gerbang di D-007 (pembaruan 2026-11-20).
 - SE di bawah H0 dalam bentuk skor (β̂ tidak pernah dihitung; D-107). γ(4/8/12) = 1,44 / 1,32 / 1,03.
 - MDE_PT(8) nasional: bawang putih 2,52, gula pasir 0,90, **minyak goreng 0,465** → tidak ketiganya > 0,5 → **LP tetap utama**
-  (D-007). Hasil SEMENTARA: params belum dibekukan (G6 21 Nov) → jalankan ulang `stage0` setelah G6 dan putuskan G-power 23 Nov.
-  Minyak goreng dekat ambang: perubahan varian/lag di G6 bisa membalik keputusan.
+  (D-007). **Diputuskan 2026-11-21 (D-115)** dengan config beku G6 (angka sama dengan hitungan 20 Nov).
+- MDE asimetri δ = β⁻ − β⁺ (satuan PT, h = 8, nasional; kolom `mde_asym_*`): daging sapi 0,32, beras 0,44 → H2 konfirmatori;
+  minyak goreng 1,01, telur 1,51, gula 1,70, daging ayam 2,66, bawang merah 4,66, bawang putih 6,15, cabai merah 7,46, cabai rawit 9,34
+  → H2 deskriptif (U8 🟢).
 - MDE_PT(8) terkecil: daging sapi 0,13, beras 0,20; terbesar: cabai rawit 3,75, cabai merah 3,00. Wilayah ≈ 1,5–2× nasional.
 
 ### WP-10 — QA silang & laporan Tahap 0 ✅
