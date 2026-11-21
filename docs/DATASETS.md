@@ -33,6 +33,9 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 | `konsumsi_beras` | Konsumsi beras RT kg/kapita/tahun per provinsi | 2023 .. 2025 | Kecukupan produksi | Tidak |
 | `neraca_beras` | Neraca beras nasional (ton) | 2023 .. 2026 | Cek silang impor beras | Tidak |
 | `hortikultura_produksi` | Produksi bawang merah, bawang putih, cabai besar, cabai rawit per provinsi (ATAP 2024 Kementan) | 2020 .. 2024, 38 prov | Rasio impor bawang putih (U5), kecukupan produksi (U11) | Tidak |
+| `penduduk` | Penduduk provinsi 2025 BPS (`optional`; diunggah Danen, U103) | 2025, 38 prov | Kebutuhan beras → `rice_sufficiency` (U14) | Tidak |
+| `n_kota` | Kota sampel PIHPS per provinsi (isi manual Abi, `optional`) | 34 prov | `n_kota` (U15) | Ya |
+| `gkg_beras` | Faktor konversi GKG → beras per tahun (isi manual Abi, `optional`) | per tahun | `rice_sufficiency` (U21) | Ya |
 | `jarak_hub` | Jarak garis lurus ibu kota ke Jakarta/Surabaya/Makassar + ln jarak (buatan tim) | statis, 38 prov | Cek silang `dist_hub_km` (WP-07) | Ya |
 | `het_hap_current` | Nilai HET/HAP berlaku per komoditas × zona (buatan tim; revisi 2026-11-20) | 30 baris, status 2026-11-19 | Regulasi | Ya |
 | `regulation_history` | Riwayat HET/HAP/HPP (buatan tim; revisi 2026-11-20) | 23 baris, 2020 .. 2025 | Regulasi (E2) | Ya |
@@ -139,6 +142,13 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
   nearest_hub, dist_hub_km, ln1p_dist_hub`. Koordinat ibu kota perkiraan; `ln_jarak_km` kosong untuk 3 provinsi hub (pakai
   `ln1p_dist_hub`, D-018). Pemekaran Papua dipetakan ke induk sehingga `province_id` 33/34 berulang (WP-07 memilih ibu kota induk).
 
+### Sumber manual WP-07 (`optional`, boleh belum ada)
+- `penduduk` (`bps_kependudukan/penduduk_provinsi_2025.csv`): skema CSV BPS belum dipastikan; loader mencari kolom provinsi + satu kolom numerik,
+  membaca satuan dari nama kolom ('ribu'/'juta') dan menolak total di luar 200–400 juta jiwa. **Belum diuji pada file asli.**
+- `n_kota` (`manual_pihps/n_kota.csv`): `province_id, province, n_kota, kota_list, source_url` (PEMBAGIAN_TUGAS §6.2).
+- `gkg_beras` (`manual_conversion/gkg_beras.csv`): `year, factor, source_url, note`.
+- File belum ada → loader mengembalikan tabel kosong berskema; hasil WP-07 terkait NaN dan pesan `[reference]` dicetak.
+
 ### Regulasi (buatan tim)
 - `het_hap_current` (30 baris) dan `regulation_history` (23 baris), revisi 2026-11-20 dengan tanggal, nomor BN, dan URL
   sumber diperbarui; sebagian masih "sebagian terverifikasi". Kolom `verification` wajib dibawa ke `regulation.csv` (U6).
@@ -153,7 +163,7 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 |---|---|---|
 | `region_crosswalk.csv` | 34 provinsi: id PIHPS, wilayah (7), ibu kota + koordinat, zona HET beras, flag Jawa | ✅ dibuat WP-00 (koordinat ibu kota perkiraan ±0,01°; Kalsel = Banjarmasin, Malut = Sofifi) |
 | `province_aliases.csv` | Alias nama provinsi BPS/Bapanas + pemekaran Papua → induk | ✅ |
-| `concordance.csv`, `exposure.csv`, `regulation.csv`, `province_features.csv` | Hasil WP-07 | ⬜ |
+| `concordance.csv`, `exposure.csv`, `regulation.csv`, `province_features.csv` | Hasil WP-07 | 🔶 kode selesai 2026-11-20; ditulis `stage0` setelah data mentah lengkap; final 24 Nov |
 
 ## Asal file (pemetaan nama asli → path baru)
 

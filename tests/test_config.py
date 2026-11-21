@@ -29,6 +29,8 @@ def test_regions(cfg):
 def test_sources_exist(cfg):
     for key, src in cfg.sources.items():
         files = cfg.source_files(key)
+        if src.get("optional") and not all(f.exists() for f in files):
+            continue                                    # sumber manual yang belum diisi (WP-07 NaN-aman)
         assert files and all(f.exists() for f in files), f"{key}: {src['path']} tidak ada di {cfg.raw_dir}"
 
 
