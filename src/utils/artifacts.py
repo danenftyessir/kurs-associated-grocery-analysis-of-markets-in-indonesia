@@ -117,6 +117,9 @@ ARTIFACTS: dict[str, Artifact] = {
             "jackknife_min", "jackknife_max"), True,
            "Asosiasi profil respons dengan eksposur & karakteristik provinsi"),
         # ---------------- Task 4 ----------------
+        _A("forecast_preds", "data/interim/forecast_preds.parquet", "task4", "WP-26",
+           ("origin", "horizon", "model", "region", "commodity", "y_true", "y_pred", "large_move"), False,
+           "Prediksi rolling-origin M0-M3 + M2_nofx (input WP-27; di-push ke Drive agar tahan sesi Kaggle habis; tidak dikirim)"),
         _A("forecast_eval", "results/task4/forecast_eval.csv", "task4", "WP-27",
            ("horizon", "model", "subset", "commodity", "region", "mae", "rmse", "mae_ratio_vs_m1",
             "rmse_ratio_vs_m1", "dm_stat", "dm_p", "n_origins", "n_nonoverlap"), True,
