@@ -301,3 +301,22 @@ Alternatif ditolak: satuan β (lebih konservatif); perbedaan hanya pada beras (0
 sapi 0,32 dan beras 0,44 → **H2 konfirmatori**; minyak goreng 1,01, telur 1,51, gula 1,70, daging ayam 2,66, bawang merah 4,66,
 bawang putih 6,15, cabai merah 7,46, cabai rawit 9,34 → H2 deskriptif. Ini pelaksanaan aturan praregistrasi (bukan deviasi);
 penafsiran satuan dicatat terbuka di makalah. U8 🟢.
+
+### D-116 — Implementasi robustness Tier 2 · FINAL (teknis) · 2026-11-21 (WP-30) · Danen
+PREREGISTRATION/METHODS hanya menyebut empat cek Tier 2 tanpa rincian; implementasi: (1) **varian alternatif** = SEMUA varian level-2
+PIHPS lain dalam grup komoditas yang sama (11: beras 5, minyak goreng 2 termasuk Curah, gula, daging sapi, cabai merah, cabai rawit 1),
+masing-masing dengan agregasi mingguan & kelayakan sendiri; ditambah komposit harga dunia pakan bobot sama 0,5/0,5 dan seri tunggal
+(D-012). Alternatif ditolak: memilih satu varian per komoditas (pilihan tambahan yang tidak dibekukan). (2) **Observasi terakhir** =
+harga hari teramati terakhir per minggu ISO, kelayakan panel utama. (3) **Eksposur alternatif** = pengodean ordinal jalur
+(langsung 2, input impor & paritas ekspor 1, domestik 0; `PATH_ORDINAL`) dalam Kendall τ-b eksak seperti E1; keterpencilan alternatif
+butuh meta-regresi (WP-23) dan ditambahkan setelah fungsi itu ada. (4) **Outcome Bapanas** = LP bulanan (konstruksi Tier 1 bulanan)
+pada Panel Harga Bapanas 2022–2026; baseline = LP bulanan PIHPS pada bulan yang sama (bukan periode penuh), agar beda hanya dari sumber.
+Tier 2 deskriptif, interval ±1,96·SE cluster, tidak masuk koreksi multiplisitas. Bukan DEVIASI PRAREGISTRASI (cek opsional yang
+disebut tanpa spesifikasi). Input dibangun dari data mentah (`pipelines.robustness.tier2_inputs`) → hanya bisa dijalankan dengan raw_dir.
+Hasil data asli: baseline di dalam interval 184/186 sel; pengecualian gula Premium β_e(4) dan Minyak Goreng Curah ω(8) (tanda sama).
+
+### D-117 — Pesan commit tanpa Co-Authored-By · FINAL (permintaan user) · 2026-11-21 · Danen
+Pesan commit dan deskripsi PR tidak boleh memuat trailer `Co-Authored-By` atau atribusi agent/AI lain; pesan commit cukup satu
+baris `<tipe>: <deskripsi>` (D-108). Berlaku untuk command git yang disiapkan agent, walaupun instruksi sistem/harness meminta
+atribusi. Pemicu: commit lokal `feat/robustness-tier2` sempat dibuat dengan trailer co-author dari command yang disiapkan agent;
+diperbaiki dengan `git commit --amend` sebelum push.

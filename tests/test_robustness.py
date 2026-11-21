@@ -173,3 +173,88 @@ def test_validation_uses_placebo_median(cfg):
     events["placebo_hi"] = events["placebo_hi"] + 0.5                          # ekor kanan panjang
     v4 = rb.validation(cfg, prof, events, eps, drv, world).query("check_id == 'V4_lp_vs_event_study'")
     assert np.allclose(v4["estimate"], v4["baseline_estimate"])
+
+
+# ------------------------------------------------------------------------------------------- WP-30 Tier 2
+from kagami.data import panel as panel_mod   # noqa: E402
+
+
+def test_last_observation_panel(cfg):
+    days = pd.bdate_range("2018-01-01", "2018-01-19")
+    daily = pd.DataFrame({"date": days, "province_id": 1, "commodity": "gula_pasir",
+                          "price": np.arange(1, len(days) + 1, dtype=float) * 100})
+    lo = panel_mod.last_observation_panel(cfg, daily.drop(index=4))          # Jumat minggu 1 hilang
+    assert list(lo["price"]) == [400.0, 1000.0, 1500.0]
+    assert np.allclose(lo["log_price"], np.log(lo["price"])) and (lo["week"].dt.weekday == 0).all()
+
+
+def test_build_variant_panels(cfg):
+    days = pd.bdate_range("2018-01-01", "2018-03-30")
+    rows = []
+    for item, base in (("Gula Pasir Lokal", 12000), ("Gula Pasir Kualitas Premium", 14000), ("Beras Kualitas Medium I", 9000)):
+        grp = item.split(" Kualitas")[0] if item.startswith("Beras") else "Gula Pasir"
+        for pid in (1, 2):
+            rows.append(pd.DataFrame({"date": days, "province_id": pid, "level": 2, "commodity_group": grp,
+                                      "item": item + " ", "price": float(base + pid)}))
+    pihps = pd.concat(rows, ignore_index=True)
+    vp = panel_mod.build_variant_panels(cfg, pihps)
+    assert set(vp["variant"]) == {"Gula Pasir Kualitas Premium"} and set(vp["commodity"]) == {"gula_pasir"}
+    obs = vp[vp["log_price"].notna()]
+    assert set(obs["province_id"]) == {1, 2} and np.allclose(obs.loc[obs.province_id == 1, "log_price"], np.log(14001))
+    assert {"eligible", "status", "week"} <= set(vp.columns)
+
+
+def test_build_bapanas_panel(cfg):
+    b = pd.DataFrame({"month": pd.to_datetime(["2023-01-01"] * 3 + ["2023-02-01"]),
+                      "commodity_bapanas": ["Gula Konsumsi", "Gula Konsumsi", "Minyakita", "Gula Konsumsi"],
+                      "province_id": [33, 33, 33, 1], "price_geomean": [100.0, 400.0, 50.0, 10.0]})
+    out = panel_mod.build_bapanas_panel(cfg, b)
+    assert len(out) == 2 and set(out["commodity"]) == {"gula_pasir"}                  # Minyakita tidak dipetakan
+    r = out[(out.province_id == 33)].iloc[0]
+    assert np.isclose(r["log_price"], np.log(200.0)) and r["week"] == pd.Timestamp("2023-01-01")
+
+
+def _tier2_inputs(cfg, drv, beta=0.4):
+    panel = _panel(cfg, drv, beta, beta)
+    vp = _panel(cfg, drv, beta, beta, seed=7).assign(variant="Gula Pasir Kualitas Premium", eligible=True)
+    lo = _panel(cfg, drv, beta, beta, seed=8)
+    m = panel.assign(week=panel["week"].dt.to_period("M").dt.to_timestamp())
+    bap = m.groupby(["week", "province_id", "commodity"], as_index=False)["log_price"].mean()
+    bap = bap[bap["week"] >= pd.Timestamp("2022-01-01")]
+    return panel, vp, lo, bap
+
+
+def test_tier2_synthetic(cfg):
+    drv = _drv_full(cfg)
+    panel, vp, lo, bap = _tier2_inputs(cfg, drv)
+    world = pd.DataFrame(columns=["week", "commodity", "log_w_idr", "dw"])
+    prof = pd.DataFrame({"level": "national", "driver": "PT", "horizon": 8, "commodity": list(cfg.commodities),
+                         "estimate": [rb.PATH_ORDINAL[s["exposure_path"]] + 0.01 * i
+                                      for i, s in enumerate(cfg.commodities.values())]})
+    out = rb.tier2(cfg, panel, drv, world, variant_panels=vp, last_obs_panel=lo, profiles=prof, bapanas=bap,
+                   commodities=["gula_pasir"], horizons=[0, 8])
+    assert list(out.columns[:9]) == rb.ROBUSTNESS_COLUMNS and (out["tier"] == 2).all()
+    assert set(out["check_id"]) == set(rb.TIER2)
+    h0 = out[(out["horizon"] == 0) & out["check_id"].isin(rb.TIER2[:2])]
+    assert len(h0) == 2 and (abs(h0["estimate"] - 0.4) < 2.5 * h0["se"]).all() and h0["baseline_in_ci"].all()
+    assert set(out.loc[out.check_id == rb.TIER2[0], "variant"]) == {"Gula Pasir Kualitas Premium"}
+    k = out[out.check_id == rb.TIER2[2]].iloc[0]
+    assert k["commodity"] == "ALL" and k["estimate"] > 0.8 and k["n_obs"] == 10 and np.isnan(k["baseline_estimate"])
+    bp = out[out.check_id == rb.TIER2[3]]
+    assert set(bp["variant"]) == {"h_m=1", "h_m=2"} and np.allclose(bp["estimate"], bp["baseline_estimate"])
+    assert (bp["n_weeks"] < 60).all()                                         # hanya bulan Bapanas
+    assert rb.tier2(cfg, panel, drv, world).empty                              # tanpa input opsional: kosong
+
+
+def test_tier2_world_variants(cfg):
+    drv = _drv_full(cfg)
+    rng = np.random.default_rng(5)
+    wk = drv[["week"]].assign(commodity="daging_ayam", dw=rng.normal(0, 0.02, len(drv)))
+    wk["log_w_idr"] = wk["dw"].cumsum()
+    panel = _panel(cfg, drv, 0.2, 0.2, w=wk, b_w=0.3).assign(commodity="daging_ayam")
+    alt = pd.concat([wk.assign(variant="Maize"), wk.assign(variant="equal_weights", dw=wk["dw"] * 0.5)])
+    out = rb.tier2(cfg, panel, drv, wk, world_variants=alt, commodities=["daging_ayam"], horizons=[0])
+    w = out[out["driver"] == "w"].set_index("variant")
+    assert set(w.index) == {"w:Maize", "w:equal_weights"}
+    assert np.isclose(w.loc["w:Maize", "estimate"], w.loc["w:Maize", "baseline_estimate"])
+    assert abs(w.loc["w:equal_weights", "estimate"] - 0.6) < 3 * w.loc["w:equal_weights", "se"]   # dw/2 -> ω×2
