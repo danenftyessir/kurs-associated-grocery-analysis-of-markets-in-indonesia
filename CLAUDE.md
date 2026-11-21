@@ -106,7 +106,7 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-06 (13 episode), WP-08 (panel 7 wilayah),
   WP-09 (MDE), WP-10 (QA & `stage0_report`), WP-11 (G6: praregistrasi beku 2026-11-20 23:29, D-109), WP-12 (mesin statistik),
-  WP-13 (LP nasional; 23 dtk untuk 10 komoditas × 13 h × 2 spesifikasi), WP-14 (event study), WP-28 (Tier 1; 21 dtk, artefak
+  WP-13 (LP nasional; 6 dtk untuk 10 komoditas × 13 h × 2 spesifikasi sejak D-118, sebelumnya 23–29 dtk), WP-14 (event study), WP-28 (Tier 1; 21 dtk, artefak
   `robustness` ditulis bersama validasi).
 - **Sedang (🔶, kode siap & dites sintetis, menunggu data asli):** WP-18 (G-het, butuh P2 dengan `se` di `placebo_stats`),
   WP-22 (Kendall, butuh P2 + P3), WP-21 (struktur tertanam, butuh `ward_labels` WP-19 + matriks plasebo mentah dari `task2`),
@@ -615,7 +615,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `regressors` · ✔ · nama kolom regresor sebuah desain.
 - `fit_lp` · ✔ · OLS + SE cluster per minggu (`stats.regression.ols_cluster`) → driver, estimate, se, n_weeks, n_obs, n_clusters.
 - `fx_self_response` · ✔ · γ(h) untuk PT = β/γ (γ(0) = 1; data asli γ(4/8/12) = 1,44/1,32/1,03).
-- `national_profiles` · ✔ · loop komoditas × h × {simetris, asimetris} → profiles level=national (e, w, e_pos, e_neg, PT; se/ci PT = NaN sampai bootstrap); opsi `elig`, `horizons`, `commodities`.
+- `national_profiles` · ✔ · loop komoditas × h × {simetris, asimetris} → profiles level=national (e, w, e_pos, e_neg, PT; se/ci PT = NaN sampai bootstrap); opsi `elig`, `horizons`, `commodities`; desain dibangun sekali per spesifikasi (D-118, ± 6 dtk).
 
 #### src/models/deviations.py
 - `demean_cross_section` · ⬜ WP-15 · log harga − rerata lintas provinsi per (minggu, komoditas).
@@ -1007,7 +1007,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_weekly.py` | status sel sintetis, grid, week_start, select_variants (asli & error), aggregate asli, aturan kelayakan |
 | `test_drivers.py` | grid penggerak, de & pengisian minggu libur, jendela Idulfitri, harga dunia (komposit, dw bulanan, available_at) & komposit alternatif Tier 2, episode (gabung, berdempetan, data asli) & tabel variasi kurs |
 | `test_panel.py` | panel 7 wilayah: indeks minggu pertama, tanpa lompatan saat komposisi berubah, hanya eligible, data asli |
-| `test_local_projection.py` | desain LP (nama kolom, within, sampel), β/β⁺/β⁻/ω sintetis dipulihkan, filter eligible, γ(h) |
+| `test_local_projection.py` | desain LP (nama kolom, within, sampel, y manual), β/β⁺/β⁻/ω sintetis dipulihkan, filter eligible, γ(h), jalur cepat national_profiles = loop build_design |
 | `test_power.py` | SE skor H0 = SE cluster bila β = 0, skala derau, SE asimetri = SE Wald selisih bila β⁺ = β⁻, gerbang G-power & H2, MDE data asli |
 | `test_event_study.py` | jalur event (lonjakan terlihat, tahan komposisi, horizon terpotong = NaN), kandidat plasebo, p plasebo, wilayah data asli |
 | `test_qa.py` | lonjakan satu hari vs perubahan level, total impor, bias Bapanas & pemetaan, laporan Tahap 0 |
@@ -1147,6 +1147,7 @@ tidak boleh dikutip sebelum dicek.
 | D-107 | Konvensi episode, desain LP (`build_design`), SE MDE bentuk skor di bawah H0 | FINAL (teknis) |
 | D-108 | Branch `feat/<fungsi>` maks 3 kata; commit `<tipe>: <deskripsi>` tanpa kode; merge `--no-ff` ke dev; branch tidak dihapus | FINAL |
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
+| D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-109 | Pembekuan G6 (varian, pakan, grup fokus tanpa perubahan) + koreksi Holm H5 | FINAL |
 | D-110 | QA & event study: pemetaan Bapanas, ambang lonjakan di kode QA, jalur event tahan komposisi, plasebo bersama | FINAL (teknis) |
 | D-111 | Tier 1 (jendela sampel, bulanan, dekomposisi), heterogenitas (`se` wajib, p satu sisi, BH per statistik), Kendall (τ-b, p eksak, interval jackknife) | FINAL (teknis) |

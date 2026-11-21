@@ -9,12 +9,19 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-21 — Danen: LP cepat untuk bootstrap (D-118)
+- `local_projection`: desain dibangun sekali per komoditas × spesifikasi (`_design_parts`/`_design_arrays`, numpy); `ols_cluster` pakai bincount.
+- Hasil identik (profiles 598 baris selisih 0; Tier 1 ≤ 2e-12; mde ≤ 2e-15). `national_profiles` 28,7 → 5,9 dtk; Tier 1 21 → 17,5 dtk.
+- Bootstrap WP-16 Ardell ± 50 menit untuk B 499 (sebelumnya ± 3,2 jam). Handoff KEPUTUSAN ke Ardell. Tes baru di test_local_projection.py.
+
 ### 2026-11-21 — Danen: WP-30 🔶 (robustness Tier 2)
 - `robustness.tier2` + input `panel.build_variant_panels`/`last_observation_panel`/`build_bapanas_panel`, `drivers.build_world_variants`,
   `pipelines.robustness.tier2_inputs`; tes di test_robustness.py & test_drivers.py. D-116.
 - Data asli: 187 baris, ±40 dtk; baseline di dalam interval 184/186 sel (gula Premium β_e(4) 0,36 vs 0,69; Curah ω(8) 0,36 vs 0,21).
 - Kendall PT(8) vs ordinal jalur τ −0,03 (p 1,00). Bapanas bulanan = PIHPS bulanan (42/42).
 - Belum: keterpencilan alternatif (WP-23) & baseline τ import_ratio_direct (WP-07). Artefak `robustness` menunggu P2/P4.
+- Handoff ANGKA-MAKALAH ke Abi (Tier 1, V2/V4, Tier 2; sementara): docs/handoff/20261121-1500_danen-ke-abi_angka-robustness.md.
+- Aturan D-117: pesan commit/PR tanpa Co-Authored-By (CLAUDE.md §4.6).
 
 ### 2026-11-21 — Danen: gerbang G-power diputuskan (D-115)
 - `mde` dihitung ulang (stage0): kolom lama identik; LP tetap utama (bawang putih 2,52, gula 0,90, minyak goreng 0,465).

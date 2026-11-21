@@ -33,8 +33,9 @@ def ols_cluster(y: np.ndarray, X: np.ndarray, groups: np.ndarray) -> OLSResult:
     u = y - X @ beta
     codes, uniq = pd.factorize(g)
     G = len(uniq)
-    scores = np.zeros((G, k))
-    np.add.at(scores, codes, X * u[:, None])
+    Xu = X * u[:, None]
+    scores = np.column_stack([np.bincount(codes, weights=Xu[:, j], minlength=G) for j in range(k)]) if k else \
+        np.zeros((G, 0))
     meat = scores.T @ scores
     c = (G / (G - 1)) * ((n - 1) / (n - k)) if G > 1 and n > k else 1.0
     V = c * xtx_inv @ meat @ xtx_inv
