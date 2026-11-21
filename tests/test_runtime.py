@@ -53,3 +53,18 @@ def test_colab_layout(cfg, tmp_path, monkeypatch):
     (tmp_path / "data" / "raw").mkdir(parents=True)
     c2 = init_runtime("colab", drive_dir=str(tmp_path), verbose=False)
     assert c2.raw_dir == tmp_path / "data" / "raw"                   # salinan mentah di DRIVE_DIR tetap dipakai bila ada
+
+
+def test_colab_not_mistaken_for_kaggle_when_kaggle_input_exists(tmp_path, monkeypatch):
+    """Image Colab punya /kaggle/input: penanda Colab harus menang (regresi 2026-11-21)."""
+    import kagami.utils.env as env
+    (tmp_path / "input").mkdir()
+    monkeypatch.setattr(env, "KAGGLE_INPUT", tmp_path / "input")
+    monkeypatch.delenv("KAGGLE_KERNEL_RUN_TYPE", raising=False)
+    monkeypatch.setenv("COLAB_RELEASE_TAG", "release-1")
+    assert env.detect_platform() == "colab"
+    monkeypatch.delenv("COLAB_RELEASE_TAG")
+    assert env.detect_platform() == "kaggle"                      # tanpa penanda Colab: folder tetap cadangan Kaggle
+    monkeypatch.setenv("KAGGLE_KERNEL_RUN_TYPE", "Interactive")
+    monkeypatch.setenv("COLAB_RELEASE_TAG", "release-1")
+    assert env.detect_platform() == "kaggle"                      # penanda Kaggle eksplisit tetap menang
