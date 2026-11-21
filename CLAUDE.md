@@ -90,7 +90,7 @@ Jalur 2–3 bekerja lewat harga dunia dalam rupiah → penggerak kedua `w` = har
 | H3 | Provinsi lebih terpencil → respons h=4 lebih kecil; h=12 arah bebas | meta-regresi efek acak | konfirmatori (waktu) |
 | H5 | Jalur impor langsung & input impor: fitur kurs menurunkan MAE h=8 pada origin pergerakan kurs besar | rasio MAE + DM HAC | konfirmatori grup fokus |
 | E1 | Impor langsung → PT(8) lebih besar dari domestik | Kendall τ, permutasi eksak N=10 | deskriptif |
-| E2 | Respons sekitar perubahan HET/HAP berbeda | grafis per rezim | eksploratif |
+| E2 | Respons sekitar perubahan HET/HAP berbeda | LP per rezim HET/HAP + forest (D-124) | eksploratif |
 | E3 | Frekuensi perubahan harga tinggi → respons lebih cepat | kovariat meta-regresi | eksploratif |
 
 ### 1.6 Batas klaim (berlaku untuk SEMUA teks keluaran: makalah, app, findings, komentar grafik)
@@ -134,7 +134,7 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
   Paralel: WP-07, WP-25. Gerbang terdekat: **G-het = 25 Nov** (G-power sudah diputuskan 21 Nov). Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
 - **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + token Drive per anggota (U100),
-  unggah CSV penduduk 2025 & kab/kota (U103), video, unggah.
+  video, unggah.
 - **Isi Drive tim (2026-11-20, diunggah lewat browser):** `data/raw/` lengkap 24 file + `checksums.csv`,
   artefak `pihps_daily`, `panel_weekly`, `world_prices_weekly`, `eligibility`, P1 (`drivers_weekly`, `episodes`, `fx_variation`,
   `panel_weekly_region`), `mde` dan `stage0_report` (versi 2026-11-21). Folder dibagikan terbatas (U24).
@@ -522,7 +522,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `todo` · ✔ · lempar `NotImplementedYet("WP-xx ...")`.
 
 #### src/utils/artifacts.py
-(Tidak ada fungsi publik; berisi dataclass `Artifact` dan dict `ARTIFACTS` — 32 artefak.)
+(Tidak ada fungsi publik; berisi dataclass `Artifact` dan dict `ARTIFACTS` — 33 artefak.)
 
 ### 9.2 Lapisan data
 
@@ -689,6 +689,12 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `evaluate` · ✔ · MAE/RMSE per horizon × model × subset × (komoditas|wilayah|jalur H5|ALL), rasio vs M1, DM HAC pada selisih MAE per origin (lag ceil(h/4)−1), n_origins, n_nonoverlap; H5 Holm (keluarga 2 jalur, p NaN = 1).
 - `ablation` · ✔ · MAE(`M2_nofx`) − MAE(M2) per sel yang sama, subset all/large_move.
 
+#### src/evaluation/regimes.py
+(konstanta `CONSUMER_INSTRUMENTS` = HET, HAP, HAP_konsumen)
+- `regulation_changes` · ✔ · tanggal penetapan/perubahan harga acuan konsumen per komoditas (in_scope, bertanggal, bukan unverified, dalam periode).
+- `regime_table` · ✔ · rezim per komoditas: awal periode .. sebelum perubahan pertama, lalu antar perubahan s.d. freeze.
+- `regime_profiles` · ✔ · E2: β_e & ω nasional per rezim (h kunci; jendela data utuh dalam rezim) → artefak `regime_profiles` (D-124).
+
 #### src/evaluation/robustness.py
 (konstanta `TIER1` 6 cek, `TIER2` 4 cek)
 - `fx_decomposition` · ✔ · de = a + b·d_dxy + ε → de_global (fitted) & de_idr (ε); attrs a, b, r2.
@@ -728,7 +734,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `run` · ✔ · heterogenitas vs plasebo → matriks fitur → pilih k → Ward → stabilitas → partisi → struktur tertanam.
 
 #### src/pipelines/task3.py
-- `run` · ✔ · Kendall (selalu) + meta-regresi & FE (bila panel provinsi).
+- `run` · ✔ · Kendall (selalu) + meta-regresi, FE, dan E2 `regime_profiles` (bila panel provinsi; E2 juga butuh `regulation` & harga dunia).
 
 #### src/pipelines/task4.py
 - `run` · ✔ · rolling_predictions → forecast_preds.parquet → evaluate + ablation.
@@ -783,12 +789,11 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 | `regulation_history` | riwayat HET/HAP/HPP (buatan tim; revisi 20 Nov, 23 baris) | 2020..2025 | regulasi (E2) | ya |
 | `hortikultura_produksi` | produksi bawang merah/putih, cabai besar/rawit per provinsi (ATAP Kementan) | 2020..2024 | rasio impor bawang putih, kecukupan | tidak |
 | `jarak_hub` | jarak ibu kota ke Jakarta/Surabaya/Makassar (buatan tim, 38 prov) | statis | cek silang dist_hub_km | ya |
-| `penduduk` | penduduk provinsi 2025 BPS (`optional`, belum diunggah, U103) | 2025 | kebutuhan beras → rice_sufficiency (U14) | tidak |
-| `n_kota` | kota sampel PIHPS per provinsi (isi manual Abi, `optional`) | 34 prov | n_kota (U15) | ya |
-| `gkg_beras` | faktor konversi GKG → beras per tahun (isi manual Abi, `optional`) | per tahun | rice_sufficiency (U21) | ya |
+| `penduduk` | penduduk provinsi 2025 BPS (`optional`, tabel BPS diperbarui 2 Mei 2025, D-123) | 2025 | kebutuhan beras → rice_sufficiency (U14) | tidak |
+| `n_kota` | kota sampel pasar tradisional PIHPS per provinsi (situs PIHPS 2026-11-21, `optional`) | 34 prov, 110 kota | n_kota (U15) | ya |
+| `gkg_beras` | faktor konversi GKG → beras untuk konsumsi pangan (rilis BPS, `optional`) | 2024, 2025 | rice_sufficiency (U21) | ya |
 
-Menunggu diunggah (lokasi dialokasikan, U103): `bps_kependudukan/penduduk_provinsi_2025.csv`,
-`bapanas/panelharga_konsumen_kabkota_snapshot_2026-10.csv`. Versi lama: `data/raw/_superseded/` (DATASETS.md).
+Menunggu diunggah (opsional, U103): `bapanas/panelharga_konsumen_kabkota_snapshot_2026-10.csv`. Versi lama: `data/raw/_superseded/` (DATASETS.md).
 
 ### 10.2 Fakta data yang sudah diverifikasi
 - Panel mingguan: 157.760 sel = 34 × 10 × 464 minggu (2018-01-01..2026-11-16). `pihps_daily` 800.642 hari teramati.
@@ -826,7 +831,8 @@ Menunggu diunggah (lokasi dialokasikan, U103): `bps_kependudukan/penduduk_provin
 - `region_crosswalk.csv`: province_id, province, region (7), capital, lat, lon, het_zone_beras (1/2/3), java.
   Kalsel = Banjarmasin, Malut = Sofifi; koordinat ±0,01°.
 - `province_aliases.csv`: alias ejaan BPS/Bapanas + pemekaran Papua.
-- Hasil WP-07 (belum): `concordance.csv`, `exposure.csv`, `regulation.csv`, `province_features.csv`.
+- Hasil WP-07 (`stage0`, 2026-11-21): `concordance.csv`, `exposure.csv`, `regulation.csv`, `province_features.csv`
+  (rice_sufficiency 2025: 0,001 DKI .. 3,27 Sulsel; n_kota 1..12; |r| antar fitur Z(r) ≤ 0,34).
 
 ### 10.5 Asal file
 File mentah dipindah 2026-11-20 dari `data/` ke `data/raw/<sumber>/` (sebagian diganti nama); pemetaan nama asli ada
@@ -920,6 +926,7 @@ e = log JISDOR rerata mingguan; de = Δe; w = log harga dunia padanan dalam rupi
 - 3a Kendall τ PT(8) vs rasio impor (N = 10), p permutasi eksak (10! = 3.628.800), LOCO; kesimpulan "di antara 10 komoditas".
 - 3b meta-regresi ≤ 3 fitur praregistrasi; interval = lebih lebar dari bootstrap blok dan CR2; jackknife provinsi.
 - 3c FE komoditas×minggu, interaksi Δe × Z(r) (dapat dipotong).
+- E2 (eksploratif): LP nasional per rezim HET/HAP (antar tanggal penetapan harga acuan konsumen) → `regime_profiles` (D-124).
 
 ### Task 4 (notebook 04, berat; paralel dengan Task 1)
 - Target p_{t+h} − p_t, h ∈ {4, 8}; origin tiap 4 minggu sejak 2021-01-04 s.d. freeze − h.
@@ -1031,6 +1038,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_robustness.py` | Tier 1: jendela sampel, demean ulang sub-sampel, dekomposisi kurs, semua cek ada, β pulih (h=0), efek khusus COVID terdeteksi; validasi: implikasi LP, V4 cocok/berlawanan, V2 episode & forecast, pusat median plasebo; Tier 2: panel varian/observasi terakhir/Bapanas, β pulih, Kendall ordinal, komposit harga dunia |
 | `test_forecast_eval.py` | n_nonoverlap, Holm, kontrak forecast_eval, rasio M1 = 1, DM mendeteksi sinyal kurs, H5 (keluarga tetap 2), panel wilayah, ablation |
 | `test_planted.py` | struktur tertanam: simpleks δ·√F, z-score, silhouette, ambang plasebo ≈ 5% lolos, kurva naik & dapat diulang, batas deteksi |
+| `test_regimes.py` | E2: tanggal perubahan regulasi (filter & gabung), batas rezim, β per rezim pulih pada data sintetis |
 | `test_heterogeneity.py` | Q/τ²/I² = DL, ρ̄, wajib `se`, p plasebo & BH (sintetis); permutasi n!, Kendall eksak vs brute force, E1 10 komoditas |
 | `test_reference.py` | WP-07: concordance & confidence, rasio impor FAOSTAT (jendela tahun) & bawang putih dari perdagangan, tanggal & verifikasi regulasi, fitur provinsi |
 | `test_deviations.py` | WP-15: demean lintas provinsi, δ tertanam dipulihkan & Σ_r δ = 0, profil wilayah |
@@ -1178,6 +1186,8 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-124 | E2: rezim = antar tanggal HET/HAP konsumen terverifikasi; LP nasional per rezim (jendela utuh), deskriptif → `regime_profiles` | FINAL (teknis) |
+| D-123 | Data manual WP-07: penduduk 2025 (tabel BPS), n_kota (situs PIHPS, 110 kota), faktor GKG→beras 0,5762 (beras untuk pangan) | FINAL |
 | D-122 | Notebook menarik `OPTIONAL` (panel provinsi) dari Drive; pipeline memperingatkan bila jatuh ke versi wilayah | FINAL (teknis) |
 | D-121 | Kunci `association.import_ratio_years` [2018, 2023] & `forecast.run_m3` (sakelar D-014) ditambahkan setelah G6 | FINAL · DEVIASI PRAREGISTRASI |
 | D-120 | Item FAOSTAT beras = "Rice, milled" + "Rice, broken" (bukan "Rice" = padi); rasio impor 0,033 | FINAL · DEVIASI PRAREGISTRASI |
@@ -1207,19 +1217,19 @@ tidak boleh dikutip sebelum dicek.
 | U11 | Kecukupan produksi hanya beras | 🟡 |
 | U12 | Bibliografi belum lengkap | 🔴 |
 | U13 | Izin BI diperoleh 2026-11-20, mencakup redistribusi data turunan (panel provinsi dikirim, D-104) | 🟢 |
-| U14 | Populasi provinsi: CSV penduduk 2025 sudah diunduh, menunggu diunggah (U103) | 🟡 |
-| U15 | `n_kota` per provinsi | 🔴 |
+| U14 | Populasi provinsi 2025 (tabel BPS, D-123) | 🟢 |
+| U15 | `n_kota` per provinsi (situs PIHPS, 110 kota, D-123) | 🟢 |
 | U16 | URL Pink Sheet berubah per rilis → `download` resolusi otomatis dari halaman World Bank | 🟢 |
 | U17 | Lonjakan harga satu hari: 59 hari ditandai, tidak dihapus | 🟢 |
 | U19 | Endpoint PIHPS vs "unduh resmi" | 🔴 `[HUMAN]` |
 | U20 | Pemetaan komoditas Bapanas → PIHPS (9 pasangan; Minyakita dikecualikan) | 🟢 |
-| U21 | Konversi GKG → beras | 🔴 (WP-07) |
+| U21 | Konversi GKG → beras 0,5762 (rilis BPS, D-123) | 🟢 |
 | U22 | `carry_forward` tinggi = kekakuan harga; bukan filter | 🟡 |
 | U24 | Hosting mentah di Kaggle privat / Drive; folder Drive tim wajib dibagikan terbatas | 🟡 |
 | U100 | Kredensial Drive untuk Kaggle (OAuth client + token per anggota) | 🔴 `[HUMAN]` |
 | U101 | Keaslian Pink Sheet: identik dengan rilis resmi 3 Nov 2026 | 🟢 |
 | U102 | Uji tumpang tindih Comtrade vs BPS 2022 (server BPS error) | 🔴 |
-| U103 | Unggah CSV penduduk 2025 & snapshot kab/kota Panel Harga | 🔴 `[HUMAN]` |
+| U103 | Penduduk 2025, n_kota, gkg_beras di data/raw lokal & Drive tim (2026-11-21); sisa snapshot kab/kota (opsional) | 🟡 |
 | U104 | `pihps_v1` dipensiunkan ke `_superseded/` (D-102) | 🟢 |
 Selesai: U1, U2, U18, U23.
 

@@ -116,6 +116,10 @@ ARTIFACTS: dict[str, Artifact] = {
            ("level", "feature", "outcome", "estimate", "ci_low", "ci_high", "p_value", "method",
             "jackknife_min", "jackknife_max"), True,
            "Asosiasi profil respons dengan eksposur & karakteristik provinsi"),
+        _A("regime_profiles", "results/task3/regime_profiles.csv", "task3", "WP-22",
+           ("commodity", "regime_id", "regime_start", "regime_end", "driver", "horizon", "estimate", "ci_low",
+            "ci_high", "n_weeks"), True,
+           "E2 eksploratif: β kurs & ω harga dunia nasional per rezim HET/HAP (D-124)"),
         # ---------------- Task 4 ----------------
         _A("forecast_preds", "data/interim/forecast_preds.parquet", "task4", "WP-26",
            ("origin", "horizon", "model", "region", "commodity", "y_true", "y_pred", "large_move"), False,

@@ -128,6 +128,12 @@ A8 = β⁺(8) − β⁻(8) (level komoditas).
   & CR2 cluster provinsi → yang lebih lebar. Jackknife per provinsi. H3: koef. jarak pada h = 4 < 0 (satu arah);
   h = 12 dua arah.
 - **3c (WP-24):** panel dengan FE komoditas×minggu; interaksi Δe × Z(r).
+- **E2 (eksploratif, D-124):** profil respons per rezim HET/HAP. Batas rezim = tanggal penetapan/perubahan harga acuan konsumen
+  (HET, HAP, HAP konsumen) di `regulation` yang in_scope, bertanggal, dan tidak `unverified`, di dalam periode; rezim 0 = awal periode
+  sampai sebelum perubahan pertama di tabel. Per rezim: LP nasional spesifikasi utama (h kunci, L = 4) hanya pada observasi yang
+  jendela datanya [t−(L+1), t+h] utuh di dalam rezim (aturan sub-sampel Tier 1); rezim dengan jumlah minggu ≤ jumlah regresor
+  dilewati. Interval ±1,96·SE cluster minggu, dibandingkan dengan estimasi sampel penuh; tidak ada uji formal atau koreksi
+  multiplisitas. Artefak `regime_profiles`, grafik forest di notebook 03.
 
 ## M4 — Task 4 evaluasi prediktif (WP-25..27)
 

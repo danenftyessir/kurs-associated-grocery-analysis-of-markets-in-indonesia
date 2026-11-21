@@ -9,6 +9,16 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-21 — Danen: E2 profil per rezim HET/HAP (D-124)
+- `src/evaluation/regimes.py` (regulation_changes, regime_table, regime_profiles) + `tests/test_regimes.py`; artefak baru `regime_profiles` dari `task3`.
+- Data asli: 145 baris (10 komoditas, 3–6 rezim, h 4/8/12, e & w), 4,9 dtk; estimasi penuh di dalam interval rezim 73% sel.
+- Notebook 03 + forest plot E2. Peta dataset → task: `regulation` sebelumnya tidak dipakai; `concordance` hanya dokumentasi.
+
+### 2026-11-21 — Danen: data manual WP-07 (D-123)
+- Penduduk 2025 dari tabel BPS (38 prov → 34), n_kota dari situs PIHPS (110 kota), faktor GKG→beras 0,5762 dari rilis BPS 2 Feb 2026.
+- `stage0` ulang: `province_features` lengkap (rice_sufficiency 0,001..3,27; n_kota 1..12). Suite 290 lolos. U14/U15/U21 🟢.
+- Ketiga file + `checksums.csv` (versi baru) diunggah ke `data/raw/` Drive tim lewat Chrome. Sisa: snapshot Panel Harga kab/kota (opsional).
+
 ### 2026-11-21 — Danen: merge 6 branch Ardell, stage0 + WP-07 lokal, E1 sementara, D-120
 - Merge `feat/reference-tables` .. `feat/app-package` ke dev (0 konflik); simulasi: 276 lolos, 6 gagal (dokumen/paket, handoff PERMINTAAN ke Ardell).
 - `stage0` lokal 27 dtk: concordance 10, exposure 10, regulation 72 (5 unverified), province_features 34 (populasi/n_kota NaN).

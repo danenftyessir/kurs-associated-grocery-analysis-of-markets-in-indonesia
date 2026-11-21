@@ -141,6 +141,8 @@ yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOT
   - [ ] exposure: `import_ratio_direct` rerata 2018–2023 dari FAOSTAT; bawang putih dari BPS/Comtrade atau ordinal (U5); setiap angka punya `source`.
   - [ ] regulation: gabungan 3 sumber regulasi, tanggal tak terverifikasi ditandai `unverified` (U6).
   - [ ] province_features: `dist_hub_km` dihitung dari koordinat `region_crosswalk.csv`; `rice_sufficiency` & `n_kota` diisi atau NaN + U14/U15 dicatat.
+- Data manual (2026-11-21, D-123, diisi Danen): penduduk 2025, n_kota, faktor GKG→beras → `province_features` lengkap
+  (rice_sufficiency 2025 0,001..3,27; n_kota 1..12). `stage0` lokal 27 dtk.
 - Input baru (2026-11-20, D-101): `hortikultura_produksi` (produksi bawang putih → rasio impor, U5), `konkordansi_hs` (jembatan Comtrade 2017–2022 → HS8 BPS), `jarak_hub` (cek silang `dist_hub_km`), BPS impor v2 (+bawang putih), regulasi revisi 20 Nov. Loader sudah ada (`src/data/loaders.py`); signature fungsi WP-07 boleh ditambah parameter oleh Ardell (pemilik `reference.py`) + `pipelines/stage0.py` disesuaikan lewat handoff.
 
 ### WP-08 — Panel 7 wilayah ✅
@@ -252,6 +254,9 @@ Pipeline `pipelines.task3` · notebook `03_task3_association` · ringan.
 - Sementara (2026-11-21, `exposure` asli dari `stage0` + PT(8) titik dari `national_profiles` lokal, sebelum `response_features`):
   τ-b = −0,045 (jackknife −0,65..0,56), p eksak dua sisi 0,93, p satu sisi 0,60, n = 10 → tidak ada asosiasi terdeteksi di antara
   10 komoditas. Rasio impor beras dikoreksi ke beras giling (D-120, DEVIASI PRAREGISTRASI); dengan item lama τ = −0,13.
+- E2 eksploratif (D-124, 2026-11-21): `src/evaluation/regimes.py` → artefak `regime_profiles` (ditulis `task3`), tes
+  `tests/test_regimes.py`. Data asli lokal: 10 komoditas, 3–6 rezim, 145 baris, 4,9 dtk; estimasi sampel penuh di dalam interval
+  rezim pada 73% sel. Contoh berbeda: bawang putih rezim Perbadan 12/2024 β_e(8) 3,74 (2,40..5,09) vs penuh −0,68.
 
 ### WP-23 — Meta-regresi provinsi
 - File: `src/models/association.py::meta_regression` → `assoc` level=province. Selesai bila: [ ] ≤ 3 fitur praregistrasi; [ ] interval bootstrap vs CR2, yang lebih lebar dilaporkan; [ ] jackknife provinsi.

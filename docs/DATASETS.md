@@ -33,9 +33,9 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 | `konsumsi_beras` | Konsumsi beras RT kg/kapita/tahun per provinsi | 2023 .. 2025 | Kecukupan produksi | Tidak |
 | `neraca_beras` | Neraca beras nasional (ton) | 2023 .. 2026 | Cek silang impor beras | Tidak |
 | `hortikultura_produksi` | Produksi bawang merah, bawang putih, cabai besar, cabai rawit per provinsi (ATAP 2024 Kementan) | 2020 .. 2024, 38 prov | Rasio impor bawang putih (U5), kecukupan produksi (U11) | Tidak |
-| `penduduk` | Penduduk provinsi 2025 BPS (`optional`; diunggah Danen, U103) | 2025, 38 prov | Kebutuhan beras → `rice_sufficiency` (U14) | Tidak |
-| `n_kota` | Kota sampel PIHPS per provinsi (isi manual Abi, `optional`) | 34 prov | `n_kota` (U15) | Ya |
-| `gkg_beras` | Faktor konversi GKG → beras per tahun (isi manual Abi, `optional`) | per tahun | `rice_sufficiency` (U21) | Ya |
+| `penduduk` | Penduduk provinsi 2025 BPS (`optional`; disalin dari tabel BPS 2026-11-21, D-123) | 2025, 38 prov | Kebutuhan beras → `rice_sufficiency` (U14) | Tidak |
+| `n_kota` | Kota sampel pasar tradisional PIHPS per provinsi (situs PIHPS 2026-11-21, `optional`, D-123) | 34 prov, 110 kota | `n_kota` (U15) | Ya |
+| `gkg_beras` | Faktor konversi GKG → beras untuk konsumsi pangan per tahun (rilis BPS, `optional`, D-123) | 2024, 2025 | `rice_sufficiency` (U21) | Ya |
 | `jarak_hub` | Jarak garis lurus ibu kota ke Jakarta/Surabaya/Makassar + ln jarak (buatan tim) | statis, 38 prov | Cek silang `dist_hub_km` (WP-07) | Ya |
 | `het_hap_current` | Nilai HET/HAP berlaku per komoditas × zona (buatan tim; revisi 2026-11-20) | 30 baris, status 2026-11-19 | Regulasi | Ya |
 | `regulation_history` | Riwayat HET/HAP/HPP (buatan tim; revisi 2026-11-20) | 23 baris, 2020 .. 2025 | Regulasi (E2) | Ya |
@@ -44,7 +44,6 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 
 | Kunci (rencana) | File | Lokasi | Peran | Status |
 |---|---|---|---|---|
-| `penduduk_2025` | CSV penduduk per provinsi 2025 (BPS) | `data/raw/bps_kependudukan/penduduk_provinsi_2025.csv` | Penyebut kecukupan beras (U14) | sudah diunduh Danen ke Downloads |
 | `bapanas_kabkota` | `panelharga_konsumen_kabkota_snapshot_2026-10.csv` (497 kab/kota, 5.885 baris) | `data/raw/bapanas/` | Opsional: heterogenitas dalam provinsi / bias rerata kota PIHPS | sudah diunduh Danen ke Downloads |
 
 ### Versi lama (tidak dipakai; `data/raw/_superseded/`, tidak diunggah ke Drive)
@@ -144,9 +143,16 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 
 ### Sumber manual WP-07 (`optional`, boleh belum ada)
 - `penduduk` (`bps_kependudukan/penduduk_provinsi_2025.csv`): skema CSV BPS belum dipastikan; loader mencari kolom provinsi + satu kolom numerik,
-  membaca satuan dari nama kolom ('ribu'/'juta') dan menolak total di luar 200–400 juta jiwa. **Belum diuji pada file asli.**
-- `n_kota` (`manual_pihps/n_kota.csv`): `province_id, province, n_kota, kota_list, source_url` (PEMBAGIAN_TUGAS §6.2).
-- `gkg_beras` (`manual_conversion/gkg_beras.csv`): `year, factor, source_url, note`.
+  membaca satuan dari nama kolom ('ribu'/'juta') dan menolak total di luar 200–400 juta jiwa. File 2026-11-21: salinan tabel BPS
+  "Penduduk, Laju Pertumbuhan Penduduk, … Menurut Provinsi, 2025" (diperbarui 2 Mei 2025, berbasis proyeksi sebelum SUPAS 2025),
+  kolom `Provinsi`, `Jumlah Penduduk 2025 (Ribu)`; 38 provinsi → 34 (pemekaran Papua ke induk), total 284,44 juta jiwa.
+- `n_kota` (`manual_pihps/n_kota.csv`): `province_id, province, n_kota, kota_list, source_url` (PEMBAGIAN_TUGAS §6.2). Isi 2026-11-21
+  dari daftar kabupaten/kota pasar tradisional di situs PIHPS (`GetRefRegency`, price_type_id = 1): 110 kota, 1 (DKI, DIY, Bengkulu,
+  Maluku Utara) sampai 12 (Jawa Tengah). `province_id` dipetakan dari nama (nomor provinsi situs PIHPS berbeda dari kerangka proyek).
+  Daftar ini kondisi 2026; jumlah kota sampel per provinsi di awal periode (2018) bisa berbeda.
+- `gkg_beras` (`manual_conversion/gkg_beras.csv`): `year, factor, source_url, note`. Faktor 0,5762 untuk 2024 dan 2025 = produksi beras
+  untuk konsumsi pangan penduduk / produksi padi GKG (30,62/53,14 dan 34,69/60,21 juta t, rilis BPS 2 Feb 2026, angka tetap 2025);
+  setara rantai BPS 0,9318 (GKG diolah) × 0,6402 (rendemen SKGB 2018) × 0,9667 (beras untuk pangan) = 0,5767.
 - File belum ada → loader mengembalikan tabel kosong berskema; hasil WP-07 terkait NaN dan pesan `[reference]` dicetak.
 
 ### Regulasi (buatan tim)

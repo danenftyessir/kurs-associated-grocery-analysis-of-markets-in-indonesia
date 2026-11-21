@@ -371,3 +371,32 @@ nasional, deviasi provinsi, bootstrap, dan plasebo (lalu Task 2 gagal karena `pl
 `boot_replicates`, `eligibility`, `drivers_weekly`) yang ditarik notebook, dan pipeline mencetak PERINGATAN bila panel provinsi
 tidak ada. Tes `test_notebooks.py` memastikan notebook menarik `OPTIONAL`. CLI `drive-pull <tahap>` juga menarik
 `REQUIRES` + `OPTIONAL` (`cli.PIPELINE_REQUIRES`).
+
+### D-123 — Data manual WP-07: penduduk, n_kota, faktor GKG→beras · FINAL · 2026-11-21 (WP-07, WP-23) · Danen
+Diisi Danen (atas permintaan Danen; semula tugas Abi/U103) agar ketiga fitur Z(r) praregistrasi H3 tersedia sebelum Task 3.
+1. **Penduduk 2025** (`data/raw/bps_kependudukan/penduduk_provinsi_2025.csv`): salinan kolom jumlah penduduk dari tabel BPS "Penduduk, Laju
+   Pertumbuhan Penduduk, … Menurut Provinsi, 2025" (diperbarui 2 Mei 2025; 38 provinsi, ribu jiwa, total 284.438,8 ribu). Angka ini
+   berbasis proyeksi sebelum hasil SUPAS 2025 terbit; dipakai karena tahun 2025 cocok dengan produksi padi & konsumsi 2025. Ditolak:
+   proyeksi 2010–2035 (basis SP2010, selisih besar), tabel SUPAS 2025 (belum ada per provinsi dalam bentuk yang sama saat diakses).
+2. **n_kota** (`data/raw/manual_pihps/n_kota.csv`): jumlah kabupaten/kota pasar tradisional per provinsi dari referensi situs PIHPS
+   (`GetRefRegency`, price_type_id = 1, diakses 2026-11-21): 110 kota, 1–12 per provinsi. Kondisi 2026, bukan riwayat 2018–2026.
+3. **Faktor GKG→beras** (`data/raw/manual_conversion/gkg_beras.csv`): 0,5762 untuk 2024 dan 2025 = produksi beras untuk konsumsi pangan
+   penduduk / produksi padi GKG dari rilis BPS 2 Feb 2026 (34,69/60,21; 30,62/53,14). Dipilih faktor "beras untuk pangan" (bukan
+   rendemen 0,6402 saja) karena penyebut `rice_sufficiency` = konsumsi beras rumah tangga; rantai BPS 0,9318 × 0,6402 × 0,9667 = 0,5767
+   (selisih karena pembulatan rilis).
+Hasil `province_features` 2025: rice_sufficiency 0,001 (DKI) .. 3,27 (Sulsel); korelasi antar fitur |r| ≤ 0,34. Bukan DEVIASI
+PRAREGISTRASI (data input untuk fitur yang sudah dipraregistrasi; tidak ada parameter `params.yaml`/`commodities.yaml` yang berubah).
+
+### D-124 — E2 diimplementasikan sebagai LP per rezim HET/HAP · FINAL (teknis) · 2026-11-21 (WP-22, E2) · Danen
+PREREGISTRATION mencatat E2 sebagai "Profil respons per rezim HET/HAP" (eksploratif) tanpa rincian; hingga 2026-11-21 tidak ada kode yang
+membaca artefak `regulation`. Implementasi (`src/evaluation/regimes.py`, ditulis `task3` sebagai artefak baru `regime_profiles`, 33 artefak):
+(1) batas rezim = tanggal penetapan/perubahan harga acuan **konsumen** (HET, HAP, HAP konsumen; HAP produsen tidak) di `regulation` yang
+in_scope, bertanggal, `verification` ≠ `unverified` (setting panel Bapanas & relaksasi tanpa dasar tertulis tidak dipakai), dalam periode;
+(2) rezim 0 = awal periode sampai sebelum perubahan pertama di tabel (bukan berarti tanpa harga acuan: tabel regulasi mulai 2020);
+(3) per rezim, LP nasional spesifikasi utama pada h kunci, hanya observasi yang jendela datanya [t−(L+1), t+h] utuh di dalam rezim (aturan
+sub-sampel Tier 1, D-111), driver e & w; rezim dengan minggu ≤ jumlah regresor dilewati (SE tidak teridentifikasi); interval ±1,96·SE cluster
+minggu, pembanding = estimasi sampel penuh. Ditolak: jendela ±W minggu di sekitar perubahan (butuh parameter W baru setelah G6) dan interaksi
+Δe × dummy rezim dalam satu regresi (memaksa kontrol sama antar rezim). Tidak ada uji formal atau koreksi multiplisitas; bukan DEVIASI
+PRAREGISTRASI (E2 eksploratif, tanpa parameter baru). Data asli 2026-11-21: 145 baris, 73% sel estimasi penuh di dalam interval rezim.
+Batasan tafsir: batas rezim berimpit dengan peristiwa lain (2022: lonjakan harga pangan & pakan dunia), dan HET minyak goreng mengatur
+Minyakita/curah, bukan varian Kemasan Bermerk 1 yang dianalisis.
