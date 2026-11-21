@@ -17,11 +17,15 @@ from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact, require, write_artifact
 
 REQUIRES = ("panel_weekly_region", "drivers_weekly", "world_prices_weekly")
+OPTIONAL = ("panel_weekly",)   # panel provinsi bila ada (selain itu 7 wilayah, Tingkat B); notebook menariknya juga
 
 
 def run(cfg: Config) -> None:
     require(cfg, *REQUIRES)
     panel_name = "panel_weekly" if exists(cfg, "panel_weekly") else "panel_weekly_region"
+    if panel_name == "panel_weekly_region":
+        print("[task4] PERINGATAN: panel_weekly tidak ada -> prediksi per 7 wilayah, bukan per provinsi. "
+              "Di Kaggle/Colab tarik task4.OPTIONAL dari Drive tim.")
 
     def save(preds: pd.DataFrame) -> None:                       # checkpoint: tulis artefak + push ke Drive tim
         write_artifact(cfg, "forecast_preds", preds)

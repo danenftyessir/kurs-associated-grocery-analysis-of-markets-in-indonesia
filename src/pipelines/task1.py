@@ -16,6 +16,7 @@ from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact, require, write_artifact
 
 REQUIRES = ("drivers_weekly", "world_prices_weekly", "episodes", "panel_weekly_region", "eligibility")
+OPTIONAL = ("panel_weekly",)   # dipakai bila ada (profil nasional, provinsi, bootstrap, plasebo); notebook menariknya juga
 
 
 def run(cfg: Config) -> None:
@@ -24,6 +25,9 @@ def run(cfg: Config) -> None:
                                      ("drivers_weekly", "world_prices_weekly", "episodes", "panel_weekly_region",
                                       "eligibility"))
     panel = read_artifact(cfg, "panel_weekly") if exists(cfg, "panel_weekly") else None
+    if panel is None:
+        print("[task1] PERINGATAN: panel_weekly tidak ada -> hanya profil 7 wilayah (tanpa nasional, provinsi, bootstrap, "
+              "plasebo). Di Kaggle/Colab tarik task1.OPTIONAL dari Drive tim.")
     p = cfg.params["inference"]
 
     parts = [deviations.region_profiles(cfg, region, drv, world)]

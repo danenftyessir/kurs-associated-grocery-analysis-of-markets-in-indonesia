@@ -14,6 +14,12 @@ Arsitektur: ARCHITECTURE §3 (D-027, D-100).
 | `05_robustness` | `robustness` | output 00 + 01 + 04 | robustness | sedang–berat | Kaggle / Colab |
 
 Urutan: `00` → (`01` ∥ `04`) → `02`, `03` → `05`. Notebook 04 bisa jalan bersamaan dengan 01.
+`02` dan `03` butuh output `01` (`profiles`, `response_features`, `placebo_stats`, `boot_replicates`); `05` butuh output `01` dan `04`
+(`forecast_eval`). Setiap tahap baru boleh dimulai setelah tahap sebelumnya selesai **dan** sel push ke Drive tim jalan.
+Perkiraan `01` (2026-11-21, laptop): ± 7 dtk per replikasi (nasional + deviasi provinsi h kunci) → bootstrap + plasebo
+B = R = 499 (non-fokus 199) ± 1,5–2 jam; Colab bisa lebih lambat. `01` tidak punya checkpoint: biarkan tab Colab terbuka.
+Input opsional: `task1`, `task3`, `task4` punya `OPTIONAL` (terutama `panel_weekly`) yang ditarik notebook bersama `REQUIRES`;
+tanpa panel provinsi tahap jatuh ke versi 7 wilayah dan mencetak PERINGATAN (D-122).
 
 ## Folder Drive tim (tempat semua output DAN data mentah)
 Folder: https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D (ID di `configs/runtime.yaml: drive.folder_id`).

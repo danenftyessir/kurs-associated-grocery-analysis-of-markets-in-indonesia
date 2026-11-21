@@ -362,3 +362,11 @@ pada commit 2026-11-21 16:19, setelah pembekuan G6 (2026-11-20 23:29), tanpa ent
 2. `forecast.run_m3: true` — sakelar operasional untuk urutan pemotongan D-014 (M3 dipotong terakhir). Nilai `true` = analisis
    praregistrasi tidak berubah; mengubah ke `false` = pemotongan lingkup yang wajib dicatat sebagai keputusan baru.
 Dampak: tidak ada perubahan hipotesis atau uji; hash `params.yaml` berubah (dicatat di kepala PREREGISTRATION).
+
+### D-122 — Notebook menarik input opsional (`panel_weekly`) dari Drive tim · FINAL (teknis) · 2026-11-21 (WP-13, WP-16, WP-23, WP-26) · Danen
+`task1`, `task3`, `task4` memakai panel provinsi `panel_weekly` hanya bila sudah ada (`exists`), tetapi notebook hanya menarik
+`REQUIRES` dari Drive tim. Di Colab/Kaggle (out_dir kosong) tahap itu diam-diam jatuh ke versi 7 wilayah: Task 1 tanpa profil
+nasional, deviasi provinsi, bootstrap, dan plasebo (lalu Task 2 gagal karena `placebo_stats` tidak ada); Task 3 tanpa meta-regresi
+& FE; Task 4 per wilayah. Kini setiap pipeline itu punya `OPTIONAL` (task1/task4: `panel_weekly`; task3: `panel_weekly`, `profiles`,
+`boot_replicates`, `eligibility`, `drivers_weekly`) yang ditarik notebook, dan pipeline mencetak PERINGATAN bila panel provinsi
+tidak ada. Tes `test_notebooks.py` memastikan notebook menarik `OPTIONAL`.

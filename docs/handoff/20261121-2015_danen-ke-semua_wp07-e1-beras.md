@@ -41,6 +41,8 @@ E1 sementara: τ-b PT(8) vs rasio impor = **−0,045** (jackknife −0,65..0,56)
 - [ ] Ardell: entri DEVIASI untuk `association.import_ratio_years` dan `forecast.run_m3` sudah dicatat Danen sebagai D-121
       (atas instruksi Danen); periksa alasannya. Yang tetap milik Ardell: catatan WP di WORKPLAN (angka & kotak "Selesai bila")
       dan entri D-200 (ordinal `imported_input`, dirujuk di `src/data/reference.py` tetapi belum ada di DECISIONS).
+- [ ] Ardell: D-122 menambah `OPTIONAL = ("panel_weekly",)` + PERINGATAN di `src/pipelines/task4.py` dan baris
+      `drive.pull(cfg, task4.OPTIONAL)` di notebook 04 (sebelumnya Task 4 di Colab jatuh ke panel wilayah); periksa.
 - [ ] Ardell: `rice_sufficiency` dan `n_kota` masih NaN; jalankan ulang `stage0` setelah file manual Abi tersedia.
 - [ ] Abi: isi `data/raw/manual_pihps/n_kota.csv` dan `data/raw/manual_conversion/gkg_beras.csv` (skema PEMBAGIAN_TUGAS §6.2), kirim lewat Drive.
 - [ ] Abi: untuk makalah, E1 ditulis "di antara 10 komoditas yang diamati" dan sebagai angka **sementara** sampai `assoc` resmi terbit.

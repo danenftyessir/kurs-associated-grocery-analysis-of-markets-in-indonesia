@@ -16,6 +16,7 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 - E1 sementara (PT(8) titik nasional): τ-b −0,045 (−0,65..0,56), p eksak 0,93 → tidak terdeteksi. Resmi menunggu `response_features` (P2).
 - Atas instruksi Danen, 7 tes merah pasca-merge diperbaiki langsung (dokumen sinkron untuk modul Ardell, 2 tes test_package); suite 287 lolos.
 - D-121: DEVIASI untuk kunci params Ardell (`import_ratio_years` [2018, 2023], `run_m3`); hash params baru di PREREGISTRATION.
+- D-122: notebook 01/03/04 kini menarik `panel_weekly` (sebelumnya Task 1 di Colab diam-diam hanya versi wilayah). Task 1 ± 7 dtk/replikasi.
 
 ### 2026-11-21 — Danen: perbaikan `ols_cluster` grup kosong (D-119)
 - Laporan Ardell: perbaikan `ols_cluster` (macOS) menunggu Danen. Ditemukan regresi D-118: grup NaN/NaT → bincount crash.
