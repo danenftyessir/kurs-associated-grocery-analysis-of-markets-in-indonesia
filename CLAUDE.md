@@ -113,8 +113,8 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
   WP-27 (evaluasi DM & ablation, butuh `forecast_preds` WP-26 dengan model `M2_nofx`), WP-29 (V4 & V2-episode jalan pada data asli;
   V2-forecast butuh P4).
 - **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`,
-  `episodes`, `drivers_weekly`, `fx_variation`, `panel_weekly_region`, `mde`, `stage0_report`. Semua di Drive tim kecuali
-  `stage0_report` (P1 + `mde` diunggah 2026-11-20 lewat browser).
+  `episodes`, `drivers_weekly`, `fx_variation`, `panel_weekly_region`, `mde`, `stage0_report`. Semua di Drive tim
+  (P1 diunggah 2026-11-20; `mde` versi G-power + `stage0_report` 2026-11-21, lewat browser).
 - **G-power (D-007, diputuskan 2026-11-21, D-115):** MDE_PT(8) bawang putih 2,52, gula 0,90, minyak goreng 0,465 → **LP tetap
   utama**. H2 (asimetri) konfirmatori hanya untuk **beras** (MDE asimetri PT(8) 0,44) dan **daging sapi** (0,32); 8 komoditas lain
   deskriptif (1,0–9,3). Pengumuman: handoff `docs/handoff/20261121-1400_danen-ke-semua_g-power.md`.
@@ -134,7 +134,7 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
   unggah CSV penduduk 2025 & kab/kota (U103), video, unggah.
 - **Isi Drive tim (2026-11-20, diunggah lewat browser):** `data/raw/` lengkap 24 file + `checksums.csv`,
   artefak `pihps_daily`, `panel_weekly`, `world_prices_weekly`, `eligibility`, P1 (`drivers_weekly`, `episodes`, `fx_variation`,
-  `panel_weekly_region`) dan `mde`. Folder dibagikan terbatas (U24).
+  `panel_weekly_region`), `mde` dan `stage0_report` (versi 2026-11-21). Folder dibagikan terbatas (U24).
 - **Data baru 2026-11-20 (D-101):** BPS impor v2 (+bawang putih), revisi regulasi, `jarak_hub`, `konkordansi_hs`,
   `hortikultura_produksi` — input WP-07 (Ardell). Versi lama di `data/raw/_superseded/`.
 - **Pertukaran artefak & data mentah:** folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D lewat `utils.drive` (D-100).

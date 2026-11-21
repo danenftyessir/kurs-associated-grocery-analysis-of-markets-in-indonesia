@@ -15,6 +15,7 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 - H2 konfirmatori: beras 0,44, daging sapi 0,32; 8 komoditas lain deskriptif. U8 🟢. `stage0_report` memuat status H2.
 - Config beku utuh (hash konten LF = PREREGISTRATION; beda di disk karena autocrlf).
 - Handoff KEPUTUSAN ke semua: docs/handoff/20261121-1400_danen-ke-semua_g-power.md.
+- `mde` (versi 2, menimpa) dan `stage0_report` diunggah ke Drive tim `results/stage0/` lewat Chrome; bundle kode dibangun ulang.
 
 ### 2026-11-21 — Danen: WP-29 🔶 (validasi V2 & V4)
 - `robustness.validation` + `lp_implied_paths`; `evaluate` kini punya subset `case_study` (origin 2026); `events` + `placebo_median`.
