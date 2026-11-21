@@ -30,12 +30,19 @@ def run(cfg: Config) -> None:
     events = [event_study.placebo_bands(cfg, region, eps, level="region")]
     if panel is not None:
         parts += [lp.national_profiles(cfg, panel, drv, world, elig=elig),
-                  deviations.province_deviations(cfg, panel, drv, world)]
+                  deviations.province_deviations(cfg, panel, drv, world, elig=elig)]
         events.append(event_study.placebo_bands(cfg, panel, eps, level="national", elig=elig))
-        est = lambda pb, db: lp.national_profiles(cfg, pb, db, world, elig=elig)  # noqa: E731
-        reps = inference.joint_bootstrap(cfg, est, panel, drv, p["bootstrap_B"])
+        key_h = [int(h) for h in cfg.params["lp"]["key_horizons"]]
+
+        def est(pb, db, wb, commodities=None):       # profil nasional + deviasi provinsi (h kunci) per replikasi
+            return pd.concat([lp.national_profiles(cfg, pb, db, wb, elig=elig, commodities=commodities),
+                              deviations.province_deviations(cfg, pb, db, wb, elig=elig, horizons=key_h,
+                                                             commodities=commodities)], ignore_index=True)
+
+        reps = inference.joint_bootstrap(cfg, est, panel, drv, p["bootstrap_B"], world=world)
         write_artifact(cfg, "boot_replicates", reps)
-        write_artifact(cfg, "placebo_stats", inference.circular_placebo(cfg, est, panel, drv, p["placebo_R"]))
+        write_artifact(cfg, "placebo_stats",
+                       inference.circular_placebo(cfg, est, panel, drv, p["placebo_R"], world=world))
         profiles = inference.bootstrap_ci(pd.concat(parts, ignore_index=True), reps)
         profiles = response.shrink_deviations(cfg, profiles)
     else:
