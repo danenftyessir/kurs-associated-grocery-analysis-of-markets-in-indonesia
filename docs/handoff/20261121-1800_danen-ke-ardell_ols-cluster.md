@@ -3,7 +3,7 @@ dari: Danen
 ke: Ardell
 jenis: KEPUTUSAN
 terkait: D-119, D-118, WP-12, WP-15, WP-16
-status: terbuka
+status: selesai
 dibuat: 2026-11-21 18:00
 tenggat_respon: 2026-11-22
 ---
@@ -27,10 +27,10 @@ Hasil LP nasional, Tier 1, dan `mde` tidak berubah.
 - Bukan DEVIASI PRAREGISTRASI.
 
 ## Yang perlu dilakukan penerima
-- [ ] Ardell: tarik `dev` terbaru, lalu jalankan ulang kode yang tadinya gagal di macOS.
-- [ ] Ardell: bila masih gagal, kirim pesan error lengkap (traceback) + versi numpy/pandas lewat handoff `BLOKIR`; penyebab di mesin
+- [x] Ardell: tarik `dev` terbaru, lalu jalankan ulang kode yang tadinya gagal di macOS.
+- [x] Ardell: bila masih gagal, kirim pesan error lengkap (traceback) + versi numpy/pandas lewat handoff `BLOKIR`; penyebab di mesin
       Ardell belum dikonfirmasi, perbaikan ini menutup penyebab yang paling mungkin.
-- [ ] Ardell: dorong branch `feat/...` Ardell ke `origin` dan merge ke `dev` (belum terlihat di remote per 2026-11-21) agar Danen bisa
+- [x] Ardell: dorong branch `feat/...` Ardell ke `origin` dan merge ke `dev` (belum terlihat di remote per 2026-11-21) agar Danen bisa
       menjalankan WP-18/21/22/27 pada kode yang sama.
 
 ## Cara memverifikasi

@@ -17,7 +17,7 @@ Urutan: `00` → (`01` ∥ `04`) → `02`, `03` → `05`. Notebook 04 bisa jalan
 `02` dan `03` butuh output `01` (`profiles`, `response_features`, `placebo_stats`, `boot_replicates`); `05` butuh output `01` dan `04`
 (`forecast_eval`). Setiap tahap baru boleh dimulai setelah tahap sebelumnya selesai **dan** sel push ke Drive tim jalan.
 Perkiraan `01` (2026-11-21, laptop): ± 7 dtk per replikasi (nasional + deviasi provinsi h kunci) → bootstrap + plasebo
-B = R = 499 (non-fokus 199) ± 1,5–2 jam; Colab bisa lebih lambat. `01` tidak punya checkpoint: biarkan tab Colab terbuka.
+B = R = 499 (non-fokus 199) ± 1,5–2 jam; Colab bisa lebih lambat. `01` menyimpan checkpoint `boot_replicates` dan `placebo_stats` ke Drive tim tiap 25 replikasi; bila sesi putus, jalankan ulang notebook (rep yang selesai dilewati, hasil akhir identik; D-204). Hapus artefak parsial lama bila konfigurasi/kode berubah.
 Input opsional: `task1`, `task3`, `task4` punya `OPTIONAL` (terutama `panel_weekly`) yang ditarik notebook bersama `REQUIRES`;
 tanpa panel provinsi tahap jatuh ke versi 7 wilayah dan mencetak PERINGATAN (D-122).
 

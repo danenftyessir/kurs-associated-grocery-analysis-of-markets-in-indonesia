@@ -106,7 +106,7 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-06 (13 episode), WP-08 (panel 7 wilayah),
   WP-09 (MDE), WP-10 (QA & `stage0_report`), WP-11 (G6: praregistrasi beku 2026-11-20 23:29, D-109), WP-12 (mesin statistik),
-  WP-13 (LP nasional; 6 dtk untuk 10 komoditas × 13 h × 2 spesifikasi sejak D-118, sebelumnya 23–29 dtk), WP-14 (event study), WP-28 (Tier 1; 21 dtk, artefak
+  WP-13 (LP nasional; 6 dtk untuk 10 komoditas × 13 h × 2 spesifikasi sejak D-118, sebelumnya 23–29 dtk), WP-14 (event study), WP-25 (fitur Task 4 as-of), WP-28 (Tier 1; 21 dtk, artefak
   `robustness` ditulis bersama validasi).
 - **Sedang (🔶, kode siap & dites sintetis, menunggu data asli):** WP-18 (G-het, butuh P2 dengan `se` di `placebo_stats`),
   WP-22 (Kendall, butuh P2 + P3), WP-21 (struktur tertanam, butuh `ward_labels` WP-19 + matriks plasebo mentah dari `task2`),
@@ -141,8 +141,7 @@ Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 - **Data baru 2026-11-20 (D-101):** BPS impor v2 (+bawang putih), revisi regulasi, `jarak_hub`, `konkordansi_hs`,
   `hortikultura_produksi` — input WP-07 (Ardell). Versi lama di `data/raw/_superseded/`.
 - **Pertukaran artefak & data mentah:** folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D lewat `utils.drive` (D-100).
-- `python -m kagami stage0` saat ini menulis semua artefak Danen (s.d. `stage0_report`) lalu berhenti di `NotImplementedYet: WP-07`
-  (tabel tim Ardell, dijalankan paling akhir; sesuai harapan).
+- `python -m kagami stage0` menulis semua artefak Tahap 0 termasuk tabel tim WP-07 (dijalankan Danen 2026-11-21); tidak ada stub tersisa di `src/`.
 
 ---
 
@@ -664,8 +663,8 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `gate_g_power` · ✔ · keputusan gerbang D-007 dari artefak mde + h2_confirmatory per komoditas (MDE asimetri PT(8) ≤ 0,5).
 
 #### src/evaluation/inference.py
-- `joint_bootstrap` · ✔ · moving-block 13 minggu, satu indeks per replikasi untuk semua seri (selisih di-resample, level dibangun ulang).
-- `circular_placebo` · ✔ · geser de & dw ≥ 52 minggu; profil nasional + provinsi (h kunci) di bawah null, `se` dibawa.
+- `joint_bootstrap` · ✔ · moving-block 13 minggu, satu indeks per replikasi untuk semua seri (selisih di-resample, level dibangun ulang); `done`/`checkpoint` untuk melanjutkan run (D-204).
+- `circular_placebo` · ✔ · geser de & dw ≥ 52 minggu; profil nasional + provinsi (h kunci) di bawah null, `se` dibawa; `done`/`checkpoint` seperti bootstrap.
 - `bootstrap_ci` · ✔ · CI = yang lebih lebar dari ±1,96·SE dan persentil bootstrap (PT: persentil saja).
 
 #### src/evaluation/heterogeneity.py
@@ -1048,6 +1047,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_task2.py` | Task 2 end-to-end pada profil provinsi sintetis dengan 3 kelompok tertanam |
 | `test_association.py` | WP-23/24: meta-regresi & interaksi FE memulihkan koefisien tertanam |
 | `test_forecast.py` | WP-25/26: tanpa kebocoran as-of, origin, model M0–M3 & M2_nofx, checkpoint |
+| `test_task1.py` | `task1.run` end-to-end pada artefak sintetis (B/R kecil): semua artefak tahap tertulis, interval tidak menyempit, tiga level |
 | `test_synthetic.py` | generator sintetis Task 1 (`tests/synthetic.py`): skema = kontrak artefak, jawaban tertanam pulih |
 | `test_app_data.py` | halaman Streamlit terender dengan artefak sintetis berskema kontrak (WP-31) |
 | `test_package.py` | WP-32: isi zip juri, tanpa data tanpa hak redistribusi, artefak ship hilang dilaporkan, CLI jalan dari folder baru |
