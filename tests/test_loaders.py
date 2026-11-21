@@ -25,6 +25,9 @@ EXPECTED = {
     "jarak_hub": {"province_id", "dist_hub_km", "ln1p_dist_hub", "nearest_hub"},
     "konkordansi_hs": {"comtrade_code", "bps_hs8_prefix", "keyakinan_pemetaan"},
     "hortikultura_produksi": {"commodity_atap", "province_id", "year", "production_ton"},
+    "penduduk": {"province_id", "year", "population"},
+    "n_kota": {"province_id", "n_kota"},
+    "gkg_beras": {"year", "factor"},
 }
 
 
@@ -71,3 +74,25 @@ def test_province_names_all_mapped(cfg, key, col):
     assert df["province_id"].nunique() == 34, key
     if key in ("bapanas_panel", "jarak_hub"):   # loader ini tidak membuang baris; tidak boleh ada yang gagal dipetakan
         assert df["province_id"].notna().all(), df.loc[df["province_id"].isna(), col].unique()
+
+
+# --- sumber manual WP-07 (NaN-aman) -------------------------------------------------
+@pytest.mark.parametrize("key", ["penduduk", "n_kota", "gkg_beras"])
+def test_manual_loader_missing_file_gives_empty_schema(cfg, tmp_path, key):
+    from dataclasses import replace
+    df = LOADERS[key](replace(cfg, raw_root=tmp_path))
+    assert len(df) == 0 and EXPECTED[key] <= set(df.columns)
+
+
+def test_penduduk_unit_and_guard(cfg, tmp_path):
+    from dataclasses import replace
+    c = replace(cfg, raw_root=tmp_path)
+    (tmp_path / "bps_kependudukan").mkdir()
+    f = tmp_path / "bps_kependudukan" / "penduduk_provinsi_2025.csv"
+    names = list(cfg.regions["province"])
+    f.write_text("Provinsi,Jumlah Penduduk 2025 (ribu jiwa)\n" + "\n".join(f"{n},{8000}" for n in names), encoding="utf-8")
+    out = LOADERS["penduduk"](c)
+    assert out["population"].iloc[0] == 8_000_000 and out["province_id"].nunique() == 34   # ribu -> jiwa
+    f.write_text("Provinsi,Jumlah Penduduk 2025\n" + "\n".join(f"{n},{8000}" for n in names), encoding="utf-8")
+    with pytest.raises(ValueError, match="rentang wajar"):                # 8.000 jiwa x 34: satuan salah
+        LOADERS["penduduk"](c)

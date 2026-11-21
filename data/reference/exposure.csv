@@ -1,0 +1,11 @@
+commodity,exposure_path,import_ratio_direct,imported_input_ordinal,world_price_link,source,import_ratio_neraca
+beras,direct_import,0.03347737285060098,0,True,"FAOSTAT SUA 2018-2023 (6 thn): Rice, milled; Rice, broken",0.05878691502708607
+bawang_putih,direct_import,0.9304192143426743,0,False,"impor BPS/Comtrade HS 070320 / (produksi ATAP + impor), tahun [2021]; ekspor diabaikan (U5)",
+gula_pasir,direct_import,0.37263969447800854,0,True,FAOSTAT SUA 2018-2023 (6 thn): Refined sugar; Raw cane or beet sugar (centrifugal only),
+minyak_goreng,export_parity,0.0005219879176432794,0,True,FAOSTAT SUA 2018-2023 (6 thn): Palm oil,
+daging_ayam,imported_input,1.7035454888661934e-06,2,True,"FAOSTAT SUA 2018-2023 (6 thn): Meat of chickens, fresh or chilled",
+telur_ayam,imported_input,7.110242091634478e-10,2,True,"FAOSTAT SUA 2018-2022 (3 thn): Hen eggs in shell, fresh",
+daging_sapi,direct_import,0.2867675710917962,0,True,"FAOSTAT SUA 2018-2023 (6 thn): Meat of cattle with the bone, fresh or chilled; Meat of cattle boneless, fresh or chilled",
+bawang_merah,domestic,0.06941094451271008,0,False,"FAOSTAT SUA 2018-2023 (6 thn): Onions and shallots, dry (excluding dehydrated)",
+cabai_merah,domestic,8.956607274856372e-08,0,False,"FAOSTAT SUA 2018-2022 (5 thn): Chillies and peppers, green (Capsicum spp. and Pimenta spp.)",
+cabai_rawit,domestic,8.956607274856372e-08,0,False,"FAOSTAT SUA 2018-2022 (5 thn): Chillies and peppers, green (Capsicum spp. and Pimenta spp.)",

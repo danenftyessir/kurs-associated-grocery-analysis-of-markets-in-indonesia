@@ -4,6 +4,7 @@ import pandas as pd
 import streamlit as st
 
 from common import CFG, footer, load, need, page_header
+from kagami.utils.env import artifact_status
 
 page_header("Ringkasan & Status Data", "Seberapa bisa dipercaya datanya?")
 
@@ -39,6 +40,8 @@ if got:
     el = got["eligibility"]
     st.metric("Seri layak", f"{int(el['eligible'].sum())} / {len(el)}")
     st.dataframe(got["mde"], hide_index=True, use_container_width=True)
+with st.expander("Status artefak hasil"):
+    st.dataframe(artifact_status(CFG), hide_index=True, use_container_width=True)
 report = load("stage0_report")
 if report:
     with st.expander("Laporan Tahap 0"):

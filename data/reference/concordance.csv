@@ -1,0 +1,11 @@
+commodity,pihps_name,variant,hs_codes,pinksheet,faostat_items,confidence
+beras,Beras,Beras Kualitas Medium I,1006,"Rice, Thai 5%:1","Rice, milled;Rice, broken",high
+bawang_putih,Bawang Putih,Bawang Putih Ukuran Sedang,070320,,,low
+gula_pasir,Gula Pasir,Gula Pasir Lokal,1701,"Sugar, world:1",Refined sugar;Raw cane or beet sugar (centrifugal only),high
+minyak_goreng,Minyak Goreng,Minyak Goreng Kemasan Bermerk 1,1511;1517,Palm oil:1,Palm oil,high
+daging_ayam,Daging Ayam,Daging Ayam Ras Segar,0207;1005;2304,Maize:0.6;Soybean meal:0.4,"Meat of chickens, fresh or chilled",medium
+telur_ayam,Telur Ayam,Telur Ayam Ras Segar,0407;1005;2304,Maize:0.6;Soybean meal:0.4,"Hen eggs in shell, fresh",medium
+daging_sapi,Daging Sapi,Daging Sapi Kualitas 1,0102;0201;0202,Beef:1,"Meat of cattle with the bone, fresh or chilled;Meat of cattle boneless, fresh or chilled",high
+bawang_merah,Bawang Merah,Bawang Merah Ukuran Sedang,070310,,"Onions and shallots, dry (excluding dehydrated)",high
+cabai_merah,Cabai Merah,Cabai Merah Keriting,070960;090421,,"Chillies and peppers, green (Capsicum spp. and Pimenta spp.)",medium
+cabai_rawit,Cabai Rawit,Cabai Rawit Merah,070960;090421,,"Chillies and peppers, green (Capsicum spp. and Pimenta spp.)",medium

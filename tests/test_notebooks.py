@@ -39,6 +39,8 @@ def test_notebook_valid_and_consistent(path):
         importlib.import_module(mod)
     stage = re.search(r"from kagami\.pipelines import (\w+)\n\1\.run\(cfg", code).group(1)
     assert f"drive.pull(cfg, {stage}.REQUIRES)" in code, "input harus di-pull dari Drive tim (D-100)"
+    if hasattr(importlib.import_module(f"kagami.pipelines.{stage}"), "OPTIONAL"):   # regresi D-122
+        assert f"drive.pull(cfg, {stage}.OPTIONAL)" in code, "input opsional (panel provinsi) harus ikut di-pull"
     assert re.search(rf'drive\.push\(cfg, stages=\(.*"{stage}"', code), "output harus di-push ke Drive tim (D-100)"
 
 

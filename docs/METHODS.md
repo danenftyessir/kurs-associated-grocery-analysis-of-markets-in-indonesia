@@ -34,13 +34,23 @@ dalam periode terisi ≥ 70% minggu.
 ### M0.5 Episode (WP-06)
 Minggu *t* memicu episode bila Σ_{s=t−7..t} de_s ≥ 0,03. Rangkaian pemicu yang berdempetan/tumpang tindih digabung.
 `start_week` = minggu pertama pemicu; `cum_dlog_e` = depresiasi kumulatif maksimum dalam episode.
+Implementasi (D-107): pemicu berjarak ≤ 8 minggu digabung; `end_week` = pemicu terakhir; minggu `start_week..end_week` → `episode = 1`.
+`fx_variation`: per tahun 2018..2026 + total, minggu de > 0 / de < 0 / de = 0, rerata, sd, ekstrem.
 
 ### M0.6 MDE (WP-09, sebelum melihat β)
 1. LP tanpa kurs (lag Δp, db, S(t)) per komoditas & horizon → residual.
 2. SE_β ≈ SE dari regresi residual pada `de` dengan cluster per minggu (atau rumus analitik
-   sd(resid)/(sd(de)·√T_eff); dokumentasikan yang dipakai).
+   sd(resid)/(sd(de)·√T_eff); dokumentasikan yang dipakai). **Dipakai (D-107):** bentuk skor di bawah H0 —
+   SE = √(c·Σ_t(Σ_r x̃·û)²)/Σx̃², û = residual LP tanpa kurs, x̃ = de dibersihkan dari kontrol + lag de + dw; c = CR1.
+   Nasional = panel provinsi eligible pooled; wilayah = satu LP per wilayah dari `panel_weekly_region`.
 3. MDE_β = (z_{0,975} + z_{0,80}) · SE_β ≈ 2,80 · SE_β; MDE_PT(h) = MDE_β(h) / γ(h).
 4. Gerbang: MDE_PT(8) > 0,5 untuk ketiga {bawang putih, gula pasir, minyak goreng} → D-007 berlaku.
+5. MDE asimetri (H2, D-115): parametrisasi β⁺·de⁺ + β⁻·de⁻ = β⁺·de + δ·de⁻; SE(δ) bentuk skor di bawah δ = 0 (û = residual y pada
+   semua regresor kecuali de⁻ lag 0); MDE_asym = 2,80·SE(δ), satuan PT = /γ(h). H2 konfirmatori bila MDE_asym PT(8) nasional ≤ 0,5.
+
+### M0.7 Panel 7 wilayah (WP-08)
+Seri eligible saja. Per (wilayah, komoditas): p(r,t) = a_r + l_t (alternating projection; tahan perubahan komposisi, D-106);
+rerata wilayah m(t) = l_t + rerata a_r; `log_price_index` = m(t) − m(minggu pertama). `n_provinces` = provinsi teramati minggu t.
 
 ## M1 — Task 1 profil respons
 
@@ -66,6 +76,9 @@ PT(i,h) = β(i,h) / γ(h). Interval PT dari bootstrap (rasio replikasi), bukan d
 Untuk setiap episode: Δ log harga dari `start_week−1` ke `start_week+h`, h = 0..12, level nasional (rerata provinsi
 eligible) dan 7 wilayah. Null: 499 jendela dengan awal acak dari minggu yang tidak berada dalam episode (± 12 minggu).
 Laporkan persentil 2,5/97,5 dan p = (1 + #|plasebo| ≥ |aktual|)/(1 + 499).
+Implementasi (D-110): nasional = rerata lintas provinsi eligible dari selisih per provinsi (hanya provinsi teramati di s−1 dan
+s+h); satu set 499 awal plasebo (dengan pengembalian) dipakai bersama semua komoditas & unit; kandidat = minggu dengan s−1 dan
+s+12 di panel, di luar [start−12, end+12] setiap episode. Episode yang terpotong freeze → horizon NaN, tidak dibuang.
 
 ### M1.4 Deviasi provinsi (WP-15)
 $\tilde p_{i,r,t} = p_{i,r,t} - \frac{1}{|R_t|}\sum_{r'} p_{i,r',t}$ (guncangan nasional terhapus).
@@ -91,21 +104,25 @@ A8 = β⁺(8) − β⁻(8) (level komoditas).
 
 1. **Heterogenitas (WP-18):** per komoditas pada δ(i,r,8) tanpa susut: Q, τ², I² (DL). Lintas komoditas:
    ρ̄ = rerata korelasi Pearson vektor deviasi provinsi antar pasangan komoditas. Setiap statistik dibandingkan
-   dengan distribusi dari `placebo_stats`; H0-Het: FDR BH q ≤ 0,05 antar 10 komoditas.
+   dengan distribusi dari `placebo_stats` (p satu sisi atas, (1 + #{null ≥ aktual})/(1 + R)); H0-Het: statistik Q, FDR BH
+   q ≤ 0,05 antar 10 komoditas (BH dihitung per statistik). Bobot DL butuh `se` deviasi di `profiles` dan `placebo_stats`.
 2. **Clustering (WP-19):** matriks 34 × F (R & W pada h = 4, 8, 12, komoditas fokus, tersusut), z-score per kolom;
    Ward (Euclidean). Rata-rata komoditas sudah dikeluarkan sehingga identitas komoditas tidak menggerakkan klaster.
 3. **Pemilihan k (WP-19):** k ∈ {2..6}; s* = maks silhouette data asli. Untuk tiap replikasi plasebo hitung
    maks silhouette yang sama → p95. Terima struktur bila s* > p95, k = argmax; bila tidak, k = 1.
 4. **Stabilitas (WP-20):** K-Means (k-means++, n_init = 50) → ARI vs Ward. Ulang Ward pada setiap replikasi bootstrap →
    matriks ko-asignasi; Jaccard maksimum per klaster asli (Hennig 2007); < 0,6 → "pola lemah".
-5. **Struktur tertanam (WP-21):** ambil matriks plasebo realistis, bagi provinsi ke k_true kelompok acak, tambahkan
-   δ ∈ {0,1..0,5} ke fitur kelompok; jalankan langkah 2–3; recovery = P(k terpilih = k_true ∧ ARI ≥ 0,8).
+5. **Struktur tertanam (WP-21):** ambil matriks plasebo realistis (satuan respons, sebelum z-score), bagi provinsi ke k_true
+   kelompok acak, geser tiap kelompok ke pusat simpleks berorientasi acak sehingga setiap pasangan kelompok berselisih
+   δ ∈ {0,1..0,5} (RMS per fitur; jarak pusat δ·√F, D-112); z-score; jalankan langkah 2–3 dengan ambang p95 dari semua matriks
+   plasebo; recovery = P(k terpilih = k_true ∧ ARI ≥ 0,8). Batas deteksi = δ terkecil dengan recovery ≥ 0,8.
 6. **Interpretasi (WP-20):** label netral K1, K2, …; ARI vs zona HET beras, Jawa/luar Jawa, kuantil n_kota.
 
 ## M3 — Task 3 asosiasi
 
-- **3a (WP-22):** Kendall τ antara PT(8) nasional dan `import_ratio_direct` (N = 10), p permutasi eksak;
-  leave-one-commodity-out. Tabel jalur eksposur vs PT(8), W8 (+ interval).
+- **3a (WP-22):** Kendall τ-b antara PT(8) nasional dan `import_ratio_direct` (rerata tahunan 2018–2023,
+  `association.import_ratio_years`, D-121; beras = beras giling, D-120) (N = 10), p permutasi eksak dua sisi (+ satu sisi
+  arah E1); leave-one-commodity-out → jackknife_min/max dan interval τ ± 1,96·SE jackknife. Tabel jalur eksposur vs PT(8), W8 (+ interval).
 - **3b (WP-23):** meta-regresi efek acak δ(i,r,h) ~ Z(r) (≤ 3 fitur: ln jarak ke hub terdekat
   {Jakarta, Surabaya, Makassar}, kecukupan produksi bila ada, n_kota), bobot 1/(s²+τ²). Interval: bootstrap blok mingguan
   & CR2 cluster provinsi → yang lebih lebar. Jackknife per provinsi. H3: koef. jarak pada h = 4 < 0 (satu arah);
@@ -119,7 +136,10 @@ A8 = β⁺(8) − β⁻(8) (level komoditas).
 - M0: prediksi 0. M1: Ridge (lag Δp 1/4/8, bulan, Idulfitri, db 1/4). M2: M1 + {de, dw} perubahan 1/4/8 minggu + episode.
   M3: HistGradientBoostingRegressor dengan fitur M2 + identitas komoditas & wilayah.
 - Metrik: MAE, RMSE, rasio M2/M1 dan M3/M1 (semua origin; origin dengan |Δe 4 minggu| > p80 data latih).
-  DM dengan HAC (lag h−1 dalam satuan origin yang tumpang tindih) + koreksi HLN.
+  DM dengan HAC (lag h−1 dalam satuan origin yang tumpang tindih) + koreksi HLN. Implementasi (D-113): deret = MAE per origin
+  (rerata lintas seri dalam sel), h dalam satuan origin = ceil(h/4) → HAC lag 0 (h = 4) dan 1 (h = 8).
+  H5: model M2, h = 8, origin large_move, sel jalur = komoditas fokus direct_import {bawang putih, gula, daging sapi} dan
+  imported_input {daging ayam, telur}; p DM satu sisi (M2 lebih akurat); Holm atas 2 jalur (p tak terdefinisi = 1), α 0,05.
 - Ablation: MAE(M2 tanpa fx) − MAE(M2) per komoditas & wilayah.
 - Selalu laporkan n_origins dan n_nonoverlap. Sebut "pseudo-real-time" (vintage revisi tidak tersedia).
 
@@ -129,6 +149,20 @@ Tier 1 (wajib): h 8 vs 12; lag 2/4/8; sub-periode sebelum/sesudah 2021-04-05 (= 
 |Δlog Brent| > 0,25; dekomposisi de = a + b·d_dxy + ε (komponen dolar global = fitted, spesifik rupiah = ε);
 frekuensi bulanan. Tier 2 (opsional): varian alternatif; agregasi observasi terakhir; definisi eksposur/keterpencilan
 alternatif; Panel Harga Bapanas sebagai outcome.
+Implementasi Tier 1 (D-111): sub-sampel = observasi minggu t yang seluruh jendela datanya [t−(L+1), t+h] berada di dalam
+sub-periode / tidak beririsan dengan periode yang dibuang; desain di-demean ulang per seri. Bulan Brent ekstrem = |Δ log rerata
+bulanan Brent| > ambang. Dekomposisi: kedua komponen masuk satu LP. Bulanan: log harga = rerata log mingguan per bulan,
+h_bulan = round(h·12/52), L_bulan = max(1, round(L·12/52)), kontrol Idulfitri = rerata bulanan dummy mingguan, SE cluster bulan.
+Interval Tier 1 = ±1,96·SE cluster (bootstrap tidak diulang per cek).
+Implementasi Tier 2 (D-116; deskriptif, LP nasional h kunci, driver e & w): (a) setiap varian level-2 PIHPS non-representatif dalam grup
+yang sama, agregasi & kelayakan sendiri; komposit pakan bobot sama dan seri tunggal (D-012); (b) harga mingguan = hari teramati terakhir;
+(c) Kendall τ-b eksak PT(8) vs ordinal jalur (impor langsung 2, input impor & paritas ekspor 1, domestik 0), baseline = τ dengan
+import_ratio_direct; keterpencilan alternatif lewat meta-regresi (WP-23); (d) Panel Harga Bapanas bulanan sebagai outcome (LP bulanan
+seperti Tier 1), baseline = LP bulanan PIHPS pada bulan yang sama. Butuh data mentah → tidak termasuk reproduksi Tingkat B.
+V4 (D-114): kelebihan event = dlog_price − median plasebo (nasional); implikasi LP untuk jendela berawal s =
+Σ_{j=0..h} β_e(h−j)·de_{s+j} + Σ_j ω(h−j)·dw_{s+j}; per komoditas × h kunci: rerata kelebihan (± 1,96·sd/√n antar episode) vs rerata
+implikasi, porsi tanda sama, korelasi antar episode. V2: episode yang mulai di tahun freeze (kelebihan vs pita plasebo relatif median)
+dan subset origin `case_study` (tahun freeze) di `forecast_eval`.
 V2: studi kasus 2026 hanya origin dengan outcome lengkap (h=8 → origin terakhir ≈ akhir Sep 2026). V4: LP vs event study.
 
 ## Pencegahan kebocoran (wajib)

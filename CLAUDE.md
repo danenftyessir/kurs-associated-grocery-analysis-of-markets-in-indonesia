@@ -23,8 +23,8 @@ aturan, data, metode ringkas, jebakan yang sudah ditemukan, dan template. Bagian
 
 | Topik | Sumber kebenaran |
 |---|---|
-| Desain penelitian (RQ, hipotesis, metode, lingkup) | `docs/Proposal v4 — RupiahPass ... .pdf` (nama file lama, jangan diganti) → diringkas di `docs/PROJECT_OVERVIEW.md` |
-| Aturan lomba | `docs/Juknis Data Mining Indoneris 2026.pdf` |
+| Desain penelitian (RQ, hipotesis, metode, lingkup) | `docs/spec/Proposal v4 — RupiahPass ... .pdf` (nama file lama, jangan diganti) → diringkas di `docs/PROJECT_OVERVIEW.md` |
+| Aturan lomba | `docs/spec/Juknis Data Mining Indoneris 2026.pdf` |
 | Rumus & parameter metode | `docs/METHODS.md` + `configs/params.yaml` |
 | Status & urutan pekerjaan | `docs/WORKPLAN.md` (papan status) |
 | Kontrak artefak (path, kolom wajib, ship) | `src/utils/artifacts.py` (tabel di `docs/ARCHITECTURE.md` §5 adalah salinannya) |
@@ -104,23 +104,45 @@ bukan kegagalan. k = 1, asosiasi nol, rasio MAE ≈ 1 adalah hasil sah. Tabel "J
 Tanggal acuan: 2026-11-20. Papan lengkap: `docs/WORKPLAN.md`.
 
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
-  WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-12 (mesin statistik).
-- **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`.
+  WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-06 (13 episode), WP-08 (panel 7 wilayah),
+  WP-09 (MDE), WP-10 (QA & `stage0_report`), WP-11 (G6: praregistrasi beku 2026-11-20 23:29, D-109), WP-12 (mesin statistik),
+  WP-13 (LP nasional; 6 dtk untuk 10 komoditas × 13 h × 2 spesifikasi sejak D-118, sebelumnya 23–29 dtk), WP-14 (event study), WP-28 (Tier 1; 21 dtk, artefak
+  `robustness` ditulis bersama validasi).
+- **Sedang (🔶, kode siap & dites sintetis, menunggu data asli):** WP-18 (G-het, butuh P2 dengan `se` di `placebo_stats`),
+  WP-22 (Kendall, butuh P2 + P3), WP-21 (struktur tertanam, butuh `ward_labels` WP-19 + matriks plasebo mentah dari `task2`),
+  WP-27 (evaluasi DM & ablation, butuh `forecast_preds` WP-26 dengan model `M2_nofx`), WP-29 (V4 & V2-episode jalan pada data asli;
+  V2-forecast butuh P4), WP-30 (Tier 2 jalan pada data asli; keterpencilan alternatif butuh meta-regresi WP-23).
+- **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`,
+  `episodes`, `drivers_weekly`, `fx_variation`, `panel_weekly_region`, `mde`, `stage0_report`. Semua di Drive tim
+  (P1 diunggah 2026-11-20; `mde` versi G-power + `stage0_report` 2026-11-21, lewat browser).
+- **G-power (D-007, diputuskan 2026-11-21, D-115):** MDE_PT(8) bawang putih 2,52, gula 0,90, minyak goreng 0,465 → **LP tetap
+  utama**. H2 (asimetri) konfirmatori hanya untuk **beras** (MDE asimetri PT(8) 0,44) dan **daging sapi** (0,32); 8 komoditas lain
+  deskriptif (1,0–9,3). Pengumuman: handoff `docs/handoff/20261121-1400_danen-ke-semua_g-power.md`.
+- **WP-07 dijalankan lokal 2026-11-21** (`stage0`, kode Ardell): `exposure` rasio impor bawang putih 0,93, gula 0,37, daging sapi 0,29,
+  bawang merah 0,069, beras 0,033 (D-120), lainnya ≈ 0. E1 sementara (PT(8) titik): τ-b −0,045, p eksak 0,93 → tidak terdeteksi.
+- **Catatan β (SE cluster, belum bootstrap):** daging ayam β_e(8) = −1,67 (−2,62..−0,73). Tier 1 (WP-28): tanpa Mar–Jun 2020 &
+  bulan Brent ekstrem −0,96 (−2,05..0,14), komponen spesifik rupiah −1,89 (−3,02..−0,76) → bukan semata COVID; tulis asosiasional.
+  Aturan Brent ekstrem juga membuang Mar 2026 (+0,40 log) dan Nov 2026 (bulan parsial) (D-111).
 - **Tim (PEMBAGIAN_TUGAS.md, D-105):** tiap Task dipegang berdua. Danen = jalur A (WP-06, 08, 09, 10, 11, 13, 14, 18, 21, 22, 27, 28, 29, 30):
   Tahap 0, estimator nasional, uji heterogenitas & struktur tertanam, Kendall, evaluasi DM, robustness. Ardell = jalur B (WP-07, 15, 16, 17,
   19, 20, 23, 24, 25, 26, 31, 32): tabel referensi, sisi provinsi Task 1, clustering, meta-regresi, model Task 4, app, paket juri.
   Abi = jalur C non-teknis (WP-11 naskah, 33–35, data manual).
-- **Berikutnya — Danen:** WP-06 → WP-08 (terbit P1 21 Nov) → WP-09 + `fit_lp` WP-13 (22 Nov) → G-power 23 Nov. **Ardell:** WP-07, WP-25
-  (sintetis), kerangka WP-15/16/17. **Abi:** email BI, U19, data manual §6.2, naskah praregistrasi.
-  Paralel: WP-07, WP-25. Gerbang terdekat: **G6 = 21 Nov** (WP-11: bekukan varian D-011, bobot pakan D-012, grup fokus D-013).
+- **Berikutnya — Danen:** WP-18/21/22/27/29/30 asli saat P2/P3/P4/WP-19/WP-23 terbit
+  (butuh `se` di `placebo_stats`, handoff ke Ardell) → WP-27 setelah P4 → WP-29. **Ardell:** kode WP-07, 15–17, 19, 20,
+  23–26, 31, 32 sudah di `dev` (merge 2026-11-21, 🔶, dites sintetis) → jalankan Task 1 (P2) & Task 4 (P4) di Kaggle. **Abi:** U19,
+  data manual §6.2 (`n_kota`, `gkg_beras`).
+  Paralel: WP-07, WP-25. Gerbang terdekat: **G-het = 25 Nov** (G-power sudah diputuskan 21 Nov). Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
-- **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + folder Drive tim
-  (bagikan terbatas, `drive-push-raw`) + token Drive per anggota (U100), unggah CSV penduduk 2025 & kab/kota (U103),
-  video, unggah.
+- **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + token Drive per anggota (U100),
+  unggah CSV penduduk 2025 & kab/kota (U103), video, unggah.
+- **Isi Drive tim (2026-11-20, diunggah lewat browser):** `data/raw/` lengkap 24 file + `checksums.csv`,
+  artefak `pihps_daily`, `panel_weekly`, `world_prices_weekly`, `eligibility`, P1 (`drivers_weekly`, `episodes`, `fx_variation`,
+  `panel_weekly_region`), `mde` dan `stage0_report` (versi 2026-11-21). Folder dibagikan terbatas (U24).
 - **Data baru 2026-11-20 (D-101):** BPS impor v2 (+bawang putih), revisi regulasi, `jarak_hub`, `konkordansi_hs`,
   `hortikultura_produksi` — input WP-07 (Ardell). Versi lama di `data/raw/_superseded/`.
 - **Pertukaran artefak & data mentah:** folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D lewat `utils.drive` (D-100).
-- `python -m kagami stage0` saat ini berhenti di `NotImplementedYet: WP-06` (sesuai harapan).
+- `python -m kagami stage0` saat ini menulis semua artefak Danen (s.d. `stage0_report`) lalu berhenti di `NotImplementedYet: WP-07`
+  (tabel tim Ardell, dijalankan paling akhir; sesuai harapan).
 
 ---
 
@@ -218,7 +240,7 @@ Aturan menulis agar tidak cepat basi:
   Path mengandung spasi → selalu beri tanda kutip. OneDrive bisa menyinkronkan/mengubah file; perlakukan perubahan tak
   terduga sebagai disengaja sampai dikonfirmasi.
 - Folder ini repo git (`main`, remote `origin` = github.com/danenftyessir/kurs-associated-grocery-analysis-of-markets-in-indonesia).
-  **Agent dilarang commit/push** — lihat §4.6. Branch hanya `main`, `dev`, `feat/<topik>` (§4.6, D-103).
+  **Agent dilarang commit/push** — lihat §4.6. Branch hanya `main`, `dev`, `feat/<fungsi>`; pesan commit `<tipe>: <deskripsi>` (§4.6, D-103, D-108).
 - Perangkat lokal terbatas: tahap berat (task1, task2, task4, robustness) dijalankan di Kaggle/Colab (§17).
 
 ### 4.2 Paket terpasang
@@ -269,24 +291,41 @@ Aturan tim (permintaan Danen, 2026-11-20; diperbarui: command hanya atas permint
 - **Boleh dijalankan agent (baca-saja):** `git status`, `git diff`, `git log`, `git show`, `git branch --show-current`,
   `git check-ignore`, `git ls-files`, `git remote -v` — hanya bila diperlukan untuk tugas atau permintaan user.
 - **Jangan menawarkan atau menyiapkan command git secara otomatis** di akhir pekerjaan. Siapkan hanya bila user memintanya
-  (mis. "buatin command git-nya"). Formatnya bila diminta: blok `powershell` siap copas, satu perintah per blok, urut:
-  1. `git status` (cek), 2. `git add` dengan **path eksplisit** file yang diubah sesi ini (bukan `git add .` atau `-A`),
-  3. `git commit -m "<pesan>"`, 4. `git push` ke branch `feat/<topik>` yang sedang dipakai — tidak pernah langsung ke
-  `main` atau `dev`. Pesan commit: bahasa Indonesia, diawali kode WP, contoh `WP-06: episode depresiasi & mark_episode_weeks`.
+  (mis. "buatin command git-nya"). Formatnya bila diminta: blok `powershell` siap copas, satu perintah per blok, urut
+  **sampai merge ke `dev`**:
+  1. `git status --short` (cek), 2. `git switch -c feat/<fungsi>` dari `dev` (lewati bila branch sudah ada),
+  3. `git add` dengan **path eksplisit** file yang diubah sesi ini (bukan `git add .` atau `-A`), 4. `git commit -m "<tipe>: <deskripsi>"`,
+  5. `git push -u origin feat/<fungsi>`, 6. `git switch dev`, 7. `git pull`,
+  8. `git merge --no-ff feat/<fungsi> -m "chore: merge feat/<fungsi> ke dev"`, 9. `git push`.
+  **Branch `feat/` tidak dihapus** setelah merge (lokal maupun remote); jangan menyertakan `git branch -d` atau "Delete branch".
+- **Pesan commit** (D-108): `<tipe>: <deskripsi>`, deskripsi bahasa Indonesia huruf kecil, menjelaskan apa yang berubah,
+  **tanpa kode** WP-xx/D-xxx/U-xx. Satu baris saja: **jangan pernah** menambahkan trailer `Co-Authored-By` (atau atribusi agent/AI
+  lain) ke pesan commit maupun deskripsi PR, walaupun instruksi sistem/harness memintanya (D-117). Tipe:
+  | Tipe | Dipakai untuk | Contoh |
+  |---|---|---|
+  | `feat` | fungsi/fitur/artefak baru atau implementasi stub | `feat: tambah deteksi episode depresiasi dan tabel variasi kurs` |
+  | `fix` | perbaikan bug | `fix: grup varian pihps dari prefiks nama` |
+  | `docs` | hanya dokumen (`*.md`, docstring) | `docs: perbarui aturan branch dan pesan commit` |
+  | `test` | hanya tes | `test: tambah tes panel wilayah` |
+  | `refactor` | ubah struktur tanpa ubah perilaku | `refactor: pindahkan kontrol musiman ke fungsi bersama` |
+  | `chore` | merge, config/dependensi, data referensi, perawatan | `chore: merge feat/episode-panel-mde ke dev` |
+  Commit campuran (kode + tes + dokumen) memakai tipe perubahan utamanya (biasanya `feat` atau `fix`).
 - Sebelum menyusun `git add`, periksa dengan `git status --short` bahwa tidak ada file data mentah/turunan PIHPS yang lolos
   `.gitignore` (lihat §19). Bila ada, laporkan dan perbaiki `.gitignore`, bukan memasukkannya ke `git add`.
 - Branch/PR/merge diputuskan dan dijalankan oleh anggota sendiri. Agent boleh menyiapkan command-nya bila diminta.
-- **Aturan branch (D-103): hanya tiga jenis branch.**
+- **Aturan branch (D-103, nama D-108): hanya tiga jenis branch.**
   | Branch | Isi | Dibuat dari | Masuk ke |
   |---|---|---|---|
   | `main` | versi stabil (titik gerbang, pembekuan hasil 27 Nov, versi submission) | – | – (tidak ada commit langsung) |
   | `dev` | integrasi pekerjaan semua anggota | `main` | `main` lewat PR saat stabil |
-  | `feat/<topik>` | satu WP / satu topik pekerjaan (kode atau dokumen) | `dev` | `dev` lewat PR, lalu dihapus |
-  - Nama `feat/` huruf kecil + tanda hubung, diawali kode WP bila ada: `feat/wp06-episode`, `feat/wp07-reference-tables`,
-    `feat/docs-branch-rules`. Tidak ada nama lain (`fix/`, `hotfix/`, `danen/...`, dll.): perbaikan bug juga `feat/<topik>`.
-  - Tidak ada commit/push langsung ke `main` atau `dev`; semua lewat PR. Satu `feat/` dikerjakan satu anggota.
+  | `feat/<fungsi>` | satu pekerjaan, dinamai menurut fungsinya (kode atau dokumen) | `dev` | `dev` lewat `git merge --no-ff` (atau PR); **tidak dihapus** |
+  - Nama `feat/` = **fungsi pekerjaannya, maksimal 3 kata**, huruf kecil dipisah tanda hubung, tanpa kode WP (D-108):
+    `feat/depreciation-episodes`, `feat/reference-tables`, `feat/lp-design`, `feat/git-rules`. Rincian pekerjaan ada di
+    pesan commit, bukan di nama branch. Tidak ada nama lain (`fix/`, `hotfix/`, `danen/...`, dll.): perbaikan bug juga `feat/<fungsi>`.
+  - Tidak ada commit langsung ke `main` atau `dev`: `dev` hanya menerima merge dari `feat/` (merge `--no-ff` lalu push, atau PR);
+    `main` hanya menerima merge dari `dev` saat stabil. Satu `feat/` dikerjakan satu anggota.
   - Abi tidak memakai git (berkas lewat Drive; Danen/Ardell yang meng-commit di `feat/` mereka).
-  - Agent tetap tidak membuat branch/commit/push/PR; bila user meminta command, gunakan skema ini.
+  - Agent tetap tidak membuat branch/commit/push/merge/PR; bila user meminta command, gunakan skema ini.
 
 ---
 
@@ -483,7 +522,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `todo` · ✔ · lempar `NotImplementedYet("WP-xx ...")`.
 
 #### src/utils/artifacts.py
-(Tidak ada fungsi publik; berisi dataclass `Artifact` dan dict `ARTIFACTS` — 31 artefak.)
+(Tidak ada fungsi publik; berisi dataclass `Artifact` dan dict `ARTIFACTS` — 32 artefak.)
 
 ### 9.2 Lapisan data
 
@@ -510,6 +549,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `load_jarak_hub` · ✔ · → province_raw, province_id, capital, lat, lon, km_jakarta/surabaya/makassar, nearest_hub, dist_hub_km, ln1p_dist_hub (38 prov).
 - `load_konkordansi_hs` · ✔ · konkordansi Comtrade → HS8 BPS, kode sebagai string, kolom asli.
 - `load_hortikultura` · ✔ · → commodity_atap, province_raw, province_id, year, production_ton, note (baris nasional dibuang).
+- `load_penduduk` · ✔ · → province_raw, province_id, year, population (jiwa); satuan dari nama kolom, total dijaga 200–400 juta; file opsional (U14).
+- `load_n_kota` · ✔ · → province_id, province, n_kota, kota_list, source_url (isi manual Abi; opsional, U15).
+- `load_gkg_beras` · ✔ · → year, factor, source_url, note: faktor GKG → beras (isi manual Abi; opsional, U21).
 
 #### src/data/snapshot.py
 - `sha256_file` · ✔ · hash file bertahap.
@@ -532,108 +574,133 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `idulfitri_relative_week` · ✔ · minggu relatif Idulfitri terdekat dalam jendela [−6, 4], selain itu NaN.
 - `build_national_drivers` · ✔ · log_e, de, de_pos, de_neg, log_brent, db, log_dxy, d_dxy, month, idf_rel_week, *_filled (tanpa episode).
 - `build_world_prices` · ✔ · komposit Pink Sheet per komoditas, log_w_idr = log_w_usd + rerata log JISDOR bulanan; dw; available_at.
-- `mark_episode_weeks` · ⬜ WP-06 · tambah kolom `episode` (0/1) ke drivers dari tabel episodes.
-- `find_episodes` · ⬜ WP-06 · Σ de 8 minggu ≥ 0,03; gabung tumpang tindih → episode_id, start_week, end_week, cum_dlog_e.
-- `fx_variation_table` · ⬜ WP-06 · jumlah & besar minggu depresiasi/apresiasi per tahun + total.
+- `build_world_variants` · ✔ · Tier 2: komposit harga dunia alternatif untuk komoditas ≥ 2 seri (bobot sama, seri tunggal; D-012).
+- `mark_episode_weeks` · ✔ · tambah kolom `episode` (0/1) ke drivers dari tabel episodes.
+- `find_episodes` · ✔ · Σ de 8 minggu ≥ 0,03; pemicu berjarak ≤ 8 minggu digabung → episode_id, start_week, end_week, cum_dlog_e (+ peak_week, n_trigger_weeks, in_period; D-107).
+- `fx_variation_table` · ✔ · per tahun 2018.. + total: n_dep/app/zero_weeks, mean_dep/app, sd_de, max/min, n_episode_weeks.
 
 #### src/data/reference.py
 - `haversine_km` · ✔ · jarak great-circle (km).
-- `build_concordance` · ⬜ WP-07 · 10 baris PIHPS–HS–Pink Sheet–FAOSTAT + confidence.
-- `build_exposure` · ⬜ WP-07 · rasio impor langsung (FAOSTAT; bawang putih via BPS/Comtrade), ordinal input impor, link harga dunia, source.
-- `build_regulation` · ⬜ WP-07 · gabung 3 sumber regulasi; tanggal tak terverifikasi → verification='unverified'.
-- `build_province_features` · ⬜ WP-07 · dist_hub_km, ln_dist_hub = ln(1+km), rice_sufficiency (butuh populasi, U14), n_kota (U15).
+- `build_concordance` · ✔ · 10 baris PIHPS–HS–Pink Sheet–FAOSTAT + confidence high/medium/low; seri/item yang tak ada di data → error.
+- `build_exposure` · ✔ · rasio impor langsung FAOSTAT rerata `association.import_ratio_years` (bawang putih via BPS/Comtrade + ATAP), ordinal input impor, link harga dunia, source, import_ratio_neraca (D-120).
+- `parse_regulation_dates` · ✔ · teks tanggal → (start, end, date_status); tidak menebak tanggal.
+- `classify_verification` · ✔ · teks verifikasi → verified | partial | confirmed | unverified.
+- `build_regulation` · ✔ · gabung 3 sumber regulasi per (komoditas, instrumen, zona, periode); tanggal tak terverifikasi → verification='unverified'.
+- `build_province_features` · ✔ · dist_hub_km, ln_dist_hub = ln(1+km), rice_sufficiency (NaN sampai penduduk & GKG ada, U14/U21), n_kota (U15), cek jarak_hub.
 
 #### src/data/panel.py
-- `build_region_panel` · ⬜ WP-08 · rerata log provinsi eligible per wilayah → indeks relatif minggu pertama + n_provinces.
+- `build_region_panel` · ✔ · rerata log provinsi eligible per wilayah (dua arah, tahan komposisi; D-106) → indeks relatif minggu pertama + n_provinces.
+- `build_variant_panels` · ✔ · Tier 2: panel mingguan + kelayakan setiap varian PIHPS non-representatif (11 varian, termasuk Minyak Goreng Curah).
+- `last_observation_panel` · ✔ · Tier 2: harga mingguan = hari teramati terakhir (dari `pihps_daily`).
+- `build_bapanas_panel` · ✔ · Tier 2: Panel Harga Bapanas bulanan → week (awal bulan), province_id, commodity, log_price (pemetaan `BAPANAS_TO_PIHPS`).
 
 #### src/data/qa.py
-- `flag_price_outliers` · ⬜ WP-10 · lonjakan satu hari |Δlog| > 0,5 yang berbalik (ditandai, tidak dihapus).
-- `check_import_totals` · ⬜ WP-10 · Σ BPS bulanan vs total tahunan.
-- `check_bapanas_bias` · ⬜ WP-10 · rerata bulanan PIHPS vs Panel Harga Bapanas.
-- `stage0_report` · ⬜ WP-10 · markdown laporan Tahap 0.
+- `flag_price_outliers` · ✔ · lonjakan satu hari |Δlog| > 0,5 yang berbalik (ditandai, tidak dihapus); data asli 59 hari.
+- `check_import_totals` · ✔ · Σ BPS bulanan vs total tahunan (USD) per HS8 × tahun; data asli 241/241 cocok.
+- `check_bapanas_bias` · ✔ · rerata bulanan PIHPS vs Panel Harga Bapanas (pemetaan `BAPANAS_TO_PIHPS`, D-110): bias_log, corr_dlog.
+- `coverage_table` · ✔ · cakupan per sumber (n_rows, start, end).
+- `stage0_report` · ✔ · markdown laporan Tahap 0 (cakupan, kelayakan, episode, variasi kurs, MDE + G-power, QA).
 
 ### 9.3 Lapisan features
 
 #### src/features/response.py
-- `shrink_deviations` · ⬜ WP-17 · τ² DL (+REML cek) per (komoditas, driver, h); tambah baris province shrunk=True.
-- `response_features` · ⬜ WP-17 · R4/R8/R12, W4/W8/W12, PT8, t_half, A8.
+- `shrink_deviations` · ✔ · τ² DL (+REML cek) per (komoditas, driver, h); tambah baris province shrunk=True; τ² = 0 → semua μ.
+- `response_features` · ✔ · R4/R8/R12, W4/W8/W12, PT8, t_half, A8 per (level, unit, commodity); provinsi = nasional + δ tersusut.
 
 #### src/features/clustering.py
-- `feature_matrix` · ⬜ WP-19 · 34 provinsi × (R & W pada h 4/8/12 komoditas fokus), tersusut, z-score.
-- `replicate_feature_matrices` · ⬜ WP-19 · satu matriks per rep dari placebo_stats / boot_replicates.
+- `feature_columns` · ✔ · daftar fitur (R semua komoditas fokus, W yang berpadanan harga dunia) × feature_horizons.
+- `feature_matrix` · ✔ · 34 provinsi × (R & W pada h 4/8/12 komoditas fokus), tersusut, z-score (opsi satuan respons).
+- `replicate_feature_matrices` · ✔ · satu matriks per rep dari placebo_stats / boot_replicates (EB per rep, butuh `se`).
 
 #### src/features/forecast.py
 (konstanta `FEATURE_GROUPS`: base / fx / id)
-- `origins` · ⬜ WP-25 · origin tiap 4 minggu 2021-01-04 .. freeze − h.
-- `build_features` · ⬜ WP-25 · (train, test) per origin; as-of join `available_at`; target p_{t+h} − p_t.
+- `origins` · ✔ · origin tiap 4 minggu 2021-01-04 .. minggu data terakhir − h.
+- `feature_table` · ✔ · tabel fitur semua (minggu × seri) + target `y_<h>`; harga dunia as-of `available_at` (kolom audit).
+- `split_origin` · ✔ · (train, test) satu origin dari feature_table: train t + h ≤ origin, test t = origin.
+- `build_features` · ✔ · (train, test) per origin; as-of join `available_at`; target p_{t+h} − p_t.
 
 ### 9.4 Lapisan models
 
 #### src/models/local_projection.py
-- `build_design` · ⬜ WP-13 · y^{(h)} dan regresor (de/dw + lag, db lag 0..4, musiman), within-transform per seri.
-- `fit_lp` · ⬜ WP-13 · OLS + SE cluster per minggu (`stats.regression.ols_cluster`).
-- `fx_self_response` · ⬜ WP-13 · γ(h) untuk PT = β/γ.
-- `national_profiles` · ⬜ WP-13 · loop komoditas × h 0..12 × {simetris, asimetris} → profiles level=national.
+- `build_design` · ✔ · y^{(h)} dan regresor (blok kurs `de*`/`dw*` + lag, `dp_l*`, `db_l0..4`, `idf_*`, `month_*`), within-transform per seri; opsi `elig`, `unit_col`, `price_col` (D-107).
+- `regressors` · ✔ · nama kolom regresor sebuah desain.
+- `fit_lp` · ✔ · OLS + SE cluster per minggu (`stats.regression.ols_cluster`) → driver, estimate, se, n_weeks, n_obs, n_clusters.
+- `fx_self_response` · ✔ · γ(h) untuk PT = β/γ (γ(0) = 1; data asli γ(4/8/12) = 1,44/1,32/1,03).
+- `national_profiles` · ✔ · loop komoditas × h × {simetris, asimetris} → profiles level=national (e, w, e_pos, e_neg, PT; se/ci PT = NaN sampai bootstrap); opsi `elig`, `horizons`, `commodities`; desain dibangun sekali per spesifikasi (D-118, ± 6 dtk).
 
 #### src/models/deviations.py
-- `demean_cross_section` · ⬜ WP-15 · log harga − rerata lintas provinsi per (minggu, komoditas).
-- `province_deviations` · ⬜ WP-15 · δ(i,r,h) per provinsi, Σ_r δ = 0.
-- `region_profiles` · ⬜ WP-15 · profil 7 wilayah dari panel_weekly_region (Tingkat B).
+- `demean_cross_section` · ✔ · log harga − rerata lintas provinsi teramati per (minggu, komoditas).
+- `province_deviations` · ✔ · δ(i,r,h) per provinsi dengan desain LP nasional (`_design_parts`), Σ_r δ = 0; driver e, w.
+- `region_profiles` · ✔ · profil 7 wilayah dari panel_weekly_region lewat `national_profiles` per wilayah (Tingkat B).
 
 #### src/models/event_study.py
-- `event_paths` · ⬜ WP-14 · Δ log harga 0..12 minggu setelah start_week tiap episode.
-- `placebo_bands` · ⬜ WP-14 · 499 jendela plasebo → placebo_lo/hi/p; gabung jadi artefak events.
+- `event_paths` · ✔ · Δ log harga p(s+h) − p(s−1), h 0..12, episode `in_period`; nasional = rerata selisih per provinsi eligible.
+- `placebo_starts` · ✔ · kandidat awal plasebo di luar [start−12, end+12] setiap episode (data asli: 164 minggu).
+- `placebo_bands` · ✔ · 499 jendela plasebo bersama (seed + 1401) → placebo_lo/hi/p, n_placebo, placebo_median; gabung jadi artefak events.
 
 #### src/models/clustering.py
-- `ward_labels` · ⬜ WP-19 · Ward Euclidean; k=1 → semua 0.
-- `select_k` · ⬜ WP-19 · silhouette maks asli vs p95 plasebo → cluster_selection.
+- `ward_labels` · ✔ · Ward Euclidean; k=1 → semua 0; label menurut kemunculan pertama.
+- `best_silhouette` · ✔ · (k*, s*) silhouette Ward maksimum atas k ≥ 2 (aturan sama dengan evaluation.planted).
+- `select_k` · ✔ · silhouette maks asli vs p95 plasebo → cluster_selection; tidak lolos → k = 1.
 
 #### src/models/association.py
-- `kendall_exact` · ⬜ WP-22 · Kendall τ PT(8) vs rasio impor, permutasi eksak, LOCO.
-- `meta_regression` · ⬜ WP-23 · meta-regresi efek acak δ ~ Z(r); interval max(bootstrap, CR2); jackknife.
-- `fe_interaction` · ⬜ WP-24 · FE komoditas×minggu, interaksi Δe × Z(r) (dapat dipotong).
+- `all_permutations` · ✔ · semua n! permutasi (int8, n ≤ 10) tanpa itertools.
+- `kendall_permutation_test` · ✔ · τ-b + p permutasi eksak dua sisi & satu sisi (statistik S).
+- `kendall_exact` · ✔ · E1: τ-b PT(8) nasional vs import_ratio_direct, p eksak 10!, interval jackknife LOCO → assoc level=commodity.
+- `meta_regression` · ✔ · meta-regresi efek acak δ ~ Z(r) (≤ 3 fitur); interval max(bootstrap, CR2); jackknife provinsi; H3 h=4.
+- `fe_interaction` · ✔ · FE komoditas×minggu + komoditas×provinsi, interaksi Δe × Z(r), SE cluster minggu (dapat dipotong).
 
 #### src/models/forecasting.py
 (konstanta `MODELS` = M0..M3)
-- `fit_predict` · ⬜ WP-26 · M0 nol, M1 ridge base, M2 + fx, M3 HGB + id; drop_groups untuk ablation.
-- `rolling_predictions` · ⬜ WP-26 · loop horizon × origin × model → prediksi (disimpan data/interim/forecast_preds.parquet).
+- `fit_predict` · ✔ · M0 nol, M1 ridge base (alpha CV waktu), M2 + fx, M3 HGB + id; drop_groups untuk ablation.
+- `rolling_predictions` · ✔ · loop horizon × origin × model (+ `M2_nofx`) → artefak `forecast_preds`; `run_m3`; lanjut dari checkpoint.
 
 ### 9.5 Lapisan evaluation
 
 #### src/evaluation/power.py
-- `compute_mde` · ⬜ WP-09 · MDE β & PT dari residual LP tanpa kurs, nasional & 7 wilayah, h 4/8/12.
+- `asymmetry_null_se` · ✔ · SE δ = β⁻ − β⁺ di bawah H0 asimetri (bentuk skor, tanpa β̂; D-115).
+- `compute_mde` · ✔ · MDE β & PT dari residual LP tanpa kurs, nasional & 7 wilayah, h 4/8/12 (+ unit, se_beta, gamma, n_weeks, n_obs; nasional + se_asym, mde_asym_beta, mde_asym_pt).
+- `null_se` · ✔ · SE cluster-minggu di bawah H0 (bentuk skor; β̂ tidak dihitung; D-107).
+- `gate_g_power` · ✔ · keputusan gerbang D-007 dari artefak mde + h2_confirmatory per komoditas (MDE asimetri PT(8) ≤ 0,5).
 
 #### src/evaluation/inference.py
-- `joint_bootstrap` · ⬜ WP-16 · moving-block 13 minggu, satu indeks per replikasi untuk semua seri.
-- `circular_placebo` · ⬜ WP-16 · np.roll de & dw ≥ 52 minggu; profil di bawah null.
-- `bootstrap_ci` · ⬜ WP-16 · CI = yang lebih lebar dari ±1,96·SE dan persentil bootstrap.
+- `joint_bootstrap` · ✔ · moving-block 13 minggu, satu indeks per replikasi untuk semua seri (selisih di-resample, level dibangun ulang).
+- `circular_placebo` · ✔ · geser de & dw ≥ 52 minggu; profil nasional + provinsi (h kunci) di bawah null, `se` dibawa.
+- `bootstrap_ci` · ✔ · CI = yang lebih lebar dari ±1,96·SE dan persentil bootstrap (PT: persentil saja).
 
 #### src/evaluation/heterogeneity.py
-- `heterogeneity_stats` · ⬜ WP-18 · Q, τ², I² per komoditas (h=8) + ρ̄ lintas komoditas.
-- `placebo_pvalues` · ⬜ WP-18 · p plasebo + q BH → artefak heterogeneity.
+- `heterogeneity_stats` · ✔ · Q, τ², I² (DL, tanpa susut) per komoditas (h=8, driver e) + ρ̄ lintas komoditas; butuh kolom `se` (juga di placebo_stats).
+- `placebo_pvalues` · ✔ · p plasebo satu sisi (1+#≥)/(1+R) + q BH per statistik; `reject` = Q dengan q ≤ fdr_q → artefak heterogeneity.
 
 #### src/evaluation/stability.py
-- `kmeans_agreement` · ⬜ WP-20 · K-Means (n_init=50) + ARI vs Ward.
-- `bootstrap_stability` · ⬜ WP-20 · ko-asignasi + Jaccard per klaster (weak < 0,6).
-- `compare_partitions` · ⬜ WP-20 · ARI vs zona HET, Jawa/luar Jawa, kuantil n_kota.
+- `kmeans_agreement` · ✔ · K-Means (n_init=50) + ARI vs Ward; k = 1 → ARI 1.
+- `bootstrap_stability` · ✔ · ko-asignasi + Jaccard per klaster (weak < 0,6); label netral K1, K2, ….
+- `compare_partitions` · ✔ · ARI vs zona HET, Jawa/luar Jawa, kuantil n_kota (dilewati bila tak ada), 7 wilayah.
 
 #### src/evaluation/planted.py
-- `recovery_curve` · ⬜ WP-21 · δ 0,1..0,5 × k_true 2/3 × planted_reps → recovery_rate, ari_mean.
+- `best_silhouette` · ✔ · (k*, s*) silhouette Euclidean Ward maksimum atas k ≥ 2.
+- `placebo_threshold` · ✔ · p95 silhouette maksimum matriks plasebo terstandardisasi (aturan select_k).
+- `plant_structure` · ✔ · k_true kelompok acak, pusat simpleks berorientasi acak, selisih RMS per fitur = δ (D-112).
+- `recovery_curve` · ✔ · δ 0,1..0,5 × k_true 2/3 × planted_reps pada matriks plasebo MENTAH → recovery_rate, ari_mean (+ n_reps, k_correct_rate, threshold); ward bisa disuntikkan.
+- `detection_limit` · ✔ · δ terkecil dengan recovery ≥ 0,8 per k_true (batas deteksi untuk findings).
 
 #### src/evaluation/forecast_eval.py
-- `evaluate` · ⬜ WP-27 · MAE/RMSE, rasio vs M1, DM HAC, n_origins, n_nonoverlap.
-- `ablation` · ⬜ WP-27 · MAE(M2 tanpa fx) − MAE(M2).
+- `n_nonoverlap` · ✔ · jumlah origin berjarak ≥ h minggu (pilih rakus).
+- `evaluate` · ✔ · MAE/RMSE per horizon × model × subset × (komoditas|wilayah|jalur H5|ALL), rasio vs M1, DM HAC pada selisih MAE per origin (lag ceil(h/4)−1), n_origins, n_nonoverlap; H5 Holm (keluarga 2 jalur, p NaN = 1).
+- `ablation` · ✔ · MAE(`M2_nofx`) − MAE(M2) per sel yang sama, subset all/large_move.
 
 #### src/evaluation/robustness.py
 (konstanta `TIER1` 6 cek, `TIER2` 4 cek)
-- `tier1` · ⬜ WP-28 · 6 cek wajib vs baseline.
-- `validation` · ⬜ WP-29 · V2 studi kasus 2026, V4 LP vs event study.
-- `tier2` · ⬜ WP-30 · opsional (dipotong pertama).
+- `fx_decomposition` · ✔ · de = a + b·d_dxy + ε → de_global (fitted) & de_idr (ε); attrs a, b, r2.
+- `tier1` · ✔ · 6 cek wajib vs baseline (h 4/8/12, driver e & w; sub-sampel lewat jendela [t−L−1, t+h]; LP bulanan); 21 dtk lokal.
+- `lp_implied_paths` · ✔ · respons LP nasional terimplikasi per jendela: Σ β_e(h−j)·de + Σ ω(h−j)·dw.
+- `validation` · ✔ · V4 (kelebihan event di atas median plasebo vs implikasi LP, per komoditas × h kunci) + V2 (episode tahun freeze; rasio MAE Task 4 subset case_study bila forecast_eval ada).
+- `tier2` · ✔ · opsional (dipotong pertama): varian & komposit harga dunia alternatif, agregasi observasi terakhir, Kendall dengan ordinal jalur (`PATH_ORDINAL`), outcome Bapanas bulanan; setiap cek jalan bila inputnya ada (D-116).
 
 ### 9.6 Mesin statistik (WP-12, semua ✔ dan dites di `tests/test_stats.py`)
 
 #### src/stats/regression.py
-- `ols_cluster` · ✔ · OLS + SE cluster CR1; buang baris NaN; return OLSResult(beta, se, n_obs, n_clusters, resid).
+- `ols_cluster` · ✔ · OLS + SE cluster CR1; buang baris NaN di y/X dan baris dengan grup kosong (D-119); return OLSResult(beta, se, n_obs, n_clusters, resid).
 - `newey_west_lrv` · ✔ · varians jangka panjang kernel Bartlett.
 - `diebold_mariano` · ✔ · DM dua sisi HAC (lag h−1) + koreksi HLN; stat > 0 = kandidat lebih akurat.
 
@@ -647,6 +714,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `reml_tau2` · ✔ · τ² REML (Fisher scoring).
 - `eb_shrink` · ✔ · μ + τ²/(τ²+s²)·(est − μ); τ²=0 → semua μ.
 - `bh_fdr` · ✔ · q-value Benjamini–Hochberg.
+- `holm` · ✔ · p terkoreksi Holm step-down (NaN dikeluarkan dari keluarga; pemanggil yang menentukan pengisian).
 
 ### 9.7 Pipelines (orkestrasi; satu modul = satu notebook = satu perintah CLI)
 
@@ -667,6 +735,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 
 #### src/pipelines/robustness.py
 - `run` · ✔ · tier1 + validation (+ tier2 bila diminta).
+- `tier2_inputs` · ✔ · siapkan input Tier 2 dari data mentah & artefak (`pihps_daily`, `exposure`); sumber yang tidak ada dilewati.
 
 #### src/pipelines/package.py
 - `collect_submission` · ✔ · file zip juri + daftar artefak ship yang hilang.
@@ -684,6 +753,8 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `recovery_curve` · ✔ · batas deteksi struktur tertanam (app hal. 3, nb02).
 - `forecast_ratios` · ✔ · rasio MAE vs M1 (nb04).
 - `forest` · ✔ · forest plot estimasi + interval (nb03, nb05).
+- `sensitivity_heatmap` · ✔ · peta kepekaan respons kumulatif per komoditas × unit dari `response_features` (app hal. 2).
+- `cluster_sizes` · ✔ · jumlah provinsi per klaster + stabilitas Jaccard, klaster lemah ditandai (app hal. 3).
 
 ---
 
@@ -712,6 +783,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 | `regulation_history` | riwayat HET/HAP/HPP (buatan tim; revisi 20 Nov, 23 baris) | 2020..2025 | regulasi (E2) | ya |
 | `hortikultura_produksi` | produksi bawang merah/putih, cabai besar/rawit per provinsi (ATAP Kementan) | 2020..2024 | rasio impor bawang putih, kecukupan | tidak |
 | `jarak_hub` | jarak ibu kota ke Jakarta/Surabaya/Makassar (buatan tim, 38 prov) | statis | cek silang dist_hub_km | ya |
+| `penduduk` | penduduk provinsi 2025 BPS (`optional`, belum diunggah, U103) | 2025 | kebutuhan beras → rice_sufficiency (U14) | tidak |
+| `n_kota` | kota sampel PIHPS per provinsi (isi manual Abi, `optional`) | 34 prov | n_kota (U15) | ya |
+| `gkg_beras` | faktor konversi GKG → beras per tahun (isi manual Abi, `optional`) | per tahun | rice_sufficiency (U21) | ya |
 
 Menunggu diunggah (lokasi dialokasikan, U103): `bps_kependudukan/penduduk_provinsi_2025.csv`,
 `bapanas/panelharga_konsumen_kabkota_snapshot_2026-10.csv`. Versi lama: `data/raw/_superseded/` (DATASETS.md).
@@ -724,6 +798,8 @@ Menunggu diunggah (lokasi dialokasikan, U103): `bps_kependudukan/penduduk_provin
 - Kelayakan: 337/340 layak. Tidak layak: cabai_rawit Aceh (1), Sumbar (3), Kepri (5) → cabai rawit dianalisis 31 provinsi.
 - Penggerak 2018–2026: sd(de) 0,0082; 259 minggu depresiasi / 200 apresiasi; de maks +0,063 (Mar 2020);
   corr(de, d_dxy) 0,52; 5 minggu tanpa fixing JISDOR (semua cuti Lebaran) diisi level sebelumnya (D-025).
+- Episode (`episodes`): 13 episode 2018–2026, 61 minggu; terbesar Mar–Mei 2020 (Σ 0,185). `panel_weekly_region` 32.480 baris;
+  minggu 2022-05-02 (Idulfitri) kosong di 5 wilayah → NaN.
 - `world_prices_weekly`: 3.096 baris (6 komoditas × 516 minggu); NaN hanya 3 minggu Nov 2026 (Pink Sheet Nov belum rilis).
 - FAOSTAT SUA tidak memuat bawang putih kering (hanya "Green garlic") → U5; pengganti: `hortikultura_produksi` + impor 070320.
 - `hortikultura_produksi`: total nasional cocok; 148/152 nilai 2023 sama dengan BPS (4 selisih pembulatan); ATAP berhenti 2024.
@@ -775,7 +851,7 @@ di `docs/DATASETS.md` §Asal file. Isi file tidak pernah diubah (hash di checksu
 | cabai_merah | Cabai Merah Keriting | control | – | domestic | – | 070960, 090421 |
 | cabai_rawit | Cabai Rawit Merah | control | – | domestic | – | 070960, 090421 |
 
-Varian, bobot pakan, dan grup fokus PROVISIONAL sampai G6 (D-011, D-012, D-013), kecuali minyak goreng (FINAL, D-023).
+Varian, bobot pakan, dan grup fokus FINAL sejak G6 2026-11-20 (D-011, D-012, D-013, D-109; minyak goreng D-023).
 
 ### 11.2 Wilayah
 34 provinsi lama (urutan & id PIHPS). 7 kelompok: Sumatra (1–10), Jawa (11–16), Bali–Nusa Tenggara (17–19),
@@ -801,8 +877,8 @@ Sulawesi; 2 = Sumatra lain, NTT, Kalimantan; 3 = Maluku, Papua.
 | shrinkage | tau2_method DL; tau2_check REML |
 | power | α 0,05; power 0,80; mde_threshold_pt8 0,5; mde_commodities [bawang_putih, gula_pasir, minyak_goreng] |
 | clustering | k_range 1..6; feature_horizons [4,8,12]; silhouette_placebo_pct 95; kmeans_restarts 50; jaccard_weak 0,6; planted_deltas 0,1..0,5; planted_reps 200 |
-| association | hubs [DKI Jakarta, Jawa Timur, Sulawesi Selatan]; max_features 3 |
-| forecast | horizons [4,8]; first_origin 2021-01-04; origin_step_weeks 4; large_move_pct 80; ridge_alphas [0.1,1,10,100]; feature_changes_weeks [1,4,8]; hgb {max_iter 300, lr 0,05, max_leaf_nodes 31}; bps_release_lag_days 45 |
+| association | hubs [DKI Jakarta, Jawa Timur, Sulawesi Selatan]; max_features 3; import_ratio_years [2018, 2023] (D-121) |
+| forecast | horizons [4,8]; first_origin 2021-01-04; origin_step_weeks 4; large_move_pct 80; ridge_alphas [0.1,1,10,100]; feature_changes_weeks [1,4,8]; hgb {max_iter 300, lr 0,05, max_leaf_nodes 31}; bps_release_lag_days 45; h5_correction holm; run_m3 true (D-121) |
 | scenario | shocks_pct [1,3,5] |
 
 ### 11.4 Notasi
@@ -944,9 +1020,29 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `tests/conftest.py` | alias `kagami` → `src/` tanpa instalasi; fixture `cfg`, `pihps` (skip bila mentah tak ada) |
 | `test_config.py` | desain komoditas (10; peran 6/3/1; 5 grup fokus), wilayah (34, 7, hub, zona), sumber ada, varian ada di PIHPS, seri Pink Sheet ada |
 | `test_loaders.py` | loader semua sumber pada data asli + kolom; BPS v2 memuat bawang putih; bentuk PIHPS; grup varian dari prefiks (regresi D-022); nama provinsi terpetakan 34 |
-| `test_stats.py` | OLS & SE cluster, DL/REML/EB, BH, block bootstrap, circular shift, DM |
+| `test_stats.py` | OLS & SE cluster (grup kosong dibuang), DL/REML/EB, BH (Holm di test_forecast_eval), block bootstrap, circular shift, DM |
 | `test_weekly.py` | status sel sintetis, grid, week_start, select_variants (asli & error), aggregate asli, aturan kelayakan |
-| `test_drivers.py` | grid penggerak, de & pengisian minggu libur, jendela Idulfitri, harga dunia (komposit, dw bulanan, available_at) |
+| `test_drivers.py` | grid penggerak, de & pengisian minggu libur, jendela Idulfitri, harga dunia (komposit, dw bulanan, available_at) & komposit alternatif Tier 2, episode (gabung, berdempetan, data asli) & tabel variasi kurs |
+| `test_panel.py` | panel 7 wilayah: indeks minggu pertama, tanpa lompatan saat komposisi berubah, hanya eligible, data asli |
+| `test_local_projection.py` | desain LP (nama kolom, within, sampel, y manual), β/β⁺/β⁻/ω sintetis dipulihkan, filter eligible, γ(h), jalur cepat national_profiles = loop build_design |
+| `test_power.py` | SE skor H0 = SE cluster bila β = 0, skala derau, SE asimetri = SE Wald selisih bila β⁺ = β⁻, gerbang G-power & H2, MDE data asli |
+| `test_event_study.py` | jalur event (lonjakan terlihat, tahan komposisi, horizon terpotong = NaN), kandidat plasebo, p plasebo, wilayah data asli |
+| `test_qa.py` | lonjakan satu hari vs perubahan level, total impor, bias Bapanas & pemetaan, laporan Tahap 0 |
+| `test_robustness.py` | Tier 1: jendela sampel, demean ulang sub-sampel, dekomposisi kurs, semua cek ada, β pulih (h=0), efek khusus COVID terdeteksi; validasi: implikasi LP, V4 cocok/berlawanan, V2 episode & forecast, pusat median plasebo; Tier 2: panel varian/observasi terakhir/Bapanas, β pulih, Kendall ordinal, komposit harga dunia |
+| `test_forecast_eval.py` | n_nonoverlap, Holm, kontrak forecast_eval, rasio M1 = 1, DM mendeteksi sinyal kurs, H5 (keluarga tetap 2), panel wilayah, ablation |
+| `test_planted.py` | struktur tertanam: simpleks δ·√F, z-score, silhouette, ambang plasebo ≈ 5% lolos, kurva naik & dapat diulang, batas deteksi |
+| `test_heterogeneity.py` | Q/τ²/I² = DL, ρ̄, wajib `se`, p plasebo & BH (sintetis); permutasi n!, Kendall eksak vs brute force, E1 10 komoditas |
+| `test_reference.py` | WP-07: concordance & confidence, rasio impor FAOSTAT (jendela tahun) & bawang putih dari perdagangan, tanggal & verifikasi regulasi, fitur provinsi |
+| `test_deviations.py` | WP-15: demean lintas provinsi, δ tertanam dipulihkan & Σ_r δ = 0, profil wilayah |
+| `test_inference.py` | WP-16: satu indeks blok per replikasi, plasebo geser ≥ 52 minggu (β ≈ 0), CI tidak menyempit |
+| `test_response.py` | WP-17: penyusutan EB (τ² = 0 → μ), fitur respons R/W/PT8/t_half/A8 |
+| `test_clustering.py` | WP-19/20: matriks fitur, Ward, pilih k vs plasebo, K-Means ARI, Jaccard, pembanding partisi |
+| `test_task2.py` | Task 2 end-to-end pada profil provinsi sintetis dengan 3 kelompok tertanam |
+| `test_association.py` | WP-23/24: meta-regresi & interaksi FE memulihkan koefisien tertanam |
+| `test_forecast.py` | WP-25/26: tanpa kebocoran as-of, origin, model M0–M3 & M2_nofx, checkpoint |
+| `test_synthetic.py` | generator sintetis Task 1 (`tests/synthetic.py`): skema = kontrak artefak, jawaban tertanam pulih |
+| `test_app_data.py` | halaman Streamlit terender dengan artefak sintetis berskema kontrak (WP-31) |
+| `test_package.py` | WP-32: isi zip juri, tanpa data tanpa hak redistribusi, artefak ship hilang dilaporkan, CLI jalan dari folder baru |
 | `test_runtime.py` | lokasi default, tulis out/baca artefak tahap sebelumnya, override raw, deteksi Kaggle, layout Colab |
 | `test_notebooks.py` | satu notebook per tahap, valid, sel 0–1 identik, tanpa output, sel setup jalan lokal |
 | `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis |
@@ -981,7 +1077,8 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 - Simpan notebook **tanpa output**. Sel 0–1 harus identik di semua notebook (tes). Bila mengubah sel 0/1, ubah keenamnya.
 - Mengedit notebook: pakai `nbformat` (baca → ubah `cell.source` → tulis) atau tool NotebookEdit; jangan edit JSON manual.
 - Beban: 00 & 03 ringan (lokal); 01, 02, 04 berat; 05 sedang–berat → Kaggle/Colab.
-- Urutan: 00 → (01 ∥ 04) → 02, 03 → 05. Input diambil dari folder Drive tim (§7.3), bukan dari output notebook lain.
+- Urutan: 00 → (01 ∥ 04) → 02, 03 → 05. Input diambil dari folder Drive tim (§7.3), bukan dari output notebook lain;
+  notebook menarik `REQUIRES` + `OPTIONAL` (panel provinsi, D-122). 01 ± 1,5–2 jam (± 7 dtk/replikasi, tanpa checkpoint).
 - Distribusi kode/data: `python -m kagami bundle [--raw]` → `dist/kagami_code.zip`,
   `dist/kagami_raw_PRIVATE.zip`. Dataset Kaggle `kagami-code` (**PRIVAT**; `kagami-raw` opsional karena data mentah di Drive tim) atau Google Drive
   `MyDrive/kagami/`. Pengunggahan = tugas `[HUMAN]`; agent tidak masuk ke akun Kaggle/Google user.
@@ -1047,13 +1144,13 @@ tidak boleh dikutip sebelum dicek.
 | D-004 | Clustering selalu jalan, dinilai vs plasebo | FINAL |
 | D-005 | Inferensi berbasis minggu (cluster minggu) | FINAL |
 | D-006 | Periode mulai 2018-01-01 (337/340 layak) | FINAL |
-| D-007 | Aturan G-power (MDE PT(8) > 0,5) | FINAL ambang; angka menunggu WP-09 |
+| D-007 | Aturan G-power (MDE PT(8) > 0,5) | FINAL; diputuskan D-115: LP tetap utama |
 | D-008 | PIHPS v2_merged kanonik (bagian "v1 untuk QA" diganti D-102) | FINAL |
 | D-009 | Mesin statistik numpy/scipy sendiri | FINAL |
 | D-010 | App hanya membaca artefak | FINAL |
-| D-011 | Varian representatif | PROVISIONAL (G6) |
-| D-012 | Komposit pakan 0,6 Maize + 0,4 Soybean meal | PROVISIONAL (G6) |
-| D-013 | 6 komoditas fokus dalam 5 grup (ayam+telur = pakan) | PROVISIONAL (G6) |
+| D-011 | Varian representatif | FINAL (G6) |
+| D-012 | Komposit pakan 0,6 Maize + 0,4 Soybean meal | FINAL (G6) |
+| D-013 | 6 komoditas fokus dalam 5 grup (ayam+telur = pakan) | FINAL (G6) |
 | D-014 | Urutan pemotongan lingkup | FINAL |
 | D-015 | Kebijakan kirim data turunan (bagian panel provinsi diganti D-104) | FINAL |
 | D-016 | Harga dunia bulanan → mingguan menurut bulan hari Senin | FINAL |
@@ -1072,9 +1169,26 @@ tidak boleh dikutip sebelum dicek.
 | D-100 | Input/output notebook lewat folder Drive tim (Drive API: pull/push) | FINAL |
 | D-101 | Data mentah di Drive tim (push_raw/pull_raw) + alokasi dataset 20 Nov + `_superseded/` | FINAL |
 | D-102 | `pihps_v1` dipensiunkan; QA v1 vs v2 dihapus dari WP-10 | FINAL |
-| D-103 | Branch hanya `main`, `dev`, `feat/<topik>`; semua lewat PR | FINAL |
+| D-103 | Branch hanya `main`, `dev`, `feat/...` (bagian nama, pesan commit, merge & hapus branch diganti D-108) | FINAL |
 | D-104 | Panel provinsi `panel_weekly` ikut paket juri (izin BI mencakup redistribusi turunan) | FINAL |
 | D-105 | Pembagian tugas Danen–Ardell ulang: tiap Task dipegang berdua, beban seimbang | FINAL |
+| D-106 | Panel wilayah: rerata dua arah tahan perubahan komposisi | FINAL |
+| D-107 | Konvensi episode, desain LP (`build_design`), SE MDE bentuk skor di bawah H0 | FINAL (teknis) |
+| D-108 | Branch `feat/<fungsi>` maks 3 kata; commit `<tipe>: <deskripsi>` tanpa kode; merge `--no-ff` ke dev; branch tidak dihapus | FINAL |
+| D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
+| D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
+| D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-122 | Notebook menarik `OPTIONAL` (panel provinsi) dari Drive; pipeline memperingatkan bila jatuh ke versi wilayah | FINAL (teknis) |
+| D-121 | Kunci `association.import_ratio_years` [2018, 2023] & `forecast.run_m3` (sakelar D-014) ditambahkan setelah G6 | FINAL · DEVIASI PRAREGISTRASI |
+| D-120 | Item FAOSTAT beras = "Rice, milled" + "Rice, broken" (bukan "Rice" = padi); rasio impor 0,033 | FINAL · DEVIASI PRAREGISTRASI |
+| D-109 | Pembekuan G6 (varian, pakan, grup fokus tanpa perubahan) + koreksi Holm H5 | FINAL |
+| D-110 | QA & event study: pemetaan Bapanas, ambang lonjakan di kode QA, jalur event tahan komposisi, plasebo bersama | FINAL (teknis) |
+| D-111 | Tier 1 (jendela sampel, bulanan, dekomposisi), heterogenitas (`se` wajib, p satu sisi, BH per statistik), Kendall (τ-b, p eksak, interval jackknife) | FINAL (teknis) |
+| D-116 | Robustness Tier 2: varian non-representatif dengan kelayakan sendiri, komposit pakan alternatif, observasi terakhir, ordinal jalur 2/1/0, outcome Bapanas bulanan vs PIHPS bulan sama | FINAL (teknis) |
+| D-115 | Gerbang G-power resmi: LP tetap utama; MDE asimetri (satuan PT) → H2 konfirmatori beras & daging sapi (keputusan Danen) | FINAL |
+| D-114 | Validasi V2/V4: kelebihan event di atas median plasebo vs implikasi LP (superposisi impuls), V2 = episode & origin tahun freeze, `placebo_median` di events | FINAL (teknis) |
+| D-113 | Evaluasi Task 4: DM pada MAE per origin (HAC lag ceil(h/4)−1), sel jalur H5, keluarga Holm tetap 2 (p NaN = 1), α H5 dari PREREGISTRATION, model ablation `M2_nofx` | FINAL (teknis) |
+| D-112 | Struktur tertanam: δ = selisih respons RMS per fitur antar setiap pasangan kelompok (simpleks acak), ditanam sebelum z-score pada matriks plasebo mentah | FINAL (teknis) |
 
 ---
 
@@ -1087,18 +1201,18 @@ tidak boleh dikutip sebelum dicek.
 | U5 | FAOSTAT tanpa bawang putih kering → `hortikultura_produksi` + impor BPS v2/Comtrade 070320 | 🟡 |
 | U6 | Regulasi direvisi 20 Nov; sisa: HET Minyakita, tanggal Perbadan 4/5/6/2024, Kepbadan 299/2025, HET beras premium | 🟡 |
 | U7 | Ketentuan BPS & FRED → mentah tidak dikirim | 🟡 |
-| U8 | Kelayakan uji asimetri (tergantung MDE) | 🔴 |
+| U8 | Kelayakan uji asimetri: H2 konfirmatori beras & daging sapi, lainnya deskriptif (D-115) | 🟢 |
 | U9 | Daya deteksi heterogenitas provinsi | 🔴 |
-| U10 | Varian representatif dibekukan di G6 | 🟡 |
+| U10 | Varian representatif dibekukan di G6 | 🟢 |
 | U11 | Kecukupan produksi hanya beras | 🟡 |
 | U12 | Bibliografi belum lengkap | 🔴 |
 | U13 | Izin BI diperoleh 2026-11-20, mencakup redistribusi data turunan (panel provinsi dikirim, D-104) | 🟢 |
 | U14 | Populasi provinsi: CSV penduduk 2025 sudah diunduh, menunggu diunggah (U103) | 🟡 |
 | U15 | `n_kota` per provinsi | 🔴 |
 | U16 | URL Pink Sheet berubah per rilis → `download` resolusi otomatis dari halaman World Bank | 🟢 |
-| U17 | Lonjakan harga satu hari | 🔴 (WP-10) |
+| U17 | Lonjakan harga satu hari: 59 hari ditandai, tidak dihapus | 🟢 |
 | U19 | Endpoint PIHPS vs "unduh resmi" | 🔴 `[HUMAN]` |
-| U20 | Pemetaan komoditas Bapanas → PIHPS | 🔴 (WP-10) |
+| U20 | Pemetaan komoditas Bapanas → PIHPS (9 pasangan; Minyakita dikecualikan) | 🟢 |
 | U21 | Konversi GKG → beras | 🔴 (WP-07) |
 | U22 | `carry_forward` tinggi = kekakuan harga; bukan filter | 🟡 |
 | U24 | Hosting mentah di Kaggle privat / Drive; folder Drive tim wajib dibagikan terbatas | 🟡 |
@@ -1133,6 +1247,10 @@ Selesai: U1, U2, U18, U23.
 14. **Membandingkan dengan rilis yang salah** memberi kesimpulan salah (selisih pembulatan dikira file rekayasa); selalu
     cocokkan tanggal rilis/versi sebelum menilai keaslian.
 12. **`find_spec` pada nama fungsi** melempar `ModuleNotFoundError` (dipakai di tes wiring dengan try/except).
+16. **Item FAOSTAT "Rice" = padi (gabah)**: impor ≈ 0 → rasio impor beras 10⁻⁶. Impor beras ada di "Rice, milled" /
+    "Rice, broken" (D-120). Periksa satuan & tahap olah setiap item FAOSTAT sebelum dipakai sebagai eksposur.
+15. **`pd.factorize` memberi kode −1 untuk NaN/NaT** → `np.bincount` crash, `np.add.at` diam-diam memasukkan ke grup
+    terakhir. Buang baris grup kosong sebelum agregasi per grup (D-119).
 
 ---
 

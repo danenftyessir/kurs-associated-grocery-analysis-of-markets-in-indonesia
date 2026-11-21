@@ -4,7 +4,7 @@
 eceran mencerminkan rupiah, dan apakah pantulannya ditentukan oleh komoditas atau lokasi? Nama sebelumnya: RupiahPass (D-028).
 
 Lomba Data Mining INDONERIS 2026 (Gelombang 2, batas 30 Nov 2026; target submit 29 Nov). Sumber kebenaran desain:
-`docs/Proposal v4 — RupiahPass ... .pdf` (nama lama proyek di judul proposal). Aturan lomba: `docs/Juknis Data Mining Indoneris 2026.pdf`.
+`docs/spec/Proposal v4 — RupiahPass ... .pdf` (nama lama proyek di judul proposal). Aturan lomba: `docs/spec/Juknis Data Mining Indoneris 2026.pdf`.
 
 ## 1. Pertanyaan pemandu
 Apakah kepekaan harga pangan eceran terhadap rupiah lebih ditentukan oleh **komoditasnya** atau oleh **lokasinya**?

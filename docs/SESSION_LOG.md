@@ -9,6 +9,101 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-21 — Danen: merge 6 branch Ardell, stage0 + WP-07 lokal, E1 sementara, D-120
+- Merge `feat/reference-tables` .. `feat/app-package` ke dev (0 konflik); simulasi: 276 lolos, 6 gagal (dokumen/paket, handoff PERMINTAAN ke Ardell).
+- `stage0` lokal 27 dtk: concordance 10, exposure 10, regulation 72 (5 unverified), province_features 34 (populasi/n_kota NaN).
+- Bug pemetaan: FAOSTAT "Rice" = padi → rasio beras 1e-6; diganti beras giling + patah (D-120, DEVIASI) → 0,033.
+- E1 sementara (PT(8) titik nasional): τ-b −0,045 (−0,65..0,56), p eksak 0,93 → tidak terdeteksi. Resmi menunggu `response_features` (P2).
+- Atas instruksi Danen, 7 tes merah pasca-merge diperbaiki langsung (dokumen sinkron untuk modul Ardell, 2 tes test_package); suite 287 lolos.
+- D-121: DEVIASI untuk kunci params Ardell (`import_ratio_years` [2018, 2023], `run_m3`); hash params baru di PREREGISTRATION.
+- D-122: notebook 01/03/04 kini menarik `panel_weekly` (sebelumnya Task 1 di Colab diam-diam hanya versi wilayah). Task 1 ± 7 dtk/replikasi.
+
+### 2026-11-21 — Danen: perbaikan `ols_cluster` grup kosong (D-119)
+- Laporan Ardell: perbaikan `ols_cluster` (macOS) menunggu Danen. Ditemukan regresi D-118: grup NaN/NaT → bincount crash.
+- `stats.regression.ols_cluster` membuang baris grup kosong; tes regresi di test_stats.py; suite 190 lolos; hasil nasional tidak berubah.
+- Handoff KEPUTUSAN ke Ardell (minta pesan error asli bila masalah macOS berbeda).
+
+### 2026-11-21 — Danen: LP cepat untuk bootstrap (D-118)
+- `local_projection`: desain dibangun sekali per komoditas × spesifikasi (`_design_parts`/`_design_arrays`, numpy); `ols_cluster` pakai bincount.
+- Hasil identik (profiles 598 baris selisih 0; Tier 1 ≤ 2e-12; mde ≤ 2e-15). `national_profiles` 28,7 → 5,9 dtk; Tier 1 21 → 17,5 dtk.
+- Bootstrap WP-16 Ardell ± 50 menit untuk B 499 (sebelumnya ± 3,2 jam). Handoff KEPUTUSAN ke Ardell. Tes baru di test_local_projection.py.
+
+### 2026-11-21 — Danen: WP-30 🔶 (robustness Tier 2)
+- `robustness.tier2` + input `panel.build_variant_panels`/`last_observation_panel`/`build_bapanas_panel`, `drivers.build_world_variants`,
+  `pipelines.robustness.tier2_inputs`; tes di test_robustness.py & test_drivers.py. D-116.
+- Data asli: 187 baris, ±40 dtk; baseline di dalam interval 184/186 sel (gula Premium β_e(4) 0,36 vs 0,69; Curah ω(8) 0,36 vs 0,21).
+- Kendall PT(8) vs ordinal jalur τ −0,03 (p 1,00). Bapanas bulanan = PIHPS bulanan (42/42).
+- Belum: keterpencilan alternatif (WP-23) & baseline τ import_ratio_direct (WP-07). Artefak `robustness` menunggu P2/P4.
+- Handoff ANGKA-MAKALAH ke Abi (Tier 1, V2/V4, Tier 2; sementara): docs/handoff/20261121-1500_danen-ke-abi_angka-robustness.md.
+- Aturan D-117: pesan commit/PR tanpa Co-Authored-By (CLAUDE.md §4.6).
+
+### 2026-11-21 — Danen: gerbang G-power diputuskan (D-115)
+- `mde` dihitung ulang (stage0): kolom lama identik; LP tetap utama (bawang putih 2,52, gula 0,90, minyak goreng 0,465).
+- MDE asimetri ditambahkan (`power.asymmetry_null_se`, kolom `mde_asym_*`); ambang H2 satuan PT (keputusan Danen).
+- H2 konfirmatori: beras 0,44, daging sapi 0,32; 8 komoditas lain deskriptif. U8 🟢. `stage0_report` memuat status H2.
+- Config beku utuh (hash konten LF = PREREGISTRATION; beda di disk karena autocrlf).
+- Handoff KEPUTUSAN ke semua: docs/handoff/20261121-1400_danen-ke-semua_g-power.md.
+- `mde` (versi 2, menimpa) dan `stage0_report` diunggah ke Drive tim `results/stage0/` lewat Chrome; bundle kode dibangun ulang.
+
+### 2026-11-21 — Danen: WP-29 🔶 (validasi V2 & V4)
+- `robustness.validation` + `lp_implied_paths`; `evaluate` kini punya subset `case_study` (origin 2026); `events` + `placebo_median`.
+- V4 data asli: implikasi LP di dalam interval kelebihan event 26/30 sel (17/18 fokus); tanda per episode ± 0,5 → arah antar-episode tidak konsisten.
+- V2 episode 12 (2026-05-18): 0/30 sel di luar pita plasebo. V2-forecast menunggu P4.
+- Bug desain ditemukan pada data asli: titik tengah pita plasebo bias oleh ekor (minyak goreng −0,09) → median (D-114).
+- Pipeline robustness: REQUIRES + episodes. Berikutnya: G-power 23 Nov → WP-18/21/22/27/29 asli.
+
+### 2026-11-21 — Danen: WP-27 🔶 (evaluasi DM & ablation, sintetis)
+- `forecast_eval.evaluate/ablation/n_nonoverlap` + `stats.meta.holm`; sel ALL/komoditas/wilayah/jalur H5, subset all & large_move.
+- DM pada MAE per origin (HAC lag ceil(h/4)−1); H5 = M2, h 8, large_move, 2 jalur, DM satu sisi + Holm (D-113).
+- Bug ditemukan tes: p NaN membuat keluarga Holm menyusut → kini dihitung 1. α H5 dari PREREGISTRATION (tak ada kunci beku).
+- Tes baru: test_forecast_eval (+ holm). Handoff ke Ardell: kontrak `forecast_preds` (model `M2_nofx`, large_move).
+- Berikutnya: G-power 23 Nov → WP-29 (V4 data asli) → WP-18/21/22/27 asli.
+
+### 2026-11-21 — Danen: WP-21 🔶 (struktur tertanam, sintetis)
+- `planted.recovery_curve` + `best_silhouette`, `placebo_threshold`, `plant_structure`, `detection_limit`; Ward bisa disuntikkan (WP-19 masih stub).
+- δ = selisih respons RMS per fitur antar pasangan kelompok (simpleks acak), ditanam sebelum z-score (D-112). Versi j·δ segaris ditolak: k = 3 tak pernah terpilih.
+- Sintetis (derau 0,3, 12 fitur): recovery δ 0,5 = 0,85 (k=2) / 0,90 (k=3); 200 replikasi ± 20 dtk. Tes baru: test_planted.
+- Handoff ke Ardell diperluas: `task2` meneruskan matriks plasebo mentah ke `recovery_curve`.
+- Berikutnya: G-power 23 Nov → WP-18/21/22 asli (P2/P3/WP-19) → WP-27 (P4) → WP-29.
+
+### 2026-11-21 — Danen: WP-28 ✅, WP-18 🔶, WP-22 🔶 (kode sintetis)
+- WP-28 `robustness.tier1` + `fx_decomposition`: 6 cek × h 4/8/12 × driver e/w; data asli 382 baris, 21 dtk. Pipeline robustness kini membaca panel & eligibility.
+- Daging ayam β_e(8): tanpa COVID & Brent ekstrem −0,96 (−2,05..0,14); komponen spesifik rupiah −1,89 (−3,02..−0,76) → bukan semata COVID.
+- Aturan Brent ekstrem membuang juga Mar 2026 (+0,40) dan Nov 2026 (parsial); d_dxy menjelaskan 27% varians de.
+- WP-18 `heterogeneity_stats/placebo_pvalues` dan WP-22 `kendall_exact` (+ `all_permutations`, `kendall_permutation_test`, 10! eksak) dites sintetis.
+- D-111 (konvensi teknis). Tes baru: test_robustness, test_heterogeneity. Handoff ke Ardell: `se` wajib di placebo_stats provinsi.
+- Berikutnya: G-power 23 Nov → WP-21 (sintetis) → WP-18/22 asli (P2/P3) → WP-27 (P4) → WP-29.
+
+### 2026-11-20 — Danen: WP-13 ✅, WP-14 ✅, WP-10 ✅
+- WP-13 `national_profiles` (+ elig/horizons/commodities): 598 baris, 23 dtk; task1 meneruskan eligibility. Catatan: daging ayam β_e(8) −1,67 (SE cluster) → cek tanpa 2020.
+- WP-14 `event_paths/placebo_starts/placebo_bands`: 1.690 baris nasional; kandidat plasebo 164 minggu unik (D-110).
+- WP-10 `qa.*` + `coverage_table` → `stage0_report`: 59 lonjakan ditandai; impor 241/241 cocok; bias Bapanas beras +0,107 log. U17, U20 🟢.
+- stage0 ulang dengan config beku: `mde` sama (G-power: LP tetap utama). stage0 kini berhenti di WP-07 (Ardell).
+- Konflik autostash setelah merge (5 dokumen) dipulihkan dari stash@{0}; isi = versi hasil merge + aturan git + G6.
+- Tes baru: test_event_study, test_qa. Handoff: docs/handoff/20261120-2353_danen-ke-ardell_lp-event-qa.md.
+
+### 2026-11-20 — Danen: WP-11 ✅ (G6, praregistrasi beku)
+- Keputusan G6 (Danen): varian D-011, pakan 0,6/0,4 D-012, 5 grup fokus D-013 → FINAL tanpa perubahan; H5 koreksi Holm (`params.forecast.h5_correction`, D-109).
+- Beku 2026-11-20 23:29 WIB; sha256 params 67e08398…, commodities 883eee0a… (PREREGISTRATION §5). β Task 1 belum dilihat.
+- U10 🟢. Berikutnya: ulang stage0 (setelah `git pull --autostash`) → national_profiles → WP-14 → WP-10.
+
+### 2026-11-20 — Danen: WP-06 ✅, WP-08 ✅, WP-09 ✅ (sementara), WP-13 🔶
+- WP-06 `drivers.find_episodes/mark_episode_weeks/fx_variation_table`: 13 episode (2018 ×3, 2020 ×2, 2021, 2022, 2023, 2024 ×2, 2025, 2026 ×2), 61 minggu; 259/200/5 minggu dep/app/nol.
+- WP-08 `panel.build_region_panel` (dua arah, tahan komposisi, D-106): 32.480 baris; minggu 2022-05-02 kosong di 5 wilayah.
+- WP-13 sebagian: `build_design`, `regressors`, `fit_lp`, `fx_self_response` (D-107); β data asli belum dilihat. γ(4/8/12) = 1,44/1,32/1,03.
+- WP-09 `power.compute_mde/null_se/gate_g_power`: MDE_PT(8) nasional bawang putih 2,52, gula 0,90, minyak goreng 0,465 → LP tetap utama (sementara, sebelum G6; D-007).
+- stage0: tabel WP-07 dipindah ke akhir; kini berhenti di WP-10. Tes baru: test_panel, test_local_projection, test_power (+ episode di test_drivers).
+- Handoff: docs/handoff/20261120-2230_danen-ke-ardell_p1-dan-lp.md. P1 + mde diunggah ke Drive tim lewat Chrome (data/processed: drivers_weekly, panel_weekly_region; results/stage0: episodes, fx_variation, mde). Belum: commit kode.
+- Nama branch kini `feat/<fungsi>` maks 3 kata, pesan commit tanpa kode (D-108; CLAUDE §4.6, PEMBAGIAN §8, HANDOFF); branch sesi ini `feat/episode-panel-mde`.
+- Aturan git diperbarui (D-108): commit `<tipe>: <deskripsi>`, merge `--no-ff` ke dev, branch `feat/` tidak dihapus; CLAUDE §4.6, DECISIONS, PEMBAGIAN §8, HANDOFF §6.
+- Berikutnya: G6 (WP-11) → ulang stage0 → `national_profiles` → WP-14 → WP-10 → G-power 23 Nov.
+
+### 2026-11-20 — Danen: data mentah & artefak Tahap 0 diunggah ke Drive tim
+- Lewat Chrome Danen (token Drive belum ada, U100): struktur `data/raw/<13 sumber>/`, `data/interim/`, `data/processed/`, `results/stage0/`.
+- Terunggah: 23/24 file mentah + checksums.csv; pihps_daily, panel_weekly, world_prices_weekly, eligibility. Folder dikonfirmasi dibagikan terbatas (U24).
+- `faostat/SUA_Crops_Livestock_E_Asia.zip` (14 MB > batas unggah ekstensi) diseret manual oleh Danen; dicek ada di Drive → 24/24 lengkap.
+- Handoff: docs/handoff/20261120-2010_danen-ke-semua_data-di-drive.md. CLAUDE.md §2 diperbarui.
+
 ### 2026-11-20 — Danen: pembagian tugas ulang Danen–Ardell (D-105)
 - Tiap Task dipegang berdua: Danen WP-06, 08, 09, 10, 11, 13, 14, 18, 21, 22, 27, 28, 29, 30; Ardell WP-07, 15, 16, 17, 19, 20, 23, 24, 25, 26, 31, 32.
 - Diperbarui: PEMBAGIAN_TUGAS §1/§3/§4/§5, papan WORKPLAN (PIC WP-15–18, 21, 22, 27), CLAUDE.md §2/§21, DECISIONS D-105.

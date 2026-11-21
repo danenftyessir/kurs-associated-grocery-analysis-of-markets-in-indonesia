@@ -67,3 +67,17 @@ def bh_fdr(p: np.ndarray) -> np.ndarray:
     out = np.empty(n)
     out[order] = np.clip(q, 0, 1)
     return out
+
+
+def holm(p: np.ndarray) -> np.ndarray:
+    """p terkoreksi Holm (step-down, monoton, dipotong ke 1). NaN dibiarkan NaN dan tidak dihitung dalam keluarga."""
+    p = np.asarray(p, float)
+    out = np.full(p.shape, np.nan)
+    ok = np.isfinite(p)
+    m = int(ok.sum())
+    if m == 0:
+        return out
+    idx = np.where(ok)[0][np.argsort(p[ok])]
+    adj = np.maximum.accumulate(p[idx] * (m - np.arange(m)))
+    out[idx] = np.clip(adj, 0, 1)
+    return out

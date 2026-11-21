@@ -36,8 +36,9 @@ PIPELINE = {
     "task4": task4.run,
     "robustness": robustness.run,
 }
-PIPELINE_REQUIRES = {"stage0": stage0.REQUIRES, "task1": task1.REQUIRES, "task2": task2.REQUIRES,
-                     "task3": task3.REQUIRES, "task4": task4.REQUIRES, "robustness": robustness.REQUIRES}
+_MODULES = {"stage0": stage0, "task1": task1, "task2": task2, "task3": task3, "task4": task4, "robustness": robustness}
+# input yang ditarik `drive-pull <tahap>`: wajib + opsional (panel provinsi, D-122)
+PIPELINE_REQUIRES = {k: tuple(m.REQUIRES) + tuple(getattr(m, "OPTIONAL", ())) for k, m in _MODULES.items()}
 
 
 def status(cfg) -> None:

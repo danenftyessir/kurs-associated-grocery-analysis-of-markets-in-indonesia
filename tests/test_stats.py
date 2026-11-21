@@ -30,6 +30,23 @@ def test_ols_cluster_se_larger_with_common_shock():
     assert se_week > 3 * se_row
 
 
+def test_ols_cluster_drops_missing_groups():
+    """Regresi: grup kosong (NaT/NaN) dibuang, bukan crash bincount atau masuk cluster lain."""
+    rng = np.random.default_rng(2)
+    n = 200
+    X = np.column_stack([np.ones(n), rng.normal(size=n)])
+    y = X @ np.array([1.0, 2.0]) + rng.normal(size=n)
+    weeks = np.repeat(np.datetime64("2020-01-06") + 7 * np.arange(20).astype("timedelta64[D]"), 10)
+    g = weeks.copy()
+    g[[5, 77]] = np.datetime64("NaT")
+    keep = ~np.isnat(g)
+    ref = ols_cluster(y[keep], X[keep], weeks[keep])
+    for groups in (g, np.where(keep, np.arange(n) // 10, np.nan)):
+        res = ols_cluster(y, X, groups)
+        assert res.n_obs == n - 2 and res.n_clusters == 20
+        assert np.allclose(res.beta, ref.beta) and np.allclose(res.se, ref.se)
+
+
 def test_dl_and_shrinkage():
     est = np.array([0.0, 0.0, 0.0, 0.0])
     var = np.full(4, 0.01)

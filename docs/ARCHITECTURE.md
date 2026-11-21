@@ -54,7 +54,7 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
   pipelines/        stage0 · task1 · task2 · task3 · task4 · robustness (REQUIRES + run(cfg)) · package (zip juri, bundle)
   viz/              plots: grafik bersama notebook & app
 app/                Home.py (hal. 1) + pages/2..6 + common.py
-tests/              config · loaders · stats · weekly · drivers · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
+tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)
 ```
@@ -142,6 +142,7 @@ Stub yang belum diimplementasikan melempar `NotImplementedYet` dengan pesan `WP-
 | `partition_compare` | results/task2/partition_compare.csv | task2 | WP-20 | ya | partition, ari, n_groups |
 | `planted_recovery` | results/task2/planted_recovery.csv | task2 | WP-21 | ya | delta, k_true, recovery_rate, ari_mean |
 | `assoc` | results/task3/assoc.csv | task3 | WP-22 | ya | level, feature, outcome, estimate, ci_low, ci_high, p_value, method, jackknife_min, jackknife_max |
+| `forecast_preds` | data/interim/forecast_preds.parquet | task4 | WP-26 | tidak | origin, horizon, model, region, commodity, y_true, y_pred, large_move |
 | `forecast_eval` | results/task4/forecast_eval.csv | task4 | WP-27 | ya | horizon, model, subset, commodity, region, mae, rmse, mae_ratio_vs_m1, rmse_ratio_vs_m1, dm_stat, dm_p, n_origins, n_nonoverlap |
 | `ablation` | results/task4/ablation.csv | task4 | WP-27 | ya | horizon, commodity, region, mae_full, mae_without_fx, delta_mae |
 | `robustness` | results/robustness.csv | robustness | WP-28 | ya | check_id, tier, commodity, horizon, estimate, ci_low, ci_high, baseline_estimate, note |

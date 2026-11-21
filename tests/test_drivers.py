@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kagami.data.drivers import build_national_drivers, build_world_prices, driver_weeks
+from kagami.data.drivers import build_national_drivers, build_world_prices, build_world_variants, driver_weeks
 
 
 @pytest.fixture(scope="module")
@@ -78,3 +78,84 @@ def test_world_prices(cfg, weeks):
     avail = mg.groupby("month")["available_at"].first()
     assert avail[pd.Timestamp("2024-03-01")] == pd.Timestamp("2024-04-02")
     assert avail[pd.Timestamp("2024-08-01")] == pd.Timestamp("2024-09-03")   # 1 Sep = Minggu
+
+
+# ---------------- WP-06: episode depresiasi & tabel variasi kurs ----------------
+from kagami.data.drivers import find_episodes, fx_variation_table, mark_episode_weeks  # noqa: E402
+
+
+def _drivers_from_de(weeks, de):
+    return pd.DataFrame({"week": weeks, "de": de})
+
+
+def test_find_episodes_merges_overlapping(cfg, weeks):
+    de = np.zeros(len(weeks))
+    de[0] = np.nan
+    de[100] = 0.035                     # pemicu minggu 100..107 (jendela 8 minggu)
+    de[110] = 0.031                     # pemicu 110..117: jarak 3 minggu dari pemicu terakhir -> digabung
+    de[200] = 0.02
+    de[203] = 0.02                      # Σ = 0.04 pada 203..207 -> episode terpisah
+    de[300] = 0.029                     # di bawah ambang -> bukan episode
+    eps = find_episodes(cfg, _drivers_from_de(weeks, de))
+    assert list(eps["episode_id"]) == [1, 2]
+    assert eps.loc[0, "start_week"] == weeks[100] and eps.loc[0, "end_week"] == weeks[117]
+    assert np.isclose(eps.loc[0, "cum_dlog_e"], 0.035)
+    assert eps.loc[1, "start_week"] == weeks[203] and eps.loc[1, "end_week"] == weeks[207]
+    assert np.isclose(eps.loc[1, "cum_dlog_e"], 0.04) and eps.loc[1, "peak_week"] == weeks[203]
+
+
+def test_find_episodes_adjacent_vs_separate(cfg, weeks):
+    de = np.zeros(len(weeks))
+    de[100] = 0.03                      # pemicu 100..107
+    de[116] = 0.03                      # pemicu 116..123: jarak 9 minggu > 8 -> terpisah
+    assert len(find_episodes(cfg, _drivers_from_de(weeks, de))) == 2
+    de[116] = 0
+    de[115] = 0.03                      # pemicu 115..: jarak 8 minggu (berdempetan) -> digabung
+    assert len(find_episodes(cfg, _drivers_from_de(weeks, de))) == 1
+    assert find_episodes(cfg, _drivers_from_de(weeks, np.zeros(len(weeks)))).empty
+
+
+def test_mark_episode_weeks_and_fx_table(cfg, weeks):
+    de = np.where(np.arange(len(weeks)) % 2 == 0, 0.001, -0.002)
+    de[100] = 0.05
+    drv = _drivers_from_de(weeks, de)
+    eps = find_episodes(cfg, drv)
+    drv = mark_episode_weeks(drv, eps)
+    assert drv["episode"].sum() == (eps["end_week"] - eps["start_week"]).dt.days.sum() / 7 + len(eps)
+    assert set(drv["episode"].unique()) <= {0, 1}
+    t = fx_variation_table(cfg, drv).set_index("period")
+    inperiod = drv[drv["week"] >= pd.Timestamp(cfg.params["period"]["start"])]
+    assert t.loc["total", "n_weeks"] == len(inperiod)
+    assert t.loc["total", "n_dep_weeks"] + t.loc["total", "n_app_weeks"] == len(inperiod)
+    assert np.isclose(t.loc["total", "mean_app"], -0.002)
+    assert t.drop(index="total")["n_weeks"].sum() == t.loc["total", "n_weeks"]
+    assert "2017" not in t.index                                     # buffer tidak dihitung
+
+
+def test_episodes_real_data(cfg):
+    from kagami.data.loaders import load_fred, load_jisdor
+    if not cfg.source_path("jisdor").exists():
+        pytest.skip("JISDOR mentah tidak ada")
+    drv = build_national_drivers(cfg, load_jisdor(cfg), load_fred(cfg, "brent"), load_fred(cfg, "dollar_index"))
+    eps = find_episodes(cfg, drv)
+    years = set(eps["start_week"].dt.year)
+    assert {2018, 2020, 2022, 2024, 2026} <= years                   # WORKPLAN WP-06
+    assert (eps["cum_dlog_e"] >= cfg.params["episodes"]["cum_depreciation"]).all()
+    t = fx_variation_table(cfg, mark_episode_weeks(drv, eps)).set_index("period")
+    assert t.loc["total", "n_dep_weeks"] == 259 and t.loc["total", "n_app_weeks"] == 200
+
+
+def test_world_variants(cfg, weeks):
+    """WP-30: komposit pakan alternatif (bobot sama, seri tunggal) hanya untuk komoditas >= 2 seri."""
+    months = pd.date_range(weeks[0].to_period("M").to_timestamp(), weeks[-1], freq="MS")
+    ps = pd.concat([pd.DataFrame({"month": months, "series": s, "usd_price": v})
+                    for s, v in {"Maize": 200.0, "Soybean meal": 400.0, "Palm oil": 900.0}.items()])
+    j = _daily(weeks, lambda i: 15000.0).rename(columns={"v": "idr_per_usd"})
+    w = build_world_variants(cfg, ps, j)
+    multi = {c for c, v in cfg.commodities.items() if len(v["pinksheet"] or {}) >= 2}
+    assert set(w["commodity"]) == multi == {"daging_ayam", "telur_ayam"}
+    assert set(w["variant"]) == {"equal_weights", "Maize", "Soybean meal"}
+    ay = w[w["commodity"] == "daging_ayam"].groupby("variant")["log_w_usd"].first()
+    assert np.isclose(ay["Maize"], np.log(200)) and np.isclose(ay["Soybean meal"], np.log(400))
+    assert np.isclose(ay["equal_weights"], 0.5 * np.log(200) + 0.5 * np.log(400))
+    assert cfg.commodities["daging_ayam"]["pinksheet"] == {"Maize": 0.6, "Soybean meal": 0.4}   # config tidak berubah

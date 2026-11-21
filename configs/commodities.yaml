@@ -1,6 +1,6 @@
 # 10 komoditas PIHPS. Kunci = id internal (snake_case), dipakai di semua artefak.
 # pihps_name      : nama baris level-1 di file PIHPS
-# variant         : varian level-2 representatif (aturan U10, PROVISIONAL sampai G6; lihat DECISIONS D-011)
+# variant         : varian level-2 representatif (aturan U10, FINAL di G6 2026-11-20; DECISIONS D-011)
 # role            : focus | control | other   (proposal §4.3)
 # focus_group     : grup konfirmatori H5 (daging_ayam & telur_ayam = satu grup "pakan")
 # exposure_path   : direct_import | imported_input | export_parity | domestic
@@ -17,7 +17,7 @@ beras:
   exposure_path: direct_import
   pinksheet: {"Rice, Thai 5%": 1.0}
   hs_codes: ["1006"]
-  faostat_items: ["Rice"]
+  faostat_items: ["Rice, milled", "Rice, broken"]   # bukan "Rice" (= padi/gabah, impor ~0); DEVIASI PRAREGISTRASI D-120
   unit: Rp/kg
 
 bawang_putih:
@@ -59,7 +59,7 @@ daging_ayam:
   role: focus
   focus_group: pakan
   exposure_path: imported_input
-  pinksheet: {"Maize": 0.6, "Soybean meal": 0.4}   # bobot pakan PROVISIONAL (D-012)
+  pinksheet: {"Maize": 0.6, "Soybean meal": 0.4}   # bobot pakan FINAL di G6 (D-012)
   hs_codes: ["0207", "1005", "2304"]
   faostat_items: ["Meat of chickens, fresh or chilled"]
   unit: Rp/kg
