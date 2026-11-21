@@ -228,3 +228,39 @@ hortikultura_produksi:
   retrieval: manual
   url: ""
   availability: annual
+
+penduduk:
+  optional: true     # file manual boleh belum ada; WP-07 mengisi NaN (U14/U15/U21)
+  path: bps_kependudukan/penduduk_provinsi_2025.csv
+  publisher: BPS
+  role: "Populasi provinsi -> kebutuhan beras -> rice_sufficiency (WP-07, U14); diunggah Danen (U103)"
+  coverage: "2025, 38 provinsi"
+  license: "Statistik publik BPS; mentah tidak diredistribusi"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bps.go.id/
+  availability: annual
+
+n_kota:
+  optional: true     # file manual boleh belum ada; WP-07 mengisi NaN (U14/U15/U21)
+  path: manual_pihps/n_kota.csv
+  publisher: "Disusun tim (daftar kota sampel PIHPS)"
+  role: "n_kota per provinsi untuk province_features (WP-07, U15); diisi Abi"
+  coverage: "34 provinsi"
+  license: "Tabel buatan tim CC BY 4.0"
+  redistribute: true
+  retrieval: manual
+  url: https://www.bi.go.id/hargapangan
+  availability: same_day
+
+gkg_beras:
+  optional: true     # file manual boleh belum ada; WP-07 mengisi NaN (U14/U15/U21)
+  path: manual_conversion/gkg_beras.csv
+  publisher: "Disusun tim (angka konversi resmi BPS)"
+  role: "Faktor konversi GKG -> beras untuk rice_sufficiency (WP-07, U21); diisi Abi"
+  coverage: "per tahun"
+  license: "Tabel buatan tim CC BY 4.0"
+  redistribute: true
+  retrieval: manual
+  url: https://www.bps.go.id/
+  availability: annual

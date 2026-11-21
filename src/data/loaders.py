@@ -299,6 +299,76 @@ def load_hortikultura(cfg: Config) -> pd.DataFrame:
     return out.dropna(subset=["province_id"]).reset_index(drop=True)
 
 
+# ---------------------------------------------------------------------------
+# Sumber manual untuk WP-07 (diisi Abi / diunggah Danen). File boleh belum ada:
+# loader mengembalikan tabel kosong berkolom lengkap dan WP-07 menandai hasilnya NaN (U14, U15, U21).
+# ---------------------------------------------------------------------------
+PENDUDUK_COLUMNS = ["province_raw", "province_id", "year", "population"]
+N_KOTA_COLUMNS = ["province_id", "province", "n_kota", "kota_list", "source_url"]
+GKG_BERAS_COLUMNS = ["year", "factor", "source_url", "note"]
+PENDUDUK_TOTAL_RANGE = (2.0e8, 4.0e8)    # penjaga satuan: total penduduk Indonesia ~280 juta jiwa
+
+
+def _missing_source(cfg: Config, key: str, columns: list[str]) -> pd.DataFrame | None:
+    """Tabel kosong berskema bila file sumber manual belum ada; None bila file ada."""
+    if cfg.source_path(key).exists():
+        return None
+    print(f"[loaders] {key}: {cfg.sources[key]['path']} belum ada -> tabel kosong (hasil turunan NaN)")
+    return pd.DataFrame(columns=columns)
+
+
+def load_penduduk(cfg: Config, year: int = 2025) -> pd.DataFrame:
+    """-> province_raw, province_id, year, population (jiwa). Pemekaran dipetakan ke induk (province_id bisa berulang).
+
+    Skema CSV BPS belum dipastikan (U103): kolom provinsi = nama berisi 'provinsi'; kolom jumlah = satu-satunya kolom
+    numerik, atau yang namanya memuat `year`. Satuan dibaca dari nama kolom ('ribu' x1.000, 'juta' x1.000.000) lalu
+    dijaga: total harus 200-400 juta jiwa, selain itu ValueError (lebih baik berhenti daripada rasio salah 1.000x).
+    """
+    empty = _missing_source(cfg, "penduduk", PENDUDUK_COLUMNS)
+    if empty is not None:
+        return empty
+    df = pd.read_csv(cfg.source_path("penduduk"), encoding="utf-8-sig")
+    prov = [c for c in df.columns if "provinsi" in c.lower() or "province" in c.lower()]
+    if not prov:
+        raise ValueError(f"penduduk: kolom provinsi tidak ditemukan di {list(df.columns)}")
+    num = [c for c in df.columns if c != prov[0] and pd.to_numeric(df[c], errors="coerce").notna().mean() > 0.8]
+    pick = [c for c in num if str(year) in c] or num
+    if len(pick) != 1:
+        raise ValueError(f"penduduk: kolom jumlah penduduk {year} ambigu: {pick or list(df.columns)}")
+    unit = pick[0].lower()
+    scale = 1e6 if "juta" in unit else 1e3 if "ribu" in unit else 1.0
+    out = pd.DataFrame({"province_raw": df[prov[0]], "province_id": map_province(cfg, df[prov[0]]),
+                        "year": year, "population": pd.to_numeric(df[pick[0]], errors="coerce") * scale})
+    out = out.dropna(subset=["province_id", "population"]).reset_index(drop=True)
+    total = out["population"].sum()
+    if not PENDUDUK_TOTAL_RANGE[0] <= total <= PENDUDUK_TOTAL_RANGE[1]:
+        raise ValueError(f"penduduk: total {total:,.0f} jiwa di luar rentang wajar; "
+                         f"periksa satuan kolom '{pick[0]}'")
+    return out
+
+
+def load_n_kota(cfg: Config) -> pd.DataFrame:
+    """-> province_id, province, n_kota, kota_list, source_url (isi manual Abi, 34 provinsi; U15)."""
+    empty = _missing_source(cfg, "n_kota", N_KOTA_COLUMNS)
+    if empty is not None:
+        return empty
+    df = pd.read_csv(cfg.source_path("n_kota"), encoding="utf-8-sig")
+    df["province_id"] = map_province(cfg, df["province"]) if "province_id" not in df else df["province_id"]
+    df["n_kota"] = pd.to_numeric(df["n_kota"], errors="coerce")
+    return df[N_KOTA_COLUMNS].reset_index(drop=True)
+
+
+def load_gkg_beras(cfg: Config) -> pd.DataFrame:
+    """-> year, factor, source_url, note: faktor konversi GKG -> beras per tahun (isi manual Abi; U21)."""
+    empty = _missing_source(cfg, "gkg_beras", GKG_BERAS_COLUMNS)
+    if empty is not None:
+        return empty
+    df = pd.read_csv(cfg.source_path("gkg_beras"), encoding="utf-8-sig")
+    df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
+    df["factor"] = pd.to_numeric(df["factor"], errors="coerce")
+    return df[GKG_BERAS_COLUMNS].dropna(subset=["year", "factor"]).reset_index(drop=True)
+
+
 # Registry: kunci sources.yaml -> loader. Dipakai oleh tests & `kagami status`.
 LOADERS = {
     "jisdor": load_jisdor,
@@ -321,4 +391,7 @@ LOADERS = {
     "jarak_hub": load_jarak_hub,
     "konkordansi_hs": load_konkordansi_hs,
     "hortikultura_produksi": load_hortikultura,
+    "penduduk": load_penduduk,
+    "n_kota": load_n_kota,
+    "gkg_beras": load_gkg_beras,
 }

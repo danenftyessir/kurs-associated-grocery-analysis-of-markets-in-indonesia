@@ -71,13 +71,15 @@ def run(cfg: Config) -> None:
 
     # --- tabel buatan tim (WP-07, Ardell) -- paling akhir: tidak dipakai langkah lain di tahap ini, ----
     # sehingga artefak Danen (P1: panel wilayah) tetap terbit walau WP-07 belum selesai.
-    write_artifact(cfg, "concordance", reference.build_concordance(cfg))
+    fao = loaders.load_faostat_sua(cfg)
+    write_artifact(cfg, "concordance", reference.build_concordance(cfg, loaders.load_pinksheet(cfg), fao))
     write_artifact(cfg, "exposure", reference.build_exposure(
-        cfg, loaders.load_faostat_sua(cfg), loaders.load_bps_import_monthly(cfg),
-        loaders.load_comtrade(cfg), loaders.load_neraca_beras(cfg)))
+        cfg, fao, loaders.load_bps_import_monthly(cfg), loaders.load_comtrade(cfg), loaders.load_neraca_beras(cfg),
+        loaders.load_hortikultura(cfg), loaders.load_konkordansi_hs(cfg)))
     write_artifact(cfg, "regulation", reference.build_regulation(
         cfg, loaders.load_het_hap_current(cfg), loaders.load_regulation_history(cfg),
         loaders.load_bapanas_het_settings(cfg)))
     padi = pd.concat([loaders.load_padi(cfg, 2024), loaders.load_padi(cfg, 2025)], ignore_index=True)
-    write_artifact(cfg, "province_features",
-                   reference.build_province_features(cfg, padi, loaders.load_konsumsi_beras(cfg)))
+    write_artifact(cfg, "province_features", reference.build_province_features(
+        cfg, padi, loaders.load_konsumsi_beras(cfg), loaders.load_penduduk(cfg), loaders.load_gkg_beras(cfg),
+        loaders.load_n_kota(cfg), loaders.load_jarak_hub(cfg)))
