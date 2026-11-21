@@ -238,7 +238,47 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Ardell
 
-(belum ada entri)
+### 2026-11-21 — Ardell: persiapan Colab notebook 01 & 04 (checkpoint Task 1, uji end-to-end)
+- Setelah merge Danen (`dev`): `joint_bootstrap`/`circular_placebo` + `task1.run` punya checkpoint & resume ke Drive (D-204); `tests/test_task1.py` menjalankan `task1.run` end-to-end pada artefak sintetis. Error SVD macOS belum tertutup oleh D-119 → handoff `20261121-2100_ardell-ke-danen_svd-macos.md` (tidak menghalangi Colab/Linux).
+- Handoff Danen `ols-cluster` dan `sinkron-dokumen` ditutup (dokumen §9, artefak, tes, D-121 sudah dikerjakan Danen di `dev`).
+
+### 2026-11-21 — Ardell: WP-31, WP-32 🔶 (app dan paket juri: persiapan sebelum artefak final)
+- `src/viz/plots.py` (+`sensitivity_heatmap`, `cluster_sizes`), halaman 2/3/4 dan Home diperluas; `tests/test_app_data.py` (semua halaman dengan artefak sintetis berskema kontrak) dan `tests/test_package.py` (isi zip, hak data, CLI dari folder ekstrak).
+- `tests/test_wiring.py`: `kagami.utils.todo` dikecualikan dari tes modul terpakai (semua stub sudah terimplementasi, pembantu itu tak dipakai lagi) — dicatat di handoff untuk Danen.
+- Sisa: artefak nyata, teks app dari Abi, findings, `package` tanpa `--allow-missing` dan uji jalan ulang G7 (28 Nov).
+
+### 2026-11-21 — Ardell: WP-23, WP-24 🔶 (meta-regresi provinsi, interaksi FE)
+- `models/association.py::meta_regression/fe_interaction` + `tests/test_association.py`; `pipelines/task3.py` meneruskan `elig`. Koefisien tertanam dipulihkan; CR2 ≈ SE model pada data homoskedastis; bootstrap hanya melebarkan interval.
+- Data asli: `fe_interaction` 0,3 dtk pada 154 ribu baris (hanya ln_dist_hub; penduduk & n_kota belum ada), belum ditafsirkan. D-203.
+- Berikutnya: WP-31 (app) → WP-32 (paket juri); run penuh P2/P3 setelah data Drive.
+
+### 2026-11-21 — Ardell: WP-19, WP-20 🔶 (clustering, pilih k, stabilitas, pembanding partisi)
+- `features/clustering.py`, `models/clustering.py`, `evaluation/stability.py`, `pipelines/task2.py` (menyesuaikan: matriks plasebo mentah untuk planted, baris K-Means, n_kota dari `province_features`); `tests/test_clustering.py`, `tests/test_task2.py` (end-to-end sintetis).
+- Kalibrasi: tanpa struktur, positif palsu seleksi k 1 dari 12 seed (≈ 5%); dengan struktur tertanam 3 kelompok → k = 3, ARI > 0,9, tidak ada klaster lemah. D-202. `response.shrink_deviations(check_reml=False)` untuk replikasi.
+- Berikutnya: WP-23 → WP-24 → WP-31 → WP-32.
+
+### 2026-11-21 — Ardell: WP-15, WP-16, WP-17 🔶 (deviasi provinsi, bootstrap & plasebo, EB & fitur respons)
+- `models/deviations.py`, `evaluation/inference.py`, `features/response.py` + `tests/test_deviations.py`, `test_inference.py`, `test_response.py`; `pipelines/task1.py` menyesuaikan pemanggil (est menerima harga dunia, elig ke deviasi, provinsi h kunci dalam replikasi).
+- Data asli (tanpa harga dunia, B = 3): nasional + provinsi 2,6 dtk/replikasi; deviasi provinsi 1.011 baris 0,6 dtk, Σ δ = 0, cabai rawit 31 provinsi; R8 nasional beras 0,084 = profil Danen.
+- Temuan: `np.linalg.pinv(X'X)` di `stats.ols_cluster` gagal ("SVD did not converge") pada satu desain bootstrap di macOS (numpy 2.3.5 & 2.5.5, matriks rank penuh, cond 60); `pinv(hermitian=True)` benar. Diminta ke Danen lewat handoff; uji lokal memakai workaround di skrip sementara. D-201.
+- Berikutnya: WP-19 → WP-20; run penuh task1 (Kaggle) setelah `world_prices_weekly` tersedia → P2.
+
+### 2026-11-20 — Ardell: ketahanan sesi Task 4 + handoff ke Danen
+- Catatan Danen (mekanik kerja): `forecast_preds` kini artefak `task4` (`ship=False`) yang di-push ke Drive; `rolling_predictions` punya `checkpoint`/`done` (run ulang melanjutkan); `task4.run` menyimpan tiap 10 origin.
+- Inventaris dataset (docs/arsip) +2 butir `Belum Lengkap` (n_kota, faktor GKG). Handoff: docs/handoff/20261120-2000_ardell-ke-danen_wp07-wp25-26-kontrak.md.
+
+### 2026-11-20 — Ardell: WP-25 ✅, WP-26 🔶 (fitur as-of + model M0–M3 rolling-origin)
+- `src/features/forecast.py` (`origins`, `feature_table`, `split_origin`, `build_features`) dan `src/models/forecasting.py` (`fit_predict`, `rolling_predictions`, model `M2_nofx` untuk ablation); `params.forecast.run_m3`.
+- `tests/test_forecast.py` + `synthetic_task4_inputs` di `tests/synthetic.py`. Uji kebocoran: train t+h ≤ origin, `available_at` ≤ minggu fitur, fitur minggu ≤ t0 tidak berubah saat data setelah t0 diacak.
+- Data asli (tanpa harga dunia): 75 origin h=8; M3 ≈ 1,5–2 dtk per origin. Run penuh menunggu `world_prices_weekly` & `drivers_weekly` (P1).
+- Label model untuk WP-27 (Danen): `M0`, `M1`, `M2`, `M3`, `M2_nofx`; kolom `province_id` (bila panel provinsi), `region`, `commodity`, `y_true`, `y_pred`, `large_move`.
+
+### 2026-11-20 — Ardell: WP-07 🔶 (tabel referensi: kode + tes sintetis) + generator sintetis Task 1
+- `src/data/reference.py`: `build_concordance/exposure/regulation/province_features` + `parse_regulation_dates`, `classify_verification`; `loaders.py`: `load_penduduk/n_kota/gkg_beras` (NaN-aman); `sources.yaml` +3 sumber `optional`; `params.association.import_ratio_years`; `stage0` memanggil dengan input baru.
+- Tes: `tests/test_reference.py`, `tests/test_synthetic.py` + `tests/synthetic.py` (panel provinsi & profil nasional dummy, jawaban tertanam); `test_loaders`/`test_config` disesuaikan.
+- Data asli: regulation = 72 baris dari 3 sumber (30 verified, 24 confirmed, 13 partial, 5 unverified); dist_hub_km dari koordinat crosswalk.
+- Belum divalidasi pada data asli: FAOSTAT, konkordansi, jarak_hub, penduduk belum ada lokal (butuh `drive-pull-raw`, U100); `n_kota` & `gkg_beras` menunggu Abi (U15, U21). D-200.
+- Berikutnya: WP-25 → kerangka WP-15/16/17 (sintetis); final WP-07 + P3 24 Nov.
 
 ---
 

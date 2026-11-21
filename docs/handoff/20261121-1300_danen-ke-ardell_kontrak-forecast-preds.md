@@ -3,7 +3,7 @@ dari: Danen
 ke: Ardell
 jenis: PERMINTAAN
 terkait: WP-26, WP-27, D-113
-status: terbuka
+status: diterima
 dibuat: 2026-11-21 13:00
 tenggat_respon: 2026-11-24
 ---
@@ -31,8 +31,8 @@ terutama nama model ablation `M2_nofx`.
   `ablation` melempar `ValueError`.
 
 ## Yang perlu dilakukan penerima
-- [ ] WP-26: `rolling_predictions` menghasilkan kolom & nama model di atas.
-- [ ] WP-26: `large_move` = |Δe 4 minggu| di origin > persentil `forecast.large_move_pct` data latih (sudah di docstring).
+- [x] WP-26: `rolling_predictions` menghasilkan kolom & nama model di atas.
+- [x] WP-26: `large_move` = |Δe 4 minggu| di origin > persentil `forecast.large_move_pct` data latih (sudah di docstring).
 - [ ] Bila nama/kolom lain lebih cocok untukmu, balas lewat handoff; saya sesuaikan `forecast_eval` (konstanta `ABLATION_MODEL`).
 
 Solusi sementara peminta: WP-27 dites dengan generator sintetis berskema sama (`tests/test_forecast_eval.py`).

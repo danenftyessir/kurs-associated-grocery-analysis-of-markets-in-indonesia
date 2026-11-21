@@ -166,3 +166,33 @@ def test_bootstrap_ci_widens_only(cfg):
     assert np.isclose(out.loc["3", "ci_low"], -0.196)                                # tanpa replikasi: tetap
     assert 0.5 < out.loc["4", "ci_low"] < 0.8 and 1.2 < out.loc["4", "ci_high"] < 1.5     # PT: persentil saja
     assert list(out.columns) == [c for c in prof.columns if c != "unit"]
+
+
+def _resume_check(cfg, fn):
+    """Run penuh == run yang dilanjutkan dari checkpoint pertama (indeks/RNG sama), tanpa mengulang rep selesai."""
+    drv = _drivers(cfg)
+    panel = _panel(cfg, drv)
+    calls = []
+
+    def est(pb, db, commodities=None):
+        calls.append(1)
+        return national_profiles(cfg, pb, db, None, horizons=[4], commodities=[COM])
+
+    full = fn(cfg, est, panel, drv, 4)
+    snaps = []
+    fn(cfg, est, panel, drv, 4, checkpoint=snaps.append, checkpoint_every=2)
+    assert len(snaps) == 2 and snaps[0]["rep"].nunique() == 2 
+    calls.clear()
+    resumed = fn(cfg, est, panel, drv, 4, done=snaps[0])
+    assert len(calls) == 2
+    keys = ["rep", "level", "unit", "commodity", "driver", "horizon"]
+    pd.testing.assert_frame_equal(resumed.sort_values(keys).reset_index(drop=True),
+                                  full.sort_values(keys).reset_index(drop=True))
+
+
+def test_bootstrap_resume_equals_full_run(cfg):
+    _resume_check(cfg, joint_bootstrap)
+
+
+def test_placebo_resume_equals_full_run(cfg):
+    _resume_check(cfg, circular_placebo)
