@@ -21,17 +21,19 @@ class OLSResult:
 def ols_cluster(y: np.ndarray, X: np.ndarray, groups: np.ndarray) -> OLSResult:
     """OLS dengan SE cluster-robust (CR1, koreksi G/(G-1)·(n-1)/(n-k)).
 
-    Di KAGAMI groups = minggu (proposal §5.2d: inferensi per minggu). Baris dengan NaN dibuang.
+    Di KAGAMI groups = minggu (proposal §5.2d: inferensi per minggu). Baris dengan NaN di y/X atau grup kosong
+    (NaN/NaT/None) dibuang.
     """
     y = np.asarray(y, dtype=float)
     X = np.asarray(X, dtype=float)
-    ok = np.isfinite(y) & np.isfinite(X).all(axis=1)
-    y, X, g = y[ok], X[ok], np.asarray(groups)[ok]
+    codes, uniq = pd.factorize(np.asarray(groups))
+    ok = np.isfinite(y) & np.isfinite(X).all(axis=1) & (codes >= 0)
+    y, X = y[ok], X[ok]
+    codes, uniq = pd.factorize(codes[ok])
     n, k = X.shape
     xtx_inv = np.linalg.pinv(X.T @ X)
     beta = xtx_inv @ (X.T @ y)
     u = y - X @ beta
-    codes, uniq = pd.factorize(g)
     G = len(uniq)
     Xu = X * u[:, None]
     scores = np.column_stack([np.bincount(codes, weights=Xu[:, j], minlength=G) for j in range(k)]) if k else \

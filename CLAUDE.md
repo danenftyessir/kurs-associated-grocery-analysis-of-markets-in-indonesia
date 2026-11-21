@@ -688,7 +688,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 ### 9.6 Mesin statistik (WP-12, semua ✔ dan dites di `tests/test_stats.py`)
 
 #### src/stats/regression.py
-- `ols_cluster` · ✔ · OLS + SE cluster CR1; buang baris NaN; return OLSResult(beta, se, n_obs, n_clusters, resid).
+- `ols_cluster` · ✔ · OLS + SE cluster CR1; buang baris NaN di y/X dan baris dengan grup kosong (D-119); return OLSResult(beta, se, n_obs, n_clusters, resid).
 - `newey_west_lrv` · ✔ · varians jangka panjang kernel Bartlett.
 - `diebold_mariano` · ✔ · DM dua sisi HAC (lag h−1) + koreksi HLN; stat > 0 = kandidat lebih akurat.
 
@@ -1003,7 +1003,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `tests/conftest.py` | alias `kagami` → `src/` tanpa instalasi; fixture `cfg`, `pihps` (skip bila mentah tak ada) |
 | `test_config.py` | desain komoditas (10; peran 6/3/1; 5 grup fokus), wilayah (34, 7, hub, zona), sumber ada, varian ada di PIHPS, seri Pink Sheet ada |
 | `test_loaders.py` | loader semua sumber pada data asli + kolom; BPS v2 memuat bawang putih; bentuk PIHPS; grup varian dari prefiks (regresi D-022); nama provinsi terpetakan 34 |
-| `test_stats.py` | OLS & SE cluster, DL/REML/EB, BH (Holm di test_forecast_eval), block bootstrap, circular shift, DM |
+| `test_stats.py` | OLS & SE cluster (grup kosong dibuang), DL/REML/EB, BH (Holm di test_forecast_eval), block bootstrap, circular shift, DM |
 | `test_weekly.py` | status sel sintetis, grid, week_start, select_variants (asli & error), aggregate asli, aturan kelayakan |
 | `test_drivers.py` | grid penggerak, de & pengisian minggu libur, jendela Idulfitri, harga dunia (komposit, dw bulanan, available_at) & komposit alternatif Tier 2, episode (gabung, berdempetan, data asli) & tabel variasi kurs |
 | `test_panel.py` | panel 7 wilayah: indeks minggu pertama, tanpa lompatan saat komposisi berubah, hanya eligible, data asli |
@@ -1148,6 +1148,7 @@ tidak boleh dikutip sebelum dicek.
 | D-108 | Branch `feat/<fungsi>` maks 3 kata; commit `<tipe>: <deskripsi>` tanpa kode; merge `--no-ff` ke dev; branch tidak dihapus | FINAL |
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
+| D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
 | D-109 | Pembekuan G6 (varian, pakan, grup fokus tanpa perubahan) + koreksi Holm H5 | FINAL |
 | D-110 | QA & event study: pemetaan Bapanas, ambang lonjakan di kode QA, jalur event tahan komposisi, plasebo bersama | FINAL (teknis) |
 | D-111 | Tier 1 (jendela sampel, bulanan, dekomposisi), heterogenitas (`se` wajib, p satu sisi, BH per statistik), Kendall (τ-b, p eksak, interval jackknife) | FINAL (teknis) |
@@ -1214,6 +1215,8 @@ Selesai: U1, U2, U18, U23.
 14. **Membandingkan dengan rilis yang salah** memberi kesimpulan salah (selisih pembulatan dikira file rekayasa); selalu
     cocokkan tanggal rilis/versi sebelum menilai keaslian.
 12. **`find_spec` pada nama fungsi** melempar `ModuleNotFoundError` (dipakai di tes wiring dengan try/except).
+15. **`pd.factorize` memberi kode −1 untuk NaN/NaT** → `np.bincount` crash, `np.add.at` diam-diam memasukkan ke grup
+    terakhir. Buang baris grup kosong sebelum agregasi per grup (D-119).
 
 ---
 

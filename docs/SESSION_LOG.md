@@ -9,6 +9,11 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-21 — Danen: perbaikan `ols_cluster` grup kosong (D-119)
+- Laporan Ardell: perbaikan `ols_cluster` (macOS) menunggu Danen. Ditemukan regresi D-118: grup NaN/NaT → bincount crash.
+- `stats.regression.ols_cluster` membuang baris grup kosong; tes regresi di test_stats.py; suite 190 lolos; hasil nasional tidak berubah.
+- Handoff KEPUTUSAN ke Ardell (minta pesan error asli bila masalah macOS berbeda).
+
 ### 2026-11-21 — Danen: LP cepat untuk bootstrap (D-118)
 - `local_projection`: desain dibangun sekali per komoditas × spesifikasi (`_design_parts`/`_design_arrays`, numpy); `ols_cluster` pakai bincount.
 - Hasil identik (profiles 598 baris selisih 0; Tier 1 ≤ 2e-12; mde ≤ 2e-15). `national_profiles` 28,7 → 5,9 dtk; Tier 1 21 → 17,5 dtk.
