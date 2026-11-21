@@ -11,7 +11,7 @@ from kagami.evaluation import heterogeneity, planted, stability
 from kagami.features import clustering as cluster_features
 from kagami.models import clustering
 from kagami.utils.config import Config
-from kagami.utils.io import read_artifact, require, write_artifact
+from kagami.utils.io import exists, read_artifact, require, write_artifact
 
 REQUIRES = ("profiles", "response_features", "placebo_stats", "boot_replicates")
 
@@ -32,11 +32,19 @@ def run(cfg: Config) -> None:
     k = int(sel.loc[sel["accepted"], "k"].iloc[0]) if sel["accepted"].any() else 1
 
     ward = clustering.ward_labels(X.to_numpy(), k)
-    _, ari = stability.kmeans_agreement(cfg, X.to_numpy(), ward, k)
+    km_labels, ari = stability.kmeans_agreement(cfg, X.to_numpy(), ward, k)
     coassign, clusters = stability.bootstrap_stability(
-        cfg, cluster_features.replicate_feature_matrices(cfg, boot), ward, k)
+        cfg, cluster_features.replicate_feature_matrices(cfg, boot), ward, k, ids=list(X.index))
+    kmeans = pd.DataFrame({"province_id": list(X.index), "method": "kmeans", "k": k,
+                           "cluster": [f"K{int(c) + 1}" for c in km_labels], "jaccard": float("nan"), "weak": False})
+    clusters = pd.concat([clusters, kmeans], ignore_index=True)
     clusters["ari_kmeans"] = ari
     write_artifact(cfg, "clusters", clusters)
     write_artifact(cfg, "coassign", coassign)
-    write_artifact(cfg, "partition_compare", stability.compare_partitions(cfg, pd.Series(ward, index=X.index)))
-    write_artifact(cfg, "planted_recovery", planted.recovery_curve(cfg, Xp))
+    n_kota = None
+    if exists(cfg, "province_features"):
+        n_kota = read_artifact(cfg, "province_features").set_index("province_id")["n_kota"]
+    write_artifact(cfg, "partition_compare",
+                   stability.compare_partitions(cfg, pd.Series(ward, index=X.index), n_kota=n_kota))
+    Xp_raw = cluster_features.replicate_feature_matrices(cfg, placebo, standardize=False)
+    write_artifact(cfg, "planted_recovery", planted.recovery_curve(cfg, Xp_raw))
