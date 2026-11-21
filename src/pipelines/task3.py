@@ -18,6 +18,7 @@ def run(cfg: Config) -> None:
     if exists(cfg, "panel_weekly"):
         parts.append(association.meta_regression(cfg, read_artifact(cfg, "profiles"),
                                                  read_artifact(cfg, "boot_replicates"), zf))
+        elig = read_artifact(cfg, "eligibility") if exists(cfg, "eligibility") else None
         parts.append(association.fe_interaction(cfg, read_artifact(cfg, "panel_weekly"),
-                                                read_artifact(cfg, "drivers_weekly"), zf))
+                                                read_artifact(cfg, "drivers_weekly"), zf, elig=elig))
     write_artifact(cfg, "assoc", pd.concat(parts, ignore_index=True))
