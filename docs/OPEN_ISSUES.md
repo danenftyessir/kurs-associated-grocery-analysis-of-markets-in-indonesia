@@ -13,7 +13,7 @@ Status: 🔴 terbuka · 🟡 default sementara dipakai · 🟢 selesai. Tutup is
 | U5 | FAOSTAT untuk bawang putih, bawang merah, cabai | Kelas ordinal bila tidak tersedia | 21 Nov | WP-07 | 🟡 Bawang merah & cabai ada di FAOSTAT; bawang putih kering tidak ada → **produksi kini tersedia** di `hortikultura_produksi` (ATAP 2020–2024) + impor BPS v2/Comtrade 070320 (2026-11-20) |
 | U6 | Kompilasi regulasi HET/HAP/HPP | Beras, minyak goreng, gula saja | 22 Nov | WP-07 | 🟡 Draf 2 tabel ada; banyak tanggal belum terverifikasi dari JDIH; revisi 2026-11-20 (30 & 23 baris, nomor BN & URL). Sisa: sumber HET Minyakita Rp15.700 (Kepmendag 1028/2024 vs Permendag 18/2024), tanggal diundangkan Perbadan 4/5/6/2024, teks Kepbadan 299/2025, regulasi HET beras premium |
 | U7 | Ketentuan penggunaan data BPS & FRED | Data mentah tidak disertakan | 22 Nov | WP-32 | 🟡 `redistribute` di sources.yaml |
-| U8 | Kelayakan uji asimetri | Deskriptif bila MDE > 0,5 | 23 Nov | WP-09, WP-13 | 🔴 |
+| U8 | Kelayakan uji asimetri | Deskriptif bila MDE > 0,5 | 23 Nov | WP-09, WP-13 | 🟢 2026-11-21: MDE asimetri PT(8) nasional dihitung (D-115); H2 konfirmatori beras (0,44) & daging sapi (0,32), 8 lainnya deskriptif |
 | U9 | Daya deteksi heterogenitas provinsi | Laporkan nol + batas deteksi | 24 Nov | WP-18, WP-21 | 🔴 |
 | U10 | Varian representatif per komoditas | Aturan tertulis, dibekukan di G6 | 20 Nov | WP-11 | 🟢 2026-11-20: dibekukan di G6 tanpa perubahan (D-011 FINAL, D-109) |
 | U11 | Data kecukupan produksi per provinsi | Hanya beras; fitur dikeluarkan untuk komoditas lain | 22 Nov | WP-07 | 🟡 produksi padi & konsumsi ada; lihat U14 |

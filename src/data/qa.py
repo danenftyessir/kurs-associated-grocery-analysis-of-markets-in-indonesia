@@ -118,7 +118,8 @@ def stage0_report(cfg: Config, sections: dict[str, pd.DataFrame]) -> str:
     """WP-10. Markdown -> artefak 'stage0_report': cakupan per sumber, kelayakan, episode, variasi kurs, MDE, QA.
 
     sections (semua opsional; bagian yang tidak ada dilewati): coverage, eligibility, episodes, fx_variation, mde,
-    g_power (satu baris: komoditas, mde_pt8, threshold, lp_secondary), price_outliers, import_totals, bapanas_bias.
+    g_power (satu baris: komoditas, mde_pt8, threshold, lp_secondary), h2_status (commodity, mde_asym_pt8,
+    h2_confirmatory; D-115), price_outliers, import_totals, bapanas_bias.
     """
     s = sections
     out = ["# Laporan Tahap 0 — KAGAMI", "",
@@ -146,6 +147,11 @@ def stage0_report(cfg: Config, sections: dict[str, pd.DataFrame]) -> str:
             out += [_md_table(g[["commodity", "mde_pt8", "threshold"]]),
                     f"Gerbang G-power (D-007): {'LP SEKUNDER' if sec else 'LP tetap UTAMA'} "
                     f"(syarat: ketiga komoditas > {g['threshold'].iloc[0]}).", ""]
+        if "h2_status" in s and len(s["h2_status"]):
+            h = s["h2_status"]
+            ok = ", ".join(h.loc[h["h2_confirmatory"], "commodity"]) or "tidak ada"
+            out += ["MDE asimetri β⁻ − β⁺ (satuan PT, h = 8, nasional; D-115): H2 konfirmatori bila ≤ ambang, "
+                    "selain itu deskriptif.", "", _md_table(h), f"H2 konfirmatori: {ok}.", ""]
     if "price_outliers" in s:
         po = s["price_outliers"]
         out += ["## 6. QA: lonjakan harga satu hari (ditandai, tidak dihapus; U17)", "",

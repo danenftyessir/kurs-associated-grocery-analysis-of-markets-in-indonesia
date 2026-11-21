@@ -288,3 +288,16 @@ rerata ± 1,96·sd/√n antar episode; ringkasan kesesuaian: porsi tanda sama da
 tahun kalender freeze dengan outcome lengkap (interval = pita plasebo relatif median) dan subset origin `case_study` (tahun freeze) di
 `forecast_eval` (rasio MAE vs M1, deskriptif; ci NaN, DM p dan n_origins di note). Task 4 hanya punya h 4/8 (params beku), jadi h = 12
 V2 hanya dari sisi episode. (5) Baris validasi memakai tier = 'V'. Bukan deviasi praregistrasi.
+
+### D-115 — Gerbang G-power resmi + status H2 · FINAL · 2026-11-21 (WP-09, G-power) · Danen
+(1) G-power (D-007) diputuskan dari `mde` yang dihitung ulang dengan config beku G6 (sha256 konten LF sama dengan PREREGISTRATION §5;
+hash di disk berbeda hanya karena `core.autocrlf`): MDE_PT(8) nasional bawang putih 2,52, gula pasir 0,90, minyak goreng 0,465. Syarat
+"ketiganya > 0,5" tidak terpenuhi → **LP mingguan tetap analisis utama**; event study & profil harga dunia pendamping; Task 4 tetap
+menjawab H5. (2) PREREGISTRATION menetapkan H2 konfirmatori hanya bila "MDE asimetri ≤ 0,5 (ditentukan di G-power)", tetapi MDE
+asimetri belum dihitung di WP-09. Ditambahkan `power.asymmetry_null_se` dan kolom `mde_asym_beta/mde_asym_pt` (nasional) di `mde`:
+SE selisih δ = β⁻ − β⁺ pada h dalam bentuk skor di bawah H0 asimetri, sehingga estimasi β̂⁺/β̂⁻ tidak dipakai. (3) **Keputusan Danen:**
+ambang 0,5 dibaca dalam **satuan PT** (MDE_asym/γ(8)), sama dengan satuan ambang G-power yang dibekukan (`mde_threshold_pt8`).
+Alternatif ditolak: satuan β (lebih konservatif); perbedaan hanya pada beras (0,59 dalam β, 0,44 dalam PT). Hasil (PT(8)): daging
+sapi 0,32 dan beras 0,44 → **H2 konfirmatori**; minyak goreng 1,01, telur 1,51, gula 1,70, daging ayam 2,66, bawang merah 4,66,
+bawang putih 6,15, cabai merah 7,46, cabai rawit 9,34 → H2 deskriptif. Ini pelaksanaan aturan praregistrasi (bukan deviasi);
+penafsiran satuan dicatat terbuka di makalah. U8 🟢.
