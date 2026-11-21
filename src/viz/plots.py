@@ -30,6 +30,22 @@ def response_curve(profiles: pd.DataFrame, commodity: str, level: str, unit: str
     return fig
 
 
+def sensitivity_heatmap(features: pd.DataFrame, level: str, metric: str = "R8") -> go.Figure:
+    """Peta kepekaan: respons kumulatif `metric` (R4/R8/R12/W8/PT8) per komoditas x unit pada satu level
+    (artefak `response_features`; provinsi/wilayah). Sel kosong = tidak tersedia."""
+    m = features[features["level"] == level].pivot(index="commodity", columns="unit", values=metric)
+    return px.imshow(m, color_continuous_scale="RdBu_r", color_continuous_midpoint=0, aspect="auto",
+                     labels=dict(color=metric), title=f"{metric} per komoditas dan {level} ({CAUSAL_NOTE})")
+
+
+def cluster_sizes(clusters: pd.DataFrame, method: str = "ward") -> go.Figure:
+    """Jumlah provinsi per klaster dengan stabilitas Jaccard (artefak `clusters`); klaster lemah ditandai."""
+    d = clusters[clusters["method"] == method].groupby("cluster").agg(
+        provinsi=("province_id", "size"), jaccard=("jaccard", "mean"), lemah=("weak", "max")).reset_index()
+    return px.bar(d, x="cluster", y="provinsi", color="lemah", hover_data=["jaccard"],
+                  title=f"Ukuran & stabilitas klaster ({method}); lemah = Jaccard < ambang")
+
+
 def fx_drivers(drivers: pd.DataFrame, episodes: pd.DataFrame | None = None) -> go.Figure:
     """Kurs JISDOR mingguan (Rp/USD) dengan arsiran episode depresiasi (artefak `drivers_weekly`, `episodes`)."""
     fig = go.Figure(go.Scatter(x=drivers["week"], y=np.exp(drivers["log_e"]), name="JISDOR (rerata mingguan)"))

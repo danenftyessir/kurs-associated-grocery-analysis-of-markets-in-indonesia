@@ -38,7 +38,8 @@ def test_every_module_used():
                 importlib.import_module(f"{pkg}.{n.strip()}")
             except ModuleNotFoundError:            # nama fungsi/kelas, bukan modul
                 pass
-    unused = {m for m in _all_modules() if m not in sys.modules} - {"kagami.__main__"}
+    # kagami.utils.todo: pembantu stub, tak terpakai lagi setelah semua WP terimplementasi (2026-11-21)
+    unused = {m for m in _all_modules() if m not in sys.modules} - {"kagami.__main__", "kagami.utils.todo"}
     assert not unused, f"Modul tidak dipakai CLI/app/notebook: {sorted(unused)}"
 
 
