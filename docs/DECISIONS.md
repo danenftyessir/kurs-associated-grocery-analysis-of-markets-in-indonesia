@@ -331,3 +331,11 @@ Hasil identik pada data asli: `national_profiles` selisih estimasi 0 dan SE 0 (5
 Runtime `national_profiles` 28,7 → **5,9 dtk**; Tier 1 21 → 17,5 dtk. Dampak: bootstrap/plasebo WP-16 (Ardell) yang memanggil
 `national_profiles` per replikasi ± 50 menit untuk B = 499 (sebelumnya ± 3,2 jam). Tes `test_national_profiles_fast_path_equals_design_loop`,
 `test_build_design_y_matches_manual`.
+
+### D-119 — `ols_cluster` membuang baris dengan grup kosong · FINAL (teknis) · 2026-11-21 (WP-12) · Danen
+Sejak D-118 skor cluster dihitung dengan `np.bincount` pada kode `pd.factorize`; kode −1 (grup NaN/NaT/None) membuat bincount
+melempar `ValueError` ("must have no negative elements"). Sebelum D-118, `np.add.at` dengan indeks −1 diam-diam menambahkan
+baris itu ke cluster terakhir (SE sedikit salah). Kini baris dengan grup kosong dibuang bersama baris NaN di y/X, lalu kode
+cluster difaktorkan ulang. Hasil LP nasional, Tier 1, dan `mde` tidak berubah (desain nasional tidak punya minggu kosong).
+Dilaporkan Ardell sebagai masalah `ols_cluster` (di macOS); penyebab persisnya di mesin Ardell belum dikonfirmasi.
+Tes `test_ols_cluster_drops_missing_groups`.
