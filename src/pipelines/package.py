@@ -14,7 +14,7 @@ from pathlib import Path
 from kagami.utils.artifacts import ARTIFACTS
 from kagami.utils.config import Config
 
-CODE_GLOBS = ("pyproject.toml", "README.md", "configs/*.yaml", "src/**/*.py", "data/reference/*.csv",
+CODE_GLOBS = ("pyproject.toml", "requirements.txt", "README.md", "configs/*.yaml", "src/**/*.py", "data/reference/*.csv",
               "data/reference/*.geojson", "notebooks/*.ipynb")
 SUBMISSION_GLOBS = CODE_GLOBS + ("app/**/*.py", ".streamlit/config.toml", "tests/**/*.py", "docs/*.md")
 

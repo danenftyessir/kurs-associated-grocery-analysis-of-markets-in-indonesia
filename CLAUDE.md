@@ -101,7 +101,7 @@ bukan kegagalan. k = 1, asosiasi nol, rasio MAE ≈ 1 adalah hasil sah. Tabel "J
 
 ## 2. Status saat ini (perbarui setiap akhir sesi)
 
-Tanggal acuan: 2026-11-23. Papan lengkap: `docs/WORKPLAN.md`.
+Tanggal acuan: 2026-11-24. Papan lengkap: `docs/WORKPLAN.md`.
 
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-06 (13 episode), WP-08 (panel 7 wilayah),
@@ -156,8 +156,11 @@ Tanggal acuan: 2026-11-23. Papan lengkap: `docs/WORKPLAN.md`.
 - **Task 4 (WP-27, 2026-11-23):** M2/M1 MAE 1,014 (h 4) / 1,017 (h 8), DM p 0,001 / 0,006 → fitur kurs tidak memperbaiki prediksi;
   H5 tidak didukung (M2/M1 h 8 large_move 1,12 kedua jalur, Holm 1,0; hanya 8 origin large_move). Tahan terhadap ridge per
   komoditas (D-128). `robustness`: V2 forecast M2/M1 origin 2026 1,005; V4 26/30 sel cocok.
+- **App daring & G7 ulang (D-135, 2026-11-24):** https://kagami.streamlit.app membaca artefak dari repo; 23 artefak yang dibaca app
+  (± 1,4 MB, `ship=True`) kini di-track git (`.gitignore`), jadi artefak yang berubah harus ikut di-commit. `dist/` dibangun ulang
+  (`bundle` 77 file, `package` 178 file 47,6 MB); Tingkat A 6/6 halaman dari zip baru. App live terisi setelah perubahan ini di-push.
 - **Berikutnya — Danen (semua jalur):** push pekerjaan lewat `feat/` (remote `dev` maju; U102 selesai 2026-11-23, D-133);
-  makalah & video saat dilanjutkan (WP-33/34). Pembekuan hasil 27 Nov.
+  unggah ulang `kagami_code.zip` (2026-11-24) ke `MyDrive/kagami/`; makalah & video saat dilanjutkan (WP-33/34). Pembekuan hasil 27 Nov.
   Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
 - **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + token Drive per anggota (U100),
@@ -212,7 +215,7 @@ non-teknis). User sesi ini bisa salah satu dari mereka; bila belum jelas, **tany
 
 ### 3.3 Selesai
 0. **Sinkronkan dokumen** menurut §3.4 untuk SETIAP perubahan sesi ini (kode, config, data, keputusan, proses).
-1. `pytest` hijau (seluruh suite; ± 1 menit) — termasuk `tests/test_docs_sync.py` yang menolak dokumen basi.
+1. `pytest` hijau (seluruh suite; ± 8–9 menit di mesin Danen, didominasi tes data asli) — termasuk `tests/test_docs_sync.py` yang menolak dokumen basi.
 2. Status WP ✅ di papan + perbarui bagian WP (angka penting, catatan hilir).
 3. Perbarui §2 dan §9 dokumen ini (fungsi yang kini ✔).
 4. Entri baru di atas **bagian anggota sendiri** di `docs/SESSION_LOG.md` (template §26.1).
@@ -364,7 +367,7 @@ Aturan tim (permintaan Danen, 2026-11-20; diperbarui: command hanya atas permint
 datmin/
 ├── CLAUDE.md                 dokumen ini
 ├── README.md                 ringkasan untuk manusia/juri (cara jalan, hak data)
-├── .gitignore                mentah/turunan PIHPS/results tidak di-track (kecuali checksums, manual_regulation, findings.md)
+├── .gitignore                mentah/turunan PIHPS/results tidak di-track (kecuali checksums, manual_regulation, findings.md, 23 artefak app D-135)
 ├── pyproject.toml            dependensi, package-dir, daftar packages, pytest
 ├── configs/
 │   ├── params.yaml           SEMUA angka analisis (dibekukan di G6)
@@ -1128,7 +1131,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_docs_sync.py` | dokumen hidup tidak basi: tautan & path ada, papan WP vs stub, §2 vs papan, ID D-/U- ada, kunci `params.*` ada, sumber/komoditas/notebook/subpaket/tes terdokumentasi (§3.4) |
 
 ### 16.2 Menjalankan
-- Semua: `python -m pytest -q` (~1 menit). Subset: `python -m pytest -q tests/test_weekly.py -k eligibility`.
+- Semua: `python -m pytest -q` (± 8–9 menit; 334 tes pada 2026-11-24). Subset: `python -m pytest -q tests/test_weekly.py -k eligibility`.
 - Tes yang butuh mentah di-skip otomatis bila mentah tidak ada (paket juri).
 
 ### 16.3 Pola tes yang disarankan
@@ -1256,6 +1259,7 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-135 | Deploy app: 23 artefak yang dibaca app (± 1,4 MB, ship=True) di-track git; hal. 6 tidak menunggu robustness; `requirements.txt` di paket | FINAL (teknis) |
 | D-134 | Tampilan app (PLAN.md §18): palet tervalidasi `viz/style.py`, peta Indonesia offline (geoBoundaries ODbL, sumbu kartesius), provinsi = deviasi tersusut | FINAL (teknis) |
 | D-133 | U102: tumpang tindih konkordansi HS diuji pada 2023 (Comtrade API publik vs BPS bulanan) → 14/15 kode cocok persis | FINAL (teknis) |
 | D-132 | U106: p meta-regresi = max(CR2, bootstrap sisi) konsisten interval + q BH; ARI NaN saat k = 1; τ² REML di `heterogeneity` | FINAL (teknis) |

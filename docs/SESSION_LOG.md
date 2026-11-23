@@ -9,6 +9,15 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-24 — Danen: analisis progres + perbaikan deploy app (D-135), G7 ulang
+- Analisis: semua WP analisis ✅; app live kagami.streamlit.app kosong (6 halaman "Menunggu hasil"); zip `dist/` basi (sebelum D-134).
+  Rawan dikutip berlebihan: daging ayam β_e bertanda terbalik & tidak tahan Tier 1; 4/90 sel nasional ≈ harapan null; G-het daging ayam
+  tepat q 0,050; V4 kesamaan tanda 0,51; Task 4 M0 < M1 untuk 5/10 komoditas, `M2_nofx` = M1, large_move 8 origin.
+- `.gitignore` membuka 23 artefak yang dibaca app (± 1,4 MB, ship=True); hal. 6 `findings` terpisah dari `robustness`; `package.CODE_GLOBS`
+  + `requirements.txt`. Salinan bersih (file git saja) & zip juri baru: 6/6 halaman AppTest tanpa exception/"Menunggu hasil".
+- `bundle` 77 file, `package` 178 file 47,6 MB tanpa artefak hilang. Belum: push ke GitHub (app live baru terisi setelahnya),
+  unggah ulang `kagami_code.zip` ke Drive, rapikan 24 handoff berstatus terbuka.
+
 ### 2026-11-23 — Danen: eksekusi PLAN.md §18 (app, D-134)
 - `src/viz/style.py` baru; `plots` + `region_map`, `silhouette_threshold`, `scenario_paths`; halaman 2–5 ditata ulang; `app/common.py`
   + `picker`/`reset_button`/`table`/`load_geo`/`unit_names`; tes `test_viz` (+4).

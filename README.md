@@ -520,7 +520,7 @@ diketahui di `tests/test_stats.py`.
 ## 9. Aplikasi untuk analis
 
 Aplikasi Streamlit kami punya enam halaman. Aplikasi ini hanya membaca artefak hasil: tidak ada login, tidak ada unggahan data
-pengguna, dan tidak ada estimasi saat dijalankan.
+pengguna, dan tidak ada estimasi saat dijalankan. Versi daring: https://kagami.streamlit.app (membaca artefak hasil yang ikut di repo).
 
 | Halaman                                                | Isi                                                                                                                                                   |
 | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
