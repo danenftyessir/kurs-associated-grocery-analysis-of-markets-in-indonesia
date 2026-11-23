@@ -6,6 +6,7 @@ Tulis selalu ke ``cfg.out_dir``; baca dari lokasi pertama yang memuat artefak di
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 
 import pandas as pd
@@ -16,6 +17,29 @@ from kagami.utils.config import Config
 
 class ArtifactMissing(FileNotFoundError):
     pass
+
+
+# Pengamat baca/tulis artefak (dipakai kagami.tracking untuk lineage, D-137). Pengamat hanya MENCATAT: dipanggil
+# setelah operasi berhasil, galatnya ditelan agar pencatatan tidak pernah mengganggu pipeline.
+_OBSERVERS: list[Callable[[str, str, Path], None]] = []
+
+
+def add_observer(fn: Callable[[str, str, Path], None]) -> None:
+    """Daftarkan fn(event, name, path) yang dipanggil setelah setiap `read_artifact` ("read") / `write_artifact` ("write")."""
+    _OBSERVERS.append(fn)
+
+
+def remove_observer(fn: Callable[[str, str, Path], None]) -> None:
+    if fn in _OBSERVERS:
+        _OBSERVERS.remove(fn)
+
+
+def _notify(event: str, name: str, path: Path) -> None:
+    for fn in list(_OBSERVERS):
+        try:
+            fn(event, name, path)
+        except Exception as exc:  # noqa: BLE001 -- pencatatan tidak boleh menggagalkan pipeline
+            print(f"[io] pengamat {getattr(fn, '__name__', fn)} gagal: {exc}")
 
 
 def artifact_path(cfg: Config, name: str) -> Path:
@@ -49,6 +73,7 @@ def write_artifact(cfg: Config, name: str, obj: pd.DataFrame | str) -> Path:
     if path.suffix == ".md":
         assert isinstance(obj, str), f"{name} harus teks markdown"
         path.write_text(obj, encoding="utf-8")
+        _notify("write", name, path)
         return path
     assert isinstance(obj, pd.DataFrame)
     _check_columns(art, obj)
@@ -58,6 +83,7 @@ def write_artifact(cfg: Config, name: str, obj: pd.DataFrame | str) -> Path:
         obj.to_csv(path, index=False)
     else:
         raise ValueError(f"Format tidak dikenal: {path.suffix}")
+    _notify("write", name, path)
     return path
 
 
@@ -68,9 +94,12 @@ def read_artifact(cfg: Config, name: str) -> pd.DataFrame | str:
         raise ArtifactMissing(f"{name} belum ada ({art.path}) di {[str(d) for d in cfg.read_dirs]}; "
                               f"dihasilkan oleh {art.stage} / {art.wp}")
     if path.suffix == ".md":
-        return path.read_text(encoding="utf-8")
+        text = path.read_text(encoding="utf-8")
+        _notify("read", name, path)
+        return text
     df = pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path)
     _check_columns(art, df)
+    _notify("read", name, path)
     return df
 
 

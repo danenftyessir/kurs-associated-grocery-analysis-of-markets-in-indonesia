@@ -77,6 +77,6 @@ def test_every_artifact_has_producer_and_is_documented():
 
 def test_app_pages_present_and_import_common():
     pages = sorted((ROOT / "app" / "pages").glob("*.py"))
-    assert len(pages) == 5 and (ROOT / "app" / "Home.py").exists()
+    assert len(pages) == 6 and (ROOT / "app" / "Home.py").exists()
     for p in [ROOT / "app" / "Home.py", *pages]:
         assert "from common import" in p.read_text(encoding="utf-8"), p.name

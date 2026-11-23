@@ -1,0 +1,209 @@
+{
+ "run_id": "robustness-20261123T201429Z-1b649e",
+ "task_id": "robustness",
+ "run_type": "execution",
+ "status": "success",
+ "started_at": "2026-11-23T20:14:29+00:00",
+ "finished_at": "2026-11-23T20:14:44+00:00",
+ "duration_s": 14.565,
+ "evaluation_s": 0.009,
+ "pipeline_id": "pipeline-20261123T200100Z-bcc0ba",
+ "parent_run_ids": [
+  "stage0-20261123T200517Z-a43730",
+  "task1-20261123T200519Z-82c747",
+  "task4-20261123T200523Z-12368a"
+ ],
+ "dataset_id": "raw:c96ce7572b4c",
+ "platform": "local",
+ "python": "3.13.7",
+ "git_commit": "f01ccc374b8a87acd5452a45ffec1695cfb9b1cb",
+ "git_branch": "dev",
+ "config_sha256": {
+  "params.yaml": "43ed1daa3ac854461f6db9ca420b4668601ddf2819e237d6bab1cb4b4f1fb078",
+  "commodities.yaml": "537bb86f32a7d6ac74742c79c36f6b61f6e3fbc320373f83b84dfb19dcba0247"
+ },
+ "kind": "robustness",
+ "algorithms": [
+  "Tier 1: LP ulang per cek",
+  "validasi V2/V4",
+  "Tier 2 (opsional)"
+ ],
+ "params": {
+  "lp": {
+   "horizons": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "lags": 4,
+   "lags_robust": [
+    2,
+    4,
+    8
+   ],
+   "key_horizons": [
+    4,
+    8,
+    12
+   ]
+  },
+  "calendar": {
+   "week_rule": "iso",
+   "idulfitri": [
+    "2017-06-25",
+    "2018-06-15",
+    "2019-06-05",
+    "2020-05-24",
+    "2021-05-13",
+    "2022-05-02",
+    "2023-04-22",
+    "2024-04-10",
+    "2025-03-31",
+    "2026-03-20"
+   ],
+   "idulfitri_window": [
+    -6,
+    4
+   ],
+   "breaks": {
+    "jisdor_method_change": "2021-04-05",
+    "padg_7_2026": null
+   },
+   "exclusions": {
+    "covid": [
+     "2020-03-01",
+     "2020-06-30"
+    ],
+    "brent_extreme_abs_monthly_logchg": 0.25
+   }
+  },
+  "seed": 20261121
+ },
+ "call_args": {},
+ "inputs": [
+  {
+   "name": "panel_weekly",
+   "path": "data/processed/panel_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "17ef839f31171b17674a72b1f01ad806deb05174b659352b0370366ca5606130",
+   "bytes": 777791,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261123T200517Z-a43730"
+  },
+  {
+   "name": "eligibility",
+   "path": "results/stage0/eligibility.csv",
+   "location": "out_dir",
+   "sha256": "53fbc5d0bcb5c8c586ba6ddb39d4a255ea2fb57bb1e24439e4b8f4baeb8660b2",
+   "bytes": 20878,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261123T200517Z-a43730"
+  },
+  {
+   "name": "drivers_weekly",
+   "path": "data/processed/drivers_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "d85f7d3188e7c61aa8bbed1f944b7e7d7c45d38b2e712251aca884e2fe682c77",
+   "bytes": 47417,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261123T200517Z-a43730"
+  },
+  {
+   "name": "world_prices_weekly",
+   "path": "data/processed/world_prices_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "cc53e6dda096f26af7e18f2a20d51a3d0ea48d63b17f7649d9eae00f6db14edb",
+   "bytes": 35033,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261123T200517Z-a43730"
+  },
+  {
+   "name": "profiles",
+   "path": "results/task1/profiles.parquet",
+   "location": "root",
+   "sha256": "4cb0f1219e9e3ef9be31d0177e5bc0b71f3b3ee4e55938a7b0893eee9828e55f",
+   "bytes": 650669,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task1-20261123T200519Z-82c747"
+  },
+  {
+   "name": "events",
+   "path": "results/task1/events.parquet",
+   "location": "root",
+   "sha256": "7ccb8f40588917cbaeb01c32c3e8414e697c118e4ac152441dd1754a65a07643",
+   "bytes": 215107,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task1-20261123T200519Z-82c747"
+  },
+  {
+   "name": "episodes",
+   "path": "results/stage0/episodes.csv",
+   "location": "out_dir",
+   "sha256": "0a31176cc60ada2e4b2fe445bde0dc05fe9f7ce3218efaf41f073698798b5ad2",
+   "bytes": 902,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261123T200517Z-a43730"
+  },
+  {
+   "name": "forecast_eval",
+   "path": "results/task4/forecast_eval.csv",
+   "location": "root",
+   "sha256": "8f129d760a7f3d0383b382d8d2e8c303d0dca312b8af37eb5e8741ddd1bc8338",
+   "bytes": 93753,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task4-20261123T200523Z-12368a"
+  }
+ ],
+ "outputs": [
+  {
+   "name": "robustness",
+   "path": "results/robustness.csv",
+   "location": "out_dir",
+   "sha256": "e177d02aecb62df282baeb49628ad2e7ae7d08ec1f6af893524671a133d5945a",
+   "bytes": 130052,
+   "rows": 486,
+   "columns": 19,
+   "missing_cells": 1948,
+   "memory_mb": 0.268,
+   "producer_run_id": null
+  }
+ ],
+ "peak_rss_mb": 784.8,
+ "error_type": null,
+ "note": "dataset_id dikoreksi 2026-11-24 ke raw_snapshot_id (versi awal ikut menghitung kolom waktu checksums)",
+ "schema_version": 1
+}

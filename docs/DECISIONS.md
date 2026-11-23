@@ -415,6 +415,19 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-137 — Log eksekusi & evaluasi terpusat (`src/tracking/`, `logs/`, app hal. 7) · FINAL (teknis) · 2026-11-24 (WP-36) · Danen
+Atas permintaan Danen: setiap eksekusi tahap harus menghasilkan log evaluasi terstruktur yang dapat ditelusuri dan dibandingkan.
+Diputuskan: subpaket baru `kagami.tracking` (bukan di `evaluation/`, yang berisi evaluasi statistik penelitian) dengan dekorator
+`@tracked` di keenam `pipelines.<tahap>.run`, sehingga CLI dan notebook tercatat tanpa perubahan sel. Lineage lewat pengamat baca/tulis
+di `utils.io` (input di-hash saat dibaca). Run induk = run yang menulis file dengan hash sama, jadi dependensi mengikuti data
+nyata (DAG dari REQUIRES, tidak linear). Log JSON per run di `out_dir/logs/{runs,evaluations,errors,pipelines}/` ditulis eksklusif
+(tidak ditimpa), path relatif, tanpa nama host/pengguna, di-track git agar app daring membacanya, ikut zip juri (`logs/*/*.json`), dan ikut `drive.push`/`pull`.
+Evaluator hanya membaca artefak. Metrik generik berpenjaga memberi `not_applicable` + alasan (silhouette/DB/CH saat k = 1, MAPE saat
+y = 0, R² LP). Klasifikasi, reduksi dimensi, dan NLP dinyatakan tidak berlaku untuk proyek. Hitung ulang hanya sebagai cek integritas
+(silhouette per k, MAE). Ditolak: logging framework / MLflow (dependensi baru, server, tidak offline di paket juri); menulis log
+di dalam artefak registry (mengubah kontrak & hash artefak); mengubah sel notebook (dekorator cukup). Hasil analisis, `params.yaml`,
+dan artefak tidak berubah; bukan deviasi praregistrasi. Rincian: docs/TRACKING.md.
+
 ### D-136 — App: artefak yang belum ada tidak di-cache; kunci cache memuat waktu ubah file · FINAL (teknis) · 2026-11-24 (WP-31) · Danen
 Setelah D-135 di-push dan di-merge ke `main`, app daring tetap "Menunggu hasil" untuk artefak yang baru ditambahkan (halaman 6 versi baru
 sudah jalan, tetapi `robustness` dianggap belum ada). Penyebab: `common.load` dibungkus `@st.cache_data` dan ikut menyimpan `None`;

@@ -1,0 +1,101 @@
+{
+ "run_id": "robustness-20261123T200524Z-1c684f",
+ "task_id": "robustness",
+ "evaluated_at": "2026-11-23T20:05:24+00:00",
+ "metrics": [
+  {
+   "name": "n_rows_tier_1",
+   "group": "robustness & validasi",
+   "value": 382,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "checks": [
+     "exclude_covid_and_extreme_brent",
+     "fx_decomposition_global_dollar_vs_idr_specific",
+     "horizon_8_vs_12",
+     "lags_2_4_8",
+     "monthly_frequency",
+     "subperiod_pre_post_2021-04-05"
+    ]
+   }
+  },
+  {
+   "name": "share_baseline_in_ci_tier_1",
+   "group": "robustness & validasi",
+   "value": 0.9581151832460733,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 382
+   }
+  },
+  {
+   "name": "n_rows_tier_2",
+   "group": "robustness & validasi",
+   "value": 193,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "checks": [
+     "alternative_exposure_remoteness",
+     "alternative_variants",
+     "bapanas_outcome",
+     "last_observation_aggregation"
+    ]
+   }
+  },
+  {
+   "name": "share_baseline_in_ci_tier_2",
+   "group": "robustness & validasi",
+   "value": 0.9896373056994818,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 193
+   }
+  },
+  {
+   "name": "n_rows_tier_V",
+   "group": "robustness & validasi",
+   "value": 104,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "checks": [
+     "V2_case_study_events",
+     "V2_case_study_forecast",
+     "V4_lp_vs_event_study"
+    ]
+   }
+  },
+  {
+   "name": "v4_mean_sign_agree",
+   "group": "robustness & validasi",
+   "value": 0.5083333333333333,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 30,
+    "note": "sign_agree = porsi jalur event vs implikasi LP dengan tanda sama (per komoditas × h)"
+   }
+  },
+  {
+   "name": "v4_mean_corr",
+   "group": "robustness & validasi",
+   "value": 0.14199059807152242,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness"
+   }
+  }
+ ],
+ "schema_version": 1
+}

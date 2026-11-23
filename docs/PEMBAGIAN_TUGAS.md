@@ -57,6 +57,7 @@ tidak ada yang menunggu.
 | `src/viz/plots.py` | tambah fungsi untuk nb00/01/05 (aditif) | pemilik file; fungsi untuk app & nb02/03/04 | – |
 | `src/stats/` | pemilik (fungsi baru + tes) | boleh menambah fungsi baru (aditif) + tes | – |
 | `src/utils/`, `src/cli.py`, `configs/runtime.yaml` | pemilik (infra: config, runtime, Drive, CLI) | perubahan lewat handoff `PERMINTAAN` | – |
+| `src/tracking/`, `logs/`, `app/pages/7_Evaluasi_Eksekusi.py`, `tests/test_tracking.py` | pemilik (log eksekusi & evaluasi, WP-36, D-137) | evaluator tahap miliknya boleh ditambah (aditif) | – |
 | `notebooks/` | `00_stage0_data`, `01_task1_profiles`, `03_task3_association`, `05_robustness` | `02_task2_patterns`, `04_task4_forecast` (Ardell juga menjalankan `01` untuk P2) | – |
 | `app/` | – | pemilik | menyediakan teks/copy di `docs/paper/app_copy.md` |
 | `configs/params.yaml` | semua bagian kecuali milik Ardell | `clustering`, `association`, `forecast`, `scenario` (parameter `inference` & `shrinkage` dipakai Ardell di WP-16/17 tetapi dibekukan Danen di G6; perubahan lewat handoff `PERMINTAAN`) | – |

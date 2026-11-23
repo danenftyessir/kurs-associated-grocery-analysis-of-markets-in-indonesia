@@ -13,6 +13,7 @@ import pandas as pd
 from kagami.evaluation import forecast_eval
 from kagami.models import forecasting
 from kagami.utils import drive
+from kagami.tracking.logger import tracked
 from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact, require, write_artifact
 
@@ -20,6 +21,7 @@ REQUIRES = ("panel_weekly_region", "drivers_weekly", "world_prices_weekly")
 OPTIONAL = ("panel_weekly",)   # panel provinsi bila ada (selain itu 7 wilayah, Tingkat B); notebook menariknya juga
 
 
+@tracked("task4")   # log eksekusi & evaluasi terpusat (WP-36, D-137)
 def run(cfg: Config) -> None:
     require(cfg, *REQUIRES)
     panel_name = "panel_weekly" if exists(cfg, "panel_weekly") else "panel_weekly_region"

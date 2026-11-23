@@ -4,7 +4,8 @@ Folder dirujuk lewat ID (`configs/runtime.yaml: drive.folder_id`), jadi sama unt
 Struktur di Drive mencerminkan path artefak relatif out_dir (mis. `results/task1/profiles.parquet`).
 
 - `pull(cfg, names)`  : unduh artefak input dari Drive ke cfg.out_dir (awal notebook / `python -m kagami drive-pull`).
-- `push(cfg, stages)` : unggah artefak hasil tahap-tahap itu dari cfg.out_dir ke Drive (akhir notebook / `drive-push`).
+- `push(cfg, stages)` : unggah artefak hasil tahap-tahap itu dari cfg.out_dir ke Drive (akhir notebook / `drive-push`),
+                        lalu log pelacakan baru (`push_logs`; `pull` juga menarik log, `pull_logs`, WP-36).
 - `push_raw(cfg)`     : unggah semua file sumber mentah (configs/sources.yaml) + checksums ke `data/raw/` di Drive;
                         file yang MD5-nya sama dilewati (Danen, `python -m kagami drive-push-raw`).
 - `pull_raw(cfg)`     : unduh file sumber mentah yang BELUM ada di cfg.raw_dir (tidak pernah menimpa; notebook 00 /
@@ -185,6 +186,7 @@ def pull(cfg: Config, names: Iterable[str], client: DriveClient | None = None, s
         c.download(fid, cfg.out_dir / rel)
         got.append(rel)
     print(f"[drive] pull {len(got)} artefak -> {cfg.out_dir}" + (f"; belum ada di Drive: {missing}" if missing else ""))
+    pull_logs(cfg, client=c)          # log run induk (lineage lintas platform, WP-36)
     return got
 
 
@@ -204,7 +206,52 @@ def push(cfg: Config, stages: Iterable[str], client: DriveClient | None = None, 
         c.upload(local, parent, fname, c.find(parent, fname))
         sent.append(art.path)
     print(f"[drive] push {len(sent)} artefak ({', '.join(sorted(stages))}) -> {cfg.runtime['drive']['folder_url']}")
+    push_logs(cfg, client=c)
     return sent
+
+
+LOG_KINDS = ("runs", "evaluations", "errors", "pipelines")   # = kagami.tracking.store.KINDS (utils tidak meng-import tracking)
+
+
+def push_logs(cfg: Config, client: DriveClient | None = None, strict: bool | None = None) -> list[str]:
+    """Unggah log pelacakan baru (`out_dir/logs/<jenis>/<id>.json`, WP-36) ke `logs/` Drive tim. Nama file unik per run,
+    jadi file yang sudah ada di Drive dilewati (tidak pernah ditimpa)."""
+    strict = detect_platform() != "local" if strict is None else strict
+    c = _client_or_skip(cfg, client, strict)
+    files = [f for k in LOG_KINDS for f in sorted((cfg.out_dir / "logs" / k).glob("*.json"))]
+    if c is None or not files:
+        return []
+    root, sent = cfg.runtime["drive"]["folder_id"], []
+    for f in files:
+        rel = f.relative_to(cfg.out_dir).as_posix()
+        parent, fname = _resolve(c, root, rel, create=True)
+        if c.find(parent, fname) is None:
+            c.upload(f, parent, fname, None)
+            sent.append(rel)
+    if sent:
+        print(f"[drive] push {len(sent)} log baru -> logs/")
+    return sent
+
+
+def pull_logs(cfg: Config, client: DriveClient | None = None, strict: bool | None = None) -> list[str]:
+    """Unduh log pelacakan yang belum ada di `out_dir/logs/` (agar run induk dari Kaggle/Colab/anggota lain terbaca)."""
+    strict = detect_platform() != "local" if strict is None else strict
+    c = _client_or_skip(cfg, client, strict)
+    if c is None:
+        return []
+    root, got = cfg.runtime["drive"]["folder_id"], []
+    for k in LOG_KINDS:
+        parent, _ = _resolve(c, root, f"logs/{k}/_", create=False)
+        if parent is None:
+            continue
+        for fid, name in c.list(parent):
+            dest = cfg.out_dir / "logs" / k / name
+            if name.endswith(".json") and not dest.exists():
+                c.download(fid, dest)
+                got.append(dest.relative_to(cfg.out_dir).as_posix())
+    if got:
+        print(f"[drive] pull {len(got)} log -> {cfg.out_dir / 'logs'}")
+    return got
 
 
 def authorize_local(cfg: Config, client_secret: str | Path) -> Path:

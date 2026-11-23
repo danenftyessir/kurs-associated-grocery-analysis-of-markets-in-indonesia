@@ -31,7 +31,7 @@ kagami = "kagami.cli:main"
 # Isi paket `kagami` ada langsung di folder src/ (D-024).
 package-dir = { "kagami" = "src" }
 packages = ["kagami", "kagami.utils", "kagami.data", "kagami.features", "kagami.models",
-            "kagami.evaluation", "kagami.stats", "kagami.pipelines", "kagami.viz"]
+            "kagami.evaluation", "kagami.stats", "kagami.pipelines", "kagami.viz", "kagami.tracking"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

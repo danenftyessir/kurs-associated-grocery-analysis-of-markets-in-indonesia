@@ -16,7 +16,8 @@ from kagami.utils.config import Config
 
 CODE_GLOBS = ("pyproject.toml", "requirements.txt", "README.md", "configs/*.yaml", "src/**/*.py", "data/reference/*.csv",
               "data/reference/*.geojson", "notebooks/*.ipynb")
-SUBMISSION_GLOBS = CODE_GLOBS + ("app/**/*.py", ".streamlit/config.toml", "tests/**/*.py", "docs/*.md")
+SUBMISSION_GLOBS = CODE_GLOBS + ("app/**/*.py", ".streamlit/config.toml", "tests/**/*.py", "docs/*.md",
+                                 "logs/*/*.json")   # log eksekusi & evaluasi (WP-36): app hal. 7 terisi di Tingkat A
 
 
 def _code_files(cfg: Config, globs: tuple[str, ...]) -> dict[Path, str]:

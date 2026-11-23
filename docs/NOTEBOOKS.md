@@ -27,6 +27,9 @@ Isinya mencerminkan path artefak: `results/stage0/…`, `results/task1/…`, `da
 `data/reference/…`. Modul `src/utils/drive.py`:
 - sel "Cek input" → `drive.pull(cfg, <tahap>.REQUIRES)` mengunduh input tahap ke `out_dir`;
 - sel "Simpan ke Drive tim" → `drive.push(cfg, stages=(...))` mengunggah semua artefak tahap itu (versi lama ditimpa).
+- Log eksekusi (WP-36): `pipelines.<tahap>.run` mencatat run otomatis ke `out_dir/logs/`; `drive.push` mengunggah log baru
+  (tidak menimpa) dan `drive.pull` menarik log anggota lain, sehingga run induk lintas Kaggle/Colab/lokal terbaca
+  ([TRACKING.md](TRACKING.md)). Sel notebook tidak perlu diubah.
 Tidak perlu lagi mengunduh output manual atau menambahkan output notebook sebagai input.
 
 **Data mentah** ada di `data/raw/` folder yang sama (D-101): Danen memperbarui dengan `python -m kagami drive-push-raw`

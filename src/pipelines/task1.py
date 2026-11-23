@@ -13,6 +13,7 @@ from kagami.features import response
 from kagami.models import deviations, event_study
 from kagami.models import local_projection as lp
 from kagami.utils import drive
+from kagami.tracking.logger import tracked
 from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact, require, write_artifact
 
@@ -20,6 +21,7 @@ REQUIRES = ("drivers_weekly", "world_prices_weekly", "episodes", "panel_weekly_r
 OPTIONAL = ("panel_weekly",)   # dipakai bila ada (profil nasional, provinsi, bootstrap, plasebo); notebook menariknya juga
 
 
+@tracked("task1")   # log eksekusi & evaluasi terpusat (WP-36, D-137)
 def run(cfg: Config) -> None:
     require(cfg, *REQUIRES)
     drv, world, eps, region, elig = (read_artifact(cfg, n) for n in

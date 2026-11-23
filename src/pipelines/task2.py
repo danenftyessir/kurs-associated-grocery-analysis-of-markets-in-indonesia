@@ -10,12 +10,14 @@ import pandas as pd
 from kagami.evaluation import heterogeneity, planted, stability
 from kagami.features import clustering as cluster_features
 from kagami.models import clustering
+from kagami.tracking.logger import tracked
 from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact, require, write_artifact
 
 REQUIRES = ("profiles", "response_features", "placebo_stats", "boot_replicates")
 
 
+@tracked("task2")   # log eksekusi & evaluasi terpusat (WP-36, D-137)
 def run(cfg: Config) -> None:
     require(cfg, *REQUIRES)
     profiles, feats, placebo, boot = (read_artifact(cfg, n) for n in REQUIRES)

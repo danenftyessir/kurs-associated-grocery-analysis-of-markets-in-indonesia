@@ -1,0 +1,506 @@
+{
+ "run_id": "task2-20261123T201444Z-c1d5fb",
+ "task_id": "task2",
+ "evaluated_at": "2026-11-23T20:16:45+00:00",
+ "metrics": [
+  {
+   "name": "h0_het_rejected",
+   "group": "heterogenitas (H0-Het)",
+   "value": 2,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "heterogeneity",
+    "commodities": [
+     "daging_ayam",
+     "telur_ayam"
+    ],
+    "n": 10
+   }
+  },
+  {
+   "name": "min_q_fdr_Q",
+   "group": "heterogenitas (H0-Het)",
+   "value": 0.04,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "heterogeneity"
+   }
+  },
+  {
+   "name": "selected_k",
+   "group": "pemilihan k vs plasebo",
+   "value": 1,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "cluster_selection"
+   }
+  },
+  {
+   "name": "placebo_p95_silhouette",
+   "group": "pemilihan k vs plasebo",
+   "value": 0.1956805146690058,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "cluster_selection"
+   }
+  },
+  {
+   "name": "silhouette_k2",
+   "group": "pemilihan k vs plasebo",
+   "value": 0.1666766374231615,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "cluster_selection",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_k3",
+   "group": "pemilihan k vs plasebo",
+   "value": 0.1837323062174122,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "cluster_selection",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_k4",
+   "group": "pemilihan k vs plasebo",
+   "value": 0.1779380831103168,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "cluster_selection",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_k5",
+   "group": "pemilihan k vs plasebo",
+   "value": 0.1450210105422199,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "cluster_selection",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_k6",
+   "group": "pemilihan k vs plasebo",
+   "value": 0.1436428390026609,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "cluster_selection",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_margin_vs_placebo",
+   "group": "pemilihan k vs plasebo",
+   "value": -0.011948208451593584,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "cluster_selection",
+    "note": "> 0 = struktur lolos uji plasebo"
+   }
+  },
+  {
+   "name": "n_clusters",
+   "group": "partisi terpilih (Ward)",
+   "value": 1,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 1",
+    "artifact": "response_features"
+   }
+  },
+  {
+   "name": "cluster_sizes",
+   "group": "partisi terpilih (Ward)",
+   "value": [
+    34
+   ],
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 1",
+    "artifact": "response_features"
+   }
+  },
+  {
+   "name": "wcss",
+   "group": "partisi terpilih (Ward)",
+   "value": 680.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 1",
+    "artifact": "response_features"
+   }
+  },
+  {
+   "name": "silhouette",
+   "group": "partisi terpilih (Ward)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "k = 1: silhouette/DB/CH tidak terdefinisi untuk satu klaster",
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 1",
+    "artifact": "response_features"
+   }
+  },
+  {
+   "name": "davies_bouldin",
+   "group": "partisi terpilih (Ward)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "k = 1: silhouette/DB/CH tidak terdefinisi untuk satu klaster",
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 1",
+    "artifact": "response_features"
+   }
+  },
+  {
+   "name": "calinski_harabasz",
+   "group": "partisi terpilih (Ward)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "k = 1: silhouette/DB/CH tidak terdefinisi untuk satu klaster",
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 1",
+    "artifact": "response_features"
+   }
+  },
+  {
+   "name": "ward_labels_reproduced_ari",
+   "group": "partisi terpilih (Ward)",
+   "value": 1.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "note": "1 = label tersimpan = label dihitung ulang dari response_features",
+    "n": 34
+   }
+  },
+  {
+   "name": "min_jaccard",
+   "group": "partisi terpilih (Ward)",
+   "value": 1.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "clusters"
+   }
+  },
+  {
+   "name": "n_weak_clusters",
+   "group": "partisi terpilih (Ward)",
+   "value": 0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "clusters"
+   }
+  },
+  {
+   "name": "ari_kmeans_vs_ward",
+   "group": "partisi terpilih (Ward)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "k = 1: kedua metode memberi satu klaster, ARI trivial",
+   "context": {}
+  },
+  {
+   "name": "silhouette_k2",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 0.1666766374231615,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 2",
+    "accepted": false
+   }
+  },
+  {
+   "name": "davies_bouldin_k2",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 1.8374576618867282,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 2",
+    "accepted": false
+   }
+  },
+  {
+   "name": "calinski_harabasz_k2",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 7.71333032938928,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 2",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_k3",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 0.1837323062174122,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 3",
+    "accepted": false
+   }
+  },
+  {
+   "name": "davies_bouldin_k3",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 1.580565114051874,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 3",
+    "accepted": false
+   }
+  },
+  {
+   "name": "calinski_harabasz_k3",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 7.112517384398315,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 3",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_k4",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 0.1779380831103168,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 4",
+    "accepted": false
+   }
+  },
+  {
+   "name": "davies_bouldin_k4",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 1.4320478773432601,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 4",
+    "accepted": false
+   }
+  },
+  {
+   "name": "calinski_harabasz_k4",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 6.492940853551446,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 4",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_k5",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 0.1450210105422199,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 5",
+    "accepted": false
+   }
+  },
+  {
+   "name": "davies_bouldin_k5",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 1.6181054013749026,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 5",
+    "accepted": false
+   }
+  },
+  {
+   "name": "calinski_harabasz_k5",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 6.095523278576278,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 5",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_k6",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 0.14364283900266095,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 6",
+    "accepted": false
+   }
+  },
+  {
+   "name": "davies_bouldin_k6",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 1.5695373407402526,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 6",
+    "accepted": false
+   }
+  },
+  {
+   "name": "calinski_harabasz_k6",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 5.760365037059895,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n_samples": 34,
+    "n_features": 33,
+    "partition": "Ward k = 6",
+    "accepted": false
+   }
+  },
+  {
+   "name": "silhouette_recompute_max_abs_diff",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": 5.551115123125783e-17,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "cluster_selection",
+    "note": "cek integritas: silhouette dihitung ulang vs artefak"
+   }
+  },
+  {
+   "name": "candidate_note",
+   "group": "kandidat k ≥ 2 (diagnostik)",
+   "value": "kandidat k ≥ 2 tidak diterima bila silhouette ≤ p95 plasebo; DB/CH di sini deskriptif, bukan dasar pemilihan k",
+   "status": "ok",
+   "reason": null,
+   "context": {}
+  },
+  {
+   "name": "detection_delta_k2",
+   "group": "batas deteksi (struktur tertanam)",
+   "value": 0.2,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "planted_recovery",
+    "rule": "δ terkecil dengan recovery ≥ 0,8"
+   }
+  },
+  {
+   "name": "detection_delta_k3",
+   "group": "batas deteksi (struktur tertanam)",
+   "value": 0.2,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "planted_recovery",
+    "rule": "δ terkecil dengan recovery ≥ 0,8"
+   }
+  },
+  {
+   "name": "ari_het_zone_beras",
+   "group": "pembanding partisi",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "k = 1: ARI tidak terdefinisi untuk satu klaster (D-132)",
+   "context": {}
+  },
+  {
+   "name": "ari_java_vs_outside",
+   "group": "pembanding partisi",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "k = 1: ARI tidak terdefinisi untuk satu klaster (D-132)",
+   "context": {}
+  },
+  {
+   "name": "ari_region_7",
+   "group": "pembanding partisi",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "k = 1: ARI tidak terdefinisi untuk satu klaster (D-132)",
+   "context": {}
+  },
+  {
+   "name": "ari_n_kota_tercile",
+   "group": "pembanding partisi",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "k = 1: ARI tidak terdefinisi untuk satu klaster (D-132)",
+   "context": {}
+  }
+ ],
+ "schema_version": 1
+}
