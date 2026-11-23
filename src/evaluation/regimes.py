@@ -2,22 +2,30 @@
 
 Rezim = selang di antara tanggal penetapan/perubahan harga acuan konsumen (HET, HAP, HAP konsumen) yang terverifikasi
 untuk satu komoditas. Per rezim, LP nasional (spesifikasi utama) diestimasi ulang hanya pada observasi yang seluruh
-jendela datanya berada di dalam rezim (aturan sub-sampel Tier 1, D-111). Deskriptif: tidak ada uji formal.
+jendela datanya berada di dalam rezim (aturan sub-sampel Tier 1, D-111). Eksploratif. Interval dikalibrasi plasebo
+geser-melingkar karena SE cluster minggu terlalu sempit pada rezim pendek (D-127).
 """
 
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed, effective_n_jobs
 
+from kagami.evaluation.inference import _rolled
 from kagami.evaluation.robustness import _restrict, _window_ok
 from kagami.models import local_projection as lp
+from kagami.stats.meta import bh_fdr
+from kagami.stats.resampling import circular_shift
 from kagami.utils.config import Config
 
 CONSUMER_INSTRUMENTS = ("HET", "HAP", "HAP_konsumen")   # harga acuan di tingkat konsumen (bukan HAP produsen)
 REGIME_COLUMNS = ["commodity", "regime_id", "regime_start", "regime_end", "driver", "horizon", "estimate",
                   "ci_low", "ci_high", "n_weeks"]
-_EXTRA = ["label", "se", "n_obs", "baseline_estimate", "baseline_in_ci"]
+_EXTRA = ["label", "se", "n_obs", "baseline_estimate", "baseline_in_ci", "crit", "p_placebo", "q_fdr", "n_placebo"]
+_KEY = ["commodity", "regime_id", "driver", "horizon"]
+_PLACEBO_OFFSET = 2401      # rng = default_rng(seed + 2401): pergeseran plasebo E2 (CLAUDE.md §15)
+_Z = 1.96
 
 
 def regulation_changes(cfg: Config, regulation: pd.DataFrame) -> pd.DataFrame:
@@ -64,28 +72,16 @@ def regime_table(cfg: Config, changes: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=["commodity", "regime_id", "regime_start", "regime_end", "label"])
 
 
-def regime_profiles(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.DataFrame | None,
-                    regulation: pd.DataFrame, *, elig: pd.DataFrame | None = None,
-                    commodities: list[str] | None = None, horizons: list[int] | None = None) -> pd.DataFrame:
-    """E2. β_e(h) dan ω(h) nasional per rezim HET/HAP -> artefak 'regime_profiles'.
-
-    h = params.lp.key_horizons; L = params.lp.lags; interval = estimate ± 1,96·SE cluster minggu. Observasi minggu t
-    masuk rezim bila jendela datanya [t-(L+1), t+h] seluruhnya di dalam rezim (robustness._window_ok). Rezim yang
-    jumlah minggunya tidak melebihi jumlah regresor dilewati (SE tidak teridentifikasi). baseline_estimate = estimasi
-    sampel penuh; baseline_in_ci = estimasi penuh berada di dalam interval rezim.
-    """
-    pl = cfg.params["lp"]
-    L = int(pl["lags"])
-    H = [int(h) for h in (horizons if horizons is not None else pl["key_horizons"])]
-    regimes = regime_table(cfg, regulation_changes(cfg, regulation))
-    present = set(panel["commodity"].unique())
-    coms = [c for c in (commodities or cfg.commodity_ids()) if c in present and c in set(regimes["commodity"])]
+def _fit_regimes(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.DataFrame | None,
+                 regimes: pd.DataFrame, coms: list[str], H: list[int], L: int, elig: pd.DataFrame | None,
+                 baseline: bool = True) -> list[dict]:
+    """Estimasi LP nasional per (komoditas, h, rezim) -> baris estimate/se (+ baseline sampel penuh bila diminta)."""
     rows: list[dict] = []
     for com in coms:
         reg = regimes[regimes["commodity"] == com]
         for h in H:
             D = lp.build_design(cfg, panel, drivers, world, com, h, L, elig=elig)
-            base = {r.driver: r.estimate for r in lp.fit_lp(cfg, D).itertuples(index=False)}
+            base = ({r.driver: r.estimate for r in lp.fit_lp(cfg, D).itertuples(index=False)} if baseline else {})
             k = len(lp.regressors(D))
             for g in reg.itertuples(index=False):
                 ex = [(pd.Timestamp.min, g.regime_start - pd.Timedelta(days=1)),
@@ -96,12 +92,80 @@ def regime_profiles(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, wor
                 for r in lp.fit_lp(cfg, _restrict(D, mask)).itertuples(index=False):
                     if r.driver not in ("e", "w"):
                         continue
-                    lo, hi = r.estimate - 1.96 * r.se, r.estimate + 1.96 * r.se
-                    be = base.get(r.driver, np.nan)
                     rows.append({"commodity": com, "regime_id": g.regime_id, "regime_start": g.regime_start,
                                  "regime_end": g.regime_end, "label": g.label, "driver": r.driver, "horizon": h,
-                                 "estimate": r.estimate, "se": r.se, "ci_low": lo, "ci_high": hi,
-                                 "n_weeks": r.n_weeks, "n_obs": r.n_obs, "baseline_estimate": be,
-                                 "baseline_in_ci": bool(lo <= be <= hi) if np.isfinite(be) and np.isfinite(lo) else np.nan})
-    out = pd.DataFrame(rows, columns=REGIME_COLUMNS + _EXTRA)
+                                 "estimate": r.estimate, "se": r.se, "n_weeks": r.n_weeks, "n_obs": r.n_obs,
+                                 "baseline_estimate": base.get(r.driver, np.nan)})
+    return rows
+
+
+def _placebo_t(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.DataFrame | None,
+               regimes: pd.DataFrame, coms: list[str], H: list[int], L: int, elig: pd.DataFrame | None,
+               shifts: list[int]) -> pd.DataFrame:
+    """t* = estimate/se per rezim di bawah null untuk beberapa pergeseran de & dw (satu tugas paralel)."""
+    parts = []
+    for s in shifts:
+        db, wb = _rolled(drivers, world, int(s))
+        rows = _fit_regimes(cfg, panel, db, wb, regimes, coms, H, L, elig, baseline=False)
+        if rows:
+            r = pd.DataFrame(rows)
+            parts.append(r[_KEY].assign(t=r["estimate"] / r["se"]))
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=[*_KEY, "t"])
+
+
+def regime_profiles(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.DataFrame | None,
+                    regulation: pd.DataFrame, *, elig: pd.DataFrame | None = None,
+                    commodities: list[str] | None = None, horizons: list[int] | None = None,
+                    placebo_R: int | None = None, n_jobs: int = -1) -> pd.DataFrame:
+    """E2. β_e(h) dan ω(h) nasional per rezim HET/HAP -> artefak 'regime_profiles'.
+
+    h = params.lp.key_horizons; L = params.lp.lags. Observasi minggu t masuk rezim bila jendela datanya [t-(L+1), t+h]
+    seluruhnya di dalam rezim (robustness._window_ok). Rezim yang jumlah minggunya tidak melebihi jumlah regresor
+    dilewati. baseline_estimate = estimasi sampel penuh; baseline_in_ci = estimasi penuh di dalam interval rezim.
+    Interval (D-127): estimate ± crit·se, crit = max(1,96; persentil 95 |t*|), t* = estimate/se rezim yang sama di bawah
+    R = params.inference.placebo_R geser-melingkar de & dw (≥ placebo_min_shift_weeks; inference._rolled; RNG =
+    cfg.seed + 2401). p_placebo = (1 + #|t*| ≥ |t|)/(1 + n_placebo); q_fdr = BH atas semua baris artefak (deskriptif).
+    placebo_R = 0 -> crit = 1,96, p/q NaN. n_jobs diteruskan ke joblib.
+    """
+    pl = cfg.params["lp"]
+    L = int(pl["lags"])
+    H = [int(h) for h in (horizons if horizons is not None else pl["key_horizons"])]
+    regimes = regime_table(cfg, regulation_changes(cfg, regulation))
+    present = set(panel["commodity"].unique())
+    coms = [c for c in (commodities or cfg.commodity_ids()) if c in present and c in set(regimes["commodity"])]
+    out = pd.DataFrame(_fit_regimes(cfg, panel, drivers, world, regimes, coms, H, L, elig),
+                       columns=[c for c in REGIME_COLUMNS + _EXTRA if c not in
+                                ("ci_low", "ci_high", "baseline_in_ci", "crit", "p_placebo", "q_fdr", "n_placebo")])
+    pinf = cfg.params["inference"]
+    R = int(pinf["placebo_R"] if placebo_R is None else placebo_R)
+    out["crit"], out["p_placebo"], out["n_placebo"] = _Z, np.nan, 0
+    if R > 0 and len(out):
+        rng = np.random.default_rng(cfg.seed + _PLACEBO_OFFSET)
+        shifts = [circular_shift(len(drivers), int(pinf["placebo_min_shift_weeks"]), rng) for _ in range(R)]
+        n_chunks = min(R, 4 * effective_n_jobs(n_jobs))            # beberapa geser per tugas: kirim panel sekali per tugas
+        chunks = [list(c) for c in np.array_split(np.asarray(shifts), n_chunks) if len(c)]
+        print(f"[task3] E2 plasebo: {R} geser, {len(chunks)} tugas")
+        null = pd.concat(Parallel(n_jobs=n_jobs)(delayed(_placebo_t)(cfg, panel, drivers, world, regimes, coms, H, L,
+                                                                     elig, c) for c in chunks), ignore_index=True)
+        null = null[np.isfinite(null["t"].astype(float))]
+        t_obs = (out["estimate"] / out["se"]).abs()
+        m = out[_KEY].assign(_t=t_obs.to_numpy()).merge(null, on=_KEY, how="left")
+        m["ge"] = m["t"].abs() >= m["_t"]
+        agg = m.groupby(_KEY).agg(n_placebo=("t", "count"), n_ge=("ge", "sum"),
+                                  crit=("t", lambda s: float(np.nanquantile(s.abs(), 0.95)) if s.notna().any()
+                                        else np.nan)).reset_index()
+        out = out.drop(columns=["crit", "p_placebo", "n_placebo"]).merge(agg, on=_KEY, how="left")
+        out["crit"] = np.fmax(out["crit"], _Z)
+        out["p_placebo"] = np.where(out["n_placebo"] > 0, (1 + out["n_ge"]) / (1 + out["n_placebo"]), np.nan)
+        out = out.drop(columns="n_ge")
+    out["ci_low"] = out["estimate"] - out["crit"] * out["se"]
+    out["ci_high"] = out["estimate"] + out["crit"] * out["se"]
+    be, lo, hi = out["baseline_estimate"], out["ci_low"], out["ci_high"]
+    out["baseline_in_ci"] = np.where(np.isfinite(be) & np.isfinite(lo), (lo <= be) & (be <= hi), np.nan)
+    ok = out["p_placebo"].notna()
+    out["q_fdr"] = np.nan
+    if ok.any():
+        out.loc[ok, "q_fdr"] = bh_fdr(out.loc[ok, "p_placebo"].to_numpy())
+    out["n_placebo"] = out["n_placebo"].fillna(0).astype(int)
+    out = out[REGIME_COLUMNS + _EXTRA]
     return out.sort_values(["commodity", "driver", "horizon", "regime_id"]).reset_index(drop=True)

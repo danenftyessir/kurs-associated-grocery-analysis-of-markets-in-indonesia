@@ -92,7 +92,7 @@ def test_compare_partitions(cfg):
     withk = compare_partitions(cfg, ward_like, n_kota=n_kota).set_index("partition")
     assert withk.loc["n_kota_tercile", "n_groups"] == 3
     trivial = compare_partitions(cfg, pd.Series(0, index=reg.index)).set_index("partition")
-    assert trivial.loc["het_zone_beras", "ari"] == 0.0
+    assert trivial["ari"].isna().all() and (trivial["n_groups"] > 1).all()   # k = 1: ARI tidak berlaku (U106)
 
 
 def _province_rows(cfg, delta_by_unit, rep=0, se=0.05):

@@ -49,6 +49,9 @@ Menghasilkan `dist/kagami_code.zip` (kode + configs + `data/reference` + noteboo
 `dist/kagami_raw_PRIVATE.zip` (isi `data/raw` + checksums). Kaggle: dataset `kagami-code` (**Private**); dataset `kagami-raw`
 kini **opsional** karena data mentah diambil dari folder Drive tim (D-101).
 Colab: salin isi `kagami_code.zip` dan `data/raw` ke Google Drive `MyDrive/kagami/`. Ulangi bundle kode setiap `src/` berubah.
+Memperbarui kode yang sudah ada di Drive (Drive tidak menggabungkan folder yang diunggah ulang): unggah `kagami_code.zip` ke
+`MyDrive/kagami/`, lalu di sel Colab mana pun setelah Drive di-mount jalankan
+`!unzip -o /content/drive/MyDrive/kagami/kagami_code.zip -d /content/drive/MyDrive/kagami` (menimpa kode, `data/raw` tidak tersentuh).
 
 ### 2. Akses Drive dari notebook
 - **Colab:** tidak perlu persiapan; saat `drive.pull`/`drive.push` pertama muncul jendela login Google (akun yang punya akses

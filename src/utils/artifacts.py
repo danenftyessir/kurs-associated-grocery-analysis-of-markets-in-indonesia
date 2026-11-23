@@ -120,6 +120,12 @@ ARTIFACTS: dict[str, Artifact] = {
            ("commodity", "regime_id", "regime_start", "regime_end", "driver", "horizon", "estimate", "ci_low",
             "ci_high", "n_weeks"), True,
            "E2 eksploratif: β kurs & ω harga dunia nasional per rezim HET/HAP (D-124)"),
+        _A("asymmetry", "results/task3/asymmetry.csv", "task3", "WP-13",
+           ("commodity", "horizon", "estimate", "se", "ci_low", "ci_high", "p_value", "confirmatory", "reject"), True,
+           "H2: uji Wald β⁺ = β⁻ nasional (SE cluster minggu) + pembanding bootstrap & plasebo (D-125)"),
+        _A("national_calibrated", "results/task3/national_calibrated.csv", "task3", "WP-13",
+           ("commodity", "driver", "horizon", "estimate", "se", "ci_low", "ci_high", "p_value", "q_fdr"), True,
+           "β_e & ω nasional h kunci: interval ±crit·SE & p terkalibrasi plasebo, q BH (tambahan, D-129)"),
         # ---------------- Task 4 ----------------
         _A("forecast_preds", "data/interim/forecast_preds.parquet", "task4", "WP-26",
            ("origin", "horizon", "model", "region", "commodity", "y_true", "y_pred", "large_move"), False,

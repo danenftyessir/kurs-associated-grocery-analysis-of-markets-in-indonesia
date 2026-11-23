@@ -16,9 +16,10 @@ def _ward(X, k):
     return fcluster(linkage(X, method="ward"), t=k, criterion="maxclust") - 1
 
 
-def _placebo(n=30, n_prov=34, n_feat=12, sd=0.3, seed=0):
+def _placebo(n=30, n_prov=34, n_feat=12, sd=0.2, seed=0):
+    """Replikasi plasebo (D, S): deviasi mentah = derau dengan SE yang sesuai (τ² = 0 di bawah null)."""
     rng = np.random.default_rng(seed)
-    return [rng.normal(0, sd, (n_prov, n_feat)) for _ in range(n)]
+    return [(rng.normal(0, sd, (n_prov, n_feat)), np.full((n_prov, n_feat), sd)) for _ in range(n)]
 
 
 def test_plant_structure_balanced_shift():
@@ -55,7 +56,7 @@ def test_recovery_curve_monotone_and_reproducible(cfg):
     assert out["recovery_rate"].between(0, 1).all() and np.isfinite(out["threshold"]).all()
     for k, g in out.groupby("k_true"):
         g = g.sort_values("delta")
-        assert g["recovery_rate"].iloc[0] <= 0.2            # δ 0,1 << derau 0,3 -> tidak terdeteksi
+        assert g["recovery_rate"].iloc[0] <= 0.2            # δ 0,1 << derau 0,2 -> tidak terdeteksi
         assert g["recovery_rate"].iloc[-1] >= 0.8           # δ 0,5 -> ditemukan kembali
         assert g["ari_mean"].iloc[-1] > g["ari_mean"].iloc[0]
     assert (out["recovery_rate"] <= out["k_correct_rate"] + 1e-12).all()
@@ -66,9 +67,9 @@ def test_recovery_curve_monotone_and_reproducible(cfg):
 def test_threshold_from_noise_rejects_noise(cfg):
     """Matriks plasebo murni: proporsi yang lolos ambang p95 ≈ 5%."""
     plac = _placebo(n=200, seed=5)
-    thr = pl.placebo_threshold(cfg, [pl._zscore(X) for X in plac], _ward)
+    thr = pl.placebo_threshold(cfg, [pl._zscore(D) for D, _ in plac], _ward)
     fresh = _placebo(n=100, seed=6)
-    s = np.array([pl.best_silhouette(pl._zscore(X), [2, 3, 4, 5, 6], _ward)[1] for X in fresh])
+    s = np.array([pl.best_silhouette(pl._zscore(D), [2, 3, 4, 5, 6], _ward)[1] for D, _ in fresh])
     assert (s > thr).mean() < 0.15
 
 
@@ -85,3 +86,33 @@ def test_default_ward_from_wp19(cfg):
     except NotImplementedYet:
         pytest.skip("ward_labels (WP-19, Ardell) belum diimplementasi")
     assert len(out) == len(cfg.params["clustering"]["planted_deltas"]) * len(pl.K_TRUE)
+
+
+def test_shrink_matrix_matches_feature_pipeline(cfg):
+    """EB pada penanaman = EB pada matriks fitur data asli (features.clustering, standardize=False)."""
+    from kagami.features.clustering import feature_columns, replicate_feature_matrices
+    rng = np.random.default_rng(7)
+    rows = []
+    for prefix, com, h in feature_columns(cfg):
+        se = rng.uniform(0.05, 0.4, 34)
+        est = rng.normal(0, 1, 34) * (0.5 if prefix == "R" else 0.05)        # sebagian kolom τ² > 0, sebagian ≈ 0
+        rows.append(pd.DataFrame({"rep": 0, "level": "province", "unit": [str(i) for i in range(1, 35)],
+                                  "commodity": com, "driver": "e" if prefix == "R" else "w", "horizon": h,
+                                  "estimate": est, "se": se}))
+    rep = pd.concat(rows, ignore_index=True)
+    rep.loc[(rep["unit"] == "5") & (rep["driver"] == "e"), "estimate"] = np.nan   # sel kosong -> rerata kolom
+    (D, S), = pl.deviation_matrices(cfg, rep)
+    assert D.shape == (34, len(feature_columns(cfg))) and np.isnan(D[4]).sum() > 0
+    ref = replicate_feature_matrices(cfg, rep, standardize=False)[0]
+    assert np.allclose(pl.shrink_matrix(D, S), ref)
+
+
+def test_planting_before_shrinkage_is_not_trivial(cfg):
+    """Regresi U105: derau plasebo tersusut ≈ konstan; δ kecil yang ditanam pada deviasi MENTAH tidak boleh selalu
+    terdeteksi, sedangkan penanaman setelah penyusutan (versi lama) memulihkannya hampir pasti."""
+    plac = _placebo(n=40, sd=0.3, seed=9)
+    new = pl.recovery_curve(cfg, plac, ward=_ward, reps=20)
+    old = pl.recovery_curve(cfg, [(pl.shrink_matrix(D, S), np.full_like(S, 1e-6)) for D, S in plac],
+                            ward=_ward, reps=20)                                  # se ≈ 0 -> EB tidak menyusut lagi
+    d01 = lambda o: o.loc[o["delta"] == 0.1, "recovery_rate"].mean()
+    assert d01(new) <= 0.2 and d01(old) >= 0.8

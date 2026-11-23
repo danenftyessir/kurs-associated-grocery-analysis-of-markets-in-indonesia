@@ -46,5 +46,5 @@ def run(cfg: Config) -> None:
         n_kota = read_artifact(cfg, "province_features").set_index("province_id")["n_kota"]
     write_artifact(cfg, "partition_compare",
                    stability.compare_partitions(cfg, pd.Series(ward, index=X.index), n_kota=n_kota))
-    Xp_raw = cluster_features.replicate_feature_matrices(cfg, placebo, standardize=False)
-    write_artifact(cfg, "planted_recovery", planted.recovery_curve(cfg, Xp_raw))
+    # δ ditanam pada deviasi plasebo MENTAH, lalu susut EB & z-score seperti data asli (D-126)
+    write_artifact(cfg, "planted_recovery", planted.recovery_curve(cfg, planted.deviation_matrices(cfg, placebo)))

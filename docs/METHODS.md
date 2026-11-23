@@ -66,6 +66,12 @@ $$
 - $\alpha_{i,r,h}$: efek tetap seri (within-transform per seri).
 - SE: cluster per **minggu** (`stats.regression.ols_cluster`, groups = week) — Almuzara & Sancibrián (2026).
 - Asimetri: ganti $\beta\Delta e$ dengan $\beta^+\Delta e^+ + \beta^-\Delta e^-$. H2: Wald $\beta^+(8)=\beta^-(8)$.
+- H2 dihitung (D-125) dengan parametrisasi ulang $\beta^+\Delta e^+ + \beta^-\Delta e^- = \beta^-\Delta e + (\beta^+-\beta^-)\Delta e^+$
+  (lag $\Delta e^\pm$ tetap bebas): koefisien $\Delta e^+$ = selisih, SE cluster minggu-nya = SE Wald; $z$ normal dua sisi, α = 0,05,
+  konfirmatori hanya pada komoditas yang lolos gerbang G-power H2 (D-115). Pembanding: persentil bootstrap blok dan p plasebo
+  dua sisi dari selisih per replikasi. Interval yang dilaporkan (`ci_low/ci_high`) = yang lebih lebar dari Wald dan persentil
+  bootstrap (aturan §M1.2, D-127; SE cluster sedikit terlalu sempit di plasebo); interval Wald tetap di `wald_ci_*` dan uji
+  konfirmatori tetap Wald. Artefak `asymmetry` (ditulis `task3` karena ringan).
 - Jumlah observasi efektif dilaporkan sebagai jumlah minggu (`n_weeks`), bukan baris.
 
 ### M1.2 Rasio pass-through
@@ -90,6 +96,13 @@ Profil 7 wilayah: spesifikasi M1.1 pada `panel_weekly_region`.
   **dan** penggerak semua seri (korelasi antarprovinsi, antarkomoditas, antarhorizon terjaga).
 - Plasebo geser-melingkar: `de` dan `dw` di-`np.roll` sejauh s ∈ [52, T−52] terhadap harga; R = 499.
 - CI final = yang lebih lebar antara ±1,96·SE cluster dan persentil bootstrap.
+- Tambahan pasca-G6 (D-129, tidak praregistrasi; CI final di atas tetap resmi): blok 13 minggu lebih pendek dari jendela LP
+  (h + L + 2 minggu), sehingga replikasi bootstrap menarik β ke nol makin kuat pada horizon panjang (median rasio rerata replikasi /
+  estimasi nasional 0,57 / 0,35 / 0,35 pada h 4 / 8 / 12) dan persentilnya bergeser ke nol. Artefak `national_calibrated`
+  (`evaluation/calibration.py`, ditulis `task3`): β_e & ω nasional pada h kunci dengan $t^* = \hat\beta^*/\widehat{se}^*$ dari
+  plasebo geser-melingkar sel yang sama; crit = max($z_{0,975}$, statistik urutan |t*| yang setara p plasebo < 0,05);
+  interval $\hat\beta \pm \text{crit}\cdot\widehat{se}$; p = max(p plasebo, p normal) sehingga p < 0,05 ⇔ interval tidak memuat nol;
+  q BH atas 48 sel (10 komoditas × e + 6 × w, h 4/8/12).
 
 ### M1.6 Penyusutan EB (WP-17)
 Per (i, driver, h): τ² DerSimonian–Laird dari δ(i,r,h) dan s²(i,r,h) (REML sebagai cek).
@@ -112,10 +125,12 @@ A8 = β⁺(8) − β⁻(8) (level komoditas).
    maks silhouette yang sama → p95. Terima struktur bila s* > p95, k = argmax; bila tidak, k = 1.
 4. **Stabilitas (WP-20):** K-Means (k-means++, n_init = 50) → ARI vs Ward. Ulang Ward pada setiap replikasi bootstrap →
    matriks ko-asignasi; Jaccard maksimum per klaster asli (Hennig 2007); < 0,6 → "pola lemah".
-5. **Struktur tertanam (WP-21):** ambil matriks plasebo realistis (satuan respons, sebelum z-score), bagi provinsi ke k_true
-   kelompok acak, geser tiap kelompok ke pusat simpleks berorientasi acak sehingga setiap pasangan kelompok berselisih
-   δ ∈ {0,1..0,5} (RMS per fitur; jarak pusat δ·√F, D-112); z-score; jalankan langkah 2–3 dengan ambang p95 dari semua matriks
-   plasebo; recovery = P(k terpilih = k_true ∧ ARI ≥ 0,8). Batas deteksi = δ terkecil dengan recovery ≥ 0,8.
+5. **Struktur tertanam (WP-21):** ambil satu replikasi plasebo berupa deviasi provinsi MENTAH δ dan SE-nya (belum tersusut),
+   bagi provinsi ke k_true kelompok acak, geser tiap kelompok ke pusat simpleks berorientasi acak sehingga setiap pasangan kelompok
+   berselisih δ ∈ {0,1..0,5} (RMS per fitur; jarak pusat δ·√F, D-112); lalu proses persis seperti data asli: susut EB per kolom
+   (τ² DL dengan SE replikasi), z-score, langkah 2–3 dengan ambang p95 dari semua replikasi plasebo yang diproses sama (D-126);
+   recovery = P(k terpilih = k_true ∧ ARI ≥ 0,8). Batas deteksi = δ terkecil dengan recovery ≥ 0,8 (NaN bila tak tercapai di grid).
+   Menanam setelah penyusutan keliru: kolom dengan τ² = 0 menjadi konstan sehingga δ kecil pun terdeteksi (U105).
 6. **Interpretasi (WP-20):** label netral K1, K2, …; ARI vs zona HET beras, Jawa/luar Jawa, kuantil n_kota.
 
 ## M3 — Task 3 asosiasi
@@ -132,8 +147,10 @@ A8 = β⁺(8) − β⁻(8) (level komoditas).
   (HET, HAP, HAP konsumen) di `regulation` yang in_scope, bertanggal, dan tidak `unverified`, di dalam periode; rezim 0 = awal periode
   sampai sebelum perubahan pertama di tabel. Per rezim: LP nasional spesifikasi utama (h kunci, L = 4) hanya pada observasi yang
   jendela datanya [t−(L+1), t+h] utuh di dalam rezim (aturan sub-sampel Tier 1); rezim dengan jumlah minggu ≤ jumlah regresor
-  dilewati. Interval ±1,96·SE cluster minggu, dibandingkan dengan estimasi sampel penuh; tidak ada uji formal atau koreksi
-  multiplisitas. Artefak `regime_profiles`, grafik forest di notebook 03.
+  dilewati. Interval = estimasi ± crit·SE cluster minggu dengan crit = max(1,96; persentil 95 |t*|), t* = estimasi/SE rezim yang
+  sama di bawah R = `inference.placebo_R` geser-melingkar de & dw (≥ `inference.placebo_min_shift_weeks`; D-127, karena dengan
+  ± 70 minggu dan ± 40 regresor SE cluster jauh terlalu sempit). p plasebo (1 + #|t*| ≥ |t|)/(1 + R) dan q BH atas semua baris
+  dilaporkan sebagai deskriptif; dibandingkan dengan estimasi sampel penuh. Artefak `regime_profiles`, grafik forest di notebook 03.
 
 ## M4 — Task 4 evaluasi prediktif (WP-25..27)
 

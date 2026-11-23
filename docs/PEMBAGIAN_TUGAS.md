@@ -5,6 +5,11 @@ konsumen membangun dan menguji kodenya dengan data sintetis yang mengikuti kontr
 lalu menjalankan ulang dengan data asli ketika artefak produsen terbit. Abi tidak menyentuh source code.
 Status WP: papan di `docs/WORKPLAN.md` (kolom PIC). Koordinasi asinkron lewat **handoff** (`docs/HANDOFF.md`, file di `docs/handoff/`).
 
+> **Pengambilalihan 2026-11-23 (D-130).** Danen mengambil alih semua WP dan file jalur B (Ardell) dan jalur C (Abi). Tabel §1–§3
+> di bawah adalah pembagian awal (riwayat); sejak tanggal ini pemilik semua file di §3 = Danen, dan handoff terbuka ke Ardell/Abi
+> menjadi daftar kerja Danen. Makalah (WP-33 bagian PDF), video, dan unggah submission ditunda; WP-33 bagian `results/findings.md`
+> tetap dikerjakan karena artefak `ship` dan dibaca app halaman 6.
+
 ## 1. Peran
 
 | Anggota | Jalur | Inti tanggung jawab | WP |
@@ -47,7 +52,7 @@ tidak ada yang menunggu.
 | `src/data/` | `drivers.py` (episode), `panel.py`, `qa.py` | `reference.py`, tambahan loader sumber manual di `loaders.py` | – |
 | `src/features/` | – | `response.py`, `clustering.py`, `forecast.py` | – |
 | `src/models/` | `local_projection.py`, `event_study.py`, `association.py::kendall_exact` | `deviations.py`, `clustering.py`, `forecasting.py`, `association.py::meta_regression`/`fe_interaction` | – |
-| `src/evaluation/` | `power.py`, `heterogeneity.py`, `planted.py`, `forecast_eval.py`, `robustness.py` | `inference.py`, `stability.py` | – |
+| `src/evaluation/` | `power.py`, `heterogeneity.py`, `planted.py`, `forecast_eval.py`, `robustness.py`, `regimes.py`, `asymmetry.py`, `calibration.py` | `inference.py`, `stability.py` | – |
 | `src/pipelines/` | `stage0.py`, `task1.py`, `task3.py`, `robustness.py` | `task2.py`, `task4.py`, `package.py` | – |
 | `src/viz/plots.py` | tambah fungsi untuk nb00/01/05 (aditif) | pemilik file; fungsi untuk app & nb02/03/04 | – |
 | `src/stats/` | pemilik (fungsi baru + tes) | boleh menambah fungsi baru (aditif) + tes | – |

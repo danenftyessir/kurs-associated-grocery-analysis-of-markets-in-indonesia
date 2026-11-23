@@ -1,5 +1,6 @@
 """D-027: lokasi kode / mentah / output terpisah; artefak dicari lintas lokasi (lokal, Kaggle, Colab)."""
 
+import shutil
 from pathlib import Path
 
 import pandas as pd
@@ -21,10 +22,11 @@ def test_local_defaults(cfg):
 
 
 def test_write_to_out_read_from_previous_stage(cfg, tmp_path):
-    prev, out = tmp_path / "nb00_output", tmp_path / "working"
-    c_prev = Config(root=cfg.root, out_root=prev)
+    prev, out, code = tmp_path / "nb00_output", tmp_path / "working", tmp_path / "code"
+    shutil.copytree(cfg.root / "configs", code / "configs")   # root kode tanpa results/ (seperti dataset Kaggle kagami-code)
+    c_prev = Config(root=code, out_root=prev)
     write_artifact(c_prev, "episodes", _ep())
-    c = Config(root=cfg.root, out_root=out, artifact_dirs=(prev,))
+    c = Config(root=code, out_root=out, artifact_dirs=(prev,))
     assert exists(c, "episodes") and read_artifact(c, "episodes")["episode_id"].tolist() == [1]
     assert artifact_path(c, "episodes").is_relative_to(out)            # tulis tetap ke out_dir
     with pytest.raises(ArtifactMissing, match="profiles"):

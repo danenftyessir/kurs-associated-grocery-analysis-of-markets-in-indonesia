@@ -400,3 +400,90 @@ minggu, pembanding = estimasi sampel penuh. Ditolak: jendela ±W minggu di sekit
 PRAREGISTRASI (E2 eksploratif, tanpa parameter baru). Data asli 2026-11-21: 145 baris, 73% sel estimasi penuh di dalam interval rezim.
 Batasan tafsir: batas rezim berimpit dengan peristiwa lain (2022: lonjakan harga pangan & pakan dunia), dan HET minyak goreng mengatur
 Minyakita/curah, bukan varian Kemasan Bermerk 1 yang dianalisis.
+
+### D-125 — Uji H2 diformalkan + hasil gerbang G-het · FINAL (teknis) · 2026-11-22 (WP-13, WP-18) · Danen
+(1) H2. Hingga 2026-11-22 tidak ada kode yang menjalankan uji Wald H2 (hanya MDE-nya, D-115). Kini `local_projection.asymmetry_wald`
+memakai spesifikasi asimetris yang sama dengan `national_profiles` dan parametrisasi ulang β⁺·de⁺ + β⁻·de⁻ = β⁻·de + (β⁺ − β⁻)·de⁺
+(lag de⁺/de⁻ bebas): koefisien de⁺ = β⁺ − β⁻ (tanda sama dengan A8), SE cluster minggu CR1-nya = SE Wald satu restriksi; z normal dua
+sisi, α = `power.mde_alpha` (0,05, sama dengan PREREGISTRATION). `evaluation/asymmetry.asymmetry_tests` menambahkan status konfirmatori
+(h = 8 dan lolos gerbang G-power H2), `reject`, MDE asimetri, persentil bootstrap dan p plasebo dua sisi dari selisih per replikasi
+(pembanding, bukan pengganti). Ditulis `task3` sebagai artefak baru `asymmetry` (34 artefak) karena hanya butuh panel + replikasi Task 1
+yang sudah terbit; menjalankan ulang `task1` (± 2 jam) tidak perlu. Ditolak: Wald dari kovarians bootstrap (praregistrasi menyebut SE
+cluster minggu). Bukan DEVIASI PRAREGISTRASI.
+Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0,26 (−0,56..0,04) p 0,089 → H2 konfirmatori tidak ditolak.
+(2) G-het (gerbang 25 Nov, diputuskan 22 Nov dari `task2` lokal pada Task 1 asli Ardell): H0-Het ditolak untuk telur ayam (q 0,040) dan
+daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
+k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
+
+### D-132 — U106 diperbaiki: p meta-regresi konsisten dengan interval laporan; ARI NaN saat k = 1; τ² REML dilaporkan · FINAL (teknis) · 2026-11-23 (WP-23, WP-20, WP-17) · Danen
+(1) `meta_regression`: p dua sisi = max(p CR2, p_boot), p_boot = 2 × porsi replikasi di sisi nol yang berlawanan dengan estimasi,
+dibaca dari fungsi kuantil interpolasi linear yang sama dengan persentil interval → p < 0,05 ⇔ interval laporan (CR2 ∪ bootstrap)
+tidak memuat nol (tes `test_boot_side_p_matches_percentile_interval` pada 200 sampel acak). H3 satu sisi: max(p CR2 satu sisi, porsi
+replikasi ≥ 0). Kolom aditif `p_boot`, `q_fdr` (BH atas baris dua sisi). Data asli: baris p < 0,05 turun 11 → 0 dari 88; q minimum 1,0;
+H3 gabungan tetap p 0,80. (2) `compare_partitions`: klaster tunggal → ari NaN ("tidak berlaku"), bukan 0. (3) `heterogeneity_stats`
+menambah statistik `tau2_reml` berdampingan dengan τ² DL (kotak WP-17); uji H0-Het tetap Q, BH per statistik sehingga q lain tidak
+berubah. Ditolak: p dari bootstrap saja (membuang CR2 yang praregistrasi). Bukan DEVIASI: interval tidak berubah.
+
+### D-131 — Task 4: diagnostik penyandian musiman M1 (dummy bulan + Idulfitri); hasil praregistrasi tetap resmi · FINAL (teknis) · 2026-11-23 (WP-26, WP-27) · Danen
+Temuan audit: M1/M2 memasukkan `month` sebagai angka 1–12 dan `idf_rel_week` yang kosong di luar jendela [−6, 4] diisi median latih.
+Keputusan Danen: hasil praregistrasi tetap resmi (mengganti model setelah melihat H5 = jalur bercabang); diagnostik ad hoc (skrip
+scratch, bukan artefak) mengulang M0/M1/M2 ridge pada origin, fitur, dan alpha-CV yang sama dengan 11 dummy bulan + 11 dummy minggu
+relatif Idulfitri. Cek reproduksi M1 resmi origin pertama: selisih maks 4e-17. Hasil: M2/M1 1,005 (h 4, DM p 0,53) dan 1,019 (h 8,
+p 0,077); H5 h 8 large_move impor langsung 0,90, input impor 0,99, Holm 0,56 → kesimpulan sama (fitur kurs tidak memperbaiki MAE, H5
+tidak didukung). M0/M1 turun ke 0,95 / 0,97 (beras 0,39, daging sapi 0,38): dummy musim yang dikumpulkan lintas komoditas tanpa identitas
+komoditas memperburuk komoditas yang diatur. Kesimpulan: keterbatasan baseline adalah pengumpulan lintas komoditas (D-128), bukan
+penyandian musim; ditulis di findings sebagai pemeriksaan kepekaan.
+
+### D-130 — Danen mengambil alih jalur B (Ardell) dan C (Abi); makalah & video ditunda · FINAL · 2026-11-23 · Danen
+Keputusan Danen (2026-11-23): semua WP dan file milik Ardell (WP-07, 15–17, 19, 20, 23–26, 31, 32) dan Abi (WP-33, 34, 35) dikerjakan
+Danen. Fokus sampai pembekuan hasil: penyelesaian project (perbaikan U106, `results/findings.md`, app, audit klaim teks app & findings,
+paket juri G7, bundle). Makalah PDF, video, dan unggah submission ditunda. Dampak: kolom PIC di papan WORKPLAN = "Danen ← Ardell/Abi";
+aturan kepemilikan file (PEMBAGIAN_TUGAS §3, CLAUDE.md §3.0) tidak lagi membatasi Danen; handoff terbuka ke Ardell/Abi menjadi daftar kerja
+Danen (isinya tidak ditulis ulang). Mengganti D-105 untuk sisa proyek.
+
+### D-129 — Inferensi nasional terkalibrasi plasebo sebagai tambahan (bootstrap blok menarik β ke nol) · FINAL · 2026-11-23 (WP-13) · Danen
+TAMBAHAN PASCA-G6, tidak praregistrasi; bukan deviasi karena interval resmi `profiles` (METHODS M1.5) dan semua uji konfirmatori tidak
+berubah. Temuan: blok 13 minggu lebih pendek dari jendela LP (h + L + 2 = 14 minggu pada h 8), sehingga hampir setiap jendela memotong
+batas blok dan kaitan penggerak–harga masa depan terputus. Rerata replikasi bootstrap / estimasi nasional (median `boot_ratio`) 0,57 /
+0,35 / 0,35 pada h 4 / 8 / 12; contoh daging ayam β_e(8) −1,67 vs rerata replikasi −1,17 → persentil −2,62..0,06. Interval resmi jadi
+konservatif berlebih (negatif palsu), sedangkan SE cluster minggu sendiri terlalu sempit (plasebo nasional |t| > 1,96 pada 8,1%).
+Diputuskan (keputusan Danen): artefak baru `national_calibrated` (`evaluation/calibration.py`, ditulis `task3`) dengan statistik t
+dikalibrasi terhadap plasebo geser-melingkar yang sudah ada (`placebo_stats`, sel yang sama), mengikuti D-127: crit = max(z, statistik
+urutan |t*| yang setara p plasebo < α), interval ±crit·SE; p = max(p plasebo, p normal) agar p < α ⇔ interval tidak memuat nol
+(pelajaran U106); q BH atas 48 sel. Ditolak: (a) mengganti interval resmi = deviasi setelah melihat hasil; (b) bootstrap dengan blok
+lebih panjang/bootstrap dasar = perlu jalan ulang Task 1 (± 2 jam) dan blok tetap memotong jendela h 12; bootstrap dasar justru
+memberi 14/48 sel karena distribusinya tidak terpusat. Hasil: 7 sel interval tidak memuat nol (resmi 3), 4 lolos q < 0,05 (daging ayam
+β_e(4), gula β_e(4), minyak goreng ω(8), ω(12)). Penulisan: interval resmi tetap dikutip lebih dulu; `national_calibrated` sebagai analisis
+kepekaan inferensi; gula β_e(4) wajib disertai catatan tidak tahan Tier 1. U107.
+
+### D-128 — Task 4: spesifikasi ridge gabungan dipertahankan; ridge per komoditas sebagai diagnostik · FINAL (teknis) · 2026-11-23 (WP-27) · Danen
+Evaluasi `forecast_preds` asli: M2/M1 MAE 1,014 (h 4) dan 1,017 (h 8), terburuk pada komoditas diatur (daging sapi 1,30, gula 1,13, beras
+1,11 pada h 8); H5 tidak didukung (1,12 kedua jalur, Holm 1,0). M1 dan M2 adalah satu ridge untuk 10 komoditas × 337 seri tanpa identitas
+komoditas (sesuai proposal: identitas baru di M3), sehingga koefisien kurs adalah rerata lintas komoditas. Diagnostik ad hoc ridge per
+komoditas pada origin dan fitur yang sama: M2/M1 1,011 / 1,018, H5 1,18 / 1,12, Holm 1,0 → kesimpulan tidak berubah. Diputuskan: hasil
+praregistrasi (ridge gabungan) tetap utama; mengganti model setelah melihat hasil H5 akan menjadi jalur bercabang. Diagnostik tidak menjadi
+artefak; boleh disebut di makalah sebagai pemeriksaan kepekaan tanpa angka utama. Catatan: `M2_nofx` = fitur M1 → ablation = −(M2 − M1).
+
+### D-127 — Kalibrasi plasebo untuk interval E2 dan interval laporan H2 · FINAL (teknis) · 2026-11-23 (WP-22, WP-13) · Danen
+Audit artefak asli menemukan positif palsu dari SE cluster minggu yang terlalu sempit. (1) E2 `regime_profiles`: semua regresor LP
+bervariasi per minggu, jadi rezim ± 70 minggu dengan ± 40 regresor hampir tanpa derajat bebas. 26% sel (39% pada rezim 52–104 minggu)
+tampak tidak memuat nol dengan ±1,96·SE, dan tandanya berbalik antar rezim. Perbaikan: interval = estimasi ± crit·SE, crit =
+max(1,96; persentil 95 |t*|), t* = estimasi/SE rezim yang sama di bawah R = `inference.placebo_R` (499) geser-melingkar de & dw
+(`inference._rolled`, ≥ 52 minggu, RNG seed + 2401). Ditambah `p_placebo` (1 + #|t*| ≥ |t|)/(1 + R) dan `q_fdr` BH atas semua baris
+(deskriptif). Paralel joblib (kini dependensi eksplisit di pyproject; ± 9 menit lokal). Ditolak: panjang rezim minimum (butuh kunci
+params baru = DEVIASI, dan tidak memperbaiki SE) serta t dengan df = G − k (koreksi terlalu kecil: crit median plasebo 3,09).
+(2) H2 `asymmetry`: `ci_low/ci_high` kini = yang lebih lebar dari Wald dan persentil bootstrap (aturan `inference.bootstrap_ci`, yang
+sudah dipakai `profiles`), karena plasebo nasional |t| > 1,96 pada 8,1% replikasi. Interval Wald tetap di `wald_ci_low/high`; uji
+konfirmatori dan p tetap Wald seperti praregistrasi → bukan DEVIASI PRAREGISTRASI. Kolom aditif `ci_excludes_zero`.
+Hasil data asli: E2 sel tidak memuat nol 38 → 15 dari 145, q min 0,145; H2 0 sel tidak memuat nol (bawang putih h8 −10,2..3,1).
+
+### D-126 — Struktur tertanam ditanam sebelum penyusutan EB (perbaikan U105) · FINAL (teknis) · 2026-11-22 (WP-21) · Danen
+Versi D-112 menanam δ pada matriks plasebo "mentah" yang ternyata sudah tersusut EB per replikasi (`replicate_feature_matrices(...,
+standardize=False)`). Pada data asli 42% kolom konstan per replikasi (τ² = 0) dan median sd 0,005, sehingga δ = 0,1 pun dipulihkan 100%:
+batas deteksi terlalu optimistis. Perbaikan: `planted.deviation_matrices` mengambil deviasi provinsi MENTAH dan SE per replikasi plasebo;
+δ ditanam di sana, lalu `planted.shrink_matrix` (τ² DL + eb_shrink per kolom, sama persis dengan matriks fitur data asli; selisih 0,0 pada
+data asli) dan z-score; ambang plasebo dihitung dari replikasi yang diproses sama (0,196 = ambang `select_k`). Parameter (δ grid, k_true,
+200 replikasi, ARI 0,8) tidak berubah → bukan DEVIASI PRAREGISTRASI. Ditolak: menanam setelah z-score (mengabaikan EB) dan memperluas
+grid δ (parameter beku). Hasil data asli: recovery δ 0,1 = 0,43 (k = 2) / 0,13 (k = 3); δ 0,2 = 0,995 / 0,965; δ ≥ 0,3 = 1,0 → batas
+deteksi δ = 0,2. Karena δ seragam per fitur, deteksi didorong fitur yang presisi (W dan R gula/daging sapi/minyak goreng).
+Tes sintetis disesuaikan ke derau sd 0,2 (dengan sd 0,3 recovery δ 0,5 hanya 0,45 karena EB mengenolkan kolom τ² = 0).

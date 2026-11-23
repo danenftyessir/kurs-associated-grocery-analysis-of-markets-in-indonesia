@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from kagami.stats.meta import bh_fdr
 from kagami.stats.regression import ols_cluster
 from kagami.utils.config import Config
 
@@ -94,7 +95,7 @@ def kendall_exact(cfg: Config, exposure: pd.DataFrame, features: pd.DataFrame) -
 
 
 META_FEATURES = ("ln_dist_hub", "rice_sufficiency", "n_kota")      # praregistrasi: maks 3 fitur Z(r)
-META_EXTRA = ["commodity", "driver", "horizon", "n", "tau2", "se_cr2", "se_boot", "ci_method"]
+META_EXTRA = ["commodity", "driver", "horizon", "n", "tau2", "se_cr2", "se_boot", "ci_method", "p_boot", "q_fdr"]
 H3_FEATURE, H3_HORIZON = "ln_dist_hub", 4                           # H3: koefisien jarak pada h = 4 < 0 (satu arah)
 POOLED = "ALL"
 
@@ -178,6 +179,38 @@ def _boot_coefs(boot: pd.DataFrame, driver: str, h: int, commodities: list[str],
     return np.asarray(out)
 
 
+def _zero_rank(cb: np.ndarray, upper: bool) -> float:
+    """Peringkat (0..1) titik nol pada fungsi kuantil interpolasi linear `np.percentile` dari cb.
+
+    upper=False -> sup{a : q(a) <= 0}; upper=True -> inf{a : q(a) >= 0}. Dengan ini q(α) > 0 ⇔ α > sup..., dan
+    q(1 − α) < 0 ⇔ 1 − α < inf..., persis seperti persentil interval.
+    """
+    s = np.sort(np.asarray(cb, float))
+    n = len(s)
+    if upper:
+        j = int(np.searchsorted(s, 0.0, side="left"))          # indeks pertama s[j] >= 0
+        if j >= n:
+            return 1.0
+        if j == 0:
+            return 0.0
+        return (j - 1 + (-s[j - 1]) / (s[j] - s[j - 1])) / (n - 1)
+    k = int(np.searchsorted(s, 0.0, side="right")) - 1          # indeks terakhir s[k] <= 0
+    if k < 0:
+        return 0.0
+    if k >= n - 1:
+        return 1.0
+    return (k + (-s[k]) / (s[k + 1] - s[k])) / (n - 1)
+
+
+def _boot_side_p(cb: np.ndarray, est: float) -> float:
+    """p bootstrap dua sisi yang setara interval persentil 2,5/97,5 di sisi tanda estimasi (U106):
+    p < 0,05 ⇔ persentil 2,5 > 0 (est > 0) atau persentil 97,5 < 0 (est < 0)."""
+    if len(cb) < 2 or not np.isfinite(est) or est == 0:
+        return 1.0
+    side = _zero_rank(cb, upper=False) if est > 0 else 1.0 - _zero_rank(cb, upper=True)
+    return float(min(1.0, 2.0 * side))
+
+
 def meta_regression(cfg: Config, profiles: pd.DataFrame, boot: pd.DataFrame,
                     province_features: pd.DataFrame) -> pd.DataFrame:
     """WP-23. Meta-regresi efek acak pada deviasi δ(i,r,h) TANPA susut, maks 3 fitur praregistrasi:
@@ -190,9 +223,11 @@ def meta_regression(cfg: Config, profiles: pd.DataFrame, boot: pd.DataFrame,
     = provinsi), driver e. δ_r = b0 + Σ_k b_k·Z_k(r) + u_r + e_r, bobot 1/(s²+τ²), τ² momen DL terampat. Z(r)
     di-z-score (b_k = Δ respons per 1 SD fitur). Fitur dengan nilai kosong dibuang (rice_sufficiency, n_kota sampai
     U14/U15). Interval = yang lebih lebar antara CR2 (t, df = G - p) dan persentil 2,5/97,5 koefisien replikasi
-    bootstrap (kosong -> CR2 saja). p_value dua sisi; H3 (ln_dist_hub, h=4) satu sisi H1: b < 0 (method
-    '..._one_sided'). Kolom ekstra: commodity, driver, horizon, n, tau2, se_cr2, se_boot, ci_method.
-    outcome = 'e_h<h>'.
+    bootstrap (kosong -> CR2 saja). p_value dua sisi = max(p CR2, p_boot) dengan p_boot = 2 × porsi replikasi di sisi nol
+    yang berlawanan dengan estimasi (dibaca dari fungsi kuantil yang sama dengan persentil) -> p < 0,05 ⇔ interval laporan
+    tidak memuat nol (U106). H3 (ln_dist_hub, h=4) satu sisi H1: b < 0 (method '..._one_sided'): p = max(p CR2 satu sisi,
+    porsi replikasi ≥ 0). q_fdr = BH atas baris dua sisi (eksploratif; NaN untuk H3). Kolom ekstra: commodity, driver,
+    horizon, n, tau2, se_cr2, se_boot, ci_method, p_boot, q_fdr. outcome = 'e_h<h>'.
     """
     Z = _zfeatures(province_features)
     if Z.empty:
@@ -215,7 +250,7 @@ def meta_regression(cfg: Config, profiles: pd.DataFrame, boot: pd.DataFrame,
                 est, se = float(fit["beta"][j]), float(fit["se_cr2"][j])
                 tcrit = stats.t.ppf(0.975, fit["df"])
                 lo, hi = est - tcrit * se, est + tcrit * se
-                se_boot, method = np.nan, "cr2"
+                se_boot, method, cb = np.nan, "cr2", np.array([])
                 if boot is not None and len(boot):
                     cb = _boot_coefs(boot, drv, h, coms if pooled else [scope], Z, pooled, feat)
                     if len(cb) > 1:
@@ -225,14 +260,22 @@ def meta_regression(cfg: Config, profiles: pd.DataFrame, boot: pd.DataFrame,
                 one_sided = feat == H3_FEATURE and h == H3_HORIZON
                 p = (float(stats.t.cdf(tstat, fit["df"])) if one_sided
                      else float(2 * stats.t.sf(abs(tstat), fit["df"])))
+                p_boot = np.nan
+                if len(cb) > 1:                                  # p konsisten dengan interval laporan (U106)
+                    p_boot = 1.0 - _zero_rank(cb, upper=True) if one_sided else _boot_side_p(cb, est)
+                    p = max(p, p_boot)
                 jmin, jmax = _jackknife(sub, Z, pooled, j)
                 rows.append({"level": "province", "feature": feat, "outcome": f"{drv}_h{h}", "estimate": est,
                              "ci_low": lo, "ci_high": hi, "p_value": p,
                              "method": "meta_regression_re" + ("_one_sided" if one_sided else ""),
                              "jackknife_min": jmin, "jackknife_max": jmax, "commodity": scope, "driver": drv,
                              "horizon": h, "n": len(y), "tau2": fit["tau2"], "se_cr2": se, "se_boot": se_boot,
-                             "ci_method": method})
-    return pd.DataFrame(rows, columns=ASSOC_COLUMNS + META_EXTRA)
+                             "ci_method": method, "p_boot": p_boot, "q_fdr": np.nan})
+    out = pd.DataFrame(rows, columns=ASSOC_COLUMNS + META_EXTRA)
+    two = (out["method"] == "meta_regression_re") & out["p_value"].notna()
+    if two.any():
+        out.loc[two, "q_fdr"] = bh_fdr(out.loc[two, "p_value"].to_numpy())
+    return out
 
 
 def _two_way_demean(df: pd.DataFrame, cols: list[str], g1: list[str], g2: list[str], iters: int = 30) -> pd.DataFrame:

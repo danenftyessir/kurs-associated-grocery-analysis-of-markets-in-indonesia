@@ -146,3 +146,40 @@ def test_fe_interaction_null_effect_and_eligibility(cfg):
     sub = fe_interaction(cfg, panel, drivers, f, elig=elig, horizons=[4])
     assert sub["n"].iloc[0] < out["n"].iloc[0] * 0.6
     assert len(fe_interaction(cfg, panel, drivers, f.assign(ln_dist_hub=np.nan), horizons=[4])) == 0
+
+
+def test_meta_regression_p_consistent_with_reported_interval(cfg):
+    """U106: p dua sisi < 0,05 ⇔ interval laporan (CR2 ∪ bootstrap) tidak memuat nol; q BH untuk baris eksploratif."""
+    from kagami.stats.meta import bh_fdr
+    rng = np.random.default_rng(6)
+    f = _features(rng)
+    prof = pd.concat([_profiles(f, -0.03, se=0.01, rng=rng, coms=["gula_pasir", "beras"], h=8),
+                      _profiles(f, -0.20, se=0.01, rng=rng, coms=["gula_pasir", "beras"], h=12)])
+    reps = []
+    for r in range(80):           # bootstrap lebar: h 8 (slope −0,03) memuat nol, h 12 (slope −0,20) tidak
+        g = prof.copy()
+        g["estimate"] += rng.normal(0, 0.15, len(g))
+        reps.append(g.assign(rep=r))
+    out = meta_regression(cfg, prof, pd.concat(reps), f)
+    cr2 = meta_regression(cfg, prof, None, f)
+    two = out[out["method"] == "meta_regression_re"]
+    excl = (two["ci_low"] > 0) | (two["ci_high"] < 0)
+    assert ((two["p_value"] < 0.05) == excl).all()
+    h8 = two[(two["horizon"] == 8) & (two["commodity"] == "gula_pasir")].iloc[0]
+    h8_cr2 = cr2[(cr2["horizon"] == 8) & (cr2["commodity"] == "gula_pasir")].iloc[0]
+    assert h8_cr2["p_value"] < 0.05 and h8["p_value"] >= 0.05 and h8["p_boot"] >= 0.05   # dulu: p dari CR2 saja
+    assert (two[two["horizon"] == 12]["p_value"] < 0.05).all()
+    assert np.allclose(two["q_fdr"], bh_fdr(two["p_value"].to_numpy()))
+    assert out.loc[out["method"] != "meta_regression_re", "q_fdr"].isna().all()
+    assert (out["p_value"] >= out["p_boot"].fillna(0) - 1e-12).all()
+
+
+def test_boot_side_p_matches_percentile_interval():
+    from kagami.models.association import _boot_side_p
+    rng = np.random.default_rng(7)
+    for _ in range(200):
+        cb = rng.normal(rng.uniform(-0.3, 0.3), 0.1, int(rng.integers(20, 300)))
+        est = float(np.median(cb)) if abs(np.median(cb)) > 1e-9 else 0.01
+        lo, hi = np.percentile(cb, 2.5), np.percentile(cb, 97.5)
+        same_side_excl = (lo > 0) if est > 0 else (hi < 0)
+        assert (_boot_side_p(cb, est) < 0.05) == same_side_excl

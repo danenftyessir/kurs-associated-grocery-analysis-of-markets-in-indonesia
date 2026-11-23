@@ -3,7 +3,7 @@
 import pandas as pd
 import streamlit as st
 
-from common import CFG, footer, load, need, page_header
+from common import CFG, STRETCH, footer, load, need, page_header
 from kagami.utils.env import artifact_status
 
 page_header("Ringkasan & Status Data", "Seberapa bisa dipercaya datanya?")
@@ -32,16 +32,16 @@ if ck is not None:
     src = src.merge(ck.groupby("source", as_index=False)["retrieved_at"].max(), left_on="sumber",
                     right_on="source", how="left").drop(columns="source")
     src["retrieved_at"] = src["retrieved_at"].fillna("menunggu rilis")
-st.dataframe(src, hide_index=True, use_container_width=True)
+st.dataframe(src, hide_index=True, **STRETCH)
 
 st.subheader("Kelayakan seri & daya statistik")
 got = need("eligibility", "mde")
 if got:
     el = got["eligibility"]
     st.metric("Seri layak", f"{int(el['eligible'].sum())} / {len(el)}")
-    st.dataframe(got["mde"], hide_index=True, use_container_width=True)
+    st.dataframe(got["mde"], hide_index=True, **STRETCH)
 with st.expander("Status artefak hasil"):
-    st.dataframe(artifact_status(CFG), hide_index=True, use_container_width=True)
+    st.dataframe(artifact_status(CFG), hide_index=True, **STRETCH)
 report = load("stage0_report")
 if report:
     with st.expander("Laporan Tahap 0"):

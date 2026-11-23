@@ -9,6 +9,53 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-23 — Danen: ambil alih jalur B & C (D-130); U106, findings, app, Tier 2, diagnostik M1
+- D-130: Danen pegang semua WP; makalah/video ditunda. Papan: WP-07/15–17/19/20/23–26/30/31 ✅ (bukti artefak asli + tes).
+- U106 (D-132): p meta-regresi konsisten interval (11 → 0/88 p < 0,05), `q_fdr`, ARI NaN saat k = 1, τ² REML di `heterogeneity`; `task2` 164 dtk, `task3` 705 dtk (artefak lain identik).
+- `results/findings.md` dari artefak; app hal. 2/4/5/6 diperluas (`national_calibrated`, H2, E2, Kendall, robustness), `STRETCH` ganti `use_container_width`.
+- WP-30: `robustness --tier2` 203 dtk, 679 baris (Tier 2 191/193 dalam interval; keterpencilan alternatif konsisten H3).
+- D-131: diagnostik dummy musim Task 4 → M2/M1 1,005 / 1,019, H5 Holm 0,56 (sama); M0/M1 0,95 / 0,97.
+- WP-32 ✅: paket 172 file tanpa artefak hilang; G7 di folder bersih: app 6/6, `task4` 1.128 dtk identik resmi (selisih 1e-16). Bundle 74 file.
+- pytest 317 lolos. Diunggah lewat Chrome (ganti file): `heterogeneity`, `partition_compare`, `assoc`, `robustness`, `findings.md` (baru),
+  `kagami_code.zip` (`MyDrive/kagami/`). Berikutnya: U24 `[HUMAN]`, commit, makalah/video bila dilanjutkan.
+
+### 2026-11-23 — Danen: audit progres + inferensi nasional terkalibrasi plasebo (D-129, U107)
+- Audit artefak asli: bootstrap blok 13 minggu menarik β ke nol (median rasio replikasi/estimasi 0,57 / 0,35 / 0,35 pada h 4/8/12) → interval resmi terlalu konservatif.
+- `evaluation/calibration.py::national_calibrated` + `tests/test_calibration.py`; artefak baru `national_calibrated` dari `task3` (0,9 dtk).
+- Data asli: 7/48 sel tidak memuat nol (resmi 3); q < 0,05 daging ayam β_e(4), gula β_e(4) (tidak tahan Tier 1), minyak goreng ω(8), ω(12).
+- Temuan lain (laporan ke user): event study 19/390 sel p < 0,05 (= kebetulan); M1 Task 4 memakai `month` numerik & `idf_rel_week` diisi median (milik Ardell); `M2_nofx` identik M1; Tier 2 tidak ada di `robustness` Drive.
+- Handoff KEPUTUSAN ke Semua. `national_calibrated` diunggah ke Drive tim `results/task3/` (Chrome, 13 KB). Belum: handoff musiman M1 ke Ardell; bundle kode.
+- Temuan Drive: folder `data` & `results/task3` "siapa saja yang memiliki link dapat mengedit" → U24 🔴 `[HUMAN]`.
+- Berikutnya: WP-30 (`robustness --tier2` + keterpencilan alternatif).
+
+### 2026-11-23 — Danen: WP-27 ✅ & WP-29 ✅ (Task 4 asli, robustness ditulis)
+- `forecast_preds`/`forecast_eval`/`ablation` diunduh dari Drive (Chrome); `evaluate` + `ablation` lokal identik (≤ 4e-16).
+- M2/M1 MAE 1,014 / 1,017 (h 4 / 8), DM p 0,001 / 0,006; H5 tidak didukung (1,12, Holm 1,0; large_move 8 origin). M0 ≈ M1.
+- Diagnostik ridge per komoditas (scratch): kesimpulan sama → D-128. `M2_nofx` identik M1.
+- `robustness` lokal 11 dtk, 486 baris; V2 forecast M2/M1 origin 2026 1,005; V4 26/30.
+- `robustness` diunggah ke Drive tim `results/` (130.052 byte, cocok).
+- Berikutnya: WP-30.
+
+### 2026-11-23 — Danen: audit positif palsu, E2 & H2 dikalibrasi (D-127)
+- Audit artefak asli Task 1–3: positif palsu dari SE cluster sempit (E2, H2, β daging ayam) dan p `assoc` vs interval (milik Ardell).
+- `evaluation/regimes.py`: interval ±crit·SE, crit dari 499 plasebo geser-melingkar (joblib), `p_placebo`, `q_fdr`; `asymmetry.py`: interval laporan = Wald ∪ bootstrap.
+- Tes: `test_regimes.py::test_regime_placebo_calibration`, interval laporan di `test_asymmetry.py`. `task3` lokal 562 dtk.
+- E2: sel tidak memuat nol 38 → 15 dari 145, q min 0,145; H2: 0 sel (bawang putih h8 −10,2..3,1). `assoc` tidak berubah.
+- U106 + handoff PERMINTAAN ke Ardell (p meta-regresi, ARI k = 1); handoff KEPUTUSAN ke Semua.
+- `asymmetry` & `regime_profiles` diunggah sebagai versi baru (ID tetap, ukuran cocok); `kagami_code.zip` di `MyDrive/kagami/`, belum diekstrak.
+- Berikutnya: tarik Task 4 → WP-27 → `robustness` (belum ada di lokal) → WP-29.
+
+### 2026-11-22 — Danen: WP-21 ✅ struktur tertanam diperbaiki (D-126, U105)
+- `planted.deviation_matrices` + `shrink_matrix`; `recovery_curve` menanam pada deviasi plasebo mentah lalu susut EB & z-score; `task2` diperbarui.
+- Tes: EB penanaman = EB matriks fitur; regresi U105 (tanam setelah susut memulihkan δ 0,1, versi baru tidak). Derau sintetis 0,2.
+- Data asli: batas deteksi δ = 0,2 (k = 2 dan 3; recovery 0,995 / 0,965), δ 0,1 = 0,43 / 0,13; ambang 0,196; 53 dtk.
+
+### 2026-11-22 — Danen: analisis Task 1 asli, WP-18 ✅ (G-het), WP-22 ✅, H2 diformalkan (D-125)
+- Lima artefak Task 1 dari Drive tim (Ardell) → `results/task1/`: kontrak lengkap, B = R = 499 (non-fokus 199), `se` di `placebo_stats`.
+- `task2` lokal 650 dtk: G-het menolak telur ayam (q 0,040) & daging ayam (q 0,050); k = 1 (silhouette 0,184 < p95 0,196).
+- H2 belum punya kode → `asymmetry_wald` + `evaluation/asymmetry.py` + `tests/test_asymmetry.py`; `task3` (635 dtk) menulis `asymmetry`.
+- Temuan: struktur tertanam ditanam setelah penyusutan EB → recovery 1,0 sejak δ = 0,1 (U105, menunggu keputusan).
+
 ### 2026-11-21 — Danen: E2 profil per rezim HET/HAP (D-124)
 - `src/evaluation/regimes.py` (regulation_changes, regime_table, regime_profiles) + `tests/test_regimes.py`; artefak baru `regime_profiles` dari `task3`.
 - Data asli: 145 baris (10 komoditas, 3–6 rezim, h 4/8/12, e & w), 4,9 dtk; estimasi penuh di dalam interval rezim 73% sel.
