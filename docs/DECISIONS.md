@@ -401,7 +401,6 @@ PRAREGISTRASI (E2 eksploratif, tanpa parameter baru). Data asli 2026-11-21: 145 
 Batasan tafsir: batas rezim berimpit dengan peristiwa lain (2022: lonjakan harga pangan & pakan dunia), dan HET minyak goreng mengatur
 Minyakita/curah, bukan varian Kemasan Bermerk 1 yang dianalisis.
 
-<<<<<<< HEAD
 ### D-125 — Uji H2 diformalkan + hasil gerbang G-het · FINAL (teknis) · 2026-11-22 (WP-13, WP-18) · Danen
 (1) H2. Hingga 2026-11-22 tidak ada kode yang menjalankan uji Wald H2 (hanya MDE-nya, D-115). Kini `local_projection.asymmetry_wald`
 memakai spesifikasi asimetris yang sama dengan `national_profiles` dan parametrisasi ulang β⁺·de⁺ + β⁻·de⁻ = β⁻·de + (β⁺ − β⁻)·de⁺
@@ -415,6 +414,21 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 (2) G-het (gerbang 25 Nov, diputuskan 22 Nov dari `task2` lokal pada Task 1 asli Ardell): H0-Het ditolak untuk telur ayam (q 0,040) dan
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
+
+### D-134 — Tampilan app: palet tervalidasi, peta Indonesia offline, provinsi = deviasi tersusut · FINAL (teknis) · 2026-11-23 (WP-31) · Danen
+Eksekusi PLAN.md §18 (evaluasi desain spec visualisasi). (1) Modul `viz/style.py`: palet kategoris 3 slot (biru/oranye/aqua, lolos
+validator dataviz semua-pasangan; palet bawaan Streamlit & Plotly gagal: CVD ΔE 5,8, kontras < 3:1), diverging biru↔merah dengan
+titik tengah abu-abu (mengganti `RdBu_r` bertitik tengah putih), warna mengikuti entitas (M2 biru, M3 oranye, M0/M1 abu-abu),
+label bahasa pengguna, format angka Indonesia (`separators=",."`, minus tipografis). (2) Peta: geometri geoBoundaries IDN ADM1
+(34 unit, ODbL, keputusan Danen: unit utama 7 wilayah) disederhanakan ke `data/reference/indonesia_provinces.geojson` (98 KB).
+Digambar di sumbu kartesius (`fill="toself"` + titik ibu kota), bukan `go.Choropleth`: subplot geo Plotly mengunduh
+`cdn.plot.ly/un/world_110m.json` walau `visible=False` (terbukti di browser) → gagal saat G7 offline. Peta wilayah = provinsi diwarnai
+nilai wilayahnya (tanpa shapely/dissolve). `package` kini menyertakan `data/reference/*.geojson` dan `.streamlit/config.toml`
+(telemetri Streamlit dimatikan). (3) Baris provinsi `profiles` = deviasi δ (Σ_r δ = 0) dalam dua versi per sel (mentah &
+`shrunk`); app memakai versi tersusut EB dan melabelinya "deviasi", bukan "respons" (sebelumnya kurva mencampur dua versi).
+(4) Lencana status: interval NaN (PT wilayah) → "interval tidak tersedia" (sebelumnya "terdeteksi" karena `nan <= 0` False).
+Ditolak: Mapbox/`choropleth_map` (tile daring), GeoPandas (dependensi baru), dendrogram & heatmap ablation (PLAN.md §18.7).
+Tidak mengubah artefak atau hasil; bukan deviasi praregistrasi.
 
 ### D-133 — U102: uji tumpang tindih konkordansi HS dijalankan pada 2023 dengan Comtrade API publik · FINAL (teknis) · 2026-11-23 (WP-07, WP-10) · Danen
 Rumusan awal (Comtrade vs BPS Apr–Des 2022) butuh portal ekspor-impor BPS yang error. Diganti tahun 2023: BPS bulanan HS8 sudah ada lokal,
@@ -495,7 +509,6 @@ data asli) dan z-score; ambang plasebo dihitung dari replikasi yang diproses sam
 grid δ (parameter beku). Hasil data asli: recovery δ 0,1 = 0,43 (k = 2) / 0,13 (k = 3); δ 0,2 = 0,995 / 0,965; δ ≥ 0,3 = 1,0 → batas
 deteksi δ = 0,2. Karena δ seragam per fitur, deteksi didorong fitur yang presisi (W dan R gula/daging sapi/minyak goreng).
 Tes sintetis disesuaikan ke derau sd 0,2 (dengan sd 0,3 recovery δ 0,5 hanya 0,45 karena EB mengenolkan kolom τ² = 0).
-=======
 ### D-204 — Checkpoint & resume bootstrap/plasebo Task 1 · FINAL (teknis) · 2026-11-21 (WP-16) · Ardell
 `joint_bootstrap` dan `circular_placebo` menerima `done` (hasil run sebelumnya) dan `checkpoint` (dipanggil tiap 25 replikasi baru). Indeks minggu/pergeseran tetap diundi ulang dengan seed yang sama untuk SEMUA replikasi dan hanya rep belum selesai yang dihitung, sehingga hasil run yang dilanjutkan identik dengan run tanpa putus (tes). `task1.run` menarik `boot_replicates`/`placebo_stats` dari Drive tim, melanjutkan bila ada, dan menyimpan checkpoint + push tiap 25 replikasi (menjawab `01` ± 1,5–2 jam tanpa checkpoint). Peringatan: artefak parsial lama dari konfigurasi/kode berbeda harus dihapus. Tidak mengubah hasil; bukan deviasi praregistrasi.
 
@@ -517,4 +530,3 @@ atau item FAOSTAT dipakai >1 komoditas; low = tanpa padanan. (4) Regulasi: `end_
 selalu unverified (jendela setting panel, bukan tanggal hukum); daftar komoditas dalam satu regulasi dipecah per komoditas (nilai NaN). (5) `rice_sufficiency` memakai
 tahun terbaru yang ada di padi, konsumsi, penduduk, dan faktor GKG; NaN bila penduduk/faktor belum ada. Alternatif ditolak: menebak tanggal berlaku dari regulasi
 pengganti dan titik tengah untuk rentang HAP (menyembunyikan ketidakpastian). Tambahan `params.association.import_ratio_years` sebelum G6.
->>>>>>> origin/dev

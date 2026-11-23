@@ -1,0 +1,3 @@
+# App KAGAMI harus jalan offline (kriteria PLAN.md §14): tanpa telemetri pemakaian Streamlit ke server luar.
+[browser]
+gatherUsageStats = false

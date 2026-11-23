@@ -90,7 +90,8 @@ def _artifacts():
                                   "mae_without_fx": [.11], "delta_mae": [.01]}),
         "findings": "# Temuan\n\nDummy.", "robustness": pd.DataFrame({
             "check_id": ["T1"], "tier": [1], "commodity": [COMS[0]], "horizon": [8], "estimate": [.1],
-            "ci_low": [0.], "ci_high": [.2], "baseline_estimate": [.1], "note": ["dummy"]}),
+            "ci_low": [0.], "ci_high": [.2], "baseline_estimate": [.1], "note": ["dummy"], "driver": ["e"],
+            "variant": ["L=2"]}),
         "eligibility": pd.DataFrame({"province_id": [1], "commodity": [COMS[0]], "missing_share": [0.],
                                      "max_gap_weeks": [0], "min_year_coverage": [1.], "eligible": [True]}),
         "mde": pd.DataFrame({"commodity": COMS, "level": "national", "horizon": 8, "mde_beta": .1, "mde_pt": .2}),

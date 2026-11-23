@@ -675,7 +675,9 @@ Panel mingguan per provinsi adalah dataset turunan kami yang dibangun dari PIHPS
 Bank Indonesia, yang mencakup redistribusi data turunan.
 
 Pink Sheet (Bank Dunia) dan FAOSTAT berlisensi CC BY 4.0, dan data FRED mengikuti ketentuan FRED. Tabel buatan tim di
-`data/reference/` kami rilis dengan lisensi CC BY 4.0. Rincian per sumber ada di [docs/DATASETS.md](docs/DATASETS.md).
+`data/reference/` kami rilis dengan lisensi CC BY 4.0, kecuali geometri peta `data/reference/indonesia_provinces.geojson`:
+© OpenStreetMap contributors, ODbL 1.0, via geoBoundaries (disederhanakan tim). Rincian per sumber ada di
+[docs/DATASETS.md](docs/DATASETS.md).
 
 ## 14. Dokumentasi lanjutan
 
