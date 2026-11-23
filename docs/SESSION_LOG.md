@@ -17,6 +17,8 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
   + `requirements.txt`. Salinan bersih (file git saja) & zip juri baru: 6/6 halaman AppTest tanpa exception/"Menunggu hasil".
 - `bundle` 77 file, `package` 178 file 47,6 MB tanpa artefak hilang. Belum: push ke GitHub (app live baru terisi setelahnya),
   unggah ulang `kagami_code.zip` ke Drive, rapikan 24 handoff berstatus terbuka.
+- Setelah push (PR #6) app daring masih "Menunggu hasil": `common.load` meng-cache `None` dan Cloud tidak me-restart proses (direproduksi
+  lokal) → D-136: ketiadaan tidak di-cache, kunci cache path + mtime + ukuran; tes regresi gagal di versi lama, lolos di versi baru.
 
 ### 2026-11-23 — Danen: eksekusi PLAN.md §18 (app, D-134)
 - `src/viz/style.py` baru; `plots` + `region_map`, `silhouette_threshold`, `scenario_paths`; halaman 2–5 ditata ulang; `app/common.py`

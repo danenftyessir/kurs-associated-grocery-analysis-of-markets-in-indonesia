@@ -415,6 +415,15 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-136 — App: artefak yang belum ada tidak di-cache; kunci cache memuat waktu ubah file · FINAL (teknis) · 2026-11-24 (WP-31) · Danen
+Setelah D-135 di-push dan di-merge ke `main`, app daring tetap "Menunggu hasil" untuk artefak yang baru ditambahkan (halaman 6 versi baru
+sudah jalan, tetapi `robustness` dianggap belum ada). Penyebab: `common.load` dibungkus `@st.cache_data` dan ikut menyimpan `None`;
+Streamlit Cloud menarik commit baru tanpa me-restart proses, sehingga `None` lama bertahan (direproduksi lokal dengan AppTest: file
+ditambahkan di proses yang sama → tetap "Menunggu hasil"). Diputuskan: `load` mencari lokasi file (`find_artifact`) tanpa cache dan
+mengembalikan `None` bila tidak ada; pembacaan di-cache dengan kunci (nama, path, mtime_ns, ukuran), jadi versi artefak baru juga
+langsung terbaca. Tes regresi `test_app_data::test_load_does_not_cache_missing` (gagal pada versi lama). Ditolak: `ttl` pada cache
+(tetap basi selama ttl). Untuk deploy yang sudah berjalan, sekali "Reboot app" di Streamlit Cloud mengosongkan cache lama.
+
 ### D-135 — Deploy app: artefak yang dibaca app di-track git; halaman 6 tidak menunggu robustness · FINAL (teknis) · 2026-11-24 (WP-31, WP-32) · Danen
 App di Streamlit Community Cloud (kagami.streamlit.app) kosong di keenam halaman ("Menunggu hasil") karena `.gitignore` mengabaikan
 `results/*` kecuali `findings.md`; Cloud hanya melihat isi repo. Diputuskan: `.gitignore` membuka 23 artefak yang dibaca app (± 1,4 MB;

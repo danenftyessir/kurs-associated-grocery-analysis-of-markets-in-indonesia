@@ -386,6 +386,8 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - 2026-11-24 (Danen, D-135): app live https://kagami.streamlit.app kosong di 6 halaman karena `results/*` di-gitignore → 23 artefak
   yang dibaca app (± 1,4 MB, `ship=True`) dibuka di `.gitignore`; hal. 6 menampilkan `findings.md` tanpa menunggu `robustness`.
   Salinan bersih berisi hanya file yang di-track git: 6/6 halaman AppTest tanpa "Menunggu hasil". App live baru terisi setelah di-push.
+- 2026-11-24 (Danen, D-136): setelah push app daring masih "Menunggu hasil" karena `common.load` meng-cache `None` dari sebelum artefak
+  ada → ketiadaan tidak lagi di-cache, kunci cache memuat mtime & ukuran file; tes regresi di `test_app_data`.
 
 ### WP-32 — Paket juri & uji jalan ulang (G7) ✅
 - 2026-11-21 (Ardell): `tests/test_package.py` membuktikan isi zip, tidak ada data tanpa hak redistribusi, dan CLI jalan dari folder ekstrak baru.

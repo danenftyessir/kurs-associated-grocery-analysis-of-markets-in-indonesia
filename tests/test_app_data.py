@@ -120,5 +120,23 @@ def test_page_runs_with_data(page, with_artifacts):
     assert page.stem in ("Home",) or not waiting, waiting              # semua artefak halaman ini tersedia
 
 
+def test_load_does_not_cache_missing(tmp_path, monkeypatch):
+    """Regresi D-135: artefak yang muncul setelah proses app jalan (git pull Streamlit Cloud) harus terbaca, begitu juga versi barunya."""
+    monkeypatch.syspath_prepend(str(APP))
+    sys.modules.pop("common", None)
+    st.cache_data.clear()
+    import common
+    c = Config(root=tmp_path, out_root=tmp_path)
+    monkeypatch.setattr(common, "CFG", c)
+    assert common.load("episodes") is None
+    ep = _artifacts()["episodes"]
+    write_artifact(c, "episodes", ep)
+    assert len(common.load("episodes")) == 1
+    write_artifact(c, "episodes", pd.concat([ep, ep.assign(episode_id=2)]))
+    assert len(common.load("episodes")) == 2
+    sys.modules.pop("common", None)
+    st.cache_data.clear()
+
+
 def test_every_artifact_in_registry():
     assert {"profiles", "clusters", "assoc"} <= set(ARTIFACTS)

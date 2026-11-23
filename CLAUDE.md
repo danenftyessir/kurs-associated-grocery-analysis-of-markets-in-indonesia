@@ -1117,7 +1117,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_forecast.py` | WP-25/26: tanpa kebocoran as-of, origin, model M0–M3 & M2_nofx, checkpoint |
 | `test_task1.py` | `task1.run` end-to-end pada artefak sintetis (B/R kecil): semua artefak tahap tertulis, interval tidak menyempit, tiga level |
 | `test_synthetic.py` | generator sintetis Task 1 (`tests/synthetic.py`): skema = kontrak artefak, jawaban tertanam pulih |
-| `test_app_data.py` | halaman Streamlit terender dengan artefak sintetis berskema kontrak, termasuk `national_calibrated`, `asymmetry`, `regime_profiles` (WP-31) |
+| `test_app_data.py` | halaman Streamlit terender dengan artefak sintetis berskema kontrak, termasuk `national_calibrated`, `asymmetry`, `regime_profiles` (WP-31); `load` tidak meng-cache artefak hilang & membaca versi baru (D-136) |
 | `test_package.py` | WP-32: isi zip juri, tanpa data tanpa hak redistribusi, artefak ship hilang dilaporkan, CLI jalan dari folder baru |
 | `test_runtime.py` | lokasi default, tulis out/baca artefak tahap sebelumnya, override raw, deteksi Kaggle, layout Colab |
 | `test_notebooks.py` | satu notebook per tahap, valid, sel 0–1 identik, tanpa output, sel setup jalan lokal |
@@ -1167,7 +1167,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 
 - `app/Home.py` = halaman 1 (Ringkasan & Status Data); `pages/2..6`: Kepekaan Harga Regional, Pola Respons, Eksposur &
   Nilai Prediktif, Penjelajah Skenario Bersyarat, Temuan Penelitian. Jalankan `python -m kagami app`.
-- `common.py`: alias paket, `CFG`, `load` (cache), `need` (label "Menunggu hasil (WP-xx)"), `page_header`, `footer`,
+- `common.py`: alias paket, `CFG`, `load` (cache per versi file; ketiadaan tidak di-cache, D-136), `need` (label "Menunggu hasil (WP-xx)"), `page_header`, `footer`,
   `not_detected_badge`, `commodity_labels`, `unit_names`, `load_geo`, `picker` (pilihan disimpan di URL `?key=`),
   `reset_button`, `table` (tabel kembaran grafik di expander).
 - Tampilan (D-134, PLAN.md §18): warna/label/format angka dari `viz.style` (jangan hex atau kode mentah seperti `e_neg` di halaman);
@@ -1259,6 +1259,7 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-136 | App: artefak yang belum ada tidak di-cache; kunci cache = path + mtime + ukuran (app daring tetap kosong setelah push) | FINAL (teknis) |
 | D-135 | Deploy app: 23 artefak yang dibaca app (± 1,4 MB, ship=True) di-track git; hal. 6 tidak menunggu robustness; `requirements.txt` di paket | FINAL (teknis) |
 | D-134 | Tampilan app (PLAN.md §18): palet tervalidasi `viz/style.py`, peta Indonesia offline (geoBoundaries ODbL, sumbu kartesius), provinsi = deviasi tersusut | FINAL (teknis) |
 | D-133 | U102: tumpang tindih konkordansi HS diuji pada 2023 (Comtrade API publik vs BPS bulanan) → 14/15 kode cocok persis | FINAL (teknis) |
@@ -1370,6 +1371,9 @@ Selesai: U1, U2, U18, U23.
     Selalu periksa NaN dulu (`viz.style.detection_status`).
 25. **Penanda konflik merge ikut ter-commit** (commit 04fc5ec, 4 dokumen): `test_docs_sync` menangkapnya lewat papan WP ganda; cari
     `^<<<<<<< ` di seluruh repo setelah setiap merge.
+26. **`st.cache_data` ikut menyimpan hasil "tidak ada"** (D-136): Streamlit Cloud menarik commit baru tanpa me-restart proses, jadi
+    `None` yang di-cache sebelum artefak di-push bertahan dan app tetap "Menunggu hasil". Jangan meng-cache ketiadaan; masukkan mtime
+    file ke kunci cache. Untuk deploy yang sudah tercemar: "Reboot app" di dasbor Streamlit Cloud.
 
 ---
 
