@@ -9,6 +9,18 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-24 — Danen: WP-36 ✅ (log eksekusi & evaluasi terpusat)
+- Audit + desain dilaporkan dulu, lalu `src/tracking/` (schemas, metrics berpenjaga, lineage sha256, evaluators per tahap, registry +
+  DAG dari REQUIRES, store JSON tidak ditimpa, logger `@tracked`), hook pengamat `utils.io`, CLI `evaluate`/`runs`, log ikut Drive &
+  zip juri, app hal. 7, `tests/test_tracking.py`, docs/TRACKING.md, D-137. Hasil analisis & params tidak berubah.
+- Run nyata (pipeline_id tunggal, out_dir sementara): stage0 41,5 dtk, task3 765 dtk, robustness 14,6 dtk, task2 120 dtk; task2 6/6 &
+  task3 4/4 output identik sha256 dengan artefak resmi; `evaluate all` untuk 7 tahap (Task 1 & 4 tanpa waktu eksekusi teramati).
+- Bug ditemukan & diperbaiki di sesi: dataset_id ikut menghitung `recorded_at` checksums (11 log sesi ini dikoreksi, ditandai di
+  `note`); pilihan run halaman 7 terbawa antar tahap; grafik plotly kosong di `st.tabs` tersembunyi → pemilih bagian.
+- `bundle` ulang: `dist/kagami_code.zip` 85 file (+ `src/tracking/`), `evaluate task2 task4` jalan dari folder ekstrak bersih.
+- Belum: commit/push (log masuk app daring setelahnya), unggah zip ke Drive/Kaggle `[HUMAN]`.
+- `package` ulang 03.31: 212 file 44,6 MB (+ logs, tracking); dari folder ekstrak bersih 7/7 halaman tanpa "Menunggu hasil".
+
 ### 2026-11-24 — Danen: analisis progres + perbaikan deploy app (D-135), G7 ulang
 - Analisis: semua WP analisis ✅; app live kagami.streamlit.app kosong (6 halaman "Menunggu hasil"); zip `dist/` basi (sebelum D-134).
   Rawan dikutip berlebihan: daging ayam β_e bertanda terbalik & tidak tahan Tier 1; 4/90 sel nasional ≈ harapan null; G-het daging ayam

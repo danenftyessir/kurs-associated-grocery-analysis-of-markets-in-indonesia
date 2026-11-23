@@ -13,6 +13,7 @@ from kagami.data import loaders
 from kagami.data import panel as panel_mod
 from kagami.data import reference
 from kagami.evaluation import robustness
+from kagami.tracking.logger import tracked
 from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact, require, write_artifact
 
@@ -20,6 +21,7 @@ REQUIRES = ("profiles", "events", "episodes", "panel_weekly", "eligibility", "dr
             "world_prices_weekly", "forecast_eval")
 
 
+@tracked("robustness")   # log eksekusi & evaluasi terpusat (WP-36, D-137)
 def run(cfg: Config, include_tier2: bool = False) -> None:
     require(cfg, *REQUIRES)
     panel, elig, drv, world = (read_artifact(cfg, n) for n in

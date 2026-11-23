@@ -1,0 +1,1522 @@
+{
+ "run_id": "task4-20261123T200523Z-12368a",
+ "task_id": "task4",
+ "evaluated_at": "2026-11-23T20:05:24+00:00",
+ "metrics": [
+  {
+   "name": "mae_h4_M0",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.074870302190244,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h4_M0",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.148090591370666,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h4_M0",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.01731509503861,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "dm_p_h4_M0",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.0617988585530846,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_h4_M1",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.0735959807884325,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h4_M1",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1415060593066673,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h4_M1",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_h4_M2",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.0746604612292031,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h4_M2",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1415843547839138,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h4_M2",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.014463839320664,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "dm_p_h4_M2",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.0011683920547096,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_h4_M2_nofx",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.0735959807884325,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h4_M2_nofx",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1415060593066673,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h4_M2_nofx",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "dm_p_h4_M2_nofx",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "DM tidak terdefinisi (model = pembanding / selisih galat konstan)",
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_h4_M3",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.0768199290258216,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h4_M3",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1459133209479111,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h4_M3",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.043806036727155,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "dm_p_h4_M3",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.0308887172102403,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 4,
+    "n_origins": 76,
+    "n_nonoverlap": 76,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_h8_M0",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1052837794683916,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h8_M0",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1964214890566341,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h8_M0",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.016100699147842,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "dm_p_h8_M0",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1614282120049044,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_h8_M1",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1036154975158351,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h8_M1",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1891112882282034,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h8_M1",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_h8_M2",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1053372758395144,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h8_M2",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1890464131441677,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h8_M2",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.0166169961536509,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "dm_p_h8_M2",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.0059594000407096,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_h8_M2_nofx",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1036154975158351,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h8_M2_nofx",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1891112882282034,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h8_M2_nofx",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "dm_p_h8_M2_nofx",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "DM tidak terdefinisi (model = pembanding / selisih galat konstan)",
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_h8_M3",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1051705764283229,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "rmse_h8_M3",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.1874082290240961,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_ratio_vs_m1_h8_M3",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.0150081691423627,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "dm_p_h8_M3",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 0.4938251325661389,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "subset": "semua origin, semua seri",
+    "horizon": 8,
+    "n_origins": 75,
+    "n_nonoverlap": 38,
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h5_rejected",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": false,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval",
+    "n_tests": 2
+   }
+  },
+  {
+   "name": "h5_min_p_holm",
+   "group": "evaluasi rolling-origin (artefak)",
+   "value": 1.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "forecast_eval"
+   }
+  },
+  {
+   "name": "h4_M0_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.074870302190244,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M0_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.021930823252513585,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M0_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.14809059137066605,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M0_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": -0.0004945278433807765,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M0_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M0_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "3672 dari 25612 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M1_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.07359598078843257,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M1_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.020023964820502053,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M1_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.14150605930666735,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M1_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.08649725557637233,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M1_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.08694878482470914,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M1_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "3672 dari 25612 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.07466046122920314,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.02004612951957719,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.14158435478391385,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.08548609152290121,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.08593812057285088,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "3672 dari 25612 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_nofx_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.07359598078843257,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_nofx_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.020023964820502053,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_nofx_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.14150605930666735,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_nofx_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.08649725557637233,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_nofx_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.08694878482470914,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M2_nofx_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "3672 dari 25612 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M3_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.07681992902582167,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M3_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.02129069723004813,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M3_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.14591332094791115,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M3_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.02870832401642942,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M3_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.029188417374714115,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h4_M3_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "3672 dari 25612 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25612,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 4,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M0_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.10528377946839163,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M0_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.03858140136322544,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M0_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.19642148905663412,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M0_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": -0.0014274757453693887,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M0_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M0_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "2345 dari 25274 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M0",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M1_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.10361549751583518,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M1_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.03576307933533063,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M1_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.18911128822820342,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M1_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.07172552063392845,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M1_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.07304872110169502,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M1_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "2345 dari 25274 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M1",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.10533727583951442,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.035738546322675355,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.18904641314416773,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.07236230499291274,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.0736845977621694,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "2345 dari 25274 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_nofx_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.10361549751583518,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_nofx_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.03576307933533063,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_nofx_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.18911128822820342,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_nofx_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.07172552063392845,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_nofx_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.07304872110169502,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M2_nofx_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "2345 dari 25274 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M2_nofx",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M3_mae",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.1051705764283229,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M3_mse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.03512184430594805,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M3_rmse",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.1874082290240961,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M3_r2",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.08836956035629528,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M3_r2_oos_vs_zero",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 0.0896690357280523,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "h8_M3_mape",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "2345 dari 25274 y_true = 0 (selisih log tanpa perubahan harga) → persentase galat tak terdefinisi",
+   "context": {
+    "n": 25274,
+    "n_dropped_nan": 0,
+    "artifact": "forecast_preds",
+    "horizon": 8,
+    "model": "M3",
+    "protocol": "rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at (features.forecast.split_origin; dites di tests/test_forecast.py)"
+   }
+  },
+  {
+   "name": "mae_crosscheck_max_abs_diff",
+   "group": "galat out-of-sample (dihitung ulang)",
+   "value": 8.326672684688674e-17,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "note": "cek integritas: MAE dari forecast_preds vs forecast_eval"
+   }
+  },
+  {
+   "name": "share_fx_improves",
+   "group": "ablation fitur kurs",
+   "value": 0.25,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "ablation",
+    "n": 20,
+    "subset": "semua origin, per komoditas",
+    "note": "delta_mae = MAE tanpa kurs − MAE penuh; > 0 berarti fitur kurs menurunkan MAE"
+   }
+  }
+ ],
+ "schema_version": 1
+}

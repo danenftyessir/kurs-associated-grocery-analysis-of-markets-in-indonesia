@@ -1,0 +1,28 @@
+{
+ "pipeline_id": "pipeline-20261123T200100Z-bcc0ba",
+ "started_at": "2026-11-23T20:01:00+00:00",
+ "finished_at": "2026-11-23T20:16:45+00:00",
+ "status": "success",
+ "runs": [
+  {
+   "run_id": "stage0-20261123T200100Z-3df742",
+   "task_id": "stage0",
+   "status": "success"
+  },
+  {
+   "run_id": "task3-20261123T200144Z-540ce9",
+   "task_id": "task3",
+   "status": "success"
+  },
+  {
+   "run_id": "robustness-20261123T201429Z-1b649e",
+   "task_id": "robustness",
+   "status": "success"
+  },
+  {
+   "run_id": "task2-20261123T201444Z-c1d5fb",
+   "task_id": "task2",
+   "status": "success"
+  }
+ ]
+}

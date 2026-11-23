@@ -1,0 +1,249 @@
+{
+ "run_id": "stage0-20261123T200100Z-3df742",
+ "task_id": "stage0",
+ "run_type": "execution",
+ "status": "success",
+ "started_at": "2026-11-23T20:01:00+00:00",
+ "finished_at": "2026-11-23T20:01:42+00:00",
+ "duration_s": 41.525,
+ "evaluation_s": 0.744,
+ "pipeline_id": "pipeline-20261123T200100Z-bcc0ba",
+ "parent_run_ids": [],
+ "dataset_id": "raw:c96ce7572b4c",
+ "platform": "local",
+ "python": "3.13.7",
+ "git_commit": "f01ccc374b8a87acd5452a45ffec1695cfb9b1cb",
+ "git_branch": "dev",
+ "config_sha256": {
+  "params.yaml": "43ed1daa3ac854461f6db9ca420b4668601ddf2819e237d6bab1cb4b4f1fb078",
+  "commodities.yaml": "537bb86f32a7d6ac74742c79c36f6b61f6e3fbc320373f83b84dfb19dcba0247"
+ },
+ "kind": "data_engineering",
+ "algorithms": [
+  "agregasi mingguan PIHPS",
+  "aturan kelayakan seri",
+  "deteksi episode depresiasi",
+  "MDE bentuk skor di bawah H0",
+  "QA silang sumber"
+ ],
+ "params": {
+  "period": {
+   "start": "2018-01-01",
+   "start_fallback": "2020-01-06",
+   "freeze": "2026-11-21",
+   "driver_buffer_weeks": 52
+  },
+  "weekly": {
+   "short_week_days": 2,
+   "carry_forward_run_days": 5
+  },
+  "eligibility": {
+   "max_missing_share": 0.2,
+   "max_gap_weeks": 8,
+   "min_year_coverage": 0.7
+  },
+  "episodes": {
+   "cum_depreciation": 0.03,
+   "window_weeks": 8
+  },
+  "power": {
+   "mde_alpha": 0.05,
+   "mde_power": 0.8,
+   "mde_threshold_pt8": 0.5,
+   "mde_commodities": [
+    "bawang_putih",
+    "gula_pasir",
+    "minyak_goreng"
+   ]
+  },
+  "seed": 20261121
+ },
+ "call_args": {},
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "checksums",
+   "path": "data/raw/checksums.csv",
+   "location": "out_dir",
+   "sha256": "55ef1efe8d1cc6368e2700dffd2c3eced67bec7f08980a2edb101609c0ec0a1d",
+   "bytes": 5195,
+   "rows": 28,
+   "columns": 6,
+   "missing_cells": 0,
+   "memory_mb": 0.011,
+   "producer_run_id": null
+  },
+  {
+   "name": "pihps_daily",
+   "path": "data/interim/pihps_daily.parquet",
+   "location": "out_dir",
+   "sha256": "6557514eb4867055694e0746d4e4964fac9d7b3d52fcb191233a352a67b66769",
+   "bytes": 1435023,
+   "rows": 800642,
+   "columns": 5,
+   "missing_cells": 0,
+   "memory_mb": 118.228,
+   "producer_run_id": null
+  },
+  {
+   "name": "panel_weekly",
+   "path": "data/processed/panel_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "17ef839f31171b17674a72b1f01ad806deb05174b659352b0370366ca5606130",
+   "bytes": 777791,
+   "rows": 157760,
+   "columns": 8,
+   "missing_cells": 4890,
+   "memory_mb": 25.131,
+   "producer_run_id": null
+  },
+  {
+   "name": "eligibility",
+   "path": "results/stage0/eligibility.csv",
+   "location": "out_dir",
+   "sha256": "53fbc5d0bcb5c8c586ba6ddb39d4a255ea2fb57bb1e24439e4b8f4baeb8660b2",
+   "bytes": 20878,
+   "rows": 340,
+   "columns": 6,
+   "missing_cells": 0,
+   "memory_mb": 0.03,
+   "producer_run_id": null
+  },
+  {
+   "name": "world_prices_weekly",
+   "path": "data/processed/world_prices_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "cc53e6dda096f26af7e18f2a20d51a3d0ea48d63b17f7649d9eae00f6db14edb",
+   "bytes": 35033,
+   "rows": 3096,
+   "columns": 7,
+   "missing_cells": 60,
+   "memory_mb": 0.316,
+   "producer_run_id": null
+  },
+  {
+   "name": "episodes",
+   "path": "results/stage0/episodes.csv",
+   "location": "out_dir",
+   "sha256": "0a31176cc60ada2e4b2fe445bde0dc05fe9f7ce3218efaf41f073698798b5ad2",
+   "bytes": 902,
+   "rows": 13,
+   "columns": 7,
+   "missing_cells": 0,
+   "memory_mb": 0.003,
+   "producer_run_id": null
+  },
+  {
+   "name": "drivers_weekly",
+   "path": "data/processed/drivers_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "d85f7d3188e7c61aa8bbed1f944b7e7d7c45d38b2e712251aca884e2fe682c77",
+   "bytes": 47417,
+   "rows": 516,
+   "columns": 15,
+   "missing_cells": 411,
+   "memory_mb": 0.047,
+   "producer_run_id": null
+  },
+  {
+   "name": "fx_variation",
+   "path": "results/stage0/fx_variation.csv",
+   "location": "out_dir",
+   "sha256": "1981a53962258bcccda6f0941a335f47eb63dd603b56acc9edba3d3cfd4cfbff",
+   "bytes": 1366,
+   "rows": 10,
+   "columns": 11,
+   "missing_cells": 0,
+   "memory_mb": 0.001,
+   "producer_run_id": null
+  },
+  {
+   "name": "panel_weekly_region",
+   "path": "data/processed/panel_weekly_region.parquet",
+   "location": "out_dir",
+   "sha256": "c7f7f659aaec59ae8601eac72dbeeb90a5222687fed0e72f4cab06236a3d5951",
+   "bytes": 306365,
+   "rows": 32480,
+   "columns": 5,
+   "missing_cells": 50,
+   "memory_mb": 4.364,
+   "producer_run_id": null
+  },
+  {
+   "name": "mde",
+   "path": "results/stage0/mde.csv",
+   "location": "out_dir",
+   "sha256": "8793df644a8377b80fb9e797bef034453afe761c433aa1bd61060874b73f186d",
+   "bytes": 29992,
+   "rows": 240,
+   "columns": 13,
+   "missing_cells": 630,
+   "memory_mb": 0.058,
+   "producer_run_id": null
+  },
+  {
+   "name": "stage0_report",
+   "path": "results/stage0/stage0_report.md",
+   "location": "out_dir",
+   "sha256": "fa9830ba15e170ebfa88c87d4d27e842a86505390eb31ace2597543ff61eb76c",
+   "bytes": 7502,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": null
+  },
+  {
+   "name": "concordance",
+   "path": "data/reference/concordance.csv",
+   "location": "out_dir",
+   "sha256": "278fbf2d800528232f65837af04028270b7ea3b1e6d221a3283165c6ff7a21b8",
+   "bytes": 1248,
+   "rows": 10,
+   "columns": 7,
+   "missing_cells": 5,
+   "memory_mb": 0.004,
+   "producer_run_id": null
+  },
+  {
+   "name": "exposure",
+   "path": "data/reference/exposure.csv",
+   "location": "out_dir",
+   "sha256": "7cb5b8fffa8f917e70a1866958307b6e6dd036a2093b3971ff5e1e778eb74f3a",
+   "bytes": 1477,
+   "rows": 10,
+   "columns": 7,
+   "missing_cells": 9,
+   "memory_mb": 0.003,
+   "producer_run_id": null
+  },
+  {
+   "name": "regulation",
+   "path": "data/reference/regulation.csv",
+   "location": "out_dir",
+   "sha256": "971766a6734f92d0b7b9ce9b1eb8fb398e415e71b0f4462ed3b05a978cd1783e",
+   "bytes": 11720,
+   "rows": 72,
+   "columns": 14,
+   "missing_cells": 133,
+   "memory_mb": 0.043,
+   "producer_run_id": null
+  },
+  {
+   "name": "province_features",
+   "path": "data/reference/province_features.csv",
+   "location": "out_dir",
+   "sha256": "0f5d99713be2b68d7655b9555267174988572b36cfd1ae2df51af34a48f6cde3",
+   "bytes": 3276,
+   "rows": 34,
+   "columns": 8,
+   "missing_cells": 1,
+   "memory_mb": 0.002,
+   "producer_run_id": null
+  }
+ ],
+ "peak_rss_mb": 784.8,
+ "error_type": null,
+ "note": "dataset_id dikoreksi 2026-11-24 ke raw_snapshot_id (versi awal ikut menghitung kolom waktu checksums)",
+ "schema_version": 1
+}

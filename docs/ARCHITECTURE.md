@@ -20,6 +20,8 @@ flowchart LR
   S0 -->|nb04 · pipelines.task4| T4[(forecast_eval · ablation)]
   T1 & T4 -->|nb05 · pipelines.robustness| ROB[(robustness)]
   T2 & T3 & T4 & ROB --> APP[app/ Streamlit]
+  S0 & T1 & T2 & T3 & T4 & ROB -.->|tracking: log run + evaluasi| LOG[(logs/)]
+  LOG -.-> APP
 ```
 
 Task 4 hanya butuh Tahap 0 → paralel dengan Task 1.
@@ -35,6 +37,8 @@ data/reference/     tabel buatan tim (CC BY 4.0): region_crosswalk, province_ali
 data/interim/       antara, boleh dihapus (pihps_daily; `forecast_preds` ikut di-push ke Drive tim agar tahan sesi habis)
 data/processed/     panel & penggerak mingguan
 results/            keluaran analisis per tahap (dibaca app)
+logs/               log pelacakan JSON (WP-36, D-137): runs/ · evaluations/ · errors/ · pipelines/ (satu file per run,
+                    tidak pernah ditimpa; dibaca app hal. 7; skema & matriks metrik: TRACKING.md)
 notebooks/          00_stage0_data · 01_task1_profiles · 02_task2_patterns · 03_task3_association
                     04_task4_forecast · 05_robustness
 src/                paket `kagami` (package-dir di pyproject, D-024)
@@ -53,8 +57,11 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
                     circular shift), meta (DL, REML, EB, BH)
   pipelines/        stage0 · task1 · task2 · task3 · task4 · robustness (REQUIRES + run(cfg)) · package (zip juri, bundle)
   viz/              plots: grafik bersama notebook & app · style: palet, label, format angka, tata letak grafik
-app/                Home.py (hal. 1) + pages/2..6 + common.py
-tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
+  tracking/         log eksekusi & evaluasi terpusat: schemas · metrics (berpenjaga) · lineage (sha256, run induk) ·
+                    evaluators (per tahap) · registry (spesifikasi tahap, graf dependensi) · store (JSON) · logger
+                    (`@tracked` di setiap pipelines.<tahap>.run, `pipeline`, `evaluate_existing`)
+app/                Home.py (hal. 1) + pages/2..7 + common.py (hal. 7 = Evaluasi & Riwayat Eksekusi, membaca logs/)
+tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download · tracking
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)
 ```
@@ -69,6 +76,7 @@ Aturan lapisan: `data` → `features` → `models` → `evaluation`; `stats` & `
 | `models` | estimator (LP, event study, clustering, asosiasi, peramalan) | menulis artefak |
 | `evaluation` | inferensi, uji, metrik, robustness | menulis artefak |
 | `pipelines` | urutan langkah + `require` input + `write_artifact` | logika analisis |
+| `tracking` | log run, lineage, metrik evaluasi dari artefak yang sudah ditulis (WP-36) | mengubah artefak / hasil |
 
 ## 3. Runtime: lokal / Kaggle / Colab (D-027)
 
@@ -85,7 +93,10 @@ Aturan lapisan: `data` → `features` → `models` → `evaluation`; `stats` & `
   `utils.drive.pull(cfg, <tahap>.REQUIRES)` di awal dan `utils.drive.push(cfg, stages=...)` di akhir; lokal lewat
   `python -m kagami drive-pull/drive-push`. Struktur di Drive = path artefak relatif out_dir. Kredensial: Colab login
   interaktif; Kaggle Secret `KAGAMI_DRIVE_TOKEN`; lokal `~/.kagami/drive_token.json` (`drive-auth`).
-- Override manual: env `KAGAMI_ROOT`, `KAGAMI_RAW_DIR`, `KAGAMI_OUT_DIR`, `KAGAMI_ARTIFACT_DIRS` (pemisah `os.pathsep`).
+- Override manual: env `KAGAMI_ROOT`, `KAGAMI_RAW_DIR`, `KAGAMI_OUT_DIR`, `KAGAMI_ARTIFACT_DIRS` (pemisah `os.pathsep`);
+  `KAGAMI_TRACKING=0` mematikan log pelacakan.
+- Log pelacakan ditulis ke `out_dir/logs/` dan ikut `drive.push` (`push_logs`); `drive.pull` juga menarik log (`pull_logs`)
+  sehingga run induk dari Kaggle/Colab terbaca di lokal ([TRACKING.md](TRACKING.md)).
 - Sel pertama setiap notebook (identik di semua notebook, dites) menemukan folder kode dan mendaftarkan `kagami`
   tanpa `pip install`; hanya dependensi yang hilang yang dipasang.
 
@@ -98,7 +109,9 @@ Aturan lapisan: `data` → `features` → `models` → `evaluation`; `stats` & `
 | `python -m kagami snapshot` | hash file mentah → `data/raw/checksums.csv` |
 | `python -m kagami download [KEY ...]` | Tingkat C: unduh ulang sumber http, bandingkan hash; sumber manual → instruksi |
 | `python -m kagami stage0` / `task1` / … / `robustness [--tier2]` | satu tahap (= notebook yang sama) |
-| `python -m kagami all` | semua tahap berurutan |
+| `python -m kagami all` | semua tahap berurutan (satu `pipeline_id` di log) |
+| `python -m kagami evaluate [TAHAP/all ...]` | evaluasi artefak tahap yang sudah ada tanpa menjalankan ulang → `logs/` (WP-36) |
+| `python -m kagami runs` | riwayat run tercatat + tahap yang inputnya berubah setelah run terakhir (hasil basi) |
 | `python -m kagami bundle [--raw]` | `dist/kagami_code.zip` untuk Kaggle/Colab (+ `kagami_raw_PRIVATE.zip`) |
 | `python -m kagami drive-pull [TAHAP/all ...]` | unduh artefak input tahap (atau semua) dari folder Drive tim ke out_dir |
 | `python -m kagami drive-push TAHAP ...` | unggah artefak hasil tahap ke folder Drive tim |

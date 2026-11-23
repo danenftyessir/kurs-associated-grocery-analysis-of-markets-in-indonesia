@@ -36,6 +36,7 @@ aturan, data, metode ringkas, jebakan yang sudah ditemukan, dan template. Bagian
 | Hipotesis yang dibekukan | `docs/PREREGISTRATION.md` (beku setelah G6) |
 | Riwayat sesi (per anggota) | `docs/SESSION_LOG.md` |
 | Pesan antar anggota (serah-terima) | `docs/handoff/*.md`, format `docs/HANDOFF.md` |
+| Log eksekusi & evaluasi (skema, matriks tahap × metrik) | `docs/TRACKING.md` + `src/tracking/` |
 
 CLAUDE.md meringkas semua di atas agar agent bisa bekerja tanpa membuka semuanya; bila ringkasan di sini bertentangan
 dengan sumber kebenaran, ikuti sumber kebenaran lalu perbaiki CLAUDE.md.
@@ -109,7 +110,8 @@ Tanggal acuan: 2026-11-24. Papan lengkap: `docs/WORKPLAN.md`.
   WP-13 (LP nasional; 6 dtk untuk 10 komoditas × 13 h × 2 spesifikasi sejak D-118, sebelumnya 23–29 dtk), WP-14 (event study), WP-18 (G-het pada Task 1 asli, 2026-11-22), WP-21 (struktur tertanam, D-126), WP-22 (Kendall E1 resmi),
   WP-27 (evaluasi Task 4 asli, 2026-11-23), WP-28 (Tier 1; artefak `robustness` ditulis bersama validasi, 11 dtk), WP-29 (V2 & V4),
   WP-30 (Tier 2 di artefak `robustness`, 2026-11-23), dan WP jalur B yang ditutup Danen 2026-11-23 (D-130): WP-07, WP-15, WP-16,
-  WP-17, WP-19, WP-20, WP-23, WP-24, WP-25, WP-26, WP-31 (app), WP-32 (paket juri; G7 lolos 2026-11-23, Tingkat A & B).
+  WP-17, WP-19, WP-20, WP-23, WP-24, WP-25, WP-26, WP-31 (app), WP-32 (paket juri; G7 lolos 2026-11-23, Tingkat A & B),
+  WP-36 (log eksekusi & evaluasi terpusat `src/tracking/` + app hal. 7, 2026-11-24, D-137).
 - **Sedang (🔶):** WP-33 (`findings.md` ada; makalah ditunda), WP-34 (audit app & findings selesai; makalah menunggu).
 - **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`,
   `episodes`, `drivers_weekly`, `fx_variation`, `panel_weekly_region`, `mde`, `stage0_report`, Task 1–3, Task 4 (`forecast_preds`,
@@ -159,8 +161,14 @@ Tanggal acuan: 2026-11-24. Papan lengkap: `docs/WORKPLAN.md`.
 - **App daring & G7 ulang (D-135, 2026-11-24):** https://kagami.streamlit.app membaca artefak dari repo; 23 artefak yang dibaca app
   (± 1,4 MB, `ship=True`) kini di-track git (`.gitignore`), jadi artefak yang berubah harus ikut di-commit. `dist/` dibangun ulang
   (`bundle` 77 file, `package` 178 file 47,6 MB); Tingkat A 6/6 halaman dari zip baru. App live terisi setelah perubahan ini di-push.
+- **Log eksekusi & evaluasi (WP-36, D-137, 2026-11-24):** `logs/` berisi 11 run (7 evaluasi-saja artefak resmi + 4 eksekusi nyata
+  stage0/task3/robustness/task2, dataset `raw:c96ce7572b4c`); hasil eksekusi task2 & task3 identik sha256 dengan artefak resmi.
+  App hal. 7 membaca `logs/`; log ikut commit (app daring) dan zip juri. Task 1 & 4 berikutnya di Kaggle tercatat otomatis bila
+  `kagami_code.zip` diperbarui.
 - **Berikutnya — Danen (semua jalur):** push pekerjaan lewat `feat/` (remote `dev` maju; U102 selesai 2026-11-23, D-133);
-  unggah ulang `kagami_code.zip` (2026-11-24) ke `MyDrive/kagami/`; makalah & video saat dilanjutkan (WP-33/34). Pembekuan hasil 27 Nov.
+  unggah ulang `kagami_code.zip` (dibangun ulang 2026-11-24 03.27, 85 file termasuk `src/tracking/`; diuji dari folder ekstrak bersih)
+  ke `MyDrive/kagami/` dan dataset Kaggle `kagami-code`; zip juri `dist/kagami_submission.zip` dibangun ulang 03.31 (212 file, 44,6 MB, + `logs/` 23 file & tracking; Tingkat A 7/7
+  halaman dari folder ekstrak bersih tanpa "Menunggu hasil"); makalah & video saat dilanjutkan (WP-33/34). Pembekuan hasil 27 Nov.
   Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
 - **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + token Drive per anggota (U100),
@@ -302,6 +310,9 @@ cfg = get_config()
   (jalankan dari root project). CLI tanpa instalasi: tambahkan `from kagami.cli import main; main(["status"])`.
 - Hasil cloud ke lokal: `python -m kagami drive-pull all` (butuh token, §7.3). Hasil lokal ke tim: `drive-push <tahap>`.
 - Data mentah dari Drive tim: `python -m kagami drive-pull-raw` (tidak menimpa). Danen memperbarui: `drive-push-raw`.
+- Log eksekusi (WP-36, D-137): setiap `pipelines.<tahap>.run` tercatat otomatis di `out_dir/logs/`; `python -m kagami evaluate
+  [TAHAP|all]` mengevaluasi artefak yang ada tanpa menjalankan ulang; `python -m kagami runs` = riwayat + hasil basi.
+  Matikan dengan env `KAGAMI_TRACKING=0`.
 
 ### 4.5 Jebakan perkakas yang sudah terjadi
 - `Path.write_text` di Windows menulis **CRLF**. Semua file teks project sudah dinormalkan ke LF; saat mengedit lewat
@@ -381,9 +392,10 @@ datmin/
 │   ├── interim/              pihps_daily.parquet, forecast_preds.parquet (boleh dihapus)
 │   └── processed/            panel_weekly, panel_weekly_region, drivers_weekly, world_prices_weekly
 ├── results/                  stage0/, task1/, task2/, task3/, task4/, robustness.csv, findings.md
+├── logs/                     log pelacakan JSON (WP-36): runs/, evaluations/, errors/, pipelines/ — tidak pernah ditimpa
 ├── notebooks/                00_stage0_data … 05_robustness (.ipynb, tanpa output)
 ├── src/                      paket kagami (§6, §9)
-├── app/                      Streamlit: Home.py (hal. 1), pages/2..6, common.py
+├── app/                      Streamlit: Home.py (hal. 1), pages/2..7, common.py
 ├── tests/                    §16
 ├── docs/                     proposal & juknis (PDF) + dokumen kerja (§0.2); docs/arsip/ = inventaris dataset xlsx (arsip)
 │   └── handoff/              satu file per serah-terima antar anggota (format docs/HANDOFF.md, dites)
@@ -398,6 +410,7 @@ datmin/
 utils  ←───────────── dipakai semua lapisan
 stats  ←───────────── dipakai features/models/evaluation
 data → features → models → evaluation → pipelines → (cli, notebooks) ; viz ← (app, notebooks)
+tracking ← pipelines (dekorator), cli, app (membaca log)
 ```
 
 | Lapisan | Tanggung jawab | Boleh import | Tidak boleh |
@@ -410,6 +423,7 @@ data → features → models → evaluation → pipelines → (cli, notebooks) ;
 | `evaluation` | inferensi, uji, metrik, MDE, robustness | utils, stats, features, models | write_artifact |
 | `pipelines` | urutan langkah, `require` input, `write_artifact` | semua lapisan | logika analisis |
 | `viz` | grafik plotly dari artefak | pandas, plotly | menghitung estimasi |
+| `tracking` | log eksekusi & evaluasi: run ID, lineage sha256, metrik berpenjaga per tahap (WP-36, D-137) | utils, data.snapshot, features/models/evaluation (hanya membaca ulang artefak) | mengubah artefak; import pipelines di tingkat modul |
 
 Aturan praktis:
 - Fungsi lapisan bawah menerima & mengembalikan DataFrame/ndarray; yang membaca/menulis artefak hanya `pipelines/`.
@@ -515,8 +529,10 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 
 #### src/cli.py
 - `status` · ✔ · cetak sumber mentah (ada/tidak) dan artefak (ada, lokasi, WP, ship).
-- `main` · ✔ · argparse: status, snapshot, download, stage0..robustness, all, package, bundle [--raw], app,
-  drive-pull [TAHAP|all], drive-push TAHAP, drive-push-raw, drive-pull-raw, drive-auth --client-secret.
+- `runs` · ✔ · riwayat run tercatat (`logs/`) + input yang berubah setelah run terakhir tiap tahap (WP-36).
+- `main` · ✔ · argparse: status, snapshot, download, stage0..robustness, all (satu pipeline_id), evaluate [TAHAP|all], runs,
+  package, bundle [--raw], app, drive-pull [TAHAP|all] (+ log), drive-push TAHAP, drive-push-raw, drive-pull-raw,
+  drive-auth --client-secret.
 
 #### src/utils/config.py
 - `get_config` · ✔ · `Config()` dengan default + env var.
@@ -536,6 +552,8 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `write_artifact` · ✔ · tulis + validasi kolom.
 - `read_artifact` · ✔ · baca + validasi kolom; `ArtifactMissing`.
 - `require` · ✔ · gagal cepat bila input tahap belum ada.
+- `add_observer` · ✔ · daftarkan pengamat fn(event, name, path) setelah setiap read/write artefak (lineage WP-36; galat pengamat ditelan).
+- `remove_observer` · ✔ · lepas pengamat.
 
 #### src/utils/drive.py
 (kelas `GoogleDriveClient` = pembungkus Drive API v3; `DriveClient` = protokol untuk tes; `DriveUnavailable`)
@@ -546,6 +564,8 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `authorize_local` · ✔ · OAuth di browser → simpan token JSON (isi untuk Kaggle Secret).
 - `push_raw` · ✔ · unggah semua file sumber + checksums ke `data/raw/` Drive tim; MD5 sama dilewati (D-101).
 - `pull_raw` · ✔ · unduh file sumber yang belum ada di raw_dir (termasuk sumber glob); tidak pernah menimpa (D-101).
+- `push_logs` · ✔ · unggah log pelacakan baru `logs/<jenis>/<id>.json` ke Drive tim (dipanggil `push`; tidak menimpa, WP-36).
+- `pull_logs` · ✔ · unduh log yang belum ada di out_dir/logs (dipanggil `pull`; lineage lintas platform, WP-36).
 
 #### src/utils/dates.py
 - `week_start` · ✔ · tanggal → Senin minggu ISO (normalize).
@@ -810,6 +830,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `forest` · ✔ · forest plot estimasi + interval (nb03, nb05).
 - `sensitivity_heatmap` · ✔ · peta kepekaan respons kumulatif per komoditas × unit dari `response_features` (app hal. 2).
 - `cluster_sizes` · ✔ · jumlah provinsi per klaster + stabilitas Jaccard, klaster lemah ditandai (app hal. 3).
+- `run_durations` · ✔ · waktu eksekusi per run, warna = status (app hal. 7).
+- `metric_trend` · ✔ · satu metrik antar run sebuah tahap; tidak berlaku/gagal ditandai (app hal. 7).
+- `pipeline_graph` · ✔ · graf dependensi tahap dari REQUIRES/OPTIONAL, status run terakhir, tanda basi (app hal. 7).
 
 #### src/viz/style.py
 (konstanta palet `BLUE`/`ORANGE`/`AQUA`/`NEUTRAL`, `DIVERGING`, `SEQUENTIAL`, `STATUS_COLORS`, `MODEL_COLORS`; label `DRIVER_LABELS`,
@@ -819,6 +842,78 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `detection_status` · ✔ · lencana terdeteksi / tidak terdeteksi / interval tidak tersedia (NaN).
 - `rgba` · ✔ · hex → rgba() untuk pita transparan.
 - `finish` · ✔ · tata letak seragam: judul, subjudul terbungkus, pemisah angka Indonesia, legenda di bawah.
+
+### 9.9 Pelacakan eksekusi & log evaluasi (WP-36, D-137; rincian `docs/TRACKING.md`)
+
+#### src/tracking/schemas.py
+(dataclass `ArtifactRef`, `Metric` (status ok | not_applicable | failed; selain ok wajib `reason`), `RunRecord`, `ErrorRecord`,
+`EvaluationRecord`; `SCHEMA_VERSION`)
+- `to_dict` · ✔ · dataclass → dict siap JSON.
+- `run_from_dict` · ✔ · dict JSON → RunRecord (kunci tak dikenal diabaikan).
+- `metric_from_dict` · ✔ · dict JSON → Metric.
+
+#### src/tracking/metrics.py
+- `ok` · ✔ · Metric berhasil; NaN/inf otomatis `failed`.
+- `na` · ✔ · Metric `not_applicable` + alasan.
+- `failed` · ✔ · Metric `failed` + alasan.
+- `clustering_metrics` · ✔ · n_clusters, ukuran, WCSS, silhouette/DB/CH hanya bila 2 ≤ k ≤ n − 1 dan tanpa NaN.
+- `regression_metrics` · ✔ · MAE, MSE, RMSE, R², R² vs ramalan nol, MAPE (tidak berlaku bila ada y = 0); pasangan NaN dibuang & dicatat.
+- `data_profile` · ✔ · baris, kolom, sel kosong, memori (MB) sebuah DataFrame.
+- `interval_consistency` · ✔ · porsi baris dengan p < α ⇔ interval tidak memuat nol + jumlah ketidakcocokan.
+- `share` · ✔ · porsi True (NaN dibuang).
+
+#### src/tracking/lineage.py
+(kelas `Recorder` = pengamat io: input di-hash saat dibaca, output di akhir run)
+- `location_label` · ✔ · out_dir | artifact_dir | root | other (path absolut tidak dicatat).
+- `artifact_ref` · ✔ · ArtifactRef: sha256, bytes, (output) baris/kolom/sel kosong/memori.
+- `producer_index` · ✔ · sha256 → run sukses terakhir yang menulis file itu.
+- `link_parents` · ✔ · isi producer_run_id input → daftar run induk.
+- `raw_snapshot_id` · ✔ · `raw:<12 heks>` dari pasangan (file, sha256) checksums; kolom waktu tidak ikut.
+- `dataset_id` · ✔ · `raw_snapshot_id` / warisan induk / `in:<hash input>`.
+- `config_hashes` · ✔ · sha256 params.yaml & commodities.yaml.
+- `git_info` · ✔ · (commit, branch) dari .git tanpa menjalankan git.
+- `peak_rss_mb` · ✔ · memori puncak proses (psutil/resource; None bila tak ada).
+- `python_version` · ✔ · versi Python.
+
+#### src/tracking/registry.py
+(`TaskSpec`, `TASKS` 7 tahap, `ORDER`, `NOT_APPLICABLE_FAMILIES`)
+- `task_params` · ✔ · bagian params.yaml relevan tahap + seed.
+- `stage_requires` · ✔ · REQUIRES/OPTIONAL setiap pipeline (impor lokal).
+- `dependency_edges` · ✔ · sisi produsen → konsumen per artefak (wajib/opsional) + snapshot → stage0.
+- `stage_outputs` · ✔ · artefak registry milik tahap.
+
+#### src/tracking/store.py
+- `now_iso` · ✔ · waktu UTC ISO (mikrodetik, agar run dalam detik yang sama tetap terurut).
+- `write_record` · ✔ · tulis `out_dir/logs/<jenis>/<id>.json` mode eksklusif (FileExistsError bila ada; tidak menimpa).
+- `log_dirs` · ✔ · folder `logs/` di setiap read_dirs.
+- `load_runs` · ✔ · semua RunRecord urut waktu (lokasi baca pertama menang).
+- `load_evaluation` · ✔ · EvaluationRecord sebuah run atau None.
+- `load_errors` · ✔ · log galat per run.
+- `load_pipelines` · ✔ · ringkasan `kagami all`.
+- `runs_table` · ✔ · riwayat satu baris per run + ringkasan evaluasi.
+- `metrics_table` · ✔ · metrik long (run, tahap, kelompok, nama, nilai, status, alasan, konteks).
+- `compare_runs` · ✔ · metrik + delta vs run acuan, beda parameter/lingkungan, sha256 input/output per run.
+- `latest_runs` · ✔ · run terakhir per tahap.
+- `staleness` · ✔ · input run terakhir yang file-nya kini berbeda (hasil basi).
+
+#### src/tracking/evaluators.py
+(`EVALUATORS`; hanya membaca artefak; artefak hilang → not_applicable + alasan; galat bagian → failed)
+- `evaluate_snapshot` · ✔ · jumlah file, sumber, MB.
+- `evaluate_stage0` · ✔ · porsi status sel, kelayakan, episode, sd(de), MDE PT(8), lonjakan QA.
+- `evaluate_task1` · ✔ · jumlah estimasi, porsi interval tidak memuat nol, positif palsu plasebo, boot_ratio, event study; R² = tidak berlaku.
+- `evaluate_task2` · ✔ · H0-Het, silhouette per k vs p95, validitas partisi terpilih, DB/CH kandidat, cek silhouette dihitung ulang, batas deteksi, ARI.
+- `evaluate_task3` · ✔ · Kendall, meta-regresi, H2, E2, terkalibrasi + konsistensi p–interval.
+- `evaluate_task4` · ✔ · MAE/RMSE/rasio/DM resmi, galat dihitung ulang dari forecast_preds (cek silang MAE), ablation.
+- `evaluate_robustness` · ✔ · baris per tier, porsi baseline dalam interval, V4.
+- `evaluate` · ✔ · dispatcher per tahap (tahap tanpa evaluator → not_applicable).
+
+#### src/tracking/logger.py
+- `enabled` · ✔ · False bila env `KAGAMI_TRACKING` = 0/false/no/off.
+- `new_id` · ✔ · `<prefix>-YYYYmmddTHHMMSSZ-<6 heks>`.
+- `run_tracked` · ✔ · jalankan fungsi tahap sebagai run tercatat; gagal → log galat lalu exception dilempar ulang; bertingkat = satu run.
+- `tracked` · ✔ · dekorator `pipelines.<tahap>.run`.
+- `pipeline` · ✔ · konteks satu pipeline_id (`kagami all`) → logs/pipelines.
+- `evaluate_existing` · ✔ · evaluasi artefak yang ada tanpa menjalankan ulang (duration_s = None).
 
 ---
 
@@ -1122,16 +1217,17 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_runtime.py` | lokasi default, tulis out/baca artefak tahap sebelumnya, override raw, deteksi Kaggle, layout Colab |
 | `test_notebooks.py` | satu notebook per tahap, valid, sel 0–1 identik, tanpa output, sel setup jalan lokal |
 | `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis; tanpa interval → tanpa pita; format angka & lencana (regresi NaN); peta tanpa subplot geo (offline) & nilai wilayah ke provinsi; V18 hanya Tier 1/2 + komponen dekomposisi; V19 subjudul H2; geometri referensi = 34 provinsi crosswalk |
-| `test_app.py` | 6 halaman Streamlit jalan tanpa exception (artefak ada/belum) |
+| `test_app.py` | 7 halaman Streamlit jalan tanpa exception (artefak ada/belum) |
 | `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app |
 | `test_claude_md.py` | §9 dokumen ini sinkron dengan kode (fungsi publik & status stub) |
 | `test_handoff.py` | format setiap `docs/handoff/*.md`: nama file, frontmatter, bagian wajib, status vs kotak centang |
 | `test_drive.py` | sinkron Drive dengan Drive palsu di memori: path dicerminkan, timpa bukan duplikat, pull ke anggota lain, hanya tahap diminta, lokal tanpa token dilewati, push/pull data mentah bolak-balik (MD5, glob, tidak menimpa) |
 | `test_download.py` | resolusi tautan unduhan terbaru (pola Pink Sheet) & url cadangan, tanpa jaringan |
+| `test_tracking.py` | WP-36: metrik clustering/regresi = rumus numpy independen, penjaga not_applicable (k = 1, k = n, NaN, y = 0), run sukses/gagal & galat dilempar ulang, log tidak ditimpa, bertingkat & pipeline_id, run induk dari hash, hasil basi & perbandingan, evaluasi-saja, graf DAG, git, log Drive bolak-balik, cek integritas silhouette & MAE pada artefak asli, halaman app 7 |
 | `test_docs_sync.py` | dokumen hidup tidak basi: tautan & path ada, papan WP vs stub, §2 vs papan, ID D-/U- ada, kunci `params.*` ada, sumber/komoditas/notebook/subpaket/tes terdokumentasi (§3.4) |
 
 ### 16.2 Menjalankan
-- Semua: `python -m pytest -q` (± 8–9 menit; 334 tes pada 2026-11-24). Subset: `python -m pytest -q tests/test_weekly.py -k eligibility`.
+- Semua: `python -m pytest -q` (± 2–9 menit; 355 tes pada 2026-11-24). Subset: `python -m pytest -q tests/test_weekly.py -k eligibility`.
 - Tes yang butuh mentah di-skip otomatis bila mentah tidak ada (paket juri).
 
 ### 16.3 Pola tes yang disarankan
@@ -1165,8 +1261,9 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 
 ## 18. App Streamlit
 
-- `app/Home.py` = halaman 1 (Ringkasan & Status Data); `pages/2..6`: Kepekaan Harga Regional, Pola Respons, Eksposur &
-  Nilai Prediktif, Penjelajah Skenario Bersyarat, Temuan Penelitian. Jalankan `python -m kagami app`.
+- `app/Home.py` = halaman 1 (Ringkasan & Status Data); `pages/2..7`: Kepekaan Harga Regional, Pola Respons, Eksposur &
+  Nilai Prediktif, Penjelajah Skenario Bersyarat, Temuan Penelitian, Evaluasi & Riwayat Eksekusi (WP-36: membaca `logs/`,
+  bukan artefak; ringkasan, metrik per tahap, perbandingan run, alur pipeline, riwayat). Jalankan `python -m kagami app`.
 - `common.py`: alias paket, `CFG`, `load` (cache per versi file; ketiadaan tidak di-cache, D-136), `need` (label "Menunggu hasil (WP-xx)"), `page_header`, `footer`,
   `not_detected_badge`, `commodity_labels`, `unit_names`, `load_geo`, `picker` (pilihan disimpan di URL `?key=`),
   `reset_button`, `table` (tabel kembaran grafik di expander).
@@ -1185,7 +1282,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 
 - Mentah dengan `redistribute: false` (PIHPS, JISDOR, BPS, Comtrade, Bapanas, BPS pangan) tidak boleh masuk zip juri.
 - Zip juri (`python -m kagami package`): kode, configs, app, tes, docs/*.md, data/reference, artefak `ship=True`,
-  mentah `redistribute: true`. Gagal bila artefak ship belum ada (kecuali `--allow-missing`).
+  mentah `redistribute: true`, log `logs/*/*.json` (WP-36; tanpa data mentah, path relatif). Gagal bila artefak ship belum ada (kecuali `--allow-missing`).
 - Dataset Kaggle mentah wajib **privat**; jangan membagikan tautan (U24). Izin BI (U13) mencakup redistribusi data turunan: `panel_weekly` ikut paket (D-104); PIHPS mentah & `pihps_daily` tidak.
 - Saat menyebut data: "Dataset turunan kami yang dibangun dari PIHPS (Bank Indonesia)", bukan "dataset kami".
 - Tiga tingkat reproduksi: A app dari results; B semua tahap dari data turunan yang dikirim (panel provinsi + wilayah, D-104);
@@ -1259,6 +1356,7 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-137 | Log eksekusi & evaluasi terpusat `src/tracking/` + `logs/` (JSON per run, tidak ditimpa), lineage sha256, metrik berpenjaga, app hal. 7; hasil analisis & params tidak berubah | FINAL (teknis) |
 | D-136 | App: artefak yang belum ada tidak di-cache; kunci cache = path + mtime + ukuran (app daring tetap kosong setelah push) | FINAL (teknis) |
 | D-135 | Deploy app: 23 artefak yang dibaca app (± 1,4 MB, ship=True) di-track git; hal. 6 tidak menunggu robustness; `requirements.txt` di paket | FINAL (teknis) |
 | D-134 | Tampilan app (PLAN.md §18): palet tervalidasi `viz/style.py`, peta Indonesia offline (geoBoundaries ODbL, sumbu kartesius), provinsi = deviasi tersusut | FINAL (teknis) |

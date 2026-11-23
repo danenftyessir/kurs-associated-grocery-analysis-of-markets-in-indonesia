@@ -9,6 +9,7 @@ import pandas as pd
 from kagami.evaluation import asymmetry, calibration, regimes
 from kagami.models import association
 from kagami.models import local_projection as lp
+from kagami.tracking.logger import tracked
 from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact, require, write_artifact
 
@@ -22,6 +23,7 @@ def _maybe(cfg: Config, name: str) -> pd.DataFrame | None:
     return read_artifact(cfg, name) if exists(cfg, name) else None
 
 
+@tracked("task3")   # log eksekusi & evaluasi terpusat (WP-36, D-137)
 def run(cfg: Config) -> None:
     require(cfg, *REQUIRES)
     exposure, feats, zf = (read_artifact(cfg, n) for n in REQUIRES)

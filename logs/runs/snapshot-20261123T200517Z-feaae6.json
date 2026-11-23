@@ -1,0 +1,48 @@
+{
+ "run_id": "snapshot-20261123T200517Z-feaae6",
+ "task_id": "snapshot",
+ "run_type": "evaluation",
+ "status": "success",
+ "started_at": "2026-11-23T20:05:17+00:00",
+ "finished_at": "2026-11-23T20:05:17+00:00",
+ "duration_s": null,
+ "evaluation_s": 0.003,
+ "pipeline_id": null,
+ "parent_run_ids": [],
+ "dataset_id": "raw:c96ce7572b4c",
+ "platform": "local",
+ "python": "3.13.7",
+ "git_commit": "f01ccc374b8a87acd5452a45ffec1695cfb9b1cb",
+ "git_branch": "dev",
+ "config_sha256": {
+  "params.yaml": "43ed1daa3ac854461f6db9ca420b4668601ddf2819e237d6bab1cb4b4f1fb078",
+  "commodities.yaml": "537bb86f32a7d6ac74742c79c36f6b61f6e3fbc320373f83b84dfb19dcba0247"
+ },
+ "kind": "data_snapshot",
+ "algorithms": [
+  "sha256 per file mentah"
+ ],
+ "params": {
+  "seed": 20261121
+ },
+ "call_args": {},
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "checksums",
+   "path": "data/raw/checksums.csv",
+   "location": "out_dir",
+   "sha256": "859c768146024d72806fab798ad6dc362f2db97080d3814f24ff78d62930c952",
+   "bytes": 5195,
+   "rows": 28,
+   "columns": 6,
+   "missing_cells": 0,
+   "memory_mb": 0.011,
+   "producer_run_id": null
+  }
+ ],
+ "peak_rss_mb": 161.5,
+ "error_type": null,
+ "note": "evaluasi artefak yang ada; waktu eksekusi tidak teramati (dijalankan sebelum/di luar pelacakan) | dataset_id dikoreksi 2026-11-24 ke raw_snapshot_id (versi awal ikut menghitung kolom waktu checksums)",
+ "schema_version": 1
+}

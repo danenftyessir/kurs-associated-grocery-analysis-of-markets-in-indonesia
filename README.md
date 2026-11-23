@@ -621,6 +621,8 @@ data mentah otomatis dilewati jika data mentah tidak ada.
 | `python -m kagami package`            | Membangun zip juri `dist/kagami_submission.zip`                      |
 | `python -m kagami bundle --raw`       | Membuat bundel kode, plus data mentah privat, untuk Kaggle atau Colab  |
 | `python -m kagami drive-pull all`     | Mengambil artefak dari folder Drive tim (khusus anggota tim)           |
+| `python -m kagami evaluate all`       | Mengevaluasi artefak yang ada tanpa menjalankan ulang; log ke `logs/` (docs/TRACKING.md) |
+| `python -m kagami runs`               | Riwayat eksekusi tercatat dan tahap yang inputnya berubah setelah run terakhir |
 
 ## 11. Struktur repositori
 

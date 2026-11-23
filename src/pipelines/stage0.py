@@ -10,12 +10,14 @@ import pandas as pd
 
 from kagami.data import drivers, loaders, panel, qa, reference, snapshot, weekly
 from kagami.evaluation import power
+from kagami.tracking.logger import tracked
 from kagami.utils.config import Config
 from kagami.utils.io import write_artifact
 
 REQUIRES: tuple[str, ...] = ()   # hanya data mentah
 
 
+@tracked("stage0")   # log eksekusi & evaluasi terpusat (WP-36, D-137)
 def run(cfg: Config) -> None:
     snapshot.run(cfg)
 

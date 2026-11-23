@@ -327,3 +327,94 @@ def scenario_paths(pt: pd.DataFrame, shocks: list[float], selected: float) -> go
     return S.finish(fig, "Perubahan harga yang konsisten dengan pola historis",
                     "SKENARIO BERSYARAT, BUKAN RAMALAN · PT(h) × pelemahan rupiah",
                     x="minggu setelah pelemahan", y="perubahan harga (%)")
+
+
+# --------------------------------------------------------------------------- log eksekusi & evaluasi (WP-36, app hal. 7)
+RUN_STATUS_COLORS = {"success": S.BLUE, "failed": S.ORANGE, "belum ada run": S.NEUTRAL}
+RUN_STATUS_LABELS = {"success": "berhasil", "failed": "gagal", "belum ada run": "belum ada run"}
+
+
+def run_durations(runs: pd.DataFrame) -> go.Figure:
+    """Waktu eksekusi per run (tabel `tracking.store.runs_table`), satu titik per run, warna = status. Run evaluasi-saja
+    tidak punya waktu eksekusi teramati → tidak digambar (dihitung di subjudul)."""
+    d = runs[runs["duration_s"].notna()].copy()
+    n_eval = int(runs["duration_s"].isna().sum())
+    fig = go.Figure()
+    for status, g in d.groupby("status"):
+        fig.add_trace(go.Scatter(
+            x=pd.to_datetime(g["started_at"]), y=g["duration_s"], mode="markers", name=RUN_STATUS_LABELS.get(status, status),
+            marker=dict(size=11, color=RUN_STATUS_COLORS.get(status, S.NEUTRAL)), text=g["task_id"],
+            customdata=g["run_id"], hovertemplate="%{text}<br>%{customdata}<br><b>%{y:.1f} dtk</b><extra></extra>"))
+    fig.update_yaxes(rangemode="tozero")
+    return S.finish(fig, "Waktu eksekusi per run",
+                    f"{len(d)} run eksekusi · {n_eval} run evaluasi-saja tanpa waktu eksekusi teramati",
+                    x="waktu mulai (UTC)", y="detik")
+
+
+def metric_trend(metrics: pd.DataFrame, runs: pd.DataFrame, task_id: str, name: str) -> go.Figure:
+    """Nilai satu metrik numerik di setiap run sebuah tahap (urut waktu mulai); run dengan status metrik ≠ ok
+    digambar sebagai penanda abu-abu di sumbu bawah agar ketiadaan nilai tetap terlihat."""
+    m = metrics[(metrics["task_id"] == task_id) & (metrics["name"] == name)].merge(
+        runs[["run_id", "started_at", "run_type"]], on="run_id", how="left").sort_values("started_at")
+    m["x"] = pd.to_datetime(m["started_at"])
+    m["v"] = pd.to_numeric(m["value"], errors="coerce")
+    good = m[(m["status"] == "ok") & m["v"].notna()]
+    bad = m[~m.index.isin(good.index)]
+    fig = go.Figure(go.Scatter(x=good["x"], y=good["v"], mode="lines+markers", name="nilai",
+                               line=dict(color=S.BLUE, width=2), marker=dict(size=9), customdata=good["run_id"],
+                               hovertemplate="%{customdata}<br><b>%{y:.4g}</b><extra></extra>"))
+    if len(bad):
+        fig.add_trace(go.Scatter(x=bad["x"], y=[good["v"].min() if len(good) else 0] * len(bad), mode="markers",
+                                 name="tidak berlaku / gagal", marker=dict(symbol="x", size=9, color=S.NEUTRAL),
+                                 customdata=bad["reason"], hovertemplate="%{customdata}<extra></extra>"))
+    return S.finish(fig, f"{name} antar run · {task_id}", f"{len(good)} nilai dari {len(m)} run",
+                    x="waktu mulai run (UTC)", y=name)
+
+
+def pipeline_graph(edges: pd.DataFrame, status: dict[str, str], stale: set[str] | None = None,
+                   labels: dict[str, str] | None = None) -> go.Figure:
+    """Graf dependensi antar-tahap dari REQUIRES/OPTIONAL (`tracking.registry.dependency_edges`). Lapisan = jalur
+    terpanjang dari sumber; garis penuh = input wajib, putus-putus = opsional; warna simpul = status run terakhir;
+    tahap yang inputnya berubah setelah run terakhir diberi tanda "basi"."""
+    stale = stale or set()
+    nodes = list(dict.fromkeys([*edges["producer"], *edges["consumer"]]))
+    pairs = edges.groupby(["producer", "consumer"], as_index=False).agg(required=("required", "any"),
+                                                                        n=("artifact", "size"),
+                                                                        artifacts=("artifact", lambda s: ", ".join(s)))
+    layer = {n: 0 for n in nodes}
+    for _ in nodes:                                  # relaksasi jalur terpanjang (graf kecil, tanpa siklus)
+        for r in pairs.itertuples():
+            if r.producer != r.consumer:
+                layer[r.consumer] = max(layer[r.consumer], layer[r.producer] + 1)
+    pos = {}
+    for lv in sorted(set(layer.values())):
+        members = [n for n in nodes if layer[n] == lv]
+        for i, n in enumerate(members):
+            pos[n] = (lv, (len(members) - 1) / 2 - i)
+    fig = go.Figure()
+    for r in pairs.itertuples():
+        if r.producer == r.consumer:
+            continue
+        (x0, y0), (x1, y1) = pos[r.producer], pos[r.consumer]
+        fig.add_trace(go.Scatter(x=[x0, x1], y=[y0, y1], mode="lines", showlegend=False, hoverinfo="skip",
+                                 line=dict(color=S.NEUTRAL, width=1 + min(r.n, 6) / 2,
+                                           dash="solid" if r.required else "dot")))
+        fig.add_annotation(x=(x0 + x1) / 2, y=(y0 + y1) / 2, text=str(r.n), showarrow=False,
+                           font=dict(size=10, color=S.NEUTRAL), hovertext=r.artifacts)
+    for st_name in dict.fromkeys(status.get(n, "belum ada run") for n in nodes):
+        members = [n for n in nodes if status.get(n, "belum ada run") == st_name]
+        fig.add_trace(go.Scatter(
+            x=[pos[n][0] for n in members], y=[pos[n][1] for n in members], mode="markers+text",
+            name=RUN_STATUS_LABELS.get(st_name, st_name),
+            text=[(labels or {}).get(n, n) + (" · basi" if n in stale else "") for n in members],
+            textposition="bottom center", marker=dict(size=26, color=RUN_STATUS_COLORS.get(st_name, S.NEUTRAL),
+                                                   line=dict(width=2, color="white")),
+            hovertemplate="%{text}<extra></extra>"))
+    x_max = max(p[0] for p in pos.values())
+    y_abs = max([abs(p[1]) for p in pos.values()] + [0.5])
+    fig.update_xaxes(visible=False, range=[-0.7, x_max + 0.7])           # ruang untuk label simpul di tepi
+    fig.update_yaxes(visible=False, range=[-y_abs - 0.6, y_abs + 0.4])
+    fig = S.finish(fig, "Alur data antar-tahap", "garis penuh = input wajib · titik-titik = input opsional · angka = "
+                   "jumlah artefak · warna = status run terakhir", height=380)
+    fig.update_xaxes(showgrid=False)
+    return fig

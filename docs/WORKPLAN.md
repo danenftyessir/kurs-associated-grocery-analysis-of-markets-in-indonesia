@@ -72,6 +72,7 @@ WP-07 (paralel dengan WP-05) → WP-22/23
 | WP-33 | Temuan & makalah | 🔶 | Danen ← Abi | 17–29 | 28 Nov |
 | WP-34 | Audit klaim (G8) | 🔶 | Danen ← Abi | 31, 33 | 28 Nov |
 | WP-35 | Tugas manusia | ⬜ | Danen ← Abi | – | lihat item |
+| WP-36 | Log eksekusi & evaluasi terpusat + app hal. 7 | ✅ | Danen | 31 | 24 Nov |
 
 Urutan pemotongan bila waktu habis (D-014): WP-30 → analisis dalam-komoditas & Moran's I → WP-24 → M3 di WP-26.
 **Tidak pernah dipotong:** WP-28 (Tier 1), distribusi plasebo (WP-16/18/19), MDE (WP-09).
@@ -396,6 +397,9 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - G7 ulang 2026-11-24 (Danen, D-135): zip 23 Nov dibuat sebelum desain ulang app (D-134) dan tidak memuat `viz/style.py`, geojson,
   `requirements.txt`. `bundle` (77 file) dan `package` (178 file, 47,6 MB, tanpa artefak hilang) dibangun ulang; zip diekstrak ke folder
   bersih → Tingkat A 6/6 halaman AppTest tanpa exception dan tanpa "Menunggu hasil". Tingkat B tidak diulang (kode analisis tidak berubah).
+- G7 ulang 2026-11-24 03.31 (Danen, WP-36): `package` 212 file, 44,6 MB, tanpa artefak hilang (+ `src/tracking/`, app hal. 7, `logs/`
+  23 file, docs/TRACKING.md); tanpa `pihps_daily` & PIHPS mentah. Diekstrak ke folder bersih → `tests/test_app.py` 7/7, ketujuh halaman
+  tanpa exception & tanpa "Menunggu hasil"; hal. 7 membaca 11 run. `bundle` 85 file.
 
 ### WP-33 — Temuan & makalah 🔶
 - 2026-11-23 (D-130): `results/findings.md` ditulis dari artefak (RQ1–RQ5, E2, robustness, keterbatasan, daftar artefak sumber). Makalah PDF ditunda.
@@ -416,3 +420,17 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - [ ] **Danen & Ardell** · Token Drive masing-masing (`drive-auth`) + Kaggle Secret `KAGAMI_DRIVE_TOKEN` (`docs/NOTEBOOKS.md` §Persiapan 2).
 - [ ] **Abi** · Rekam video demonstrasi (alur: masalah → app 6 halaman → Tingkat A/B).
 - [ ] **Abi** · Unggah makalah PDF + zip + video ke Google Drive dan form pendaftaran Gelombang 2.
+
+### WP-36 — Log eksekusi & evaluasi terpusat ✅
+- 2026-11-24 (Danen, D-137): `src/tracking/` (schemas, metrics berpenjaga, lineage sha256, evaluators per tahap, registry +
+  graf dependensi dari REQUIRES, store JSON, logger `@tracked`) dipasang di keenam `pipelines.<tahap>.run`; CLI `evaluate`, `runs`,
+  `all` (satu pipeline_id); log ikut `drive.push`/`pull`; app halaman 7 *Evaluasi & Riwayat Eksekusi*; `tests/test_tracking.py`.
+  Hasil analisis, `params.yaml`, dan artefak tidak berubah. Matriks tahap × metrik & skema: [TRACKING.md](TRACKING.md).
+- Run nyata 2026-11-24 (lokal, satu pipeline_id, out_dir sementara agar `results/` tidak tersentuh): stage0 41,5 dtk, task3 765 dtk,
+  robustness (Tier 1 + validasi) 14,6 dtk, task2 120 dtk; semua sukses, run induk benar (task3 ← stage0 + task1, task2 ← task1).
+  Cek reproduksi sha256 vs artefak resmi: task2 6/6 & task3 4/4 identik; stage0 14/15 (checksums beda hanya `recorded_at`);
+  robustness 486/486 baris Tier 1 + V identik (versi resmi juga memuat Tier 2). Task 1 & 4 (Kaggle/Colab) lewat `evaluate all`.
+  Cek integritas: silhouette dihitung ulang = `cluster_selection` (selisih 0), MAE dari `forecast_preds` = `forecast_eval`
+  (selisih 8e-17), konsistensi p–interval `national_calibrated` 48/48, meta-regresi 99/99; H2 26/30 (diharapkan, D-127).
+- Selesai bila: [x] setiap tahap tercatat (sukses/gagal) dengan metrik relevan atau alasan tidak berlaku; [x] run induk dari hash
+  input; [x] log tidak pernah ditimpa; [x] metrik = rumus independen (tes); [x] app hal. 7 lima bagian.
