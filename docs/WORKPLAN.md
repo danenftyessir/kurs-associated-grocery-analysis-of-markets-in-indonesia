@@ -383,11 +383,17 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
   atur ulang, tabel ke expander; hal. 3 angka utama + silhouette vs ambang + batas deteksi; hal. 4 dot plot rasio MAE; hal. 5 jalur
   skenario. Perbaikan: lencana NaN ("terdeteksi" → "interval tidak tersedia"), provinsi satu versi (tersusut EB) & berlabel deviasi.
   P1: V19 asimetri β⁺ vs β⁻ (hal. 2), V18 forest robustness Tier 1/2 vs estimasi utama (hal. 6).
+- 2026-11-24 (Danen, D-135): app live https://kagami.streamlit.app kosong di 6 halaman karena `results/*` di-gitignore → 23 artefak
+  yang dibaca app (± 1,4 MB, `ship=True`) dibuka di `.gitignore`; hal. 6 menampilkan `findings.md` tanpa menunggu `robustness`.
+  Salinan bersih berisi hanya file yang di-track git: 6/6 halaman AppTest tanpa "Menunggu hasil". App live baru terisi setelah di-push.
 
 ### WP-32 — Paket juri & uji jalan ulang (G7) ✅
 - 2026-11-21 (Ardell): `tests/test_package.py` membuktikan isi zip, tidak ada data tanpa hak redistribusi, dan CLI jalan dari folder ekstrak baru.
 - File: `src/pipelines/package.py`. Selesai bila: [x] `python -m kagami package` tanpa `--allow-missing`; [x] ekstrak zip di folder baru → `pip install -e .` → `python -m kagami app` jalan (Tingkat A) dan `task4` jalan dari data kirim (Tingkat B); [x] tidak ada file `redistribute: false` di zip (cek daftar isi).
 - G7 2026-11-23 (Danen): `dist/kagami_submission.zip` 172 file, 44 MB, tanpa artefak hilang; mentah hanya sumber `redistribute: true` (10 file), tanpa `pihps_daily`. Diekstrak ke folder bersih → venv `--system-site-packages` → `pip install --no-deps -e .`; Tingkat A: 6/6 halaman AppTest; Tingkat B: `task4` 1.128 dtk, `forecast_eval` identik dengan versi resmi (600/600 baris, selisih MAE maks 1e-16).
+- G7 ulang 2026-11-24 (Danen, D-135): zip 23 Nov dibuat sebelum desain ulang app (D-134) dan tidak memuat `viz/style.py`, geojson,
+  `requirements.txt`. `bundle` (77 file) dan `package` (178 file, 47,6 MB, tanpa artefak hilang) dibangun ulang; zip diekstrak ke folder
+  bersih → Tingkat A 6/6 halaman AppTest tanpa exception dan tanpa "Menunggu hasil". Tingkat B tidak diulang (kode analisis tidak berubah).
 
 ### WP-33 — Temuan & makalah 🔶
 - 2026-11-23 (D-130): `results/findings.md` ditulis dari artefak (RQ1–RQ5, E2, robustness, keterbatasan, daftar artefak sumber). Makalah PDF ditunda.

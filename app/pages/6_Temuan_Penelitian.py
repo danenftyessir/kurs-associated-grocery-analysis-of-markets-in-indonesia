@@ -7,9 +7,12 @@ from kagami.viz import plots
 
 page_header("Temuan Penelitian", "Apa kesimpulannya?")
 
-got = need("findings", "robustness")
+fd = need("findings")
+if fd:
+    st.markdown(fd["findings"])
+# Robustness terpisah: temuan tetap tampil walau artefak robustness belum ada (deploy sebagian).
+got = need("robustness")
 if got:
-    st.markdown(got["findings"])
     rb = got["robustness"]
     st.subheader("Apakah temuan bertahan di setiap cek robustness?")
     labels = commodity_labels()

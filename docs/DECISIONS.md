@@ -415,6 +415,17 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-135 — Deploy app: artefak yang dibaca app di-track git; halaman 6 tidak menunggu robustness · FINAL (teknis) · 2026-11-24 (WP-31, WP-32) · Danen
+App di Streamlit Community Cloud (kagami.streamlit.app) kosong di keenam halaman ("Menunggu hasil") karena `.gitignore` mengabaikan
+`results/*` kecuali `findings.md`; Cloud hanya melihat isi repo. Diputuskan: `.gitignore` membuka 23 artefak yang dibaca app (± 1,4 MB;
+semuanya `ship=True`, boleh dikirim menurut D-104): `results/stage0/{eligibility,episodes,mde,stage0_report}`, `results/task1/{profiles,
+events,response_features}`, seluruh `results/task2/` & `results/task3/`, `results/task4/{forecast_eval,ablation}`, `results/robustness.csv`.
+Tetap tidak di-track: `boot_replicates` & `placebo_stats` (14 MB, tidak dibaca app), `fx_variation`, `data/processed/`, `data/interim/`.
+Halaman 6 kini memuat `findings` dan `robustness` terpisah (sebelumnya `findings.md` yang ada di repo pun tidak tampil tanpa
+`robustness`). `package.CODE_GLOBS` + `requirements.txt` (dibaca Cloud). Ditolak: mengunduh artefak dari Drive saat app jalan (butuh
+kredensial & jaringan; melanggar D-010 hanya-baca-artefak lokal), Git LFS (tidak perlu untuk 1,4 MB). Konsekuensi: setiap kali artefak
+yang dibaca app berubah, versi baru ikut di-commit agar app live sama dengan Drive tim. Tidak mengubah hasil.
+
 ### D-134 — Tampilan app: palet tervalidasi, peta Indonesia offline, provinsi = deviasi tersusut · FINAL (teknis) · 2026-11-23 (WP-31) · Danen
 Eksekusi PLAN.md §18 (evaluasi desain spec visualisasi). (1) Modul `viz/style.py`: palet kategoris 3 slot (biru/oranye/aqua, lolos
 validator dataviz semua-pasangan; palet bawaan Streamlit & Plotly gagal: CVD ΔE 5,8, kontras < 3:1), diverging biru↔merah dengan

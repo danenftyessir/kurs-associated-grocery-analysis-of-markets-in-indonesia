@@ -13,6 +13,27 @@ data/processed/
 results/*
 # ditulis manual oleh Abi (WP-33) tetap di-track
 !results/findings.md
+# Artefak ship=True yang dibaca app (± 1,4 MB) di-track agar Streamlit Community Cloud menampilkan hasil (D-135).
+# Semuanya boleh dikirim (ship=True, D-104). Artefak yang tidak dibaca app (boot_replicates & placebo_stats 14 MB,
+# fx_variation, data/processed) tetap lewat Drive tim / zip juri.
+!results/robustness.csv
+!results/stage0/
+results/stage0/*
+!results/stage0/eligibility.csv
+!results/stage0/episodes.csv
+!results/stage0/mde.csv
+!results/stage0/stage0_report.md
+!results/task1/
+results/task1/*
+!results/task1/profiles.parquet
+!results/task1/events.parquet
+!results/task1/response_features.parquet
+!results/task2/
+!results/task3/
+!results/task4/
+results/task4/*
+!results/task4/forecast_eval.csv
+!results/task4/ablation.csv
 
 # --- Hasil build ------------------------------------------------------------------
 dist/
