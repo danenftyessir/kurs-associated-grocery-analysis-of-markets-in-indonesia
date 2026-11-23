@@ -141,6 +141,7 @@ yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOT
   - [x] exposure: `import_ratio_direct` rerata 2018–2023 dari FAOSTAT; bawang putih dari BPS/Comtrade atau ordinal (U5); setiap angka punya `source`.
   - [x] regulation: gabungan 3 sumber regulasi, tanggal tak terverifikasi ditandai `unverified` (U6).
   - [x] province_features: `dist_hub_km` dihitung dari koordinat `region_crosswalk.csv`; `rice_sufficiency` & `n_kota` diisi atau NaN + U14/U15 dicatat.
+- U102 (2026-11-23, D-133): tumpang tindih Comtrade vs BPS 2023 → 14/15 kode konkordansi cocok persis (1511 0,944, nilai kecil); `stage0_report` §9.
 - Data manual (2026-11-21, D-123, diisi Danen): penduduk 2025, n_kota, faktor GKG→beras → `province_features` lengkap
   (rice_sufficiency 2025 0,001..3,27; n_kota 1..12). `stage0` lokal 27 dtk.
 - Input baru (2026-11-20, D-101): `hortikultura_produksi` (produksi bawang putih → rasio impor, U5), `konkordansi_hs` (jembatan Comtrade 2017–2022 → HS8 BPS), `jarak_hub` (cek silang `dist_hub_km`), BPS impor v2 (+bawang putih), regulasi revisi 20 Nov. Loader sudah ada (`src/data/loaders.py`); signature fungsi WP-07 boleh ditambah parameter oleh Ardell (pemilik `reference.py`) + `pipelines/stage0.py` disesuaikan lewat handoff.

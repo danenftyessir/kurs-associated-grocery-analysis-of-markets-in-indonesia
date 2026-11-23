@@ -9,6 +9,12 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-23 — Danen: U102 ✅ (uji tumpang tindih konkordansi HS, D-133), U24 ditutup
+- Comtrade 2023 (15 kode, 160 baris) dari API publik UN Comtrade (izin Danen) → `data/raw/comtrade/comtrade_idn_import_HS_monthly_2023.csv`, sumber `comtrade_import_2023` (optional).
+- `qa.check_trade_overlap` + tes (sintetis & asli) + `stage0_report` §9; `stage0` 44 dtk, artefak lain identik, checksums +1 baris.
+- Hasil: 14/15 kode cocok persis (bawang putih 070320 USD 648,6 juta di kedua sumber); 1511 0,944 (nilai kecil).
+- U24 ditutup atas keputusan Danen (akses link diterima). Command git untuk push yang ditolak disiapkan (lewat `feat/`).
+
 ### 2026-11-23 — Danen: ambil alih jalur B & C (D-130); U106, findings, app, Tier 2, diagnostik M1
 - D-130: Danen pegang semua WP; makalah/video ditunda. Papan: WP-07/15–17/19/20/23–26/30/31 ✅ (bukti artefak asli + tes).
 - U106 (D-132): p meta-regresi konsisten interval (11 → 0/88 p < 0,05), `q_fdr`, ARI NaN saat k = 1, τ² REML di `heterogeneity`; `task2` 164 dtk, `task3` 705 dtk (artefak lain identik).

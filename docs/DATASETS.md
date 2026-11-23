@@ -25,6 +25,7 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 | `faostat_sua` | FAOSTAT SUA Crops & Livestock, Asia | 2010 .. 2023 tahunan | Rasio impor | Ya (CC BY 4.0) |
 | `bps_import_monthly` | Impor HS8 bulanan (USD, kg), **v2**: 111 kode HS8 termasuk bawang putih 070320 | 2023-01 .. 2026-09 (2.845 baris) | Cek silang rasio impor | Tidak |
 | `bps_import_annual` | 5 file portal exim BPS, total tahunan HS8 | 2023 .. 2026 (parsial) | QA | Tidak |
+| `comtrade_import_2023` | UN Comtrade impor Indonesia bulanan, 15 kode konkordansi, partner World (API publik preview, 2026-11-23, `optional`) | 2023-01 .. 2023-12 (160 baris) | QA tumpang tindih konkordansi (U102) | Tidak |
 | `comtrade_import` | UN Comtrade impor Indonesia HS4/HS6 bulanan (15 kode; tanpa kedelai 1201) | 2017-01 .. 2022-12 | Rasio impor pra-2023 | Tidak |
 | `konkordansi_hs` | Pemetaan 15 kode Comtrade (HS2017/HS2022) → HS8 BPS + keyakinan + rasio nilai 2022 vs 2023 (buatan tim) | statis | Jembatan impor 2017–2026 (WP-07) | Ya |
 | `bapanas_panel` | Panel Harga Bapanas, rerata geometrik bulanan provinsi | 2022-01 .. 2026-10, 38 prov | Cek bias / Tier 2 | Tidak |
@@ -117,8 +118,9 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
   `cif_usd`. Kedelai HS 1201 tidak ada (celah 2017–2022 bila kedelai dipakai).
 - `konkordansi_hs`: 15 baris; kolom `comtrade_code` (str), `bps_hs8_prefix` (str), `bps_hs8_codes_in_file`,
   `keyakinan_pemetaan`, `comtrade_2022_usd_total`, `bps_2023_usd_total`, `rasio_bps2023_per_comtrade2022`, `catatan`.
-  Perubahan HS2017→HS2022 hanya 0709.59 (dari transkripsi sekunder). Uji tumpang tindih Comtrade vs BPS Apr–Des 2022 belum
-  bisa dijalankan karena server ekspor-impor BPS error (U102).
+  Perubahan HS2017→HS2022 hanya 0709.59 (dari transkripsi sekunder). Uji tumpang tindih (U102, D-133) dijalankan pada 2023:
+  `comtrade_import_2023` (skema sama dengan `comtrade_import`; `load_comtrade(cfg, "comtrade_import_2023")`) vs `bps_import_monthly`
+  → 14/15 kode cocok persis (rasio nilai 1,000, korelasi bulanan 1,000; termasuk bawang putih 070320 USD 648,6 juta); 1511 minyak sawit 0,944 (USD 1,2 juta, subpos HS8 tidak lengkap, tidak dipakai rasio impor). Rasio lama `rasio_bps2023_per_comtrade2022` yang jauh dari 1 (mis. beras 8,85) = perbedaan antartahun, bukan pemetaan.
 
 ### Bapanas
 - `bapanas_panel`: 13 komoditas Bapanas (nama berbeda dari PIHPS, mis. `Bawang Putih Bonggol`, `Minyakita`, `Gula Konsumsi`)
@@ -189,6 +191,7 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 | `... 00.37.22.xlsx` | `data/raw/bps_trade/exim_annual_0102_0207_0407.xlsx` | 2026-11-20 |
 | `... 00.38.01.xlsx` | `data/raw/bps_trade/exim_annual_0407_0709.xlsx` | 2026-11-20 |
 | `comtrade_idn_import_HS_monthly_2017_2022.csv` | `data/raw/comtrade/` | 2026-11-20 |
+| API publik UN Comtrade `public/v1/preview/C/M/HS` (reporter 360, flow M, partner 0, mot 0, C00; 12 permintaan per bulan) | `data/raw/comtrade/comtrade_idn_import_HS_monthly_2023.csv` | 2026-11-23 |
 | `konkordansi_hs_comtrade_bps_2017_2026.csv` | `data/raw/manual_concordance/` | 2026-11-20 |
 | `panelharga_konsumen_bulanan_provinsi_2022_2026.csv`, `panelharga_setting_het_hap_riwayat.csv` | `data/raw/bapanas/` | 2026-11-20 |
 | `Luas Panen, Produksi, dan Produktivitas Padi Menurut Provinsi, 2024.csv` | `data/raw/bps_pangan/padi_provinsi_2024.csv` | 2026-11-20 |

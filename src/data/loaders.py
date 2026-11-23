@@ -173,9 +173,12 @@ def load_bps_import_annual(cfg: Config) -> pd.DataFrame:
     return out[["hs8_code", "hs_description", "year", "total", "file"]].drop_duplicates(["hs8_code", "year"])
 
 
-def load_comtrade(cfg: Config) -> pd.DataFrame:
-    """-> month, hs_code (str, HS4/HS6), hs_description, net_weight_kg, cif_usd, primary_value_usd."""
-    df = pd.read_csv(cfg.source_path("comtrade_import"), dtype={"cmdCode": str, "period": str})
+def load_comtrade(cfg: Config, key: str = "comtrade_import") -> pd.DataFrame:
+    """-> month, hs_code (str, HS4/HS6), hs_description, net_weight_kg, cif_usd, primary_value_usd.
+
+    key = "comtrade_import" (2017-2022) atau "comtrade_import_2023" (QA tumpang tindih U102; skema sama).
+    """
+    df = pd.read_csv(cfg.source_path(key), dtype={"cmdCode": str, "period": str})
     out = pd.DataFrame({
         "month": pd.to_datetime(df["period"], format="%Y%m"),
         "hs_code": df["cmdCode"],
@@ -380,6 +383,7 @@ LOADERS = {
     "bps_import_monthly": load_bps_import_monthly,
     "bps_import_annual": load_bps_import_annual,
     "comtrade_import": load_comtrade,
+    "comtrade_import_2023": lambda cfg: load_comtrade(cfg, "comtrade_import_2023"),
     "bapanas_panel": load_bapanas_panel,
     "bapanas_het_settings": load_bapanas_het_settings,
     "padi_2024": lambda cfg: load_padi(cfg, 2024),

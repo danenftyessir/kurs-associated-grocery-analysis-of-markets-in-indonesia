@@ -67,6 +67,9 @@ def run(cfg: Config) -> None:
         "import_totals": qa.check_import_totals(imp_m, loaders.load_bps_import_annual(cfg)),
         "bapanas_bias": qa.check_bapanas_bias(wk, bapanas),
     }
+    if cfg.source_path("comtrade_import_2023").exists():       # U102: tumpang tindih konkordansi HS (opsional)
+        sections["trade_overlap"] = qa.check_trade_overlap(loaders.load_comtrade(cfg, "comtrade_import_2023"), imp_m,
+                                                           loaders.load_konkordansi_hs(cfg))
     write_artifact(cfg, "stage0_report", qa.stage0_report(cfg, sections))
 
     # --- tabel buatan tim (WP-07, Ardell) -- paling akhir: tidak dipakai langkah lain di tahap ini, ----

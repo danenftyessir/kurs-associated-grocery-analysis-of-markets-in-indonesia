@@ -14,6 +14,7 @@ EXPECTED = {
     "bps_import_monthly": {"month", "hs8_code", "import_value_usd", "import_netweight_kg"},
     "bps_import_annual": {"hs8_code", "year", "total"},
     "comtrade_import": {"month", "hs_code", "net_weight_kg", "cif_usd"},
+    "comtrade_import_2023": {"month", "hs_code", "net_weight_kg", "cif_usd", "primary_value_usd"},
     "bapanas_panel": {"month", "commodity_bapanas", "province_id", "price_geomean"},
     "bapanas_het_settings": {"commodity_bapanas", "zone", "price", "start_date", "end_date"},
     "padi_2024": {"year", "province_id", "production_ton_gkg"},

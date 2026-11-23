@@ -415,6 +415,13 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-133 — U102: uji tumpang tindih konkordansi HS dijalankan pada 2023 dengan Comtrade API publik · FINAL (teknis) · 2026-11-23 (WP-07, WP-10) · Danen
+Rumusan awal (Comtrade vs BPS Apr–Des 2022) butuh portal ekspor-impor BPS yang error. Diganti tahun 2023: BPS bulanan HS8 sudah ada lokal,
+Comtrade 2023 diambil dari API publik preview UN Comtrade (izin Danen; 15 kode, 160 baris, skema sama dengan `comtrade_import`) sebagai snapshot
+baru `comtrade_import_2023` (`optional`, tidak dikirim). Nomenklatur keduanya HS2022/BTKI 2022, jadi pemetaan yang diuji sama dengan sambungan
+2017–2022 ↔ 2023+ (perubahan HS2017→HS2022 hanya 0709.59, tidak dipakai). Fungsi `qa.check_trade_overlap` + `stage0_report` §9. Hasil: 14/15 kode cocok persis (rasio nilai 1,000, korelasi bulanan 1,000; termasuk bawang putih 070320 USD 648,6 juta); 1511 minyak sawit 0,944 (USD 1,2 juta, subpos HS8 tidak lengkap, tidak dipakai rasio impor); kg gula 1,115 (nilai 1,000; berat Comtrade diestimasi). Kesimpulan: konkordansi lengkap untuk kode yang dipakai rasio impor;
+rasio lama BPS 2023 / Comtrade 2022 mencerminkan perubahan antartahun.
+
 ### D-132 — U106 diperbaiki: p meta-regresi konsisten dengan interval laporan; ARI NaN saat k = 1; τ² REML dilaporkan · FINAL (teknis) · 2026-11-23 (WP-23, WP-20, WP-17) · Danen
 (1) `meta_regression`: p dua sisi = max(p CR2, p_boot), p_boot = 2 × porsi replikasi di sisi nol yang berlawanan dengan estimasi,
 dibaca dari fungsi kuantil interpolasi linear yang sama dengan persentil interval → p < 0,05 ⇔ interval laporan (CR2 ∪ bootstrap)

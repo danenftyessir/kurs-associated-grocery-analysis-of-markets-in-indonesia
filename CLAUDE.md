@@ -156,16 +156,16 @@ Tanggal acuan: 2026-11-23. Papan lengkap: `docs/WORKPLAN.md`.
 - **Task 4 (WP-27, 2026-11-23):** M2/M1 MAE 1,014 (h 4) / 1,017 (h 8), DM p 0,001 / 0,006 → fitur kurs tidak memperbaiki prediksi;
   H5 tidak didukung (M2/M1 h 8 large_move 1,12 kedua jalur, Holm 1,0; hanya 8 origin large_move). Tahan terhadap ridge per
   komoditas (D-128). `robustness`: V2 forecast M2/M1 origin 2026 1,005; V4 26/30 sel cocok.
-- **Berikutnya — Danen (semua jalur):** U24 (batasi akses Drive, `[HUMAN]`); commit pekerjaan sejak 21 Nov; makalah & video saat
-  dilanjutkan (WP-33/34). Pembekuan hasil 27 Nov.
+- **Berikutnya — Danen (semua jalur):** push pekerjaan lewat `feat/` (remote `dev` maju; U102 selesai 2026-11-23, D-133);
+  makalah & video saat dilanjutkan (WP-33/34). Pembekuan hasil 27 Nov.
   Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
 - **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + token Drive per anggota (U100),
   video, unggah.
 - **Isi Drive tim (2026-11-20, diunggah lewat browser):** `data/raw/` lengkap 24 file + `checksums.csv`,
   artefak `pihps_daily`, `panel_weekly`, `world_prices_weekly`, `eligibility`, P1 (`drivers_weekly`, `episodes`, `fx_variation`,
-  `panel_weekly_region`), `mde` dan `stage0_report` (versi 2026-11-21). Akses umum folder masih "siapa saja yang memiliki link
-  dapat mengedit" per 2026-11-23 → wajib dibatasi (U24 🔴 `[HUMAN]`).
+  `panel_weekly_region`), `mde` dan `stage0_report` (versi 2026-11-21). Akses umum folder "siapa saja yang memiliki link
+  dapat mengedit" diterima Danen 2026-11-23 (U24 🟢).
 - **Data baru 2026-11-20 (D-101):** BPS impor v2 (+bawang putih), revisi regulasi, `jarak_hub`, `konkordansi_hs`,
   `hortikultura_produksi` — input WP-07 (Ardell). Versi lama di `data/raw/_superseded/`.
 - **Pertukaran artefak & data mentah:** folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D lewat `utils.drive` (D-100).
@@ -369,7 +369,7 @@ datmin/
 ├── configs/
 │   ├── params.yaml           SEMUA angka analisis (dibekukan di G6)
 │   ├── commodities.yaml      10 komoditas: varian, peran, jalur eksposur, padanan Pink Sheet, HS, FAOSTAT
-│   ├── sources.yaml          20 sumber mentah: path relatif raw_dir, lisensi, redistribute, retrieval, availability
+│   ├── sources.yaml          24 sumber mentah: path relatif raw_dir, lisensi, redistribute, retrieval, availability
 │   └── runtime.yaml          folder Drive tim (ID), kredensial Drive, folder kerja Colab (bukan parameter analisis)
 ├── data/
 │   ├── raw/<sumber>/         snapshot mentah (TIDAK pernah ditimpa; salinan di Drive tim, D-101); raw/checksums.csv
@@ -567,7 +567,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `load_faostat_sua` · ✔ · SUA Asia NOFLAG, filter Indonesia → year, item, element, unit, value.
 - `load_bps_import_monthly` · ✔ · → month, hs8_code (str), hs_description, import_value_usd, import_netweight_kg.
 - `load_bps_import_annual` · ✔ · 5 xlsx exim → hs8_code, hs_description, year, total (USD, D-019), file.
-- `load_comtrade` · ✔ · → month, hs_code, hs_description, net_weight_kg, cif_usd, primary_value_usd.
+- `load_comtrade` · ✔ · key `comtrade_import` (2017–2022) | `comtrade_import_2023` (QA U102) → month, hs_code, hs_description, net_weight_kg, cif_usd, primary_value_usd.
 - `load_bapanas_panel` · ✔ · → month, commodity_bapanas, province_id, province, price_geomean, status_map, ref_price.
 - `load_bapanas_het_settings` · ✔ · → commodity_bapanas, type, zone, price, start_date, end_date.
 - `load_padi` · ✔ · tahun 2024|2025 → year, province_raw, province_id, harvest_ha, productivity_ku_ha, production_ton_gkg.
@@ -626,6 +626,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 #### src/data/qa.py
 - `flag_price_outliers` · ✔ · lonjakan satu hari |Δlog| > 0,5 yang berbalik (ditandai, tidak dihapus); data asli 59 hari.
 - `check_import_totals` · ✔ · Σ BPS bulanan vs total tahunan (USD) per HS8 × tahun; data asli 241/241 cocok.
+- `check_trade_overlap` · ✔ · U102: Σ Comtrade per kode konkordansi vs Σ HS8 BPS terpetakan pada bulan bersama (rasio nilai/kg, korelasi bulanan, ok ±1%); data asli 2023 14/15 cocok (D-133).
 - `check_bapanas_bias` · ✔ · rerata bulanan PIHPS vs Panel Harga Bapanas (pemetaan `BAPANAS_TO_PIHPS`, D-110): bias_log, corr_dlog.
 - `coverage_table` · ✔ · cakupan per sumber (n_rows, start, end).
 - `stage0_report` · ✔ · markdown laporan Tahap 0 (cakupan, kelayakan, episode, variasi kurs, MDE + G-power, QA).
@@ -819,6 +820,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 | `bps_import_monthly` | impor HS8 bulanan **v2** (111 kode, +bawang putih 070320) | 2023-01..2026-09 | cek silang | tidak |
 | `bps_import_annual` | 5 xlsx exim tahunan (Totals = USD) | 2023..2026 | QA | tidak |
 | `comtrade_import` | UN Comtrade HS4/HS6 bulanan (tanpa kedelai 1201) | 2017-01..2022-12 | rasio impor pra-2023 | tidak |
+| `comtrade_import_2023` | UN Comtrade bulanan 15 kode konkordansi (API publik preview, diambil 2026-11-23, `optional`) | 2023-01..2023-12 | QA tumpang tindih konkordansi (U102) | tidak |
 | `konkordansi_hs` | Comtrade HS2017/2022 → HS8 BPS + keyakinan (buatan tim) | statis | jembatan impor (WP-07) | ya |
 | `bapanas_panel` | Panel Harga Bapanas bulanan, 38 prov | 2022-01..2026-10 | cek bias / Tier 2 | tidak |
 | `bapanas_het_settings` | riwayat setting HET/HAP | 2024..2026 | regulasi | tidak |
@@ -848,7 +850,7 @@ Menunggu diunggah (opsional, U103): `bapanas/panelharga_konsumen_kabkota_snapsho
 - `world_prices_weekly`: 3.096 baris (6 komoditas × 516 minggu); NaN hanya 3 minggu Nov 2026 (Pink Sheet Nov belum rilis).
 - FAOSTAT SUA tidak memuat bawang putih kering (hanya "Green garlic") → U5; pengganti: `hortikultura_produksi` + impor 070320.
 - `hortikultura_produksi`: total nasional cocok; 148/152 nilai 2023 sama dengan BPS (4 selisih pembulatan); ATAP berhenti 2024.
-- Konkordansi HS: perubahan HS2017→HS2022 hanya 0709.59; uji tumpang tindih Comtrade–BPS 2022 belum bisa (server BPS error, U102).
+- Konkordansi HS: perubahan HS2017→HS2022 hanya 0709.59. Uji tumpang tindih Comtrade vs BPS 2023 (U102, D-133): 14/15 kode cocok persis (rasio nilai 1,000, korelasi bulanan 1,000; termasuk bawang putih 070320 USD 648,6 juta); 1511 minyak sawit 0,944 (USD 1,2 juta, subpos HS8 tidak lengkap, tidak dipakai rasio impor).
 - Pink Sheet tim = rilis resmi 3 Nov 2026 (identik byte-per-byte; `Mismatch Details` bagian file resmi; U101 🟢).
   World Bank merevisi angka historis antar rilis → catat tanggal rilis setiap snapshot.
 - Snapshot PIHPS pra-merge (`pihps_v1`) dipensiunkan ke `data/raw/_superseded/bi_pihps/` (D-102): inventaris tim menandainya rusak.
@@ -1078,7 +1080,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_local_projection.py` | desain LP (nama kolom, within, sampel, y manual), β/β⁺/β⁻/ω sintetis dipulihkan, filter eligible, γ(h), jalur cepat national_profiles = loop build_design |
 | `test_power.py` | SE skor H0 = SE cluster bila β = 0, skala derau, SE asimetri = SE Wald selisih bila β⁺ = β⁻, gerbang G-power & H2, MDE data asli |
 | `test_event_study.py` | jalur event (lonjakan terlihat, tahan komposisi, horizon terpotong = NaN), kandidat plasebo, p plasebo, wilayah data asli |
-| `test_qa.py` | lonjakan satu hari vs perubahan level, total impor, bias Bapanas & pemetaan, laporan Tahap 0 |
+| `test_qa.py` | lonjakan satu hari vs perubahan level, total impor, bias Bapanas & pemetaan, tumpang tindih Comtrade–BPS (sintetis & asli), laporan Tahap 0 |
 | `test_robustness.py` | Tier 1: jendela sampel, demean ulang sub-sampel, dekomposisi kurs, semua cek ada, β pulih (h=0), efek khusus COVID terdeteksi; validasi: implikasi LP, V4 cocok/berlawanan, V2 episode & forecast, pusat median plasebo; Tier 2: panel varian/observasi terakhir/Bapanas, β pulih, Kendall ordinal, komposit harga dunia, keterpencilan alternatif |
 | `test_forecast_eval.py` | n_nonoverlap, Holm, kontrak forecast_eval, rasio M1 = 1, DM mendeteksi sinyal kurs, H5 (keluarga tetap 2), panel wilayah, ablation |
 | `test_planted.py` | struktur tertanam: simpleks δ·√F, z-score, silhouette, ambang plasebo ≈ 5% lolos, kurva naik & dapat diulang, batas deteksi, EB penanaman = EB matriks fitur, regresi U105 (tanam sebelum susut) |
@@ -1233,6 +1235,7 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-133 | U102: tumpang tindih konkordansi HS diuji pada 2023 (Comtrade API publik vs BPS bulanan) → 14/15 kode cocok persis | FINAL (teknis) |
 | D-132 | U106: p meta-regresi = max(CR2, bootstrap sisi) konsisten interval + q BH; ARI NaN saat k = 1; τ² REML di `heterogeneity` | FINAL (teknis) |
 | D-131 | Task 4: diagnostik dummy bulan + Idulfitri (M2/M1 1,005 / 1,019, H5 Holm 0,56) → kesimpulan sama; praregistrasi tetap resmi | FINAL (teknis) |
 | D-129 | Bootstrap blok menarik β ke nol → tambahan `national_calibrated` (±crit·SE plasebo, p = max(plasebo, normal), q BH); interval resmi tetap | FINAL · tambahan pasca-G6 |
@@ -1279,10 +1282,10 @@ tidak boleh dikutip sebelum dicek.
 | U20 | Pemetaan komoditas Bapanas → PIHPS (9 pasangan; Minyakita dikecualikan) | 🟢 |
 | U21 | Konversi GKG → beras 0,5762 (rilis BPS, D-123) | 🟢 |
 | U22 | `carry_forward` tinggi = kekakuan harga; bukan filter | 🟡 |
-| U24 | Hosting mentah di Kaggle privat / Drive; folder Drive tim wajib dibagikan terbatas. 2026-11-23: `data` & `results/task3` terbuka "siapa saja yang memiliki link dapat mengedit" | 🔴 `[HUMAN]` |
+| U24 | Hosting mentah di Kaggle privat / Drive; akses umum folder Drive tim "siapa saja yang memiliki link" diterima Danen 2026-11-23 (tautan hanya ke anggota) | 🟢 |
 | U100 | Kredensial Drive untuk Kaggle (OAuth client + token per anggota) | 🔴 `[HUMAN]` |
 | U101 | Keaslian Pink Sheet: identik dengan rilis resmi 3 Nov 2026 | 🟢 |
-| U102 | Uji tumpang tindih Comtrade vs BPS 2022 (server BPS error) | 🔴 |
+| U102 | Uji tumpang tindih Comtrade vs BPS → dijalankan pada 2023 (Comtrade API publik, D-133): 14/15 kode cocok persis | 🟢 |
 | U103 | Penduduk 2025, n_kota, gkg_beras di data/raw lokal & Drive tim (2026-11-21); sisa snapshot kab/kota (opsional) | 🟡 |
 | U104 | `pihps_v1` dipensiunkan ke `_superseded/` (D-102) | 🟢 |
 | U105 | Struktur tertanam kini ditanam sebelum penyusutan EB (D-126); batas deteksi δ = 0,2 | 🟢 |

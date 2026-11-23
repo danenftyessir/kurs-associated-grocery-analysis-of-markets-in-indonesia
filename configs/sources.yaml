@@ -108,6 +108,18 @@ comtrade_import:
   url: https://comtradeplus.un.org/
   availability: bps_release_calendar
 
+comtrade_import_2023:
+  path: comtrade/comtrade_idn_import_HS_monthly_2023.csv
+  publisher: UN Comtrade
+  role: "QA U102: tumpang tindih Comtrade vs BPS bulanan 2023 untuk menguji konkordansi HS (skema sama dengan comtrade_import)"
+  coverage: "2023-01 .. 2023-12, 15 kode konkordansi, partner World (160 baris)"
+  license: "UN Comtrade terms; agregat turunan saja"
+  redistribute: false
+  retrieval: manual
+  url: https://comtradeapi.un.org/public/v1/preview/C/M/HS
+  availability: bps_release_calendar
+  optional: true     # hanya QA (stage0_report); diambil 2026-11-23 lewat API publik preview (reporter 360, flow M, mot 0, C00)
+
 bapanas_panel:
   path: bapanas/panelharga_konsumen_bulanan_provinsi_2022_2026.csv
   publisher: Badan Pangan Nasional (Panel Harga)

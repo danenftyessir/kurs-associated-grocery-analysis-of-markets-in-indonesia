@@ -13,7 +13,7 @@
 
 ## 1.1 Tujuan Visualisasi
 
-RupiahPass merupakan platform eksplorasi hasil penelitian yang mengukur seberapa besar dan seberapa cepat harga pangan eceran bergerak bersama perubahan nilai tukar rupiah dan harga komoditas dunia dalam rupiah.
+KAGAMI merupakan platform eksplorasi hasil penelitian yang mengukur seberapa besar dan seberapa cepat harga pangan eceran bergerak bersama perubahan nilai tukar rupiah dan harga komoditas dunia dalam rupiah.
 
 Visualisasi harus membantu pengguna:
 
@@ -250,7 +250,7 @@ MDE yang besar berarti desain kurang mampu mendeteksi respons kecil. Jangan meng
 
 # 5. Visualization Specification — P02 Kepekaan Harga Regional
 
-Halaman ini menjadi halaman utama RupiahPass.
+Halaman ini menjadi halaman utama KAGAMI.
 
 ## 5.1 V04 — Impulse Response Function (IRF)
 
@@ -1055,10 +1055,10 @@ Pisahkan tiga lapisan:
 
 Streamlit tidak bertugas menjalankan analisis ekonometrika atau machine learning.
 
-## 12.2 Struktur Direktori yang Direkomendasikan
+## 12.2 Struktur Direktori TAMBAHAN yang Direkomendasikan
 
 ```text
-rupiahpass/
+datmin/
 │
 ├── app/
 │   ├── main.py
@@ -1344,7 +1344,7 @@ Visualisasi dinyatakan selesai apabila memenuhi kriteria berikut.
 
 # 17. Keputusan Akhir Desain
 
-RupiahPass harus dibangun sebagai analytical dashboard yang memiliki tiga identitas utama:
+KAGAMI harus dibangun sebagai analytical dashboard yang memiliki tiga identitas utama:
 
 **1. Econometric Exploration**
 
@@ -1372,6 +1372,6 @@ Jangan membangun Streamlit sebagai kumpulan grafik yang tidak saling berhubungan
 
 Data Quality → Econometric Evidence → Regional Pattern → Exposure & Predictive Value → Conditional Scenario → Research Findings.
 
-Dengan demikian, setiap visualisasi mempunyai alasan keberadaan, sumber data, fungsi analitis, dan hubungan yang jelas dengan pertanyaan penelitian RupiahPass.
+Dengan demikian, setiap visualisasi mempunyai alasan keberadaan, sumber data, fungsi analitis, dan hubungan yang jelas dengan pertanyaan penelitian KAGAMI.
 
-**Dokumen ini menjadi acuan utama desain dan implementasi visualisasi RupiahPass. Setiap perubahan terhadap grafik, variabel, atau interpretasi harus tetap konsisten dengan metodologi dan hasil penelitian pada Proposal v4.**
+**Dokumen ini menjadi acuan utama desain dan implementasi visualisasi KA. Setiap perubahan terhadap grafik, variabel, atau interpretasi harus tetap konsisten dengan metodologi dan hasil penelitian pada Proposal v4.**
