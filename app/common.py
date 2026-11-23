@@ -21,7 +21,7 @@ import streamlit as st  # noqa: E402
 
 from kagami.utils.artifacts import ARTIFACTS  # noqa: E402
 from kagami.utils.config import Config  # noqa: E402
-from kagami.utils.io import ArtifactMissing, read_artifact  # noqa: E402
+from kagami.utils.io import ArtifactMissing, find_artifact, read_artifact  # noqa: E402
 from kagami.viz import style as S  # noqa: E402
 
 CFG = Config(root=ROOT)
@@ -35,9 +35,20 @@ STRETCH = ({"width": "stretch"} if "width" in inspect.signature(st.plotly_chart)
 
 
 @st.cache_data(show_spinner=False)
+def _read(name: str, path: str, stamp: tuple[int, int]) -> pd.DataFrame | str:
+    # path & stamp (mtime_ns, size) hanya kunci cache: versi file baru (git pull di Streamlit Cloud) = entri baru.
+    return read_artifact(CFG, name)
+
+
 def load(name: str) -> pd.DataFrame | str | None:
+    """Artefak atau None bila belum ada. Ketiadaan TIDAK di-cache (D-135): Streamlit Cloud menarik commit baru tanpa
+    me-restart proses, jadi None yang di-cache sebelum artefak di-push akan bertahan sampai app di-reboot."""
+    p = find_artifact(CFG, name)
+    if p is None:
+        return None
+    st_ = p.stat()
     try:
-        return read_artifact(CFG, name)
+        return _read(name, str(p), (st_.st_mtime_ns, st_.st_size))
     except ArtifactMissing:
         return None
 
