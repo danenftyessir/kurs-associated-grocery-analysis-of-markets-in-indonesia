@@ -51,6 +51,7 @@ WP-07 (paralel dengan WP-05) → WP-22/23
 | WP-12 | Mesin statistik bersama | ✅ | – | – | 20 Nov |
 | WP-13 | LP nasional + asimetri + PT (`build_design`/`fit_lp` terbit 22 Nov untuk WP-15) | ✅ | Danen | 05, 09 | 23 Nov |
 | WP-14 | Event study per episode | ✅ | Danen | 06, 08 | 23 Nov |
+<<<<<<< HEAD
 | WP-15 | Deviasi provinsi & profil wilayah | ✅ | Danen ← Ardell | 13 | 24 Nov |
 | WP-16 | Bootstrap bersama & plasebo | ✅ | Danen ← Ardell | 13, 15 | 24 Nov |
 | WP-17 | Penyusutan EB & fitur respons | ✅ | Danen ← Ardell | 16 | 24 Nov |
@@ -64,6 +65,21 @@ WP-07 (paralel dengan WP-05) → WP-22/23
 | WP-25 | Fitur Task 4 + as-of join | ✅ | Danen ← Ardell | 05, 08 | 22 Nov |
 | WP-26 | Model M0–M3 rolling-origin | ✅ | Danen ← Ardell | 25 | 24 Nov |
 | WP-27 | Evaluasi DM & ablation | ✅ | Danen | 26 | 25 Nov |
+=======
+| WP-15 | Deviasi provinsi & profil wilayah | 🔶 | Ardell | 13 | 24 Nov |
+| WP-16 | Bootstrap bersama & plasebo | 🔶 | Ardell | 13, 15 | 24 Nov |
+| WP-17 | Penyusutan EB & fitur respons | 🔶 | Ardell | 16 | 24 Nov |
+| WP-18 | Heterogenitas vs plasebo (G-het) | 🔶 | Danen | 16 | 25 Nov |
+| WP-19 | Clustering & pemilihan k | 🔶 | Ardell | 17 | 25 Nov |
+| WP-20 | Stabilitas & pembanding partisi | 🔶 | Ardell | 19 | 25 Nov |
+| WP-21 | Uji struktur tertanam | 🔶 | Danen | 19 | 26 Nov |
+| WP-22 | Asosiasi level komoditas (Kendall) | 🔶 | Danen | 07, 17 | 25 Nov |
+| WP-23 | Meta-regresi provinsi | 🔶 | Ardell | 07, 16 | 26 Nov |
+| WP-24 | Robustness FE komoditas×minggu (3c) | 🔶 | Ardell | 23 | 26 Nov (dapat dipotong) |
+| WP-25 | Fitur Task 4 + as-of join | ✅ | Ardell | 05, 08 | 22 Nov |
+| WP-26 | Model M0–M3 rolling-origin | 🔶 | Ardell | 25 | 24 Nov |
+| WP-27 | Evaluasi DM & ablation | 🔶 | Danen | 26 | 25 Nov |
+>>>>>>> origin/dev
 | WP-28 | Robustness Tier 1 | ✅ | Danen | 13 | 26 Nov |
 | WP-29 | Validasi V2 & V4 | ✅ | Danen | 14, 27 | 26 Nov |
 | WP-30 | Robustness Tier 2 | ✅ | Danen | 28 | opsional |
@@ -134,7 +150,12 @@ yang jalan di lokal/Kaggle/Colab (`utils/env.py`, `bundle`, D-027). Runbook: NOT
   200 apresiasi / 5 nol (sama dengan WP-05).
 - Hilir: WP-14 memakai `in_period` dan `start_week`; plasebo dari minggu `episode = 0` (± 12 minggu).
 
+<<<<<<< HEAD
 ### WP-07 — Tabel buatan tim ✅
+=======
+### WP-07 — Tabel buatan tim
+- Status 2026-11-20 (Ardell) 🔶: `build_*` selesai + `tests/test_reference.py` hijau pada data sintetis; keempat builder sudah dicoba pada data regulasi asli (72 baris). Belum divalidasi pada data asli: `faostat_sua`, `konkordansi_hs`, `jarak_hub`, `penduduk` belum ada di mesin Ardell (butuh `drive-pull-raw`, U100). Menunggu Abi: `n_kota`, `gkg_beras` (kolom terkait NaN). Final + terbit P3: 24 Nov.
+>>>>>>> origin/dev
 - File: `src/data/reference.py` → `concordance`, `exposure`, `regulation`, `province_features` di `data/reference/`.
 - Selesai bila:
   - [x] concordance: 10 baris, confidence diisi; seri Pink Sheet tervalidasi ada (tes sudah di `test_config`).
@@ -219,16 +240,30 @@ Pipeline `pipelines.task1` · notebook `01_task1_profiles` · berat → Kaggle/C
   Kolom ekstra `placebo_median` (2026-11-21, untuk WP-29).
   h=8: 10/120 sel p < 0,05.
 
+<<<<<<< HEAD
 ### WP-15 — Deviasi provinsi & profil wilayah ✅
 - File: `src/models/deviations.py`. Selesai bila: [x] Σ_r δ = 0 per (komoditas, horizon) (tes `test_deviations`); [x] profil 7 wilayah jalan dari `panel_weekly_region` saja.
 - Data asli: Task 1 P2 (Ardell, 2026-11-22), 14.066 baris provinsi + 4.186 wilayah di `profiles`; ditutup Danen 2026-11-23 (D-130).
 
 ### WP-16 — Bootstrap bersama & plasebo ✅
+=======
+### WP-15 — Deviasi provinsi & profil wilayah 🔶
+- Kode selesai 2026-11-21 (Ardell) + `tests/test_deviations.py`; pada data asli (tanpa harga dunia) 1.011 baris untuk h 4/8/12 dalam 0,6 dtk, Σ_r δ = 0, cabai rawit 31 provinsi. Sisa: run penuh di Kaggle dengan `world_prices_weekly` (driver w).
+- File: `src/models/deviations.py`. Selesai bila: [ ] Σ_r δ = 0 per (komoditas, horizon) (tes); [ ] profil 7 wilayah jalan dari `panel_weekly_region` saja.
+
+### WP-16 — Bootstrap bersama & plasebo 🔶
+- Kode selesai 2026-11-21 (Ardell, D-201) + `tests/test_inference.py`. Data asli (tanpa harga dunia): 2,6 dtk per replikasi (nasional + provinsi h kunci) → B = 499 ± 22 menit. Sisa: run penuh B/R di Kaggle (P2).
+>>>>>>> origin/dev
 - File: `src/evaluation/inference.py` → `boot_replicates`, `placebo_stats`, CI bootstrap di `profiles`.
 - Selesai bila: [x] satu indeks minggu per replikasi dipakai semua seri (tes `test_inference`); [x] plasebo provinsi hanya h ∈ {4, 8, 12}; [x] runtime diukur — ± 7 dtk/replikasi, B=R=499 fokus, 199 non-fokus (`bootstrap_B_nonfocus`).
 - Catatan (U107, D-129): blok 13 minggu menarik β ke nol (median rasio 0,57 / 0,35 / 0,35 pada h 4/8/12) → interval resmi konservatif; tambahan `national_calibrated`.
 
+<<<<<<< HEAD
 ### WP-17 — Penyusutan EB & fitur respons ✅
+=======
+### WP-17 — Penyusutan EB & fitur respons 🔶
+- Kode selesai 2026-11-21 (Ardell, D-201) + `tests/test_response.py`; rantai bootstrap → CI → EB → fitur jalan pada data asli (B = 3). Sisa: run penuh (P2).
+>>>>>>> origin/dev
 - File: `src/features/response.py` → `profiles` (shrunk=True) + `response_features`.
 - Selesai bila: [x] τ² DL dan REML dilaporkan berdampingan (`heterogeneity` statistik `tau2` & `tau2_reml`, D-132); [x] τ² = 0 → semua provinsi = rerata (4 komoditas pada h 8); [x] t_half NaN bila tidak terdeteksi (75% sel).
 
@@ -246,12 +281,23 @@ Pipeline `pipelines.task2` · notebook `02_task2_patterns` · berat → Kaggle/C
 - Syarat input (D-111): baris provinsi di `profiles` **dan** `placebo_stats` wajib membawa `se` (SE cluster minggu) → permintaan ke
   Ardell (WP-16), handoff `docs/handoff/20261121-1200_danen-ke-ardell_se-plasebo-tier1.md`.
 
+<<<<<<< HEAD
 ### WP-19 — Clustering & pemilihan k ✅
+=======
+### WP-19 — Clustering & pemilihan k 🔶
+- Kode selesai 2026-11-21 (Ardell, D-202) + `tests/test_clustering.py`, `tests/test_task2.py` (task2 end-to-end sintetis). `ward_labels`/`select_k`/`best_silhouette` siap dipakai WP-21. Sisa: jalan pada `response_features`/plasebo asli (P2).
+>>>>>>> origin/dev
 - File: `src/features/clustering.py`, `src/models/clustering.py` → `cluster_selection`.
 - Selesai bila: [x] fitur = R & W h∈{4,8,12} komoditas fokus, tersusut, terstandardisasi; [x] k=1 dilaporkan bila silhouette maks ≤ p95 plasebo (data asli 0,184 < 0,196 → k = 1).
 
+<<<<<<< HEAD
 ### WP-20 — Stabilitas & pembanding partisi ✅
 - File: `src/evaluation/stability.py` → `clusters`, `coassign`, `partition_compare`. Selesai bila: [x] ARI Ward vs K-Means; [x] Jaccard per klaster, weak bila < 0,6; [x] ARI vs zona HET, Jawa/luar Jawa, n_kota (k = 1 → NaN "tidak berlaku", D-132).
+=======
+### WP-20 — Stabilitas & pembanding partisi 🔶
+- Kode selesai 2026-11-21 (Ardell, D-202); sisa: jalan pada replikasi bootstrap asli (P2).
+- File: `src/evaluation/stability.py` → `clusters`, `coassign`, `partition_compare`. Selesai bila: [ ] ARI Ward vs K-Means; [ ] Jaccard per klaster, weak bila < 0,6; [ ] ARI vs zona HET, Jawa/luar Jawa, n_kota.
+>>>>>>> origin/dev
 
 ### WP-21 — Uji struktur tertanam ✅
 - File: `src/evaluation/planted.py` → `planted_recovery`. Tes `tests/test_planted.py`. Konvensi D-112, D-126.
@@ -288,22 +334,41 @@ Pipeline `pipelines.task3` · notebook `03_task3_association` · ringan.
   telur & daging ayam ω(4..12) rezim Perbadan 5/2022 negatif (p plasebo 0,002–0,010). Estimasi penuh di dalam interval rezim 88%.
   `task3` lokal 562 dtk (E2 plasebo ± 9 menit, joblib 12 core).
 
+<<<<<<< HEAD
 ### WP-23 — Meta-regresi provinsi ✅
 - File: `src/models/association.py::meta_regression` → `assoc` level=province. Selesai bila: [x] ≤ 3 fitur praregistrasi; [x] interval bootstrap vs CR2, yang lebih lebar dilaporkan; [x] jackknife provinsi.
 - U106 (D-132, 2026-11-23): p = max(p CR2, p bootstrap sisi) konsisten dengan interval; `q_fdr` BH. Data asli: 0/88 baris dua sisi p < 0,05 (sebelumnya 11), q min 1,0; H3 gabungan 0,007 (−0,022..0,033), p satu sisi 0,80.
 
 ### WP-24 — Robustness FE komoditas×minggu (3c) ✅
 - File: `src/models/association.py::fe_interaction`. Dapat dipotong (D-014). Data asli: 9 koefisien (3 fitur × h 4/8/12), semua interval memuat nol.
+=======
+### WP-23 — Meta-regresi provinsi 🔶
+- Kode selesai 2026-11-21 (Ardell, D-203) + `tests/test_association.py`. Fitur kosong (rice_sufficiency, n_kota) dibuang sampai U14/U15; sisa: jalan pada `profiles`/`boot_replicates` asli (P2) dan `province_features` lengkap (P3).
+- File: `src/models/association.py::meta_regression` → `assoc` level=province. Selesai bila: [ ] ≤ 3 fitur praregistrasi; [ ] interval bootstrap vs CR2, yang lebih lebar dilaporkan; [ ] jackknife provinsi.
+
+### WP-24 — Robustness FE komoditas×minggu (3c) 🔶
+- Kode selesai 2026-11-21 (Ardell, D-203); dicoba pada panel provinsi asli (3 horizon, 0,3 dtk, belum ditafsirkan). Sisa: jalan dengan `province_features` lengkap.
+- File: `src/models/association.py::fe_interaction`. Dapat dipotong (D-014).
+>>>>>>> origin/dev
 
 ## Task 4 — evaluasi prediktif
 Pipeline `pipelines.task4` · notebook `04_task4_forecast` · berat → Kaggle/Colab; paralel dengan Task 1.
 
 ### WP-25 — Fitur Task 4 + as-of join ✅
+<<<<<<< HEAD
 - File: `src/features/forecast.py`. Selesai bila: [x] tes kebocoran: untuk origin acak, tidak ada fitur dengan `available_at` > origin dan tidak ada target dengan t+h > origin di train.
 
 ### WP-26 — Model M0–M3 rolling-origin ✅
 - File: `src/models/forecasting.py` → `data/interim/forecast_preds.parquet`. Selesai bila: [x] origin tiap 4 minggu dari 2021-01-04 (76 origin h 4, 75 h 8); [x] M3 dapat dimatikan via flag bila waktu habis (`forecast.run_m3`).
 - D-131 (2026-11-23): diagnostik dummy bulan + Idulfitri (bukan artefak): M2/M1 1,005 / 1,019, H5 Holm 0,56 → kesimpulan sama; M0/M1 0,95 / 0,97.
+=======
+- Selesai 2026-11-20 (Ardell): `origins`, `feature_table`, `split_origin`, `build_features`; `tests/test_forecast.py` (tes kebocoran termasuk mengacak data masa depan). Dicoba pada panel provinsi asli (157.760 sel) tanpa harga dunia.
+- File: `src/features/forecast.py`. Selesai bila: [ ] tes kebocoran: untuk origin acak, tidak ada fitur dengan `available_at` > origin dan tidak ada target dengan t+h > origin di train.
+
+### WP-26 — Model M0–M3 rolling-origin 🔶
+- Kode selesai 2026-11-20 (Ardell); M0–M3 jalan pada data asli (≈2 dtk/origin untuk M3). Sisa: run penuh dengan `world_prices_weekly` + `drivers_weekly` (episode) dari Drive → `forecast_preds`, tenggat 24 Nov.
+- File: `src/models/forecasting.py` → `data/interim/forecast_preds.parquet`. Selesai bila: [ ] origin tiap 4 minggu dari 2021-01-04; [ ] M3 dapat dimatikan via flag bila waktu habis.
+>>>>>>> origin/dev
 
 ### WP-27 — Evaluasi DM & ablation ✅
 - File: `src/evaluation/forecast_eval.py` (+ `n_nonoverlap`; `stats.meta.holm`) → `forecast_eval`, `ablation`. Tes `tests/test_forecast_eval.py`. D-113.
@@ -365,6 +430,7 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 
 ## Produk & submission
 
+<<<<<<< HEAD
 ### WP-31 — Halaman Streamlit final ✅
 - File: `app/`. Selesai bila: [x] 6 halaman menampilkan artefak nyata; [x] setiap grafik: sumber, satuan, periode, interval, label "asosiasi, bukan kausalitas"; [x] lencana "tidak terdeteksi"; [x] halaman 3 menangani k=1; [x] halaman 5 bendera ekstrapolasi; [x] tanpa login/input data/estimasi runtime.
 - 2026-11-23 (Danen, D-130): hal. 2 + `national_calibrated` & H2 `asymmetry`; hal. 4 Kendall sebagai metrik, forest meta-regresi per horizon (bukan campuran skala), E2 `regime_profiles`; hal. 5 status & catatan interval PT; hal. 6 ringkasan robustness; `with_status` (lencana + 3 desimal) dan `STRETCH` (lebar penuh lintas versi Streamlit; `use_container_width` usang). Tes `test_app_data` memuat artefak sintetis baru.
@@ -372,6 +438,15 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 ### WP-32 — Paket juri & uji jalan ulang (G7) ✅
 - File: `src/pipelines/package.py`. Selesai bila: [x] `python -m kagami package` tanpa `--allow-missing`; [x] ekstrak zip di folder baru → `pip install -e .` → `python -m kagami app` jalan (Tingkat A) dan `task4` jalan dari data kirim (Tingkat B); [x] tidak ada file `redistribute: false` di zip (cek daftar isi).
 - G7 2026-11-23 (Danen): `dist/kagami_submission.zip` 172 file, 44 MB, tanpa artefak hilang; mentah hanya sumber `redistribute: true` (10 file), tanpa `pihps_daily`. Diekstrak ke folder bersih → venv `--system-site-packages` → `pip install --no-deps -e .`; Tingkat A: 6/6 halaman AppTest; Tingkat B: `task4` 1.128 dtk, `forecast_eval` identik dengan versi resmi (600/600 baris, selisih MAE maks 1e-16).
+=======
+### WP-31 — Halaman Streamlit final 🔶
+- Status 2026-11-21 (Ardell): halaman 2–4 dan Home diperluas (peta kepekaan, peringkat provinsi, klaster + stabilitas, forest asosiasi, rasio MAE, H5, status artefak); `tests/test_app_data.py` merender semua halaman dengan artefak sintetis. Sisa: artefak nyata (P2–P5), teks dari `docs/paper/app_copy.md` (Abi), `results/findings.md` untuk halaman 6.
+- File: `app/`. Selesai bila: [ ] 6 halaman menampilkan artefak nyata; [ ] setiap grafik: sumber, satuan, periode, interval, label "asosiasi, bukan kausalitas"; [ ] lencana "tidak terdeteksi"; [ ] halaman 3 menangani k=1; [ ] halaman 5 bendera ekstrapolasi; [ ] tanpa login/input data/estimasi runtime.
+
+### WP-32 — Paket juri & uji jalan ulang (G7) 🔶
+- Status 2026-11-21 (Ardell): `tests/test_package.py` membuktikan isi zip, tidak ada data tanpa hak redistribusi, dan CLI jalan dari folder ekstrak baru. Sisa: `package` tanpa `--allow-missing` + uji jalan ulang `app`/`task4` setelah semua artefak ship ada (pembekuan 27 Nov, G7 28 Nov).
+- File: `src/pipelines/package.py`. Selesai bila: [ ] `python -m kagami package` tanpa `--allow-missing`; [ ] ekstrak zip di folder baru → `pip install -e .` → `python -m kagami app` jalan (Tingkat A) dan `task4` jalan dari data kirim (Tingkat B); [ ] tidak ada file `redistribute: false` di zip (cek daftar isi).
+>>>>>>> origin/dev
 
 ### WP-33 — Temuan & makalah 🔶
 - 2026-11-23 (D-130): `results/findings.md` ditulis dari artefak (RQ1–RQ5, E2, robustness, keterbatasan, daftar artefak sumber). Makalah PDF ditunda.

@@ -3,7 +3,7 @@ dari: Danen
 ke: Ardell
 jenis: PERMINTAAN
 terkait: WP-07, WP-15, WP-16, WP-17, WP-19, WP-20, WP-23, WP-24, WP-25, WP-26, WP-31, WP-32
-status: terbuka
+status: selesai
 dibuat: 2026-11-21 19:00
 tenggat_respon: 2026-11-22
 ---
@@ -29,22 +29,22 @@ lolos; yang gagal adalah penjaga sinkronisasi dokumen (CLAUDE.md §3.4) dan satu
   `import_ratio_years` ikut menentukan `exposure.import_ratio_direct` → hasil E1 (WP-22), jadi alasannya perlu tertulis.
 
 ## Yang perlu dilakukan penerima
-- [ ] Ardell: CLAUDE.md §9 untuk modul sendiri: tandai ✔ fungsi yang sudah diimplementasi (`build_concordance`, `build_exposure`, …)
+- [x] Ardell: CLAUDE.md §9 untuk modul sendiri: tandai ✔ fungsi yang sudah diimplementasi (`build_concordance`, `build_exposure`, …)
       dan tambahkan fungsi publik baru: `load_penduduk`, `load_n_kota`, `load_gkg_beras`, `parse_regulation_dates`,
       `classify_verification`, `feature_columns`, `feature_table`, `split_origin`, `models.clustering.best_silhouette`,
       `sensitivity_heatmap`, `cluster_sizes` (`tests/test_claude_md.py::test_functions_and_status_match`).
-- [ ] Ardell: jumlah artefak di CLAUDE.md §9.1 → 32 (`test_artifact_count_stated`).
-- [ ] Ardell: `forecast_preds` di tabel `docs/ARCHITECTURE.md` §5 (`test_wiring.py::test_every_artifact_has_producer_and_is_documented`).
-- [ ] Ardell: sumber `penduduk` dan `gkg_beras` di `docs/DATASETS.md` dan CLAUDE.md §10.1 (`test_docs_sync.py::test_sources_documented`).
-- [ ] Ardell: 11 file tes baru di CLAUDE.md §16.1 (`test_synthetic`, `test_forecast`, `test_response`, `test_inference`, `test_task2`,
+- [x] Ardell: jumlah artefak di CLAUDE.md §9.1 → 32 (`test_artifact_count_stated`).
+- [x] Ardell: `forecast_preds` di tabel `docs/ARCHITECTURE.md` §5 (`test_wiring.py::test_every_artifact_has_producer_and_is_documented`).
+- [x] Ardell: sumber `penduduk` dan `gkg_beras` di `docs/DATASETS.md` dan CLAUDE.md §10.1 (`test_docs_sync.py::test_sources_documented`).
+- [x] Ardell: 11 file tes baru di CLAUDE.md §16.1 (`test_synthetic`, `test_forecast`, `test_response`, `test_inference`, `test_task2`,
       `test_deviations`, `test_package`, `test_app_data`, `test_clustering`, `test_association`, `test_reference`) (`test_tests_documented`).
-- [ ] Ardell: `tests/test_package.py::test_extracted_package_runs_cli` gagal di Windows Danen: subprocess `python -I` dengan
+- [x] Ardell: `tests/test_package.py::test_extracted_package_runs_cli` gagal di Windows Danen: subprocess `python -I` dengan
       `env={"PATH": "/usr/bin:/bin", ...}` tidak melihat pandas yang terpasang di user site-packages
       (`%APPDATA%\Python\Python313\site-packages`) → `ModuleNotFoundError: No module named 'pandas'`. Usul: teruskan `os.environ`
       (timpa hanya `KAGAMI_*`) dan buang `-I`, atau lewati tes bila pandas tidak terlihat dari interpreter terisolasi.
-- [ ] Ardell: entri DEVIASI PRAREGISTRASI untuk dua kunci `params.yaml` di atas (D-200+), status WP di papan `docs/WORKPLAN.md`
+- [x] Ardell: entri DEVIASI PRAREGISTRASI untuk dua kunci `params.yaml` di atas (D-200+), status WP di papan `docs/WORKPLAN.md`
       dan baris Ardell di CLAUDE.md §2.
-- [ ] Ardell: setelah `dev` terbaru ditarik, jalankan ulang kode yang tadinya gagal di macOS dengan `ols_cluster` (handoff
+- [x] Ardell: setelah `dev` terbaru ditarik, jalankan ulang kode yang tadinya gagal di macOS dengan `ols_cluster` (handoff
       `20261121-1800_danen-ke-ardell_ols-cluster.md`).
 
 ## Cara memverifikasi

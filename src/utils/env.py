@@ -28,11 +28,13 @@ DEFAULT_DRIVE_DIR = "/content/drive/MyDrive/kagami"
 
 
 def detect_platform() -> str:
-    if os.environ.get("KAGGLE_KERNEL_RUN_TYPE") or KAGGLE_INPUT.exists():
+    """kaggle | colab | local. Penanda khas platform (env var) didahulukan: image Colab juga punya folder /kaggle/input,
+    sehingga pemeriksaan folder saja salah mengenali Colab sebagai Kaggle (2026-11-21); folder hanya cadangan."""
+    if os.environ.get("KAGGLE_KERNEL_RUN_TYPE"):
         return "kaggle"
     if "google.colab" in sys.modules or os.environ.get("COLAB_RELEASE_TAG"):
         return "colab"
-    return "local"
+    return "kaggle" if KAGGLE_INPUT.exists() else "local"
 
 
 def _dirs_upto(base: Path, depth: int) -> list[Path]:
