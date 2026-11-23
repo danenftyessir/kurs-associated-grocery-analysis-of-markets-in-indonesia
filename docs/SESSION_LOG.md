@@ -9,6 +9,69 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-23 — Danen: U102 ✅ (uji tumpang tindih konkordansi HS, D-133), U24 ditutup
+- Comtrade 2023 (15 kode, 160 baris) dari API publik UN Comtrade (izin Danen) → `data/raw/comtrade/comtrade_idn_import_HS_monthly_2023.csv`, sumber `comtrade_import_2023` (optional).
+- `qa.check_trade_overlap` + tes (sintetis & asli) + `stage0_report` §9; `stage0` 44 dtk, artefak lain identik, checksums +1 baris.
+- Hasil: 14/15 kode cocok persis (bawang putih 070320 USD 648,6 juta di kedua sumber); 1511 0,944 (nilai kecil).
+- U24 ditutup atas keputusan Danen (akses link diterima). Command git untuk push yang ditolak disiapkan (lewat `feat/`).
+
+### 2026-11-23 — Danen: ambil alih jalur B & C (D-130); U106, findings, app, Tier 2, diagnostik M1
+- D-130: Danen pegang semua WP; makalah/video ditunda. Papan: WP-07/15–17/19/20/23–26/30/31 ✅ (bukti artefak asli + tes).
+- U106 (D-132): p meta-regresi konsisten interval (11 → 0/88 p < 0,05), `q_fdr`, ARI NaN saat k = 1, τ² REML di `heterogeneity`; `task2` 164 dtk, `task3` 705 dtk (artefak lain identik).
+- `results/findings.md` dari artefak; app hal. 2/4/5/6 diperluas (`national_calibrated`, H2, E2, Kendall, robustness), `STRETCH` ganti `use_container_width`.
+- WP-30: `robustness --tier2` 203 dtk, 679 baris (Tier 2 191/193 dalam interval; keterpencilan alternatif konsisten H3).
+- D-131: diagnostik dummy musim Task 4 → M2/M1 1,005 / 1,019, H5 Holm 0,56 (sama); M0/M1 0,95 / 0,97.
+- WP-32 ✅: paket 172 file tanpa artefak hilang; G7 di folder bersih: app 6/6, `task4` 1.128 dtk identik resmi (selisih 1e-16). Bundle 74 file.
+- pytest 317 lolos. Diunggah lewat Chrome (ganti file): `heterogeneity`, `partition_compare`, `assoc`, `robustness`, `findings.md` (baru),
+  `kagami_code.zip` (`MyDrive/kagami/`). Berikutnya: U24 `[HUMAN]`, commit, makalah/video bila dilanjutkan.
+
+### 2026-11-23 — Danen: audit progres + inferensi nasional terkalibrasi plasebo (D-129, U107)
+- Audit artefak asli: bootstrap blok 13 minggu menarik β ke nol (median rasio replikasi/estimasi 0,57 / 0,35 / 0,35 pada h 4/8/12) → interval resmi terlalu konservatif.
+- `evaluation/calibration.py::national_calibrated` + `tests/test_calibration.py`; artefak baru `national_calibrated` dari `task3` (0,9 dtk).
+- Data asli: 7/48 sel tidak memuat nol (resmi 3); q < 0,05 daging ayam β_e(4), gula β_e(4) (tidak tahan Tier 1), minyak goreng ω(8), ω(12).
+- Temuan lain (laporan ke user): event study 19/390 sel p < 0,05 (= kebetulan); M1 Task 4 memakai `month` numerik & `idf_rel_week` diisi median (milik Ardell); `M2_nofx` identik M1; Tier 2 tidak ada di `robustness` Drive.
+- Handoff KEPUTUSAN ke Semua. `national_calibrated` diunggah ke Drive tim `results/task3/` (Chrome, 13 KB). Belum: handoff musiman M1 ke Ardell; bundle kode.
+- Temuan Drive: folder `data` & `results/task3` "siapa saja yang memiliki link dapat mengedit" → U24 🔴 `[HUMAN]`.
+- Berikutnya: WP-30 (`robustness --tier2` + keterpencilan alternatif).
+
+### 2026-11-23 — Danen: WP-27 ✅ & WP-29 ✅ (Task 4 asli, robustness ditulis)
+- `forecast_preds`/`forecast_eval`/`ablation` diunduh dari Drive (Chrome); `evaluate` + `ablation` lokal identik (≤ 4e-16).
+- M2/M1 MAE 1,014 / 1,017 (h 4 / 8), DM p 0,001 / 0,006; H5 tidak didukung (1,12, Holm 1,0; large_move 8 origin). M0 ≈ M1.
+- Diagnostik ridge per komoditas (scratch): kesimpulan sama → D-128. `M2_nofx` identik M1.
+- `robustness` lokal 11 dtk, 486 baris; V2 forecast M2/M1 origin 2026 1,005; V4 26/30.
+- `robustness` diunggah ke Drive tim `results/` (130.052 byte, cocok).
+- Berikutnya: WP-30.
+
+### 2026-11-23 — Danen: audit positif palsu, E2 & H2 dikalibrasi (D-127)
+- Audit artefak asli Task 1–3: positif palsu dari SE cluster sempit (E2, H2, β daging ayam) dan p `assoc` vs interval (milik Ardell).
+- `evaluation/regimes.py`: interval ±crit·SE, crit dari 499 plasebo geser-melingkar (joblib), `p_placebo`, `q_fdr`; `asymmetry.py`: interval laporan = Wald ∪ bootstrap.
+- Tes: `test_regimes.py::test_regime_placebo_calibration`, interval laporan di `test_asymmetry.py`. `task3` lokal 562 dtk.
+- E2: sel tidak memuat nol 38 → 15 dari 145, q min 0,145; H2: 0 sel (bawang putih h8 −10,2..3,1). `assoc` tidak berubah.
+- U106 + handoff PERMINTAAN ke Ardell (p meta-regresi, ARI k = 1); handoff KEPUTUSAN ke Semua.
+- `asymmetry` & `regime_profiles` diunggah sebagai versi baru (ID tetap, ukuran cocok); `kagami_code.zip` di `MyDrive/kagami/`, belum diekstrak.
+- Berikutnya: tarik Task 4 → WP-27 → `robustness` (belum ada di lokal) → WP-29.
+
+### 2026-11-22 — Danen: WP-21 ✅ struktur tertanam diperbaiki (D-126, U105)
+- `planted.deviation_matrices` + `shrink_matrix`; `recovery_curve` menanam pada deviasi plasebo mentah lalu susut EB & z-score; `task2` diperbarui.
+- Tes: EB penanaman = EB matriks fitur; regresi U105 (tanam setelah susut memulihkan δ 0,1, versi baru tidak). Derau sintetis 0,2.
+- Data asli: batas deteksi δ = 0,2 (k = 2 dan 3; recovery 0,995 / 0,965), δ 0,1 = 0,43 / 0,13; ambang 0,196; 53 dtk.
+
+### 2026-11-22 — Danen: analisis Task 1 asli, WP-18 ✅ (G-het), WP-22 ✅, H2 diformalkan (D-125)
+- Lima artefak Task 1 dari Drive tim (Ardell) → `results/task1/`: kontrak lengkap, B = R = 499 (non-fokus 199), `se` di `placebo_stats`.
+- `task2` lokal 650 dtk: G-het menolak telur ayam (q 0,040) & daging ayam (q 0,050); k = 1 (silhouette 0,184 < p95 0,196).
+- H2 belum punya kode → `asymmetry_wald` + `evaluation/asymmetry.py` + `tests/test_asymmetry.py`; `task3` (635 dtk) menulis `asymmetry`.
+- Temuan: struktur tertanam ditanam setelah penyusutan EB → recovery 1,0 sejak δ = 0,1 (U105, menunggu keputusan).
+
+### 2026-11-21 — Danen: E2 profil per rezim HET/HAP (D-124)
+- `src/evaluation/regimes.py` (regulation_changes, regime_table, regime_profiles) + `tests/test_regimes.py`; artefak baru `regime_profiles` dari `task3`.
+- Data asli: 145 baris (10 komoditas, 3–6 rezim, h 4/8/12, e & w), 4,9 dtk; estimasi penuh di dalam interval rezim 73% sel.
+- Notebook 03 + forest plot E2. Peta dataset → task: `regulation` sebelumnya tidak dipakai; `concordance` hanya dokumentasi.
+
+### 2026-11-21 — Danen: data manual WP-07 (D-123)
+- Penduduk 2025 dari tabel BPS (38 prov → 34), n_kota dari situs PIHPS (110 kota), faktor GKG→beras 0,5762 dari rilis BPS 2 Feb 2026.
+- `stage0` ulang: `province_features` lengkap (rice_sufficiency 0,001..3,27; n_kota 1..12). Suite 290 lolos. U14/U15/U21 🟢.
+- Ketiga file + `checksums.csv` (versi baru) diunggah ke `data/raw/` Drive tim lewat Chrome. Sisa: snapshot Panel Harga kab/kota (opsional).
+
 ### 2026-11-21 — Danen: merge 6 branch Ardell, stage0 + WP-07 lokal, E1 sementara, D-120
 - Merge `feat/reference-tables` .. `feat/app-package` ke dev (0 konflik); simulasi: 276 lolos, 6 gagal (dokumen/paket, handoff PERMINTAAN ke Ardell).
 - `stage0` lokal 27 dtk: concordance 10, exposure 10, regulation 72 (5 unverified), province_features 34 (populasi/n_kota NaN).
@@ -238,7 +301,47 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Ardell
 
-(belum ada entri)
+### 2026-11-21 — Ardell: persiapan Colab notebook 01 & 04 (checkpoint Task 1, uji end-to-end)
+- Setelah merge Danen (`dev`): `joint_bootstrap`/`circular_placebo` + `task1.run` punya checkpoint & resume ke Drive (D-204); `tests/test_task1.py` menjalankan `task1.run` end-to-end pada artefak sintetis. Error SVD macOS belum tertutup oleh D-119 → handoff `20261121-2100_ardell-ke-danen_svd-macos.md` (tidak menghalangi Colab/Linux).
+- Handoff Danen `ols-cluster` dan `sinkron-dokumen` ditutup (dokumen §9, artefak, tes, D-121 sudah dikerjakan Danen di `dev`).
+
+### 2026-11-21 — Ardell: WP-31, WP-32 🔶 (app dan paket juri: persiapan sebelum artefak final)
+- `src/viz/plots.py` (+`sensitivity_heatmap`, `cluster_sizes`), halaman 2/3/4 dan Home diperluas; `tests/test_app_data.py` (semua halaman dengan artefak sintetis berskema kontrak) dan `tests/test_package.py` (isi zip, hak data, CLI dari folder ekstrak).
+- `tests/test_wiring.py`: `kagami.utils.todo` dikecualikan dari tes modul terpakai (semua stub sudah terimplementasi, pembantu itu tak dipakai lagi) — dicatat di handoff untuk Danen.
+- Sisa: artefak nyata, teks app dari Abi, findings, `package` tanpa `--allow-missing` dan uji jalan ulang G7 (28 Nov).
+
+### 2026-11-21 — Ardell: WP-23, WP-24 🔶 (meta-regresi provinsi, interaksi FE)
+- `models/association.py::meta_regression/fe_interaction` + `tests/test_association.py`; `pipelines/task3.py` meneruskan `elig`. Koefisien tertanam dipulihkan; CR2 ≈ SE model pada data homoskedastis; bootstrap hanya melebarkan interval.
+- Data asli: `fe_interaction` 0,3 dtk pada 154 ribu baris (hanya ln_dist_hub; penduduk & n_kota belum ada), belum ditafsirkan. D-203.
+- Berikutnya: WP-31 (app) → WP-32 (paket juri); run penuh P2/P3 setelah data Drive.
+
+### 2026-11-21 — Ardell: WP-19, WP-20 🔶 (clustering, pilih k, stabilitas, pembanding partisi)
+- `features/clustering.py`, `models/clustering.py`, `evaluation/stability.py`, `pipelines/task2.py` (menyesuaikan: matriks plasebo mentah untuk planted, baris K-Means, n_kota dari `province_features`); `tests/test_clustering.py`, `tests/test_task2.py` (end-to-end sintetis).
+- Kalibrasi: tanpa struktur, positif palsu seleksi k 1 dari 12 seed (≈ 5%); dengan struktur tertanam 3 kelompok → k = 3, ARI > 0,9, tidak ada klaster lemah. D-202. `response.shrink_deviations(check_reml=False)` untuk replikasi.
+- Berikutnya: WP-23 → WP-24 → WP-31 → WP-32.
+
+### 2026-11-21 — Ardell: WP-15, WP-16, WP-17 🔶 (deviasi provinsi, bootstrap & plasebo, EB & fitur respons)
+- `models/deviations.py`, `evaluation/inference.py`, `features/response.py` + `tests/test_deviations.py`, `test_inference.py`, `test_response.py`; `pipelines/task1.py` menyesuaikan pemanggil (est menerima harga dunia, elig ke deviasi, provinsi h kunci dalam replikasi).
+- Data asli (tanpa harga dunia, B = 3): nasional + provinsi 2,6 dtk/replikasi; deviasi provinsi 1.011 baris 0,6 dtk, Σ δ = 0, cabai rawit 31 provinsi; R8 nasional beras 0,084 = profil Danen.
+- Temuan: `np.linalg.pinv(X'X)` di `stats.ols_cluster` gagal ("SVD did not converge") pada satu desain bootstrap di macOS (numpy 2.3.5 & 2.5.5, matriks rank penuh, cond 60); `pinv(hermitian=True)` benar. Diminta ke Danen lewat handoff; uji lokal memakai workaround di skrip sementara. D-201.
+- Berikutnya: WP-19 → WP-20; run penuh task1 (Kaggle) setelah `world_prices_weekly` tersedia → P2.
+
+### 2026-11-20 — Ardell: ketahanan sesi Task 4 + handoff ke Danen
+- Catatan Danen (mekanik kerja): `forecast_preds` kini artefak `task4` (`ship=False`) yang di-push ke Drive; `rolling_predictions` punya `checkpoint`/`done` (run ulang melanjutkan); `task4.run` menyimpan tiap 10 origin.
+- Inventaris dataset (docs/arsip) +2 butir `Belum Lengkap` (n_kota, faktor GKG). Handoff: docs/handoff/20261120-2000_ardell-ke-danen_wp07-wp25-26-kontrak.md.
+
+### 2026-11-20 — Ardell: WP-25 ✅, WP-26 🔶 (fitur as-of + model M0–M3 rolling-origin)
+- `src/features/forecast.py` (`origins`, `feature_table`, `split_origin`, `build_features`) dan `src/models/forecasting.py` (`fit_predict`, `rolling_predictions`, model `M2_nofx` untuk ablation); `params.forecast.run_m3`.
+- `tests/test_forecast.py` + `synthetic_task4_inputs` di `tests/synthetic.py`. Uji kebocoran: train t+h ≤ origin, `available_at` ≤ minggu fitur, fitur minggu ≤ t0 tidak berubah saat data setelah t0 diacak.
+- Data asli (tanpa harga dunia): 75 origin h=8; M3 ≈ 1,5–2 dtk per origin. Run penuh menunggu `world_prices_weekly` & `drivers_weekly` (P1).
+- Label model untuk WP-27 (Danen): `M0`, `M1`, `M2`, `M3`, `M2_nofx`; kolom `province_id` (bila panel provinsi), `region`, `commodity`, `y_true`, `y_pred`, `large_move`.
+
+### 2026-11-20 — Ardell: WP-07 🔶 (tabel referensi: kode + tes sintetis) + generator sintetis Task 1
+- `src/data/reference.py`: `build_concordance/exposure/regulation/province_features` + `parse_regulation_dates`, `classify_verification`; `loaders.py`: `load_penduduk/n_kota/gkg_beras` (NaN-aman); `sources.yaml` +3 sumber `optional`; `params.association.import_ratio_years`; `stage0` memanggil dengan input baru.
+- Tes: `tests/test_reference.py`, `tests/test_synthetic.py` + `tests/synthetic.py` (panel provinsi & profil nasional dummy, jawaban tertanam); `test_loaders`/`test_config` disesuaikan.
+- Data asli: regulation = 72 baris dari 3 sumber (30 verified, 24 confirmed, 13 partial, 5 unverified); dist_hub_km dari koordinat crosswalk.
+- Belum divalidasi pada data asli: FAOSTAT, konkordansi, jarak_hub, penduduk belum ada lokal (butuh `drive-pull-raw`, U100); `n_kota` & `gkg_beras` menunggu Abi (U15, U21). D-200.
+- Berikutnya: WP-25 → kerangka WP-15/16/17 (sintetis); final WP-07 + P3 24 Nov.
 
 ---
 

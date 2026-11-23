@@ -5,11 +5,13 @@ SEDANG-BERAT (mengulang LP untuk tiap cek) -> disarankan Kaggle/Colab. Tier 1 ti
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 from kagami.data import drivers as drivers_mod
 from kagami.data import loaders
 from kagami.data import panel as panel_mod
+from kagami.data import reference
 from kagami.evaluation import robustness
 from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact, require, write_artifact
@@ -54,4 +56,10 @@ def tier2_inputs(cfg: Config) -> dict:
         print("[robustness] Tier 2 last_obs dilewati: artefak pihps_daily tidak ada")
     if exists(cfg, "exposure"):
         out["exposure"] = read_artifact(cfg, "exposure")
+    if exists(cfg, "province_features"):                       # keterpencilan alternatif (meta-regresi H3)
+        zf = read_artifact(cfg, "province_features")
+        reg = cfg.regions.set_index("province_id")
+        jkt = reg[reg["province"].str.contains("Jakarta", case=False)].iloc[0]
+        km = reference.haversine_km(reg["lat"], reg["lon"], jkt["lat"], jkt["lon"])
+        out["province_features"] = zf.assign(ln_km_jakarta=zf["province_id"].map(np.log1p(km)))
     return out

@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from common import CFG, commodity_labels, footer, need, page_header
+from common import CFG, commodity_labels, footer, need, not_detected_badge, page_header
 
 page_header("Penjelajah Skenario Bersyarat",
             "Bila rupiah melemah x% dalam h minggu, berapa perubahan harga yang konsisten dengan pola historis?")
@@ -23,6 +23,12 @@ if got:
         r = row.iloc[0]
         st.metric(f"Perubahan harga konsisten dengan pola historis (h = {h})",
                   f"{r['estimate'] * x:+.2f}%", help=f"interval: {r['ci_low'] * x:+.2f}% s.d. {r['ci_high'] * x:+.2f}%")
+        st.markdown(f"Interval: **{r['ci_low'] * x:+.2f}% s.d. {r['ci_high'] * x:+.2f}%** · status: "
+                    f"**{not_detected_badge(r['ci_low'], r['ci_high'])}**")
+        if r["ci_low"] <= 0 <= r["ci_high"]:
+            st.info("Interval memuat nol: angka di atas adalah batas kepekaan yang konsisten dengan data, bukan prediksi arah.")
+        st.caption("Interval PT dari persentil bootstrap blok (rasio replikasi). Bootstrap ini menarik estimasi ke nol "
+                   "pada horizon panjang, sehingga interval cenderung lebar (konservatif).")
         max_hist = 100 * got["episodes"]["cum_dlog_e"].max()
         if x > max_hist:
             st.error(f"Ekstrapolasi: x = {x}% melebihi depresiasi kumulatif historis terbesar ({max_hist:.1f}%).")

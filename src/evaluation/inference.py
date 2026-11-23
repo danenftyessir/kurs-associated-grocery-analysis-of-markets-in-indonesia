@@ -102,9 +102,19 @@ def _stack(parts: list[pd.DataFrame]) -> pd.DataFrame:
     return out[REP_COLUMNS + extra]
 
 
+def _finished(done: pd.DataFrame | None, n: int) -> tuple[list[pd.DataFrame], set[int]]:
+    """Hasil lama (rep < n) yang dipertahankan saat melanjutkan run, dan himpunan rep yang sudah selesai."""
+    if done is None or len(done) == 0:
+        return [], set()
+    kept = done[done["rep"] < n]
+    return ([kept] if len(kept) else []), set(int(r) for r in kept["rep"].unique())
+
+
 def joint_bootstrap(cfg: Config, estimator: Callable[..., pd.DataFrame], panel: pd.DataFrame,
                     drivers: pd.DataFrame, B: int, world: pd.DataFrame | None = None,
-                    B_nonfocus: int | None = None) -> pd.DataFrame:
+                    B_nonfocus: int | None = None, done: pd.DataFrame | None = None,
+                    checkpoint: Callable[[pd.DataFrame], None] | None = None,
+                    checkpoint_every: int = 25) -> pd.DataFrame:
     """WP-16. B replikasi moving-block (blok 13 minggu) dengan SATU indeks minggu per replikasi
     (stats.resampling.moving_block_indices) yang dipakai untuk semua seri & horizon.
 
@@ -115,18 +125,27 @@ def joint_bootstrap(cfg: Config, estimator: Callable[..., pd.DataFrame], panel: 
     `world` ikut di-resample dengan indeks yang sama; bila diberikan, estimator menerimanya sebagai argumen ketiga.
     Komputasi: komoditas fokus B=499, lainnya B=params.inference.bootstrap_B_nonfocus (199) -> replikasi setelahnya
     hanya meminta komoditas fokus lewat argumen `commodities`. RNG = cfg.seed + 1601.
+    Tahan sesi habis: `done` = hasil run sebelumnya (rep yang sudah ada dilewati; indeks minggu tetap diundi ulang
+    dengan seed yang sama sehingga hasil akhir identik dengan run tanpa putus); `checkpoint(hasil)` dipanggil tiap
+    `checkpoint_every` replikasi baru.
     """
     p = cfg.params["inference"]
     prep = _Prepared(panel, drivers, world)
     rng = np.random.default_rng(cfg.seed + BOOT_OFFSET)
     sched = _schedule(cfg, B, p["bootstrap_B_nonfocus"] if B_nonfocus is None else B_nonfocus)
-    parts = []
+    parts, finished = _finished(done, B)
+    n_new = 0
     for rep in range(B):
-        idx = moving_block_indices(prep.n_weeks(), int(p["block_weeks"]), rng)
+        idx = moving_block_indices(prep.n_weeks(), int(p["block_weeks"]), rng)      # selalu diundi (urutan RNG tetap)
+        if rep in finished:
+            continue
         pb, db, wb = prep.draw(idx)
         parts.append(_call(estimator, pb, db, wb, sched[rep]).assign(rep=rep))
+        n_new += 1
         if (rep + 1) % 25 == 0:
             print(f"[task1] bootstrap {rep + 1}/{B}")
+        if checkpoint is not None and n_new % checkpoint_every == 0:
+            checkpoint(_stack(parts))
     return _stack(parts)
 
 
@@ -144,7 +163,9 @@ def _rolled(drivers: pd.DataFrame, world: pd.DataFrame | None, s: int) -> tuple[
 
 def circular_placebo(cfg: Config, statistic: Callable[..., pd.DataFrame],
                      panel: pd.DataFrame, drivers: pd.DataFrame, R: int, world: pd.DataFrame | None = None,
-                     R_nonfocus: int | None = None) -> pd.DataFrame:
+                     R_nonfocus: int | None = None, done: pd.DataFrame | None = None,
+                     checkpoint: Callable[[pd.DataFrame], None] | None = None,
+                     checkpoint_every: int = 25) -> pd.DataFrame:
     """WP-16. Geser de & dw sejauh s >= 52 minggu (np.roll) terhadap harga, hitung ulang profil.
 
     statistic(panel, drivers_shifted[, world_shifted][, commodities=...]) -> baris profil (nasional + deviasi
@@ -152,17 +173,26 @@ def circular_placebo(cfg: Config, statistic: Callable[..., pd.DataFrame],
     (rep, level, unit, commodity, driver, horizon, estimate; kolom ekstra `se` dibawa bila ada). Q/τ²/silhouette
     plasebo dihitung di Task 2.
     s ∈ [placebo_min_shift_weeks, T - min] (stats.resampling.circular_shift) atas seluruh grid penggerak;
-    harga tidak digeser, log_e dibangun ulang dari de yang digeser; de_pos/de_neg diturunkan dari de. RNG = cfg.seed + 1602.
+    harga tidak digeser, log_e dibangun ulang dari de yang digeser; de_pos/de_neg diturunkan dari de.
+    RNG = cfg.seed + 1602. `done`/`checkpoint` seperti joint_bootstrap (melanjutkan run yang terputus).
     """
     p = cfg.params["inference"]
     rng = np.random.default_rng(cfg.seed + PLACEBO_OFFSET)
     n = len(drivers)
     sched = _schedule(cfg, R, p["bootstrap_B_nonfocus"] if R_nonfocus is None else R_nonfocus)
-    parts = []
+    parts, finished = _finished(done, R)
+    n_new = 0
     for rep in range(R):
-        s = circular_shift(n, int(p["placebo_min_shift_weeks"]), rng)
+        s = circular_shift(n, int(p["placebo_min_shift_weeks"]), rng)               # selalu diundi (urutan RNG tetap)
+        if rep in finished:
+            continue
         db, wb = _rolled(drivers, world, s)
         parts.append(_call(statistic, panel, db, wb, sched[rep]).assign(rep=rep))
+        n_new += 1
+        if (rep + 1) % 25 == 0:
+            print(f"[task1] plasebo {rep + 1}/{R}")
+        if checkpoint is not None and n_new % checkpoint_every == 0:
+            checkpoint(_stack(parts))
     return _stack(parts)
 
 

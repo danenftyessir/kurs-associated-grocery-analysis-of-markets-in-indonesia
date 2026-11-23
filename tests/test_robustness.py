@@ -258,3 +258,23 @@ def test_tier2_world_variants(cfg):
     assert set(w.index) == {"w:Maize", "w:equal_weights"}
     assert np.isclose(w.loc["w:Maize", "estimate"], w.loc["w:Maize", "baseline_estimate"])
     assert abs(w.loc["w:equal_weights", "estimate"] - 0.6) < 3 * w.loc["w:equal_weights", "se"]   # dw/2 -> ω×2
+
+
+def test_tier2_remoteness_alternatives(cfg):
+    """WP-30: keterpencilan alternatif lewat meta-regresi gabungan; kolom identik -> estimasi = baseline."""
+    from tests.test_association import _features, _profiles
+    rng = np.random.default_rng(8)
+    f = _features(rng)
+    f["ln_km_jakarta"] = f["ln_dist_hub"]                                  # alternatif identik dengan baseline
+    prof = pd.concat([_profiles(f, -0.10, rng=rng, h=4), _profiles(f, -0.10, rng=rng, h=12)])
+    drv = _drv_full(cfg)
+    world = pd.DataFrame(columns=["week", "commodity", "log_w_idr", "dw"])
+    empty = pd.DataFrame(columns=["week", "province_id", "commodity", "log_price"])
+    out = rb.tier2(cfg, empty, drv, world, profiles=prof, province_features=f, commodities=[])
+    r = out[out["variant"].astype(str).str.startswith("remote:")].set_index(["variant", "horizon"])
+    assert set(r.index) == {(f"remote:{c}", h) for c in rb.REMOTENESS_ALTERNATIVES for h in (4, 12)}
+    same = r.loc[("remote:ln_km_jakarta", 4)]
+    assert np.isclose(same["estimate"], same["baseline_estimate"]) and same["baseline_in_ci"]
+    assert (r["commodity"] == "ALL").all() and (r["check_id"] == rb.TIER2[2]).all()
+    lin = r.loc[("remote:dist_hub_km", 4)]
+    assert lin["estimate"] < 0 and lin["ci_high"] < 0                       # km linear berkorelasi kuat dengan ln km

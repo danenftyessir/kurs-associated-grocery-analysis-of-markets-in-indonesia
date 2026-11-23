@@ -83,6 +83,7 @@ def compare_partitions(cfg: Config, labels: pd.Series, n_kota: pd.Series | None 
 
     labels: label klaster (index = province_id). n_kota (opsional, index = province_id): jumlah kota sampel PIHPS;
     dibagi menjadi tiga kelompok kuantil (rank-based); tanpa n_kota (U15) baris itu dilewati. Tambahan: 7 wilayah.
+    Klaster tunggal (k = 1) -> ari = NaN ("tidak berlaku"), bukan 0 yang terbaca "tidak cocok" (U106).
     """
     reg = cfg.regions.set_index("province_id")
     rows = [_ari_row("het_zone_beras", labels, reg["het_zone_beras"]),
@@ -91,4 +92,7 @@ def compare_partitions(cfg: Config, labels: pd.Series, n_kota: pd.Series | None 
     if n_kota is not None and n_kota.notna().sum() >= 3:
         tercile = pd.qcut(n_kota.rank(method="first"), 3, labels=False)
         rows.append(_ari_row("n_kota_tercile", labels, tercile))
-    return pd.DataFrame(rows, columns=["partition", "ari", "n_groups"])
+    out = pd.DataFrame(rows, columns=["partition", "ari", "n_groups"])
+    if labels.nunique(dropna=True) < 2:
+        out["ari"] = np.nan
+    return out

@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from kagami.stats.meta import bh_fdr, dersimonian_laird
+from kagami.stats.meta import bh_fdr, dersimonian_laird, reml_tau2
 from kagami.utils.config import Config
 
 HET_STATISTICS = ("Q", "tau2", "I2")
@@ -31,13 +31,15 @@ def heterogeneity_stats(profiles: pd.DataFrame, horizon: int = 8, driver: str = 
 
     Input : baris level='province' (unit = province_id), driver, horizon, estimate, se (+ shrunk bila ada → hanya False).
             Bisa dipakai pada profiles asli maupun satu replikasi placebo_stats (yang harus membawa 'se').
-    Output: commodity ('ALL' untuk rho_bar), horizon, statistic ∈ {Q, tau2, I2, rho_bar}, value, n_provinces.
+    Output: commodity ('ALL' untuk rho_bar), horizon, statistic ∈ {Q, tau2, tau2_reml, I2, rho_bar}, value, n_provinces.
+    tau2_reml = τ² REML (stats.meta.reml_tau2) berdampingan dengan τ² DL (WP-17; uji H0-Het tetap memakai Q).
     """
     d = _deviations(profiles, horizon, driver)
     rows = []
     for com, g in d.groupby("commodity", sort=True):
-        r = dersimonian_laird(g["estimate"].to_numpy(float), g["se"].to_numpy(float) ** 2)
-        for stat, val in (("Q", r.Q), ("tau2", r.tau2), ("I2", r.I2)):
+        est, var = g["estimate"].to_numpy(float), g["se"].to_numpy(float) ** 2
+        r = dersimonian_laird(est, var)
+        for stat, val in (("Q", r.Q), ("tau2", r.tau2), ("tau2_reml", reml_tau2(est, var)), ("I2", r.I2)):
             rows.append({"commodity": com, "horizon": horizon, "statistic": stat, "value": val,
                          "n_provinces": r.k})
     W = d.pivot_table(index="unit", columns="commodity", values="estimate", aggfunc="first")

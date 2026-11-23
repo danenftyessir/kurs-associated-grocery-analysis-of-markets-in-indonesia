@@ -1,5 +1,6 @@
 """D-027: lokasi kode / mentah / output terpisah; artefak dicari lintas lokasi (lokal, Kaggle, Colab)."""
 
+import shutil
 from pathlib import Path
 
 import pandas as pd
@@ -21,10 +22,11 @@ def test_local_defaults(cfg):
 
 
 def test_write_to_out_read_from_previous_stage(cfg, tmp_path):
-    prev, out = tmp_path / "nb00_output", tmp_path / "working"
-    c_prev = Config(root=cfg.root, out_root=prev)
+    prev, out, code = tmp_path / "nb00_output", tmp_path / "working", tmp_path / "code"
+    shutil.copytree(cfg.root / "configs", code / "configs")   # root kode tanpa results/ (seperti dataset Kaggle kagami-code)
+    c_prev = Config(root=code, out_root=prev)
     write_artifact(c_prev, "episodes", _ep())
-    c = Config(root=cfg.root, out_root=out, artifact_dirs=(prev,))
+    c = Config(root=code, out_root=out, artifact_dirs=(prev,))
     assert exists(c, "episodes") and read_artifact(c, "episodes")["episode_id"].tolist() == [1]
     assert artifact_path(c, "episodes").is_relative_to(out)            # tulis tetap ke out_dir
     with pytest.raises(ArtifactMissing, match="profiles"):
@@ -53,3 +55,18 @@ def test_colab_layout(cfg, tmp_path, monkeypatch):
     (tmp_path / "data" / "raw").mkdir(parents=True)
     c2 = init_runtime("colab", drive_dir=str(tmp_path), verbose=False)
     assert c2.raw_dir == tmp_path / "data" / "raw"                   # salinan mentah di DRIVE_DIR tetap dipakai bila ada
+
+
+def test_colab_not_mistaken_for_kaggle_when_kaggle_input_exists(tmp_path, monkeypatch):
+    """Image Colab punya /kaggle/input: penanda Colab harus menang (regresi 2026-11-21)."""
+    import kagami.utils.env as env
+    (tmp_path / "input").mkdir()
+    monkeypatch.setattr(env, "KAGGLE_INPUT", tmp_path / "input")
+    monkeypatch.delenv("KAGGLE_KERNEL_RUN_TYPE", raising=False)
+    monkeypatch.setenv("COLAB_RELEASE_TAG", "release-1")
+    assert env.detect_platform() == "colab"
+    monkeypatch.delenv("COLAB_RELEASE_TAG")
+    assert env.detect_platform() == "kaggle"                      # tanpa penanda Colab: folder tetap cadangan Kaggle
+    monkeypatch.setenv("KAGGLE_KERNEL_RUN_TYPE", "Interactive")
+    monkeypatch.setenv("COLAB_RELEASE_TAG", "release-1")
+    assert env.detect_platform() == "kaggle"                      # penanda Kaggle eksplisit tetap menang

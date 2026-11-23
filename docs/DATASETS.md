@@ -25,6 +25,7 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 | `faostat_sua` | FAOSTAT SUA Crops & Livestock, Asia | 2010 .. 2023 tahunan | Rasio impor | Ya (CC BY 4.0) |
 | `bps_import_monthly` | Impor HS8 bulanan (USD, kg), **v2**: 111 kode HS8 termasuk bawang putih 070320 | 2023-01 .. 2026-09 (2.845 baris) | Cek silang rasio impor | Tidak |
 | `bps_import_annual` | 5 file portal exim BPS, total tahunan HS8 | 2023 .. 2026 (parsial) | QA | Tidak |
+| `comtrade_import_2023` | UN Comtrade impor Indonesia bulanan, 15 kode konkordansi, partner World (API publik preview, 2026-11-23, `optional`) | 2023-01 .. 2023-12 (160 baris) | QA tumpang tindih konkordansi (U102) | Tidak |
 | `comtrade_import` | UN Comtrade impor Indonesia HS4/HS6 bulanan (15 kode; tanpa kedelai 1201) | 2017-01 .. 2022-12 | Rasio impor pra-2023 | Tidak |
 | `konkordansi_hs` | Pemetaan 15 kode Comtrade (HS2017/HS2022) → HS8 BPS + keyakinan + rasio nilai 2022 vs 2023 (buatan tim) | statis | Jembatan impor 2017–2026 (WP-07) | Ya |
 | `bapanas_panel` | Panel Harga Bapanas, rerata geometrik bulanan provinsi | 2022-01 .. 2026-10, 38 prov | Cek bias / Tier 2 | Tidak |
@@ -33,9 +34,9 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 | `konsumsi_beras` | Konsumsi beras RT kg/kapita/tahun per provinsi | 2023 .. 2025 | Kecukupan produksi | Tidak |
 | `neraca_beras` | Neraca beras nasional (ton) | 2023 .. 2026 | Cek silang impor beras | Tidak |
 | `hortikultura_produksi` | Produksi bawang merah, bawang putih, cabai besar, cabai rawit per provinsi (ATAP 2024 Kementan) | 2020 .. 2024, 38 prov | Rasio impor bawang putih (U5), kecukupan produksi (U11) | Tidak |
-| `penduduk` | Penduduk provinsi 2025 BPS (`optional`; diunggah Danen, U103) | 2025, 38 prov | Kebutuhan beras → `rice_sufficiency` (U14) | Tidak |
-| `n_kota` | Kota sampel PIHPS per provinsi (isi manual Abi, `optional`) | 34 prov | `n_kota` (U15) | Ya |
-| `gkg_beras` | Faktor konversi GKG → beras per tahun (isi manual Abi, `optional`) | per tahun | `rice_sufficiency` (U21) | Ya |
+| `penduduk` | Penduduk provinsi 2025 BPS (`optional`; disalin dari tabel BPS 2026-11-21, D-123) | 2025, 38 prov | Kebutuhan beras → `rice_sufficiency` (U14) | Tidak |
+| `n_kota` | Kota sampel pasar tradisional PIHPS per provinsi (situs PIHPS 2026-11-21, `optional`, D-123) | 34 prov, 110 kota | `n_kota` (U15) | Ya |
+| `gkg_beras` | Faktor konversi GKG → beras untuk konsumsi pangan per tahun (rilis BPS, `optional`, D-123) | 2024, 2025 | `rice_sufficiency` (U21) | Ya |
 | `jarak_hub` | Jarak garis lurus ibu kota ke Jakarta/Surabaya/Makassar + ln jarak (buatan tim) | statis, 38 prov | Cek silang `dist_hub_km` (WP-07) | Ya |
 | `het_hap_current` | Nilai HET/HAP berlaku per komoditas × zona (buatan tim; revisi 2026-11-20) | 30 baris, status 2026-11-19 | Regulasi | Ya |
 | `regulation_history` | Riwayat HET/HAP/HPP (buatan tim; revisi 2026-11-20) | 23 baris, 2020 .. 2025 | Regulasi (E2) | Ya |
@@ -44,7 +45,6 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 
 | Kunci (rencana) | File | Lokasi | Peran | Status |
 |---|---|---|---|---|
-| `penduduk_2025` | CSV penduduk per provinsi 2025 (BPS) | `data/raw/bps_kependudukan/penduduk_provinsi_2025.csv` | Penyebut kecukupan beras (U14) | sudah diunduh Danen ke Downloads |
 | `bapanas_kabkota` | `panelharga_konsumen_kabkota_snapshot_2026-10.csv` (497 kab/kota, 5.885 baris) | `data/raw/bapanas/` | Opsional: heterogenitas dalam provinsi / bias rerata kota PIHPS | sudah diunduh Danen ke Downloads |
 
 ### Versi lama (tidak dipakai; `data/raw/_superseded/`, tidak diunggah ke Drive)
@@ -118,8 +118,9 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
   `cif_usd`. Kedelai HS 1201 tidak ada (celah 2017–2022 bila kedelai dipakai).
 - `konkordansi_hs`: 15 baris; kolom `comtrade_code` (str), `bps_hs8_prefix` (str), `bps_hs8_codes_in_file`,
   `keyakinan_pemetaan`, `comtrade_2022_usd_total`, `bps_2023_usd_total`, `rasio_bps2023_per_comtrade2022`, `catatan`.
-  Perubahan HS2017→HS2022 hanya 0709.59 (dari transkripsi sekunder). Uji tumpang tindih Comtrade vs BPS Apr–Des 2022 belum
-  bisa dijalankan karena server ekspor-impor BPS error (U102).
+  Perubahan HS2017→HS2022 hanya 0709.59 (dari transkripsi sekunder). Uji tumpang tindih (U102, D-133) dijalankan pada 2023:
+  `comtrade_import_2023` (skema sama dengan `comtrade_import`; `load_comtrade(cfg, "comtrade_import_2023")`) vs `bps_import_monthly`
+  → 14/15 kode cocok persis (rasio nilai 1,000, korelasi bulanan 1,000; termasuk bawang putih 070320 USD 648,6 juta); 1511 minyak sawit 0,944 (USD 1,2 juta, subpos HS8 tidak lengkap, tidak dipakai rasio impor). Rasio lama `rasio_bps2023_per_comtrade2022` yang jauh dari 1 (mis. beras 8,85) = perbedaan antartahun, bukan pemetaan.
 
 ### Bapanas
 - `bapanas_panel`: 13 komoditas Bapanas (nama berbeda dari PIHPS, mis. `Bawang Putih Bonggol`, `Minyakita`, `Gula Konsumsi`)
@@ -144,9 +145,16 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 
 ### Sumber manual WP-07 (`optional`, boleh belum ada)
 - `penduduk` (`bps_kependudukan/penduduk_provinsi_2025.csv`): skema CSV BPS belum dipastikan; loader mencari kolom provinsi + satu kolom numerik,
-  membaca satuan dari nama kolom ('ribu'/'juta') dan menolak total di luar 200–400 juta jiwa. **Belum diuji pada file asli.**
-- `n_kota` (`manual_pihps/n_kota.csv`): `province_id, province, n_kota, kota_list, source_url` (PEMBAGIAN_TUGAS §6.2).
-- `gkg_beras` (`manual_conversion/gkg_beras.csv`): `year, factor, source_url, note`.
+  membaca satuan dari nama kolom ('ribu'/'juta') dan menolak total di luar 200–400 juta jiwa. File 2026-11-21: salinan tabel BPS
+  "Penduduk, Laju Pertumbuhan Penduduk, … Menurut Provinsi, 2025" (diperbarui 2 Mei 2025, berbasis proyeksi sebelum SUPAS 2025),
+  kolom `Provinsi`, `Jumlah Penduduk 2025 (Ribu)`; 38 provinsi → 34 (pemekaran Papua ke induk), total 284,44 juta jiwa.
+- `n_kota` (`manual_pihps/n_kota.csv`): `province_id, province, n_kota, kota_list, source_url` (PEMBAGIAN_TUGAS §6.2). Isi 2026-11-21
+  dari daftar kabupaten/kota pasar tradisional di situs PIHPS (`GetRefRegency`, price_type_id = 1): 110 kota, 1 (DKI, DIY, Bengkulu,
+  Maluku Utara) sampai 12 (Jawa Tengah). `province_id` dipetakan dari nama (nomor provinsi situs PIHPS berbeda dari kerangka proyek).
+  Daftar ini kondisi 2026; jumlah kota sampel per provinsi di awal periode (2018) bisa berbeda.
+- `gkg_beras` (`manual_conversion/gkg_beras.csv`): `year, factor, source_url, note`. Faktor 0,5762 untuk 2024 dan 2025 = produksi beras
+  untuk konsumsi pangan penduduk / produksi padi GKG (30,62/53,14 dan 34,69/60,21 juta t, rilis BPS 2 Feb 2026, angka tetap 2025);
+  setara rantai BPS 0,9318 (GKG diolah) × 0,6402 (rendemen SKGB 2018) × 0,9667 (beras untuk pangan) = 0,5767.
 - File belum ada → loader mengembalikan tabel kosong berskema; hasil WP-07 terkait NaN dan pesan `[reference]` dicetak.
 
 ### Regulasi (buatan tim)
@@ -183,6 +191,7 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 | `... 00.37.22.xlsx` | `data/raw/bps_trade/exim_annual_0102_0207_0407.xlsx` | 2026-11-20 |
 | `... 00.38.01.xlsx` | `data/raw/bps_trade/exim_annual_0407_0709.xlsx` | 2026-11-20 |
 | `comtrade_idn_import_HS_monthly_2017_2022.csv` | `data/raw/comtrade/` | 2026-11-20 |
+| API publik UN Comtrade `public/v1/preview/C/M/HS` (reporter 360, flow M, partner 0, mot 0, C00; 12 permintaan per bulan) | `data/raw/comtrade/comtrade_idn_import_HS_monthly_2023.csv` | 2026-11-23 |
 | `konkordansi_hs_comtrade_bps_2017_2026.csv` | `data/raw/manual_concordance/` | 2026-11-20 |
 | `panelharga_konsumen_bulanan_provinsi_2022_2026.csv`, `panelharga_setting_het_hap_riwayat.csv` | `data/raw/bapanas/` | 2026-11-20 |
 | `Luas Panen, Produksi, dan Produktivitas Padi Menurut Provinsi, 2024.csv` | `data/raw/bps_pangan/padi_provinsi_2024.csv` | 2026-11-20 |

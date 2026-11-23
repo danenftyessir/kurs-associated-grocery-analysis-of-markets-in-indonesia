@@ -257,3 +257,38 @@ def national_profiles(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame,
     out["ci_high"] = out["estimate"] + 1.96 * out["se"]
     out["shrunk"] = False
     return out[PROFILE_COLUMNS + ["n_obs"]]
+
+
+ASYMMETRY_COLUMNS = ["commodity", "horizon", "beta_pos", "beta_neg", "estimate", "se", "n_weeks", "n_obs"]
+
+
+def asymmetry_wald(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.DataFrame | None, *,
+                   elig: pd.DataFrame | None = None, horizons: list[int] | None = None,
+                   commodities: list[str] | None = None) -> pd.DataFrame:
+    """WP-13 (H2). Uji Wald β⁺(h) = β⁻(h) nasional dengan SE cluster minggu (PREREGISTRATION H2; D-125).
+
+    Spesifikasi asimetris yang sama dengan national_profiles (panel provinsi pooled, efek tetap seri, L = params.lp.lags).
+    Parametrisasi ulang β⁺·de⁺ + β⁻·de⁻ = β⁻·de + (β⁺ − β⁻)·de⁺ (lag de⁺/de⁻ tetap bebas): satu OLS memberi
+    estimate = β⁺ − β⁻ (koefisien de⁺; tanda sama dengan fitur A8) dan SE cluster CR1-nya = SE uji Wald satu restriksi.
+    horizons default params.lp.key_horizons. Kolom: ASYMMETRY_COLUMNS (beta_pos/beta_neg = estimasi spesifikasi asimetris).
+    """
+    L = int(cfg.params["lp"]["lags"])
+    H = [int(h) for h in (horizons if horizons is not None else cfg.params["lp"]["key_horizons"])]
+    present = set(panel["commodity"].unique())
+    rows = []
+    for com in [c for c in (commodities or cfg.commodity_ids()) if c in present]:
+        parts = _design_parts(cfg, panel, drivers, world, com, L, True, elig, None, None)
+        for h in H:
+            y, X, names, wk, _, _ = _design_arrays(parts, h)
+            row = {"commodity": com, "horizon": h, "beta_pos": np.nan, "beta_neg": np.nan, "estimate": np.nan,
+                   "se": np.nan, "n_weeks": int(len(np.unique(wk))), "n_obs": int(len(y))}
+            if len(y):
+                i_pos, i_neg = names.index("de_pos"), names.index("de_neg")
+                X = X.copy()
+                X[:, i_neg] = X[:, i_pos] + X[:, i_neg]          # kolom de⁻ -> de = de⁺ + de⁻
+                res = ols_cluster(y, X, wk)
+                diff, b_neg = float(res.beta[i_pos]), float(res.beta[i_neg])
+                row.update(beta_pos=b_neg + diff, beta_neg=b_neg, estimate=diff, se=float(res.se[i_pos]),
+                           n_obs=int(res.n_obs))
+            rows.append(row)
+    return pd.DataFrame(rows, columns=ASYMMETRY_COLUMNS)

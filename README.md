@@ -116,7 +116,7 @@ Rincian hipotesis yang kami bekukan di G6 ada di [docs/PREREGISTRATION.md](docs/
 | H3     | Provinsi yang lebih terpencil merespons lebih kecil pada h = 4                                                       | Meta-regresi efek acak, satu arah                                         | Konfirmatori (waktu)                                                            |
 | H5     | Untuk jalur impor langsung dan input impor, fitur kurs menurunkan MAE h = 8 pada origin dengan pergerakan kurs besar | Rasio MAE dan Diebold–Mariano HAC, koreksi Holm                          | Konfirmatori untuk grup fokus                                                   |
 | E1     | Komoditas impor langsung punya PT(8) lebih besar daripada komoditas domestik                                         | Kendall τ-b, permutasi eksak (10! permutasi)                             | Deskriptif                                                                      |
-| E2     | Respons di sekitar perubahan HET/HAP berbeda                                                                         | Grafik per rezim                                                          | Eksploratif                                                                     |
+| E2 | Respons di sekitar perubahan HET/HAP berbeda | LP nasional per rezim HET/HAP, forest plot | Eksploratif |
 | E3     | Komoditas yang harganya lebih sering berubah merespons lebih cepat                                                   | Kovariat meta-regresi                                                     | Eksploratif                                                                     |
 
 ## 4. Data
@@ -264,7 +264,7 @@ Minggu $t$ memicu episode bila $\sum_{s=t-7}^{t} \Delta e_s \ge 0{,}03$. Kami me
 Kami menghitung MDE sebelum melihat estimasi β. Dengan tingkat signifikansi 5% dan daya 80%:
 
 $$
-\text{MDE}_\beta(h) = (z_{0{,}975} + z_{0{,}80})\,\text{SE}_\beta(h) \approx 2{,}80\,\text{SE}_\beta(h), \qquad
+\text{MDE}_\beta(h) = (z_{0{,}975} + z_{0{,}80})\thinspace \text{SE}_\beta(h) \approx 2{,}80\thinspace \text{SE}_\beta(h), \qquad
 \text{MDE}_{PT}(h) = \frac{\text{MDE}_\beta(h)}{\gamma(h)}
 $$
 
@@ -278,9 +278,9 @@ G-power, kami memakai angka ini untuk memutuskan apakah LP tetap menjadi analisi
 Kami memakai local projections (Jordà, 2005) dengan lag augmentation untuk setiap komoditas dan horizon:
 
 $$
-y^{(h)}_{i,r,t} = \alpha_{i,r,h} + \beta_{i,h}\,\Delta e_t + \omega_{i,h}\,\Delta w_{i,t}
-+ \sum_{l=1}^{L}\big(\phi_{l}\,\Delta p_{i,r,t-l} + \psi_{l}\,\Delta e_{t-l} + \chi_{l}\,\Delta w_{i,t-l}\big)
-+ \sum_{l=0}^{4}\pi_{l}\,\Delta b_{t-l} + S_{i,h}(t) + u_{i,r,t+h}
+y^{(h)}_{i,r,t} = \alpha_{i,r,h} + \beta_{i,h}\thinspace \Delta e_t + \omega_{i,h}\thinspace \Delta w_{i,t}
++ \sum_{l=1}^{L}\big(\phi_{l}\thinspace \Delta p_{i,r,t-l} + \psi_{l}\thinspace \Delta e_{t-l} + \chi_{l}\thinspace \Delta w_{i,t-l}\big)
++ \sum_{l=0}^{4}\pi_{l}\thinspace \Delta b_{t-l} + S_{i,h}(t) + u_{i,r,t+h}
 $$
 
 $y^{(h)}_{i,r,t} = p_{i,r,t+h} - p_{i,r,t-1}$ adalah perubahan harga kumulatif, dengan $L = 4$ lag (2 dan 8 untuk robustness).
@@ -293,7 +293,7 @@ berasosiasi dengan perubahan harga sebesar $\beta_{i,h}$% setelah $h$ minggu.
 Kurs hanya bervariasi antarminggu, jadi kami melakukan inferensi per minggu:
 
 $$
-\hat V = c\,(X^\top X)^{-1}\Big(\sum_{g=1}^{G} X_g^\top \hat u_g \hat u_g^\top X_g\Big)(X^\top X)^{-1},\qquad
+\hat V = c\thinspace (X^\top X)^{-1}\Big(\sum_{g=1}^{G} X_g^\top \hat u_g \hat u_g^\top X_g\Big)(X^\top X)^{-1},\qquad
 c = \frac{G}{G-1}\cdot\frac{n-1}{n-k}
 $$
 
@@ -312,15 +312,16 @@ Interval PT kami ambil dari persentil bootstrap.
 
 #### Asimetri (H2)
 
-Kami mengganti $\beta\,\Delta e_t$ dengan $\beta^+\Delta e_t^+ + \beta^-\Delta e_t^-$, lalu menguji $\beta^+(8) = \beta^-(8)$.
+Kami mengganti $\beta\thinspace \Delta e_t$ dengan $\beta^+\Delta e_t^+ + \beta^-\Delta e_t^-$, lalu menguji $\beta^+(8) = \beta^-(8)$.
 
 #### Event study
 
 Untuk setiap episode yang mulai di minggu $s$, kami menghitung perubahan harga $p_{s+h} - p_{s-1}$ untuk $h = 0..12$ dan
-membandingkannya dengan 499 jendela plasebo yang awalnya kami ambil dari minggu di luar episode:
+membandingkannya dengan 499 jendela plasebo yang awalnya kami ambil dari minggu di luar episode. Jika $N_{\ge}$ adalah banyaknya
+jendela plasebo yang nilai mutlaknya paling sedikit sama dengan nilai mutlak perubahan aktual, p-value-nya adalah
 
 $$
-p\text{-value} = \frac{1 + \#\{|\text{plasebo}| \ge |\text{aktual}|\}}{1 + 499}
+p\text{-value} = \frac{1 + N_{\ge}}{1 + 499}
 $$
 
 #### Deviasi provinsi
@@ -338,7 +339,7 @@ berlaku untuk harga dan penggerak di semua seri, sehingga korelasi antarprovinsi
 Untuk distribusi null, kami menggeser $\Delta e$ dan $\Delta w$ sejauh $s \in [52, T-52]$ minggu terhadap harga sebanyak R = 499
 kali. Pergeseran ini memutus hubungan kurs dan harga tetapi mempertahankan dinamika masing-masing deret.
 
-Interval akhir yang kami laporkan adalah yang lebih lebar di antara $\pm 1{,}96\,\text{SE}$ cluster dan persentil bootstrap
+Interval akhir yang kami laporkan adalah yang lebih lebar di antara $\pm 1{,}96\thinspace \text{SE}$ cluster dan persentil bootstrap
 2,5–97,5.
 
 #### Penyusutan empirical Bayes
@@ -347,7 +348,7 @@ Untuk setiap kombinasi komoditas, penggerak, dan horizon, kami mengestimasi vari
 DerSimonian–Laird (REML sebagai cek), lalu menyusutkan setiap deviasi ke rerata:
 
 $$
-\hat\delta^{EB}_r = \mu + \frac{\tau^2}{\tau^2 + s_r^2}\,(\hat\delta_r - \mu)
+\hat\delta^{EB}_r = \mu + \frac{\tau^2}{\tau^2 + s_r^2}\thinspace (\hat\delta_r - \mu)
 $$
 
 Provinsi dengan estimasi yang bising ($s_r^2$ besar) tertarik lebih kuat ke rerata. Jika $\tau^2 = 0$, semua provinsi bernilai
@@ -366,22 +367,23 @@ Untuk setiap komoditas pada $h = 8$, dengan bobot $v_r = 1/s_r^2$:
 
 $$
 Q = \sum_r v_r(\hat\delta_r - \hat\mu)^2,\qquad
-\tau^2_{DL} = \max\!\Big(0,\ \frac{Q - (k-1)}{\sum v_r - \sum v_r^2/\sum v_r}\Big),\qquad
-I^2 = \max\!\Big(0,\ \frac{Q-(k-1)}{Q}\Big)
+\tau^2_{DL} = \max\Big(0,\ \frac{Q - (k-1)}{\sum v_r - \sum v_r^2/\sum v_r}\Big),\qquad
+I^2 = \max\Big(0,\ \frac{Q-(k-1)}{Q}\Big)
 $$
 
 Lintas komoditas, kami menghitung $\bar\rho$, rerata korelasi vektor deviasi provinsi untuk setiap pasangan komoditas. Kami
 membandingkan setiap statistik dengan distribusinya pada 499 replikasi plasebo memakai p satu sisi
-$(1 + \#\{\text{null} \ge \text{aktual}\})/(1+R)$, lalu mengoreksinya dengan FDR Benjamini–Hochberg (q ≤ 0,05) antar 10 komoditas.
+$(1 + N_{\ge})/(1 + R)$, dengan $N_{\ge}$ = banyaknya replikasi plasebo yang statistiknya paling sedikit sama dengan nilai aktual.
+Setelah itu kami mengoreksinya dengan FDR Benjamini–Hochberg (q ≤ 0,05) antar 10 komoditas.
 
 #### Clustering provinsi
 
 Kami menyusun matriks 34 provinsi × fitur, berisi R dan W pada h = 4, 8, 12 untuk komoditas fokus yang sudah disusutkan.
 Setelah z-score per kolom, kami mengelompokkan provinsi dengan Ward (Euclidean) dan menghitung silhouette untuk
-$k \in \{2,\dots,6\}$:
+$k \in \lbrace 2,\dots,6 \rbrace$:
 
 $$
-s(j) = \frac{b(j) - a(j)}{\max\{a(j), b(j)\}}
+s(j) = \frac{b(j) - a(j)}{\max\lbrace a(j), b(j)\rbrace}
 $$
 
 Kami menerima struktur klaster hanya jika silhouette maksimum data asli melampaui persentil 95 silhouette maksimum dari matriks
@@ -398,7 +400,7 @@ luar Jawa, serta 7 wilayah.
 
 Uji ini mengukur batas deteksi. Kami mengambil matriks plasebo yang realistis, membagi provinsi secara acak ke $k_{true}$
 kelompok, lalu menggeser setiap kelompok hingga selisih RMS per fitur antar kelompok sama dengan
-$\delta \in \{0{,}1,\dots,0{,}5\}$. Kami lalu menghitung
+$\delta \in \lbrace 0{,}1,\dots,0{,}5 \rbrace$. Kami lalu menghitung
 $\text{recovery} = P(k\ \text{terpilih} = k_{true} \wedge \text{ARI} \ge 0{,}8)$. Batas deteksi adalah $\delta$ terkecil
 dengan recovery minimal 0,8. Angka ini membuat hasil $k = 1$ bisa dibaca sebagai "struktur dengan selisih ≥ δ akan terdeteksi".
 
@@ -434,9 +436,17 @@ provinsi.
 Kami mengestimasi interaksi $\Delta e_t \times Z(r)$ dengan efek tetap komoditas × minggu, sehingga koefisiennya hanya
 teridentifikasi dari perbedaan antarprovinsi. Analisis ini masuk daftar yang boleh kami potong bila waktu habis.
 
+#### E2. Profil respons per rezim HET/HAP
+
+Kami membagi periode setiap komoditas menjadi rezim, yaitu selang di antara tanggal penetapan atau perubahan harga acuan konsumen
+(HET, HAP) yang terverifikasi di tabel regulasi tim. Di setiap rezim kami mengestimasi ulang LP nasional pada h = 4, 8, dan 12, hanya
+dengan observasi yang seluruh jendela datanya $[t-(L+1),\ t+h]$ berada di dalam rezim itu. Hasilnya kami tampilkan sebagai forest plot
+dan kami bandingkan dengan estimasi sampel penuh. Analisis ini eksploratif. Batas rezim bisa bertepatan dengan peristiwa lain, seperti
+lonjakan harga pangan dunia 2022, sehingga perbedaan antarrezim tidak kami atribusikan ke regulasi.
+
 ### 6.5 Task 4: nilai prediktif informasi kurs
 
-Targetnya adalah $y_{t}^{(h)} = p_{t+h} - p_t$ untuk $h \in \{4, 8\}$ minggu.
+Targetnya adalah $y_{t}^{(h)} = p_{t+h} - p_t$ untuk $h \in \lbrace 4, 8 \rbrace$ minggu.
 
 Kami memakai desain rolling-origin yang meniru kondisi nyata. Origin jatuh setiap 4 minggu sejak 2021-01-04. Pada origin $o$,
 kami melatih model hanya dengan baris yang memenuhi $t + h \le o$, artinya outcome-nya sudah terealisasi saat itu. Kami
@@ -469,7 +479,7 @@ tidak tumpang tindih.
 
 Cek Tier 1 wajib kami jalankan: h 8 dibanding 12; lag 2, 4, dan 8; sub-periode sebelum dan sesudah perubahan metode JISDOR
 pada 2021-04-05; sampel tanpa Maret–Juni 2020 dan tanpa bulan dengan perubahan Brent ekstrem; dekomposisi
-$\Delta e = a + b\,\Delta\text{DXY} + \varepsilon$ menjadi komponen dolar global dan komponen khas rupiah; serta frekuensi bulanan.
+$\Delta e = a + b\thinspace \Delta\text{DXY} + \varepsilon$ menjadi komponen dolar global dan komponen khas rupiah; serta frekuensi bulanan.
 
 Cek Tier 2 bersifat opsional: varian harga lain dalam komoditas yang sama (termasuk minyak goreng curah), harga pada hari
 teramati terakhir, urutan jalur eksposur ordinal, dan Panel Harga Bapanas sebagai outcome alternatif.
@@ -518,7 +528,7 @@ pengguna, dan tidak ada estimasi saat dijalankan.
 | 2. Kepekaan Harga Regional                             | Kurva respons nasional, wilayah, dan provinsi, serta peta kepekaan                                                                                    |
 | 3. Pola Respons                                        | Uji heterogenitas, klaster (atau k = 1) dengan stabilitasnya, batas deteksi                                                                           |
 | 4. Eksposur & Nilai Prediktif                          | Jalur eksposur terhadap PT(8), meta-regresi, rasio MAE Task 4                                                                                         |
-| 5. Penjelajah Skenario Bersyarat                       | $\Delta \text{harga} \approx PT(h)\cdot x$ untuk $x \in \{1, 3, 5\}\%$, dengan bendera ekstrapolasi dan label "skenario bersyarat, bukan ramalan" |
+| 5. Penjelajah Skenario Bersyarat                       | $\Delta \text{harga} \approx PT(h)\cdot x$ untuk $x \in \lbrace 1, 3, 5 \rbrace$ persen, dengan bendera ekstrapolasi dan label "skenario bersyarat, bukan ramalan" |
 | 6. Temuan Penelitian                                   | Ringkasan temuan dalam bahasa analis TPID                                                                                                             |
 
 Setiap grafik mencantumkan sumber, satuan, periode, interval 95%, dan label "asosiasi, bukan kausalitas". Jika interval sebuah

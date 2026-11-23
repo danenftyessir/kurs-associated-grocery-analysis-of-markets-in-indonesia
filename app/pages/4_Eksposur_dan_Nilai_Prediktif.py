@@ -2,36 +2,80 @@
 
 import streamlit as st
 
-from common import footer, need, page_header
+from common import STRETCH, commodity_labels, footer, load, need, page_header, with_status
 from kagami.viz import plots
 
 page_header("Eksposur & Nilai Prediktif",
-            "Lewat jalur apa komoditas ini terpapar, dan apakah kurs membantu memprediksi harganya?")
+            "Lewat jalur apa komoditas ini terpapar, dan apakah fitur kurs memperbaiki prediksi dalam evaluasi historis?")
 
 got = need("exposure", "response_features", "assoc", "forecast_eval", "ablation")
 if got:
     st.subheader("Tiga jalur eksposur vs respons nasional")
     nat = got["response_features"].query("level == 'national'")[["commodity", "PT8", "W8"]]
-    st.dataframe(got["exposure"].merge(nat, on="commodity", how="left"), hide_index=True, use_container_width=True)
+    st.dataframe(got["exposure"].merge(nat, on="commodity", how="left"), hide_index=True, **STRETCH)
+
+    assoc = got["assoc"]
+    method = assoc["method"] if "method" in assoc else assoc.get("level")
+    ken = assoc[method.astype(str).str.startswith("kendall")]
+    if len(ken):
+        k = ken.iloc[0]
+        st.metric("E1 · Kendall τ-b PT(8) vs rasio impor langsung (N = 10)", f"{k['estimate']:+.3f}",
+                  help=f"interval jackknife {k['ci_low']:+.2f} s.d. {k['ci_high']:+.2f}; p permutasi eksak {k['p_value']:.2f}")
     st.caption("N = 10 komoditas: kesimpulan berlaku 'di antara 10 komoditas yang diamati'.")
 
-    st.subheader("Asosiasi (Task 3)")
-    assoc = got["assoc"]
-    label = [c for c in ("level", "feature", "outcome", "commodity") if c in assoc]
-    st.plotly_chart(plots.forest(assoc, label, "Koefisien asosiasi"), use_container_width=True)
-    st.dataframe(assoc, hide_index=True, use_container_width=True)
+    st.subheader("Karakteristik provinsi (Task 3)")
+    meta = assoc[method.astype(str).str.startswith("meta_regression")]
+    if len(meta):
+        hs = sorted({int(x) for x in meta["horizon"].dropna()}) if "horizon" in meta else []
+        h = st.selectbox("Horizon meta-regresi (minggu)", hs, index=0) if hs else None
+        m = meta if h is None else meta[meta["horizon"] == h]
+        lab = [c for c in ("commodity", "feature") if c in m]
+        st.plotly_chart(plots.forest(m, lab, "Meta-regresi efek acak: Δ respons per 1 SD fitur"),
+                        **STRETCH)
+        cols = [c for c in ("commodity", "feature", "horizon", "estimate", "ci_low", "ci_high", "p_value", "q_fdr",
+                            "method", "jackknife_min", "jackknife_max") if c in m]
+        st.dataframe(with_status(m[cols]), hide_index=True, **STRETCH)
+        st.caption("Interval = yang lebih lebar dari CR2 dan bootstrap; p konsisten dengan interval itu; q = BH atas baris "
+                   "eksploratif. H3 (ln_dist_hub, h = 4) diuji satu sisi.")
+    fe = assoc[method.astype(str) == "fe_interaction"]
+    if len(fe):
+        with st.expander("Interaksi efek tetap komoditas×minggu (pemeriksaan kepekaan 3c)"):
+            cols = [c for c in ("feature", "horizon", "estimate", "ci_low", "ci_high", "p_value", "n") if c in fe]
+            st.dataframe(with_status(fe[cols]), hide_index=True, **STRETCH)
+
+    reg = load("regime_profiles")
+    if reg is not None and not reg.empty:
+        st.subheader("Respons per rezim HET/HAP (E2, eksploratif)")
+        labels = commodity_labels()
+        coms = [c for c in labels if c in set(reg["commodity"])]
+        c1, c2, c3 = st.columns(3)
+        com = c1.selectbox("Komoditas rezim", coms, format_func=labels.get)
+        drv = c2.selectbox("Penggerak rezim", sorted(reg.loc[reg["commodity"] == com, "driver"].unique()))
+        hr = c3.selectbox("Horizon rezim", sorted(reg.loc[reg["commodity"] == com, "horizon"].unique()))
+        r = reg[(reg["commodity"] == com) & (reg["driver"] == drv) & (reg["horizon"] == hr)]
+        lab = [c for c in ("regime_id", "label") if c in r]
+        st.plotly_chart(plots.forest(r, lab, f"{labels.get(com, com)} · {drv} · h = {hr}"), **STRETCH)
+        cols = [c for c in ("regime_id", "label", "regime_start", "regime_end", "n_weeks", "estimate", "ci_low",
+                            "ci_high", "baseline_estimate", "p_placebo", "q_fdr") if c in r]
+        st.dataframe(with_status(r[cols]), hide_index=True, **STRETCH)
+        if "q_fdr" in reg:
+            st.caption(f"Interval dikalibrasi plasebo geser-melingkar; q BH minimum seluruh tabel "
+                       f"{reg['q_fdr'].min():.3f}. Rezim pendek → interval lebar; bukan bukti efek regulasi.")
 
     st.subheader("Evaluasi bersyarat rolling-origin (Task 4)")
-    fe = got["forecast_eval"]
+    fe4 = got["forecast_eval"]
     for subset in ("all", "large_move"):
-        if (fe["subset"] == subset).any():
-            st.plotly_chart(plots.forecast_ratios(fe, subset), use_container_width=True)
-    if "h5_p_holm" in fe:
+        if (fe4["subset"] == subset).any():
+            st.plotly_chart(plots.forecast_ratios(fe4, subset), **STRETCH)
+    if "h5_p_holm" in fe4:
         st.markdown("**H5 (grup fokus per jalur eksposur, h = 8, koreksi Holm)**")
-        st.dataframe(fe[fe["h5_p_holm"].notna()], hide_index=True, use_container_width=True)
+        st.dataframe(fe4[fe4["h5_p_holm"].notna()], hide_index=True, **STRETCH)
     with st.expander("Tabel lengkap evaluasi dan ablation"):
-        st.dataframe(fe, hide_index=True, use_container_width=True)
-        st.dataframe(got["ablation"], hide_index=True, use_container_width=True)
-    st.caption("Evaluasi bersyarat atas pola historis (pseudo-real-time), bukan sistem peramalan.")
+        st.dataframe(fe4, hide_index=True, **STRETCH)
+        st.dataframe(got["ablation"], hide_index=True, **STRETCH)
+        st.caption("Ablation = MAE M2 tanpa fitur kurs & harga dunia − MAE M2; karena M2 = M1 + fitur itu, nilainya sama "
+                   "dengan −(MAE M2 − MAE M1).")
+    st.caption("Rasio MAE vs M1 < 1 = lebih akurat dari M1. Evaluasi bersyarat atas pola historis (pseudo-real-time; "
+               "vintage revisi tidak tersedia), bukan sistem peramalan.")
 
-footer("Turunan PIHPS, FAOSTAT, BPS, Pink Sheet", "rasio / MAE log", "2021-2026 (Task 4)")
+footer("Turunan PIHPS, FAOSTAT, BPS, Pink Sheet", "τ-b / Δ respons per SD / rasio MAE", "2018-2026 (Task 4: 2021-2026)")

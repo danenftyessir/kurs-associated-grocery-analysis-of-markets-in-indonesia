@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from kagami.models import local_projection as lp
-from kagami.models.association import kendall_exact
+from kagami.models.association import H3_FEATURE, POOLED, kendall_exact, meta_regression
 from kagami.stats.regression import ols_cluster
 from kagami.utils.config import Config
 
@@ -30,6 +30,9 @@ TIER2 = (
 # Pengodean ordinal jalur eksposur (Tier 2 alternative_exposure): paparan langsung ke harga impor = 2, tidak langsung
 # (input impor, paritas ekspor) = 1, domestik = 0. Struktural, mengikuti arah E1 (PREREGISTRATION; D-116).
 PATH_ORDINAL = {"direct_import": 2, "imported_input": 1, "export_parity": 1, "domestic": 0}
+# Keterpencilan alternatif (Tier 2): kolom province_features yang menggantikan ln_dist_hub praregistrasi (D-018) bila ada.
+REMOTENESS_ALTERNATIVES = {"dist_hub_km": "km ke hub terdekat (linear, tanpa log)",
+                           "ln_km_jakarta": "ln(1 + km ke Jakarta saja)"}
 
 ROBUSTNESS_COLUMNS = ["check_id", "tier", "commodity", "horizon", "estimate", "ci_low", "ci_high",
                       "baseline_estimate", "note"]
@@ -359,8 +362,8 @@ def tier2(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.Dat
           elig: pd.DataFrame | None = None, variant_panels: pd.DataFrame | None = None,
           world_variants: pd.DataFrame | None = None, last_obs_panel: pd.DataFrame | None = None,
           profiles: pd.DataFrame | None = None, exposure: pd.DataFrame | None = None,
-          bapanas: pd.DataFrame | None = None, commodities: list[str] | None = None,
-          horizons: list[int] | None = None) -> pd.DataFrame:
+          bapanas: pd.DataFrame | None = None, province_features: pd.DataFrame | None = None,
+          commodities: list[str] | None = None, horizons: list[int] | None = None) -> pd.DataFrame:
     """WP-30. Robustness Tier 2 (opsional, pertama dipotong; D-014). LP nasional seperti tier1; deskriptif (D-116).
 
     Setiap cek hanya jalan bila inputnya diberikan (pipelines.robustness.tier2_inputs menyiapkan dari data mentah):
@@ -369,9 +372,12 @@ def tier2(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.Dat
                              (data.drivers.build_world_variants): komposit harga dunia alternatif, variant = "w:<nama>".
                              baseline = LP utama (varian & bobot G6).
       last_observation_aggregation : last_obs_panel (data.panel.last_observation_panel), elig panel utama.
-      alternative_exposure_remoteness : Kendall τ-b eksak PT(8) nasional (profiles) vs PATH_ORDINAL jalur eksposur;
-                             baseline = τ dengan import_ratio_direct (exposure, bila ada). Keterpencilan alternatif
-                             butuh meta-regresi (WP-23) dan belum dijalankan di sini.
+      alternative_exposure_remoteness : (a) Kendall τ-b eksak PT(8) nasional (profiles) vs PATH_ORDINAL jalur eksposur;
+                             baseline = τ dengan import_ratio_direct (exposure, bila ada). (b) keterpencilan alternatif
+                             (province_features + profiles provinsi): meta-regresi gabungan (commodity ALL, h kunci) dengan
+                             ln_dist_hub diganti kolom REMOTENESS_ALTERNATIVES yang ada, variant = "remote:<kolom>";
+                             baseline = koefisien ln_dist_hub. Keduanya interval CR2 saja (tanpa bootstrap, agar sebanding
+                             dan cepat; interval resmi `assoc` lebih lebar).
       bapanas_outcome      : LP bulanan (seperti tier1 monthly_frequency) dengan Panel Harga Bapanas sebagai outcome
                              (data.panel.build_bapanas_panel); baseline = LP bulanan PIHPS pada BULAN YANG SAMA.
     h = params.lp.key_horizons; driver e & w. Interval ±1,96·SE cluster (Kendall: jackknife LOCO).
@@ -436,8 +442,9 @@ def tier2(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.Dat
                 add(TIER2[1], com, h, _fit(cfg, D), baseline(com, h), "last_obs",
                     "harga mingguan = hari teramati terakhir (baseline: rerata hari teramati)")
     # eksposur alternatif (Kendall E1)
-    if profiles is not None and len(profiles):
-        pt = profiles[(profiles["level"] == "national") & (profiles["driver"] == "PT") & (profiles["horizon"] == 8)]
+    pt = (profiles[(profiles["level"] == "national") & (profiles["driver"] == "PT") & (profiles["horizon"] == 8)]
+          if profiles is not None and len(profiles) else pd.DataFrame())
+    if len(pt):
         feats = pt[["commodity", "estimate"]].rename(columns={"estimate": "PT8"}).assign(level="national")
         alt = pd.DataFrame({"commodity": list(cfg.commodities),
                             "import_ratio_direct": [float(PATH_ORDINAL[s["exposure_path"]])
@@ -455,8 +462,31 @@ def tier2(cfg: Config, panel: pd.DataFrame, drivers: pd.DataFrame, world: pd.Dat
                      "n_weeks": np.nan, "n_obs": k["n"],
                      "note": f"Kendall τ-b PT(8) nasional vs ordinal jalur {PATH_ORDINAL}; p eksak dua sisi "
                              f"{k['p_value']:.3f}, satu sisi {k['p_greater']:.3f}; ci jackknife LOCO; baseline = τ "
-                             "dengan import_ratio_direct (NaN bila exposure belum ada); keterpencilan alternatif "
-                             "menunggu meta-regresi WP-23"})
+                             "dengan import_ratio_direct (NaN bila exposure belum ada)"})
+    # keterpencilan alternatif (meta-regresi provinsi, H3)
+    if (profiles is not None and province_features is not None and len(province_features)
+            and (profiles["level"] == "province").any()):
+        def _pooled(zf: pd.DataFrame) -> pd.DataFrame:
+            m = meta_regression(cfg, profiles, None, zf)
+            return m[(m["commodity"] == POOLED) & (m["feature"] == H3_FEATURE)].set_index("horizon")
+        base_m = _pooled(province_features)
+        for col in [c for c in REMOTENESS_ALTERNATIVES if c in province_features.columns]:
+            if province_features[col].isna().any():
+                continue
+            alt_m = _pooled(province_features.assign(**{H3_FEATURE: province_features[col]}))
+            for h, r in alt_m.iterrows():
+                b = base_m.loc[h] if h in base_m.index else None
+                be = float(b["estimate"]) if b is not None else np.nan
+                rows.append({"check_id": TIER2[2], "tier": 2, "commodity": POOLED, "horizon": int(h), "driver": "e",
+                             "variant": f"remote:{col}", "estimate": r["estimate"], "se": r["se_cr2"],
+                             "ci_low": r["ci_low"], "ci_high": r["ci_high"], "baseline_estimate": be,
+                             "baseline_se": float(b["se_cr2"]) if b is not None else np.nan,
+                             "baseline_in_ci": (bool(r["ci_low"] <= be <= r["ci_high"]) if np.isfinite(be)
+                                                else np.nan),
+                             "n_weeks": np.nan, "n_obs": r["n"],
+                             "note": f"meta-regresi gabungan, {REMOTENESS_ALTERNATIVES[col]} menggantikan ln_dist_hub "
+                                     f"(per 1 SD); {r['method']}, p {r['p_value']:.3f}; interval CR2; baseline = "
+                                     "ln(1 + km hub terdekat)"})
     # outcome Bapanas (bulanan)
     if bapanas is not None and len(bapanas):
         for com in [c for c in coms if c in set(bapanas["commodity"])]:

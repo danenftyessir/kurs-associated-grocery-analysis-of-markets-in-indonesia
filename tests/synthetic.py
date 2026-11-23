@@ -98,7 +98,7 @@ def synthetic_task4_inputs(cfg: Config, n_weeks: int = 260, lag: int = 5, beta: 
         rows.append(g.assign(log_price=logp, price=np.exp(logp)))
     panel = _dummy(pd.concat(rows, ignore_index=True))
     brent = np.log(80.0) + np.cumsum(rng.normal(0, 0.02, n_weeks))
-    drivers = drv.assign(log_e=np.log(15000.0) + np.cumsum(de), log_brent=brent,
+    drivers = drv.assign(log_e=np.log(15000.0) + np.cumsum(de), log_brent=brent, db=np.diff(brent, prepend=np.nan),
                          month=weeks.dt.month, idf_rel_week=np.nan)
     month = weeks.dt.to_period("M").dt.to_timestamp()
     first = list(cfg.commodities)[0]

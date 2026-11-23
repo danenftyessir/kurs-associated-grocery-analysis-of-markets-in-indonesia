@@ -32,7 +32,7 @@ configs/            params.yaml (angka analisis; DIBEKUKAN di G6) · commodities
 data/raw/<sumber>/  snapshot mentah lokal (salinan dari/ke Drive tim, D-101), tidak pernah ditimpa; checksums.csv = hash;
                     _superseded/ = versi lama (tidak dipakai, tidak diunggah)
 data/reference/     tabel buatan tim (CC BY 4.0): region_crosswalk, province_aliases, + hasil WP-07
-data/interim/       antara, boleh dihapus (pihps_daily, forecast_preds)
+data/interim/       antara, boleh dihapus (pihps_daily; `forecast_preds` ikut di-push ke Drive tim agar tahan sesi habis)
 data/processed/     panel & penggerak mingguan
 results/            keluaran analisis per tahap (dibaca app)
 notebooks/          00_stage0_data · 01_task1_profiles · 02_task2_patterns · 03_task3_association
@@ -48,13 +48,17 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
   models/           local_projection, deviations, event_study, clustering (Ward, pilih k),
                     association (Kendall, meta-regresi, FE), forecasting (M0–M3)
   evaluation/       power (MDE), inference (bootstrap, plasebo), heterogeneity, stability, planted,
-                    forecast_eval, robustness
+                    forecast_eval, robustness, regimes (E2), asymmetry (H2), calibration (inferensi nasional plasebo)
   stats/            mesin bersama ✔: regression (OLS cluster, NW, DM), resampling (block bootstrap,
                     circular shift), meta (DL, REML, EB, BH)
   pipelines/        stage0 · task1 · task2 · task3 · task4 · robustness (REQUIRES + run(cfg)) · package (zip juri, bundle)
   viz/              plots: grafik bersama notebook & app
 app/                Home.py (hal. 1) + pages/2..6 + common.py
-tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
+<<<<<<< HEAD
+tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
+=======
+tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
+>>>>>>> origin/dev
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)
 ```
@@ -142,6 +146,9 @@ Stub yang belum diimplementasikan melempar `NotImplementedYet` dengan pesan `WP-
 | `partition_compare` | results/task2/partition_compare.csv | task2 | WP-20 | ya | partition, ari, n_groups |
 | `planted_recovery` | results/task2/planted_recovery.csv | task2 | WP-21 | ya | delta, k_true, recovery_rate, ari_mean |
 | `assoc` | results/task3/assoc.csv | task3 | WP-22 | ya | level, feature, outcome, estimate, ci_low, ci_high, p_value, method, jackknife_min, jackknife_max |
+| `regime_profiles` | results/task3/regime_profiles.csv | task3 | WP-22 | ya | commodity, regime_id, regime_start, regime_end, driver, horizon, estimate, ci_low, ci_high, n_weeks |
+| `asymmetry` | results/task3/asymmetry.csv | task3 | WP-13 | ya | commodity, horizon, estimate, se, ci_low, ci_high, p_value, confirmatory, reject |
+| `national_calibrated` | results/task3/national_calibrated.csv | task3 | WP-13 | ya | commodity, driver, horizon, estimate, se, ci_low, ci_high, p_value, q_fdr |
 | `forecast_preds` | data/interim/forecast_preds.parquet | task4 | WP-26 | tidak | origin, horizon, model, region, commodity, y_true, y_pred, large_move |
 | `forecast_eval` | results/task4/forecast_eval.csv | task4 | WP-27 | ya | horizon, model, subset, commodity, region, mae, rmse, mae_ratio_vs_m1, rmse_ratio_vs_m1, dm_stat, dm_p, n_origins, n_nonoverlap |
 | `ablation` | results/task4/ablation.csv | task4 | WP-27 | ya | horizon, commodity, region, mae_full, mae_without_fx, delta_mae |

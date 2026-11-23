@@ -75,7 +75,8 @@ def replicate_feature_matrices(cfg: Config, replicates: pd.DataFrame, standardiz
 
     Baris level='province' dengan kolom `se` wajib (D-111; dibawa WP-16). Tiap replikasi disusutkan EB seperti data
     asli (hanya deviasi δ; komponen nasional konstan antar provinsi sehingga hilang setelah z-score).
-    standardize=False (untuk planted.recovery_curve, D-112) mengembalikan satuan respons. Urutan = rep menaik;
+    standardize=False mengembalikan satuan respons (planted.recovery_curve tidak memakainya lagi: penanaman harus sebelum
+    penyusutan, lewat planted.deviation_matrices + shrink_matrix, D-126). Urutan = rep menaik;
     baris = province_id menaik.
     """
     prov = replicates[replicates["level"] == "province"]

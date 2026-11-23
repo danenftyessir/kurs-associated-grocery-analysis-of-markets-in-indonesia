@@ -59,6 +59,44 @@ def check_import_totals(monthly: pd.DataFrame, annual: pd.DataFrame) -> pd.DataF
     return out.sort_values(["year", "hs8_code"]).reset_index(drop=True)
 
 
+def check_trade_overlap(comtrade: pd.DataFrame, bps: pd.DataFrame, concordance: pd.DataFrame,
+                        tol: float = 0.01) -> pd.DataFrame:
+    """U102 (WP-07/WP-10). Uji tumpang tindih konkordansi HS: jumlah Comtrade per kode HS4/HS6 vs jumlah HS8 BPS yang
+    dipetakan (`bps_hs8_codes_in_file`) pada bulan kalender yang dicakup kedua sumber.
+
+    Input : comtrade = loaders.load_comtrade (month, hs_code, primary_value_usd = CIF impor, net_weight_kg);
+            bps = loaders.load_bps_import_monthly; concordance = loaders.load_konkordansi_hs.
+    Output: comtrade_code, n_bps_codes, n_months_comtrade, n_months_bps, comtrade_usd, bps_usd, ratio_value, ratio_kg,
+            corr_month (korelasi nilai bulanan, bulan dengan impor di kedua sumber, minimal 3 bulan), ok
+            (|ratio_value - 1| <= tol, atau kedua sumber tanpa impor). Tanpa bulan bersama -> tabel kosong.
+    """
+    cols = ["comtrade_code", "n_bps_codes", "n_months_comtrade", "n_months_bps", "comtrade_usd", "bps_usd",
+            "ratio_value", "ratio_kg", "corr_month", "ok"]
+    lo, hi = max(comtrade["month"].min(), bps["month"].min()), min(comtrade["month"].max(), bps["month"].max())
+    if pd.isna(lo) or pd.isna(hi) or lo > hi:
+        return pd.DataFrame(columns=cols)
+    ct = comtrade[(comtrade["month"] >= lo) & (comtrade["month"] <= hi)]
+    bp = bps[(bps["month"] >= lo) & (bps["month"] <= hi)]
+    rows = []
+    for r in concordance.itertuples(index=False):
+        codes = [c.strip() for c in str(r.bps_hs8_codes_in_file).split(";") if c.strip()]
+        b = bp[bp["hs8_code"].isin(codes)].groupby("month")[["import_value_usd", "import_netweight_kg"]].sum()
+        c = ct[ct["hs_code"] == r.comtrade_code].groupby("month")[["primary_value_usd", "net_weight_kg"]].sum()
+        m = b.join(c, how="outer").fillna(0.0)
+        cv, bv = float(m["primary_value_usd"].sum()), float(m["import_value_usd"].sum())
+        ck, bk = float(m["net_weight_kg"].sum()), float(m["import_netweight_kg"].sum())
+        both = m[(m["primary_value_usd"] > 0) & (m["import_value_usd"] > 0)]
+        ratio = bv / cv if cv > 0 else np.nan
+        rows.append({"comtrade_code": r.comtrade_code, "n_bps_codes": len(codes),
+                     "n_months_comtrade": int((m["primary_value_usd"] > 0).sum()),
+                     "n_months_bps": int((m["import_value_usd"] > 0).sum()), "comtrade_usd": cv, "bps_usd": bv,
+                     "ratio_value": ratio, "ratio_kg": bk / ck if ck > 0 else np.nan,
+                     "corr_month": (float(both["import_value_usd"].corr(both["primary_value_usd"]))
+                                    if len(both) >= 3 else np.nan),
+                     "ok": bool((cv == 0 and bv == 0) or (np.isfinite(ratio) and abs(ratio - 1) <= tol))})
+    return pd.DataFrame(rows, columns=cols)
+
+
 def check_bapanas_bias(weekly: pd.DataFrame, bapanas: pd.DataFrame) -> pd.DataFrame:
     """WP-10. Rerata bulanan PIHPS vs Panel Harga Bapanas per provinsi x komoditas (2022-2026): bias & korelasi Δ.
 
@@ -119,7 +157,7 @@ def stage0_report(cfg: Config, sections: dict[str, pd.DataFrame]) -> str:
 
     sections (semua opsional; bagian yang tidak ada dilewati): coverage, eligibility, episodes, fx_variation, mde,
     g_power (satu baris: komoditas, mde_pt8, threshold, lp_secondary), h2_status (commodity, mde_asym_pt8,
-    h2_confirmatory; D-115), price_outliers, import_totals, bapanas_bias.
+    h2_confirmatory; D-115), price_outliers, import_totals, bapanas_bias, trade_overlap (U102).
     """
     s = sections
     out = ["# Laporan Tahap 0 — KAGAMI", "",
@@ -170,4 +208,10 @@ def stage0_report(cfg: Config, sections: dict[str, pd.DataFrame]) -> str:
         out += ["## 8. QA: PIHPS vs Panel Harga Bapanas (bulanan, 2022–2026)", "",
                 "bias_log = rerata log(PIHPS/Bapanas); corr_dlog = korelasi perubahan log bulanan. Minyak goreng tidak "
                 "dibandingkan (Minyakita ≠ Kemasan Bermerk 1; U20).", "", _md_table(per)]
+    if "trade_overlap" in s:
+        to = s["trade_overlap"]
+        n_ok = int(to["ok"].sum()) if len(to) else 0
+        out += ["## 9. QA: konkordansi HS — Comtrade vs BPS pada bulan yang sama (U102)", "",
+                f"{n_ok}/{len(to)} kode konkordansi cocok (|rasio nilai - 1| <= 1% atau keduanya tanpa impor). "
+                "Rasio = jumlah HS8 BPS yang dipetakan / jumlah Comtrade (CIF USD).", "", _md_table(to)]
     return "\n".join(out).rstrip() + "\n"

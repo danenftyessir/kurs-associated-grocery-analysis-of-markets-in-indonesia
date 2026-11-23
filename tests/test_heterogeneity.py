@@ -10,7 +10,7 @@ from scipy import stats
 
 from kagami.evaluation.heterogeneity import heterogeneity_stats, placebo_pvalues
 from kagami.models.association import all_permutations, kendall_exact, kendall_permutation_test
-from kagami.stats.meta import dersimonian_laird
+from kagami.stats.meta import dersimonian_laird, reml_tau2
 
 COMS = ["beras", "bawang_putih", "gula_pasir"]
 
@@ -38,11 +38,13 @@ def test_heterogeneity_stats_matches_dl():
     rng = np.random.default_rng(1)
     prof = _dev_profiles(rng)
     out = heterogeneity_stats(prof, horizon=8)
-    assert set(out["statistic"]) == {"Q", "tau2", "I2", "rho_bar"}
+    assert set(out["statistic"]) == {"Q", "tau2", "tau2_reml", "I2", "rho_bar"}
     g = prof[(prof.level == "province") & (prof.horizon == 8) & ~prof.shrunk & (prof.commodity == "gula_pasir")]
     r = dersimonian_laird(g["estimate"].to_numpy(), g["se"].to_numpy() ** 2)
     got = out[out.commodity == "gula_pasir"].set_index("statistic")["value"]
     assert got["Q"] == pytest.approx(r.Q) and got["tau2"] == pytest.approx(r.tau2)
+    assert got["tau2_reml"] == pytest.approx(reml_tau2(g["estimate"].to_numpy(), g["se"].to_numpy() ** 2))
+    assert got["tau2_reml"] > 0.1                                     # REML berdampingan dengan DL (WP-17)
     assert out.loc[out.commodity == "gula_pasir", "n_provinces"].iloc[0] == 34
     tau2 = out[out.statistic == "tau2"].set_index("commodity")["value"]
     assert tau2["gula_pasir"] > 0.1 and tau2["beras"] < 0.02

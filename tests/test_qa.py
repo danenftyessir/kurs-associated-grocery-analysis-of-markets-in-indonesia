@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kagami.data.qa import (BAPANAS_TO_PIHPS, check_bapanas_bias, check_import_totals, coverage_table,
-                            flag_price_outliers, stage0_report)
+from kagami.data.qa import (BAPANAS_TO_PIHPS, check_bapanas_bias, check_import_totals, check_trade_overlap,
+                            coverage_table, flag_price_outliers, stage0_report)
 
 
 def test_flag_price_outliers():
@@ -57,3 +57,34 @@ def test_stage0_report_real(cfg):
     md = find_artifact(cfg, "stage0_report").read_text(encoding="utf-8")
     for sec in ("Cakupan", "Kelayakan", "Episode", "Variasi kurs", "MDE", "lonjakan", "impor", "Bapanas"):
         assert sec in md
+
+
+def test_check_trade_overlap_synthetic():
+    """U102: Σ HS8 BPS yang dipetakan vs Σ Comtrade pada bulan bersama; bulan di luar irisan diabaikan."""
+    months = pd.date_range("2022-11-01", "2023-03-01", freq="MS")
+    ct = pd.DataFrame({"month": list(months[:3]) * 2, "hs_code": ["0703"] * 3 + ["1006"] * 3,
+                       "primary_value_usd": [10.0, 20.0, 30.0, 100.0, 100.0, 100.0],
+                       "net_weight_kg": [1.0, 2.0, 3.0, 10.0, 10.0, 10.0]})            # Nov 2022 .. Jan 2023
+    bps = pd.DataFrame({"month": [months[1], months[2], months[1], months[2], months[1], months[3]],
+                        "hs8_code": ["07031011", "07031019", "10063099", "10063099", "99999999", "07031011"],
+                        "import_value_usd": [20.0, 30.0, 90.0, 90.0, 5.0, 999.0],
+                        "import_netweight_kg": [2.0, 3.0, 9.0, 9.0, 1.0, 1.0]})       # Des 2022 .. Feb 2023
+    conc = pd.DataFrame({"comtrade_code": ["0703", "1006", "0709"],
+                         "bps_hs8_codes_in_file": ["07031011; 07031019", "10063099", "07096010"]})
+    out = check_trade_overlap(ct, bps, conc).set_index("comtrade_code")
+    assert out.loc["0703", "ratio_value"] == pytest.approx(1.0) and out.loc["0703", "ok"]       # irisan Des–Jan
+    assert out.loc["0703", "comtrade_usd"] == 50.0 and out.loc["0703", "n_months_bps"] == 2
+    assert out.loc["1006", "ratio_value"] == pytest.approx(0.9) and not out.loc["1006", "ok"]   # 10% hilang
+    assert out.loc["0709", "ok"] and np.isnan(out.loc["0709", "ratio_value"])                    # keduanya nol
+    none = check_trade_overlap(ct.assign(month=ct["month"] - pd.DateOffset(years=3)), bps, conc)
+    assert none.empty
+
+
+def test_check_trade_overlap_real(cfg):
+    if not cfg.source_path("comtrade_import_2023").exists() or not cfg.source_path("bps_import_monthly").exists():
+        pytest.skip("mentah Comtrade 2023 / BPS tidak ada")
+    from kagami.data import loaders
+    out = check_trade_overlap(loaders.load_comtrade(cfg, "comtrade_import_2023"), loaders.load_bps_import_monthly(cfg),
+                              loaders.load_konkordansi_hs(cfg)).set_index("comtrade_code")
+    assert len(out) == 15 and out["ok"].sum() >= 14
+    assert out.loc["070320", "ok"] and out.loc["070320", "ratio_value"] == pytest.approx(1.0, abs=1e-3)   # bawang putih
