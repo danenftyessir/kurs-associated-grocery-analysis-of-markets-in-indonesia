@@ -106,20 +106,11 @@ Tanggal acuan: 2026-11-23. Papan lengkap: `docs/WORKPLAN.md`.
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-06 (13 episode), WP-08 (panel 7 wilayah),
   WP-09 (MDE), WP-10 (QA & `stage0_report`), WP-11 (G6: praregistrasi beku 2026-11-20 23:29, D-109), WP-12 (mesin statistik),
-<<<<<<< HEAD
   WP-13 (LP nasional; 6 dtk untuk 10 komoditas × 13 h × 2 spesifikasi sejak D-118, sebelumnya 23–29 dtk), WP-14 (event study), WP-18 (G-het pada Task 1 asli, 2026-11-22), WP-21 (struktur tertanam, D-126), WP-22 (Kendall E1 resmi),
   WP-27 (evaluasi Task 4 asli, 2026-11-23), WP-28 (Tier 1; artefak `robustness` ditulis bersama validasi, 11 dtk), WP-29 (V2 & V4),
   WP-30 (Tier 2 di artefak `robustness`, 2026-11-23), dan WP jalur B yang ditutup Danen 2026-11-23 (D-130): WP-07, WP-15, WP-16,
   WP-17, WP-19, WP-20, WP-23, WP-24, WP-25, WP-26, WP-31 (app), WP-32 (paket juri; G7 lolos 2026-11-23, Tingkat A & B).
 - **Sedang (🔶):** WP-33 (`findings.md` ada; makalah ditunda), WP-34 (audit app & findings selesai; makalah menunggu).
-=======
-  WP-13 (LP nasional; 6 dtk untuk 10 komoditas × 13 h × 2 spesifikasi sejak D-118, sebelumnya 23–29 dtk), WP-14 (event study), WP-25 (fitur Task 4 as-of), WP-28 (Tier 1; 21 dtk, artefak
-  `robustness` ditulis bersama validasi).
-- **Sedang (🔶, kode siap & dites sintetis, menunggu data asli):** WP-18 (G-het, butuh P2 dengan `se` di `placebo_stats`),
-  WP-22 (Kendall, butuh P2 + P3), WP-21 (struktur tertanam, butuh `ward_labels` WP-19 + matriks plasebo mentah dari `task2`),
-  WP-27 (evaluasi DM & ablation, butuh `forecast_preds` WP-26 dengan model `M2_nofx`), WP-29 (V4 & V2-episode jalan pada data asli;
-  V2-forecast butuh P4), WP-30 (Tier 2 jalan pada data asli; keterpencilan alternatif butuh meta-regresi WP-23).
->>>>>>> origin/dev
 - **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`,
   `episodes`, `drivers_weekly`, `fx_variation`, `panel_weekly_region`, `mde`, `stage0_report`, Task 1–3, Task 4 (`forecast_preds`,
   `forecast_eval`, `ablation`; diunduh dari Drive 2026-11-23), `robustness` (lokal 2026-11-23; di Drive tim `results/` 2026-11-23). Tahap 0 di Drive tim
@@ -178,11 +169,7 @@ Tanggal acuan: 2026-11-23. Papan lengkap: `docs/WORKPLAN.md`.
 - **Data baru 2026-11-20 (D-101):** BPS impor v2 (+bawang putih), revisi regulasi, `jarak_hub`, `konkordansi_hs`,
   `hortikultura_produksi` — input WP-07 (Ardell). Versi lama di `data/raw/_superseded/`.
 - **Pertukaran artefak & data mentah:** folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D lewat `utils.drive` (D-100).
-<<<<<<< HEAD
-- `python -m kagami stage0` menulis semua artefak Tahap 0 termasuk tabel WP-07 (lokal 27 dtk, 2026-11-21).
-=======
-- `python -m kagami stage0` menulis semua artefak Tahap 0 termasuk tabel tim WP-07 (dijalankan Danen 2026-11-21); tidak ada stub tersisa di `src/`.
->>>>>>> origin/dev
+- `python -m kagami stage0` menulis semua artefak Tahap 0 termasuk tabel WP-07 (lokal 27 dtk, dijalankan Danen 2026-11-21); tidak ada stub tersisa di `src/`.
 
 ---
 
@@ -806,7 +793,12 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 ### 9.8 Viz
 
 #### src/viz/plots.py
-- `response_curve` · ✔ · kurva respons h 0..12 + pita interval (app hal. 2, nb01).
+- `response_curve` · ✔ · kurva respons h 0..12 + pita interval; tanpa interval → tanpa pita; provinsi berlabel deviasi (app hal. 2, nb01).
+- `region_map` · ✔ · peta Indonesia 7 wilayah / 34 provinsi dari `data/reference/indonesia_provinces.geojson`, sumbu kartesius (offline, tanpa topojson CDN), titik ibu kota = target klik (app hal. 2, D-134).
+- `silhouette_threshold` · ✔ · silhouette maksimum per k vs ambang p95 plasebo, keputusan k (app hal. 3).
+- `robustness_forest` · ✔ · V18: estimasi tiap cek Tier 1/2 vs estimasi utama per komoditas × penggerak × h; e ikut e_global/e_idr (app hal. 6).
+- `asymmetry_plot` · ✔ · V19: β⁺ (`e_pos`) vs β⁻ (`e_neg`) nasional per h kunci + uji selisih H2 di subjudul (app hal. 2).
+- `scenario_paths` · ✔ · jalur skenario PT(h)·x untuk x ∈ shocks_pct, pita hanya bila interval ada (app hal. 5).
 - `fx_drivers` · ✔ · JISDOR mingguan + arsiran episode (nb00).
 - `status_share` · ✔ · porsi status sel per komoditas (nb00).
 - `coassign_heatmap` · ✔ · matriks ko-asignasi (app hal. 3, nb02).
@@ -815,6 +807,15 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `forest` · ✔ · forest plot estimasi + interval (nb03, nb05).
 - `sensitivity_heatmap` · ✔ · peta kepekaan respons kumulatif per komoditas × unit dari `response_features` (app hal. 2).
 - `cluster_sizes` · ✔ · jumlah provinsi per klaster + stabilitas Jaccard, klaster lemah ditandai (app hal. 3).
+
+#### src/viz/style.py
+(konstanta palet `BLUE`/`ORANGE`/`AQUA`/`NEUTRAL`, `DIVERGING`, `SEQUENTIAL`, `STATUS_COLORS`, `MODEL_COLORS`; label `DRIVER_LABELS`,
+`LEVEL_LABELS`, `MODEL_LABELS`, `SUBSET_LABELS`, `CHECK_LABELS`; D-134. Bukan fungsi grafik → tidak diwajibkan dipanggil app/notebook.)
+- `fmt_num` · ✔ · angka format Indonesia (desimal koma, ribuan titik, minus tipografis); NaN → "tidak tersedia".
+- `fmt_interval` · ✔ · "lo s.d. hi" format Indonesia atau "interval tidak tersedia".
+- `detection_status` · ✔ · lencana terdeteksi / tidak terdeteksi / interval tidak tersedia (NaN).
+- `rgba` · ✔ · hex → rgba() untuk pita transparan.
+- `finish` · ✔ · tata letak seragam: judul, subjudul terbungkus, pemisah angka Indonesia, legenda di bawah.
 
 ---
 
@@ -886,6 +887,8 @@ Menunggu diunggah (opsional, U103): `bapanas/panelharga_konsumen_kabkota_snapsho
 - `region_crosswalk.csv`: province_id, province, region (7), capital, lat, lon, het_zone_beras (1/2/3), java.
   Kalsel = Banjarmasin, Malut = Sofifi; koordinat ±0,01°.
 - `province_aliases.csv`: alias ejaan BPS/Bapanas + pemekaran Papua.
+- `indonesia_provinces.geojson` (D-134): geometri 34 provinsi untuk peta app, 98 KB; **ODbL** (© OpenStreetMap contributors via
+  geoBoundaries), bukan CC BY. Ikut zip juri & bundle (`package.CODE_GLOBS`).
 - Hasil WP-07 (`stage0`, 2026-11-21): `concordance.csv`, `exposure.csv`, `regulation.csv`, `province_features.csv`
   (rice_sufficiency 2025: 0,001 DKI .. 3,27 Sulsel; n_kota 1..12; |r| antar fitur Z(r) ≤ 0,34).
 
@@ -1115,7 +1118,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_package.py` | WP-32: isi zip juri, tanpa data tanpa hak redistribusi, artefak ship hilang dilaporkan, CLI jalan dari folder baru |
 | `test_runtime.py` | lokasi default, tulis out/baca artefak tahap sebelumnya, override raw, deteksi Kaggle, layout Colab |
 | `test_notebooks.py` | satu notebook per tahap, valid, sel 0–1 identik, tanpa output, sel setup jalan lokal |
-| `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis |
+| `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis; tanpa interval → tanpa pita; format angka & lencana (regresi NaN); peta tanpa subplot geo (offline) & nilai wilayah ke provinsi; V18 hanya Tier 1/2 + komponen dekomposisi; V19 subjudul H2; geometri referensi = 34 provinsi crosswalk |
 | `test_app.py` | 6 halaman Streamlit jalan tanpa exception (artefak ada/belum) |
 | `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app |
 | `test_claude_md.py` | §9 dokumen ini sinkron dengan kode (fungsi publik & status stub) |
@@ -1162,7 +1165,11 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 - `app/Home.py` = halaman 1 (Ringkasan & Status Data); `pages/2..6`: Kepekaan Harga Regional, Pola Respons, Eksposur &
   Nilai Prediktif, Penjelajah Skenario Bersyarat, Temuan Penelitian. Jalankan `python -m kagami app`.
 - `common.py`: alias paket, `CFG`, `load` (cache), `need` (label "Menunggu hasil (WP-xx)"), `page_header`, `footer`,
-  `not_detected_badge`, `commodity_labels`.
+  `not_detected_badge`, `commodity_labels`, `unit_names`, `load_geo`, `picker` (pilihan disimpan di URL `?key=`),
+  `reset_button`, `table` (tabel kembaran grafik di expander).
+- Tampilan (D-134, PLAN.md §18): warna/label/format angka dari `viz.style` (jangan hex atau kode mentah seperti `e_neg` di halaman);
+  peta di sumbu kartesius, jangan `go.Choropleth`/`choropleth_map` (mengunduh topojson/tile → gagal offline). Baris provinsi
+  `profiles` = deviasi δ, dua versi per sel → pakai `shrunk = True` dan labeli "deviasi".
 - Aturan (D-010, proposal §7.1): hanya membaca artefak; tidak ada login, input data pengguna, atau estimasi runtime.
   Setiap grafik: sumber, satuan, periode, interval, label "asosiasi, bukan kausalitas". Lencana "tidak terdeteksi" bila
   interval memuat nol. Halaman 3 menangani k = 1. Halaman 5: PT(h)·x, x ∈ {1,3,5}%, bendera ekstrapolasi, label
@@ -1249,6 +1256,7 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-134 | Tampilan app (PLAN.md §18): palet tervalidasi `viz/style.py`, peta Indonesia offline (geoBoundaries ODbL, sumbu kartesius), provinsi = deviasi tersusut | FINAL (teknis) |
 | D-133 | U102: tumpang tindih konkordansi HS diuji pada 2023 (Comtrade API publik vs BPS bulanan) → 14/15 kode cocok persis | FINAL (teknis) |
 | D-132 | U106: p meta-regresi = max(CR2, bootstrap sisi) konsisten interval + q BH; ARI NaN saat k = 1; τ² REML di `heterogeneity` | FINAL (teknis) |
 | D-131 | Task 4: diagnostik dummy bulan + Idulfitri (M2/M1 1,005 / 1,019, H5 Holm 0,56) → kesimpulan sama; praregistrasi tetap resmi | FINAL (teknis) |
@@ -1350,6 +1358,14 @@ Selesai: U1, U2, U18, U23.
     tersedia, selain itu `use_container_width=True`) agar jalan di versi lama maupun baru; jangan menulis `use_container_width` lagi.
 22. **Dummy musim yang dikumpulkan lintas komoditas memperburuk ramalan komoditas diatur** (D-131): M1 dengan dummy bulan +
     Idulfitri kalah dari model tanpa perubahan (beras M0/M1 0,39). Masalah baseline Task 4 adalah pengumpulan tanpa identitas komoditas.
+23. **Plotly geo tidak offline & lilitan GeoJSON terbalik** (D-134): subplot `geo` (`go.Choropleth`) selalu mengunduh
+    `cdn.plot.ly/un/world_110m.json` walau `visible=False`; d3-geo membutuhkan cincin luar searah jarum jam (kebalikan RFC 7946),
+    kalau tidak poligon terbaca sebagai "dunia minus provinsi" (peta jadi kotak penuh). Klik titik baru memicu seleksi
+    `st.plotly_chart(on_select=...)` bila `clickmode="event+select"`.
+24. **`nan <= 0` bernilai False**: lencana "interval memuat nol" yang ditulis `lo <= 0 <= hi` memberi "terdeteksi" untuk interval NaN.
+    Selalu periksa NaN dulu (`viz.style.detection_status`).
+25. **Penanda konflik merge ikut ter-commit** (commit 04fc5ec, 4 dokumen): `test_docs_sync` menangkapnya lewat papan WP ganda; cari
+    `^<<<<<<< ` di seluruh repo setelah setiap merge.
 
 ---
 

@@ -9,6 +9,25 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-23 — Danen: eksekusi PLAN.md §18 (app, D-134)
+- `src/viz/style.py` baru; `plots` + `region_map`, `silhouette_threshold`, `scenario_paths`; halaman 2–5 ditata ulang; `app/common.py`
+  + `picker`/`reset_button`/`table`/`load_geo`/`unit_names`; tes `test_viz` (+4).
+- `data/reference/indonesia_provinces.geojson` (geoBoundaries ODbL, 34 prov, 98 KB; unduh disetujui Danen); `package` membawa
+  `*.geojson` & `.streamlit/config.toml` (telemetri mati).
+- Bug: lencana NaN "terdeteksi"; kurva provinsi mencampur δ mentah & tersusut; `go.Choropleth` tidak offline (CDN topojson).
+- Verifikasi browser data asli: hal. 2–5, mode gelap & terang, lebar 375 px. Klik mouse peta belum dicoba manusia.
+- P1: `plots.robustness_forest` (V18, hal. 6) & `plots.asymmetry_plot` (V19, hal. 2) + tes; angka cocok dengan §2 (daging ayam,
+  beras). Berikutnya: V07/V13 sebagai grafik, `python -m kagami bundle` + unggah ulang `kagami_code.zip`.
+
+### 2026-11-23 — Danen: evaluasi desain spec visualisasi (PLAN.md §18), tanpa ubah kode
+- PLAN.md §18: spec v1.0 dicocokkan dengan artefak asli, app berjalan, validator palet, heuristik UX; prioritas baru §18.7.
+- Temuan: `coassign` semua 1,0 (k = 1) → V10 kosong; interval PT hanya nasional; `cluster_selection` satu p95 (0,196); tidak ada artefak linkage (V09 dihapus); ablation satu kelompok fitur (V16 digabung ke V15).
+- Palet bawaan Streamlit & Plotly gagal validator; usulan 3 slot lolos. Peta: geoBoundaries IDN ADM1 (34 unit, ODbL) dengan uji offline.
+- Konflik merge commit "gabungkan perubahan remote ke dev" (04fc5ec) ter-commit dengan penanda di 4 file (13 blok): CLAUDE.md, ARCHITECTURE,
+  DECISIONS, WORKPLAN (papan WP terduplikasi) → `test_docs_sync` gagal 2 tes. Diselesaikan: status = sisi lokal (pasca D-130); D-200..D-204
+  Ardell dipertahankan; daftar tes ARCHITECTURE digabung (+ task1); baris WP Ardell yang masih berlaku (D-201..D-204, file tes) disisipkan.
+- Berikutnya: keputusan §18.9 (unit peta, geometri, kerjakan sebelum 27 Nov atau tidak).
+
 ### 2026-11-23 — Danen: U102 ✅ (uji tumpang tindih konkordansi HS, D-133), U24 ditutup
 - Comtrade 2023 (15 kode, 160 baris) dari API publik UN Comtrade (izin Danen) → `data/raw/comtrade/comtrade_idn_import_HS_monthly_2023.csv`, sumber `comtrade_import_2023` (optional).
 - `qa.check_trade_overlap` + tes (sintetis & asli) + `stage0_report` §9; `stage0` 44 dtk, artefak lain identik, checksums +1 baris.

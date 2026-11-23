@@ -2,7 +2,8 @@
 
 import streamlit as st
 
-from common import STRETCH, footer, need, page_header
+from common import DRIVER_LABELS, STRETCH, commodity_labels, footer, need, page_header, picker
+from kagami.viz import plots
 
 page_header("Temuan Penelitian", "Apa kesimpulannya?")
 
@@ -10,6 +11,20 @@ got = need("findings", "robustness")
 if got:
     st.markdown(got["findings"])
     rb = got["robustness"]
+    st.subheader("Apakah temuan bertahan di setiap cek robustness?")
+    labels = commodity_labels()
+    coms = [c for c in labels if c in set(rb["commodity"])]
+    if coms and {"driver", "estimate", "ci_low", "ci_high"} <= set(rb.columns):
+        c1, c2, c3 = st.columns(3)
+        com = picker("Komoditas", coms, "com", format_func=labels.get, default="daging_ayam", container=c1)
+        drvs = [d for d in ("e", "w") if d in set(rb.loc[rb["commodity"] == com, "driver"])]
+        if drvs:
+            drv = picker("Penggerak", drvs, "driver", format_func=DRIVER_LABELS.get, container=c2)
+            hs = sorted(int(h) for h in rb.loc[(rb["commodity"] == com) & (rb["driver"] == drv), "horizon"].dropna().unique())
+            h = picker("Horizon (minggu)", hs, "h", default=8, container=c3)
+            st.plotly_chart(plots.robustness_forest(rb, com, drv, h, name=labels.get(com, com)), **STRETCH)
+            st.caption("Tier 1 = cek wajib praregistrasi; Tier 2 = cek opsional (varian, agregasi, outcome alternatif). "
+                       "Dekomposisi kurs memisahkan komponen dolar global (e_global) dan spesifik rupiah (e_idr).")
     st.subheader("Ringkasan robustness & validasi")
     if {"check_id", "tier", "estimate", "ci_low", "ci_high", "baseline_estimate"} <= set(rb.columns):
         ok = rb[["ci_low", "ci_high", "baseline_estimate"]].notna().all(axis=1)

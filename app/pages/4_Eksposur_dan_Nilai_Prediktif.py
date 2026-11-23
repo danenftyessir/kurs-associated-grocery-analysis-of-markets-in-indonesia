@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from common import STRETCH, commodity_labels, footer, load, need, page_header, with_status
+from common import STRETCH, commodity_labels, fmt_num, footer, load, need, page_header, table, with_status
 from kagami.viz import plots
 
 page_header("Eksposur & Nilai Prediktif",
@@ -64,12 +64,21 @@ if got:
 
     st.subheader("Evaluasi bersyarat rolling-origin (Task 4)")
     fe4 = got["forecast_eval"]
+    labels = commodity_labels()
+    tot = fe4[(fe4["subset"] == "all") & (fe4["model"] == "M2")]
+    if "level" in tot:
+        tot = tot[tot["level"] == "all"]
+    if len(tot):
+        cols = st.columns(len(tot))
+        for col, r in zip(cols, tot.sort_values("horizon").itertuples()):
+            col.metric(f"Rasio MAE M2/M1, h = {r.horizon} minggu", fmt_num(r.mae_ratio_vs_m1, 3),
+                       help="< 1 = fitur kurs & harga dunia memperbaiki akurasi; > 1 = memperburuk.")
+            col.caption(f"DM p = {fmt_num(r.dm_p, 3)} · {int(r.n_origins)} origin")
     for subset in ("all", "large_move"):
         if (fe4["subset"] == subset).any():
-            st.plotly_chart(plots.forecast_ratios(fe4, subset), **STRETCH)
+            st.plotly_chart(plots.forecast_ratios(fe4, subset, labels=labels), **STRETCH)
     if "h5_p_holm" in fe4:
-        st.markdown("**H5 (grup fokus per jalur eksposur, h = 8, koreksi Holm)**")
-        st.dataframe(fe4[fe4["h5_p_holm"].notna()], hide_index=True, **STRETCH)
+        table(fe4[fe4["h5_p_holm"].notna()], "H5: grup fokus per jalur eksposur (h = 8, koreksi Holm)", status=False)
     with st.expander("Tabel lengkap evaluasi dan ablation"):
         st.dataframe(fe4, hide_index=True, **STRETCH)
         st.dataframe(got["ablation"], hide_index=True, **STRETCH)

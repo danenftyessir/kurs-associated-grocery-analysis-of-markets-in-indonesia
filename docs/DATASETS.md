@@ -172,6 +172,7 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 | `region_crosswalk.csv` | 34 provinsi: id PIHPS, wilayah (7), ibu kota + koordinat, zona HET beras, flag Jawa | ✅ dibuat WP-00 (koordinat ibu kota perkiraan ±0,01°; Kalsel = Banjarmasin, Malut = Sofifi) |
 | `province_aliases.csv` | Alias nama provinsi BPS/Bapanas + pemekaran Papua → induk | ✅ |
 | `concordance.csv`, `exposure.csv`, `regulation.csv`, `province_features.csv` | Hasil WP-07 | 🔶 kode selesai 2026-11-20; ditulis `stage0` setelah data mentah lengkap; final 24 Nov |
+| `indonesia_provinces.geojson` | Geometri 34 provinsi untuk peta app (properti `province_id`, `province`, `region`, `iso`, ibu kota + `lat`/`lon` dari crosswalk) | ✅ 2026-11-23 (D-134). **Lisensi berbeda: ODbL 1.0**, © OpenStreetMap contributors, via geoBoundaries gbOpen IDN ADM1 (data 2017, rilis commit `9469f09`, file `_simplified`). Disederhanakan tim: Douglas–Peucker 0,02°, koordinat dibulatkan 0,01°, pulau dengan bbox < 0,01 deg² dibuang (kecuali poligon terbesar provinsi), cincin luar searah jarum jam; 117.173 → 6.382 titik, 98 KB. GADM tidak dipakai (redistribusi dilarang) |
 
 ## Asal file (pemetaan nama asli → path baru)
 

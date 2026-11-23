@@ -15,8 +15,8 @@ from kagami.utils.artifacts import ARTIFACTS
 from kagami.utils.config import Config
 
 CODE_GLOBS = ("pyproject.toml", "README.md", "configs/*.yaml", "src/**/*.py", "data/reference/*.csv",
-              "notebooks/*.ipynb")
-SUBMISSION_GLOBS = CODE_GLOBS + ("app/**/*.py", "tests/**/*.py", "docs/*.md")
+              "data/reference/*.geojson", "notebooks/*.ipynb")
+SUBMISSION_GLOBS = CODE_GLOBS + ("app/**/*.py", ".streamlit/config.toml", "tests/**/*.py", "docs/*.md")
 
 
 def _code_files(cfg: Config, globs: tuple[str, ...]) -> dict[Path, str]:

@@ -52,13 +52,9 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
   stats/            mesin bersama ✔: regression (OLS cluster, NW, DM), resampling (block bootstrap,
                     circular shift), meta (DL, REML, EB, BH)
   pipelines/        stage0 · task1 · task2 · task3 · task4 · robustness (REQUIRES + run(cfg)) · package (zip juri, bundle)
-  viz/              plots: grafik bersama notebook & app
+  viz/              plots: grafik bersama notebook & app · style: palet, label, format angka, tata letak grafik
 app/                Home.py (hal. 1) + pages/2..6 + common.py
-<<<<<<< HEAD
-tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
-=======
-tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
->>>>>>> origin/dev
+tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)
 ```
