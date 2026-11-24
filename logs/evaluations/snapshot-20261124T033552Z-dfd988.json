@@ -1,0 +1,38 @@
+{
+ "run_id": "snapshot-20261124T033552Z-dfd988",
+ "task_id": "snapshot",
+ "evaluated_at": "2026-11-24T03:35:52.735378+00:00",
+ "metrics": [
+  {
+   "name": "n_files",
+   "group": "snapshot mentah",
+   "value": 28,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "checksums"
+   }
+  },
+  {
+   "name": "n_sources",
+   "group": "snapshot mentah",
+   "value": 24,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "checksums"
+   }
+  },
+  {
+   "name": "total_mb",
+   "group": "snapshot mentah",
+   "value": 18.53,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "checksums"
+   }
+  }
+ ],
+ "schema_version": 2
+}

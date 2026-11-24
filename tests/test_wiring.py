@@ -80,3 +80,22 @@ def test_app_pages_present_and_import_common():
     assert len(pages) == 6 and (ROOT / "app" / "Home.py").exists()
     for p in [ROOT / "app" / "Home.py", *pages]:
         assert "from common import" in p.read_text(encoding="utf-8"), p.name
+
+
+def test_pipeline_reads_are_declared():
+    """Regresi D-140: setiap artefak yang dibaca pipeline (read_artifact/exists/find_artifact dengan nama literal) harus
+    ada di REQUIRES ∪ OPTIONAL atau merupakan output tahap itu sendiri (checkpoint). Tanpa deklarasi, notebook cloud tidak
+    menariknya dari Drive dan bagian yang memakainya diam-diam dilewati (task2 → province_features)."""
+    pat = re.compile(r'(?:read_artifact|exists|find_artifact)\(cfg, "(\w+)"\)')
+    bad = {}
+    for f in sorted((SRC / "pipelines").glob("*.py")):
+        stage = f.stem
+        if stage in ("__init__", "package"):
+            continue
+        mod = importlib.import_module(f"kagami.pipelines.{stage}")
+        declared = set(getattr(mod, "REQUIRES", ())) | set(getattr(mod, "OPTIONAL", ()))
+        own = {n for n, a in ARTIFACTS.items() if a.stage == stage}
+        undeclared = set(pat.findall(f.read_text(encoding="utf-8"))) - declared - own
+        if undeclared:
+            bad[stage] = sorted(undeclared)
+    assert not bad, f"Artefak dibaca tanpa deklarasi REQUIRES/OPTIONAL: {bad}"

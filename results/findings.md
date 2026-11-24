@@ -24,6 +24,9 @@ adalah analisis kepekaan tambahan (lihat Keterbatasan).
    keterpencilan provinsi tidak berasosiasi dengan respons h = 4 (H3 tidak didukung).
 5. Dalam evaluasi bersyarat pseudo-real-time (76 origin 2021–2026), fitur kurs dan harga dunia tidak menurunkan MAE
    prediksi 4 dan 8 minggu (rasio M2/M1 1,014 dan 1,017); H5 tidak didukung.
+6. Eksploratif (bukan praregistrasi): foundation model TimesFM 3.0 tanpa pelatihan pada data kami menurunkan MAE terhadap
+   M1 sebesar 10,5% pada h = 8 (DM p < 0,001), tetapi menambahkan kurs dan harga dunia ke TimesFM maupun TSMixer tidak
+   menambah akurasi. Hasil ini memperkuat temuan 5: pola harga lebih informatif daripada kurs.
 
 **Jawaban sementara atas pertanyaan pemandu.** Perbedaan kepekaan lebih banyak tampak antarkomoditas daripada antarlokasi:
 estimasi nasional berkisar dari −1,67 (daging ayam) sampai 1,37 (cabai merah) pada h = 8, sedangkan variasi antarprovinsi
@@ -136,6 +139,53 @@ Sumber: `forecast_eval`.
 - Model tanpa perubahan (M0) lebih akurat daripada M1 untuk komoditas yang harganya diatur atau kaku: daging sapi 0,78,
   beras 0,82, gula 0,85, minyak goreng 0,89, bawang putih 0,93 (h = 4).
 
+## Eksplorasi Task 4 — Arah perubahan dan model lanjutan
+
+*Analisis tambahan setelah praregistrasi (D-139 s.d. D-142). Tidak menggantikan uji H5; semua angka dari evaluasi
+bersyarat pseudo-real-time dengan origin dan baris uji yang sama dengan M0–M3. Interval 95% dari bootstrap blok origin
+(unit = origin, karena seri dalam satu origin berbagi guncangan nasional). Perbandingan eksploratif dikoreksi
+Benjamini–Hochberg per keluarga (q < 0,05; D-143); hasil yang tidak lolos koreksi ditulis "tidak terbukti".*
+
+**Arah perubahan harga (naik/turun) dari ramalan regresi.** Akurasi arah M1 dan M2 tidak berbeda dari selalu menebak
+arah terbanyak: selisih h = 8 M1 +0,015 (−0,029..0,053), M2 +0,015 (−0,024..0,049). M3 di atas baseline: +0,057
+(0,021..0,088). Pada komoditas yang harganya kaku (beras, daging sapi, gula, minyak goreng; ≥ 50% minggu tanpa perubahan),
+M1 dan M3 berada di bawah baseline (M1 −0,100, q 0,011; M3 −0,058, q 0,011); M2 (−0,062) tidak lolos koreksi (q 0,080).
+
+**Klasifier arah langsung (HistGradientBoostingClassifier).** Dilatih langsung untuk naik/turun dengan fitur yang sama,
+akurasi arah h = 8 0,617 dengan fitur kurs (C2) dan 0,607 tanpa (C1), di atas baseline 0,545 (selisih C2 +0,071,
+0,034..0,108). Fitur kurs tidak terbukti menambah akurasi: C2 − C1 +0,009 (−0,007..0,027).
+
+**Model deep learning dan foundation model.**
+
+| Model | MAE / M1, h = 4 | MAE / M1, h = 8 | Akurasi arah h = 8 |
+|---|---|---|---|
+| TimesFM 3.0 zero-shot | 0,935 (DM p < 0,001) | 0,895 (DM p < 0,001) | 0,623 |
+| TimesFM 3.0 + kovariat kurs & harga dunia | 0,939 (DM p 0,001) | 0,904 (DM p < 0,001) | 0,613 |
+| PatchTST | 0,998 (DM p 0,92) | 0,962 (DM p 0,15) | 0,596 |
+| TSMixer | 0,995 (DM p 0,77) | 0,966 (DM p 0,13) | 0,608 |
+| TSMixer + kurs & harga dunia | 1,036 (DM p 0,16) | 0,994 (DM p 0,84) | 0,601 |
+
+Rasio < 1 = lebih akurat dari M1. Baseline akurasi arah h = 8 = 0,545.
+
+- Dalam evaluasi bersyarat pseudo-real-time, TimesFM 3.0 tanpa pelatihan pada data kami menurunkan MAE terhadap M1 sebesar
+  6,5% (h = 4) dan 10,5% (h = 8); porsi variasi perubahan harga yang terjelaskan naik dari 0,07 menjadi 0,25 (h = 8).
+- Kurs dan harga dunia tetap tidak menambah akurasi: TimesFM dengan kovariat kurs vs tanpa, rasio MAE 1,005 (h = 4) dan
+  1,010 (h = 8), keduanya tidak nyata; TSMixer dengan kanal kurs vs tanpa 1,041 (h = 4, DM p 0,020, tetapi tidak lolos koreksi
+  BH, q 0,057) dan 1,029 (h = 8). Ini sejalan dengan H5: perbaikan akurasi datang dari pola harga itu sendiri, bukan dari kurs.
+- Pada komoditas berharga kaku, PatchTST dan TSMixer (± kurs) berada di bawah baseline arah (q 0,018–0,049 pada h = 8);
+  TimesFM −0,074 tidak lolos koreksi (q 0,053). Tidak ada model yang lebih baik dari menebak arah terbanyak untuk kelompok ini.
+- **Kualitas klasifikasi arah (h = 8).** F1 makro tertinggi TimesFM 0,623, lalu klasifier C2 0,614, C1 0,605, TSMixer 0,604
+  dan M3 0,594 (M1 0,551); F1 berbobot hampir sama karena kelas naik/turun seimbang (54,5% naik). Semua angka ini dihitung pada
+  baris dengan perubahan harga ≠ 0 (cakupan 90,7%); bila minggu tanpa perubahan dihitung salah, akurasi TimesFM 0,566 dan M1
+  0,508. Kemampuan memisahkan naik/turun masih lemah (ROC-AUC ≤ 0,70, MCC ≤ 0,26).
+- **Kestabilan.** Tiga seed pelatihan PatchTST/TSMixer pada origin yang sama: rentang akurasi arah ≤ 0,03 dan MAE/M1 ≤ 0,02;
+  TSMixer + kurs lebih buruk dari TSMixer di ketiga seed (MAE/M1 0,995 ± 0,009 vs 0,966 ± 0,007, h = 8). Semua keputusan
+  "lebih baik / tidak terbukti / lebih buruk" sama untuk panjang blok bootstrap 2, 3, 4, dan 6 origin; uji DM TimesFM vs M1
+  tetap p < 0,001 untuk lag HAC 1–5. Pada origin 2026, rasio MAE TimesFM/M1 0,938 (2023: 0,876; 2024: 0,834).
+- Perbandingan yang lolos koreksi BH: MAE TimesFM (± kurs) vs M1 pada h = 4 dan 8 (q ≤ 0,004); akurasi arah TimesFM (± kurs)
+  vs M3 pada h = 4 (+0,043 dan +0,047, q 0,015); klasifier C2 vs M3 pada h = 4 (+0,025, q 0,015); C1 vs M1 pada h = 4 dan 8
+  (+0,045 dan +0,047, q ≤ 0,024). Tidak ada perbandingan "dengan kurs vs tanpa kurs" yang lolos.
+
 ## Eksplorasi E2 — Respons per rezim HET/HAP
 
 145 sel (10 komoditas, 3–6 rezim, h 4/8/12, IDR/USD & harga dunia). Interval dikalibrasi terhadap 499 plasebo
@@ -171,6 +221,12 @@ koreksi multiplisitas. Pola terkuat (eksploratif): bawang putih pada rezim Perba
   dan ridge dengan dummy bulan + dummy minggu sekitar Idulfitri (M2/M1 1,005 pada h = 4 dan 1,019 pada h = 8; H5 Holm 0,56).
   Pada pemeriksaan kedua, M1 makin tertinggal dari model tanpa perubahan (M0/M1 0,95 dan 0,97), sehingga keterbatasan utama
   baseline adalah pengumpulan lintas komoditas, bukan penyandian musim.
+- **Model eksploratif Task 4.** Model deep dan TimesFM ditambahkan setelah praregistrasi dan tidak menguji H5. Hiperparameter
+  model deep ditetapkan sebelum melihat hasil dan tidak dituning; model dilatih ulang tiap 16 minggu dari data sampai origin.
+  TimesFM 3.0 dirilis September 2026 dan dilatih pada korpus deret waktu publik yang isinya tidak kami ketahui; bila deret
+  harga pangan Indonesia periode 2021–2026 ikut di dalamnya, keunggulannya dalam evaluasi ini adalah batas atas. Keunggulan
+  yang lebih kecil pada origin 2026 (MAE/M1 0,938) konsisten dengan kemungkinan itu, tetapi tidak membuktikannya. Bobot TimesFM
+  (1,32 GB) memakai lisensi non-komersial dan tidak ikut paket juri.
 - **Harga diatur.** Banyak minggu tanpa perubahan harga untuk komoditas yang diatur (beras 92%, daging sapi 90%, gula 85%,
   minyak goreng 87% sel carry-forward); ini kekakuan harga nyata, bukan data hilang, dan membatasi respons yang teramati.
 - **Cakupan.** Kesimpulan berlaku untuk 10 komoditas, 34 provinsi (kerangka lama), dan periode 2018–2026.
@@ -179,4 +235,5 @@ koreksi multiplisitas. Pola terkuat (eksploratif): bawang putih pada rezim Perba
 
 `eligibility`, `episodes`, `mde` (Tahap 0); `profiles`, `events` (Task 1); `heterogeneity`, `cluster_selection`,
 `partition_compare`, `planted_recovery` (Task 2); `assoc`, `asymmetry`, `regime_profiles`, `national_calibrated`
-(Task 3); `forecast_eval` (Task 4); `robustness`. Rambu klaim: CLAUDE.md §20.
+(Task 3); `forecast_eval` (Task 4); `robustness`. Eksplorasi Task 4: `forecast_preds`, `direction_preds`, `deep_preds` dan
+log evaluasi Task 4 di `logs/evaluations/` (app halaman 7). Rambu klaim: CLAUDE.md §20.

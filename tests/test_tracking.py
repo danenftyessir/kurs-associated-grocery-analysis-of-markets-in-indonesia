@@ -18,8 +18,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kagami.tracking import evaluators, lineage, logger, registry, store
-from kagami.tracking.metrics import clustering_metrics, interval_consistency, regression_metrics
+from kagami.tracking import assessment, evaluators, lineage, logger, registry, store
+from kagami.tracking.metrics import (clustering_metrics, direction_bootstrap, direction_metrics,
+                                     direction_segment_table, feature_health, interval_consistency,
+                                     regression_metrics)
 from kagami.tracking.schemas import Metric
 from kagami.utils.config import Config
 from kagami.utils.io import read_artifact, write_artifact
@@ -93,6 +95,67 @@ def test_clustering_metrics_guards():
     assert bad["silhouette"].status == "failed" and "NaN" in bad["silhouette"].reason
 
 
+def _auc_manual(pos, score):
+    """ROC-AUC = P(skor positif > skor negatif) (Mann–Whitney), seri = 1/2."""
+    sp, sn = score[pos], score[~pos]
+    return float(((sp[:, None] > sn[None, :]).sum() + 0.5 * (sp[:, None] == sn[None, :]).sum()) / (len(sp) * len(sn)))
+
+
+def _ap_manual(pos, score):
+    """Average precision = Σ (R_k − R_{k−1}) · P_k, urut skor menurun (tanpa seri)."""
+    o = np.argsort(-score)
+    hit = pos[o]
+    tp = np.cumsum(hit)
+    prec = tp / np.arange(1, len(hit) + 1)
+    return float((prec * hit).sum() / hit.sum())
+
+
+def test_direction_metrics_match_manual_formulas():
+    """D-139: diagnostik arah = rumus confusion manual, AUC Mann–Whitney, AP manual; y_true = 0 dikeluarkan."""
+    rng = np.random.default_rng(7)
+    y = rng.normal(0.01, 0.05, 400)
+    p = 0.4 * y + rng.normal(0, 0.04, 400)
+    y[:30] = 0.0                                           # harga tidak berubah → dikeluarkan
+    m = _m(direction_metrics(y, p, prefix="h4_M2_"))
+    yt, yp = y[30:], p[30:]
+    up, pu = yt > 0, yp > 0
+    tp, fn, fp, tn = (up & pu).sum(), (up & ~pu).sum(), (~up & pu).sum(), (~up & ~pu).sum()
+    n = len(yt)
+    assert m["h4_M2_dir_accuracy"].value == pytest.approx((tp + tn) / n)
+    assert m["h4_M2_dir_majority_baseline_accuracy"].value == pytest.approx(max(up.mean(), 1 - up.mean()))
+    assert m["h4_M2_dir_precision_naik"].value == pytest.approx(tp / (tp + fp))
+    assert m["h4_M2_dir_recall_naik"].value == pytest.approx(tp / (tp + fn))
+    f1u, f1d = 2 * tp / (2 * tp + fp + fn), 2 * tn / (2 * tn + fn + fp)
+    assert m["h4_M2_dir_f1_naik"].value == pytest.approx(f1u)
+    assert m["h4_M2_dir_f1_turun"].value == pytest.approx(f1d)
+    assert m["h4_M2_dir_f1_macro"].value == pytest.approx((f1u + f1d) / 2)
+    assert m["h4_M2_dir_balanced_accuracy"].value == pytest.approx((tp / (tp + fn) + tn / (tn + fp)) / 2)
+    mcc = (tp * tn - fp * fn) / np.sqrt(float((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)))
+    assert m["h4_M2_dir_mcc"].value == pytest.approx(mcc)
+    assert m["h4_M2_dir_roc_auc"].value == pytest.approx(_auc_manual(up, yp))
+    assert m["h4_M2_dir_pr_auc"].value == pytest.approx(_ap_manual(up, yp))
+    assert m["h4_M2_dir_confusion"].value == [[tp, fn], [fp, tn]]
+    ctx = m["h4_M2_dir_accuracy"].context
+    assert ctx["n"] == n and ctx["n_no_change_excluded"] == 30 and ctx["n_pred_no_direction_excluded"] == 0
+    assert m["h4_M2_dir_accuracy"].value > m["h4_M2_dir_majority_baseline_accuracy"].value   # ada sinyal arah
+
+
+def test_direction_metrics_guards():
+    rng = np.random.default_rng(3)
+    y = rng.normal(0, 0.05, 100)
+    m0 = _m(direction_metrics(y, np.zeros_like(y)))                     # M0: ramalan nol → tanpa arah
+    assert all(v.status == "not_applicable" and "tidak memberi arah" in v.reason for v in m0.values())
+    up = _m(direction_metrics(np.abs(y) + 0.01, y))                      # aktual hanya naik
+    assert up["dir_accuracy"].status == "ok"
+    for k in ("dir_balanced_accuracy", "dir_mcc", "dir_roc_auc", "dir_pr_auc", "dir_recall_turun", "dir_f1_macro"):
+        assert up[k].status == "not_applicable", k
+    p = y.copy()
+    p[:4] = 0.0                                                          # ramalan tanpa arah dikeluarkan & dicatat
+    mp = _m(direction_metrics(y, p))
+    assert mp["dir_accuracy"].context["n_pred_no_direction_excluded"] == 4 and mp["dir_accuracy"].context["n"] == 96
+    assert _m(direction_metrics(y, y[:-1]))["dir_accuracy"].status == "failed"
+
+
 def test_regression_metrics_match_manual_and_mape_guard():
     rng = np.random.default_rng(1)
     y = rng.normal(0.02, 0.1, 200)
@@ -156,6 +219,15 @@ def _producer(cfg, v=0.12):
 def _consumer(cfg, scale=1.0):
     e = read_artifact(cfg, "episodes")
     write_artifact(cfg, "fx_variation", _fxv(float(e["cum_dlog_e"].iloc[0]) * scale))
+
+
+def _forecast_producer(cfg):
+    rng = np.random.default_rng(11)
+    y = rng.normal(0, 0.05, 120)
+    rows = [pd.DataFrame({"origin": pd.Timestamp("2024-01-01"), "horizon": 4, "model": mo, "region": "Jawa",
+                          "commodity": "beras", "y_true": y, "y_pred": pred, "large_move": False})
+            for mo, pred in (("M0", np.zeros_like(y)), ("M2", 0.5 * y + rng.normal(0, 0.03, 120)))]
+    write_artifact(cfg, "forecast_preds", pd.concat(rows, ignore_index=True))
 
 
 def test_run_success_writes_separate_logs_and_lineage(tcfg):
@@ -253,6 +325,21 @@ def test_evaluate_existing_has_no_execution_time(tcfg):
     assert ev["panel_cells"].status == "not_applicable" and "panel_weekly" in ev["panel_cells"].reason
 
 
+def test_run_plots_accept_mixed_timestamp_formats():
+    """Regresi D-138: log lama (detik) + log baru (mikrodetik) → pd.to_datetime tanpa format crash di halaman 7."""
+    from kagami.viz import plots
+
+    runs = pd.DataFrame({"run_id": ["a", "b", "c"], "task_id": ["task2"] * 3, "run_type": ["execution"] * 3,
+                         "status": ["success", "success", "failed"], "duration_s": [10.0, 12.0, 3.0],
+                         "started_at": ["2026-11-23T20:05:24+00:00", "2026-11-23T22:10:34.977692+00:00",
+                                        "2026-11-24T01:00:00.000001+00:00"]})
+    metrics = pd.DataFrame({"run_id": ["a", "b"], "task_id": ["task2"] * 2, "name": ["selected_k"] * 2,
+                            "value": [1, 1], "status": ["ok", "ok"], "reason": [None, None]})
+    assert len(plots.run_durations(runs).data) == 2
+    fig = plots.metric_trend(metrics, runs, "task2", "selected_k")
+    assert list(pd.to_datetime(fig.data[0].x).year) == [2026, 2026]
+
+
 def test_dependency_edges_follow_requires():
     e = pd.DataFrame(registry.dependency_edges())
     pairs = set(zip(e["producer"], e["consumer"]))
@@ -338,6 +425,7 @@ def test_page_renders_with_synthetic_logs(tcfg, monkeypatch):
     logger.run_tracked(tcfg, "task1", _consumer, scale=3.0)
     with pytest.raises(RuntimeError):
         logger.run_tracked(tcfg, "task2", lambda c: (_ for _ in ()).throw(RuntimeError("x")))
+    logger.run_tracked(tcfg, "task4", _forecast_producer)
     monkeypatch.syspath_prepend(str(APP))
     sys.modules.pop("common", None)
     import common                                                             # noqa: E402 -- modul app
@@ -347,7 +435,7 @@ def test_page_renders_with_synthetic_logs(tcfg, monkeypatch):
         at = AppTest.from_file(str(APP / "pages" / "7_Evaluasi_Eksekusi.py"), default_timeout=90).run()
         assert not at.exception, [e.value for e in at.exception]
         vals = {m.label: m.value for m in at.metric}
-        assert vals["Total run"] == "4" and vals["Gagal"] == "1"
+        assert vals["Eksekusi berhasil"] == "4/5" and vals["Run gagal"] == "1" and vals["Evaluasi-saja"] == "0"
         assert not [i.value for i in at.info if "Belum ada log" in i.value]
         for section in ("Evaluasi per tahap", "Perbandingan run", "Alur pipeline", "Riwayat"):
             at.radio(key="pick_bagian").set_value(section).run()
@@ -358,7 +446,228 @@ def test_page_renders_with_synthetic_logs(tcfg, monkeypatch):
         at.radio(key="pick_bagian").set_value("Evaluasi per tahap").run()
         at.selectbox(key="eval_task").set_value("task2").run()           # run gagal → pesan galat + traceback
         assert any("Run gagal" in e.value for e in at.error)
+        at.selectbox(key="eval_task").set_value("task4").run()           # ringkasan model dulu (D-144)
+        assert not at.exception, [e.value for e in at.exception]
+        assert any("Perbandingan model" in h.value for h in at.subheader)
+        assert not any("Arah perubahan" in h.value for h in at.subheader)  # diagnostik lanjutan tersembunyi
+        at.toggle(key="adv_task4").set_value(True).run()                 # diagnostik arah: tabel + confusion matrix
+        assert not at.exception, [e.value for e in at.exception]
+        assert any("Arah perubahan" in h.value for h in at.subheader)
+        assert at.selectbox(key="eval_conf_task4").value == "h4_M2"
     finally:
         sys.modules.pop("common", None)
     assert json.loads((tcfg.out_dir / "logs" / "runs" / f"{store.load_runs(tcfg)[0].run_id}.json")
-                      .read_text(encoding="utf-8"))["schema_version"] == 1
+                      .read_text(encoding="utf-8"))["schema_version"] == 3
+
+
+# --------------------------------------------------------------------------- D-140: interval, segmen, penilaian, lineage output
+def _dir_panel(signal: float, n_origins=40, n_series=30, seed=3):
+    """Panel ramalan sintetis: origin × seri, y bersama (guncangan nasional) + idiosinkratik; ramalan = signal·y + derau."""
+    rng = np.random.default_rng(seed)
+    rows = []
+    for o in range(n_origins):
+        common = rng.normal(0.01, 0.03)
+        y = common + rng.normal(0, 0.03, n_series)
+        rows.append(pd.DataFrame({"origin": o, "series": np.arange(n_series), "y_true": y,
+                                  "y_pred": signal * y + rng.normal(0, 0.03, n_series)}))
+    return pd.concat(rows, ignore_index=True)
+
+
+def test_direction_bootstrap_detects_signal_and_respects_dependence():
+    strong, noise = _dir_panel(1.0), _dir_panel(0.0)
+    b = direction_bootstrap(strong["y_true"], strong["y_pred"], strong["origin"], block=2, reps=299, seed=1)
+    assert b["n_origins"] == 40 and b["accuracy_gap"][0] > 0 and b["roc_auc"][0] > 0.5
+    b0 = direction_bootstrap(noise["y_true"], noise["y_pred"], noise["origin"], block=2, reps=299, seed=1)
+    assert b0["accuracy_gap"][0] < 0 < b0["accuracy_gap"][1] or b0["accuracy_gap"][1] <= 0   # tanpa sinyal: tak > baseline
+    assert b0["roc_auc"][0] < 0.5 < b0["roc_auc"][1]
+    # blok ≥ n origin → setiap replikasi = sampel asli: AUC/AP berbobot = sklearn
+    from sklearn.metrics import average_precision_score, roc_auc_score
+
+    d = strong[strong["y_true"] != 0]
+    full = direction_bootstrap(d["y_true"], d["y_pred"], d["origin"], block=40, reps=5, seed=0)
+    up = d["y_true"] > 0
+    assert full["roc_auc"][0] == pytest.approx(roc_auc_score(up, d["y_pred"]), abs=1e-9)
+    assert full["pr_auc"][0] == pytest.approx(average_precision_score(up, d["y_pred"]), abs=1e-9)
+    assert direction_bootstrap([0.1, -0.1], [0.1, 0.2], [0, 1], block=2) is None              # < 3 origin
+
+
+def test_direction_segment_table_per_segment():
+    a, b = _dir_panel(1.0, seed=4), _dir_panel(0.0, seed=5)
+    df = pd.concat([a.assign(commodity="kuat"), b.assign(commodity="acak")], ignore_index=True)
+    df = pd.concat([df.assign(model="M1"), df.assign(model="M2", y_pred=df["y_pred"] * 2)], ignore_index=True)
+    segs = {"komoditas": {c: (df["commodity"] == c).to_numpy() for c in ("kuat", "acak")}}
+    rows = pd.DataFrame(direction_segment_table(df, segs, ["M1", "M2"], block=2, reps=199, seed=2))
+    assert len(rows) == 4 and set(rows["segment"]) == {"kuat", "acak"}
+    assert (rows.loc[rows["model"] == "M1", "mae_ratio_vs_m1"] == 1).all()
+    assert rows.loc[(rows["segment"] == "kuat") & (rows["model"] == "M1"), "assessment"].iloc[0] == "better"
+    assert rows.loc[(rows["segment"] == "acak") & (rows["model"] == "M1"), "assessment"].iloc[0] != "better"
+    assert (rows["gap_ci_low"] <= rows["accuracy_gap"]).all() and (rows["accuracy_gap"] <= rows["gap_ci_high"]).all()
+
+
+def test_feature_health_counts_constant_columns():
+    X = pd.DataFrame({"a": [1.0, 2, 3, 4], "b": [0.0] * 4, "c": [2.0, 4, 6, 8.1], "d": [5.0] * 4})
+    fh = feature_health(X)
+    assert fh["n_constant"] == 2 and fh["constant_features"] == ["b", "d"] and fh["effective_dimensions"] == 2
+    assert fh["n_redundant_pairs"] == 1
+
+
+def test_assessment_rules_two_layers():
+    peers = {"h8_M2_dir_majority_baseline_accuracy": 0.545, "dm_p_h8_M2": 0.006, "placebo_p95_silhouette": 0.196}
+    acc = assessment.assess("h8_M2_dir_accuracy", 0.56, {"gap_ci_low": -0.02, "gap_ci_high": 0.05}, peers)
+    assert acc["assessment"] == "inconclusive" and acc["reference"] == 0.545
+    acc2 = assessment.assess("h8_M2_dir_accuracy", 0.60, {"gap_ci_low": 0.02, "gap_ci_high": 0.08}, peers)
+    assert acc2["assessment"] == "better"
+    assert assessment.assess("h8_M2_dir_roc_auc", 0.57, {"ci_low": 0.54, "ci_high": 0.6})["assessment"] == "better"
+    assert assessment.assess("h8_M2_dir_accuracy", 0.56, {}, peers)["assessment"] == "inconclusive"   # tanpa interval
+    assert assessment.assess("mae_ratio_vs_m1_h8_M2", 1.017, {}, peers)["assessment"] == "worse"
+    assert assessment.assess("mae_ratio_vs_m1_h8_M3", 1.015, {}, {"dm_p_h8_M3": 0.49})["assessment"] == "inconclusive"
+    # 3/48 ≈ α · 48 → tidak berbeda dari laju positif palsu; 20/48 jelas di atas
+    assert assessment.assess("share_ci_excludes_zero_national", 3 / 48, {"n": 48})["assessment"] == "inconclusive"
+    assert assessment.assess("share_ci_excludes_zero_national", 20 / 48, {"n": 48})["assessment"] == "better"
+    assert assessment.assess("placebo_false_positive_rate", 0.081, {"n": 19452})["assessment"] == "review"
+    assert assessment.assess("v4_mean_sign_agree", 0.508, {"n": 30})["assessment"] == "inconclusive"
+    assert assessment.assess("silhouette_k3", 0.184, {}, peers)["assessment"] == "inconclusive"
+    assert assessment.assess("silhouette_recompute_max_abs_diff", 5e-17)["assessment"] == "expected"
+    assert assessment.assess("h2_p_interval_consistency", 0.87)["assessment"] == "expected"
+    assert assessment.assess("n_files", 28)["assessment"] == "info"
+    m = pd.DataFrame({"run_id": ["r", "r"], "task_id": ["task4"] * 2, "group": ["g"] * 2,
+                      "name": ["h8_M2_dir_majority_baseline_accuracy", "x"], "value": [0.545, None],
+                      "status": ["ok", "not_applicable"], "reason": [None, "alasan"], "context": ["{}", "{}"]})
+    out = assessment.assess_table(m)
+    assert list(out["assessment"]) == ["info", "not_computed"] and set(assessment.COLUMNS) <= set(out.columns)
+
+
+def test_compare_classifies_new_metrics_and_fingerprint(tcfg):
+    logger.run_tracked(tcfg, "stage0", _producer)
+    logger.run_tracked(tcfg, "stage0", _producer, v=0.4)
+    ids = [r.run_id for r in store.load_runs(tcfg)]
+    rec = store.load_runs(tcfg)[0]
+    assert rec.code_sha256 and len(rec.code_sha256) == 64 and rec.environment["python"]
+    assert rec.git_dirty is None                                               # root sementara bukan repo git
+    cmp = store.compare_runs(tcfg, ids)["metrics"].set_index("name")
+    assert cmp.loc["max_cum_dlog_e", f"perubahan {ids[1]}"] == "berubah"
+    assert cmp.loc["n_episodes", f"perubahan {ids[1]}"] == "sama"
+    assert store._change(None, 1.0) == "baru" and store._change(1.0, None) == "hilang"
+
+
+def test_code_hash_changes_with_code(tmp_path):
+    (tmp_path / "src").mkdir()
+    f = tmp_path / "src" / "a.py"
+    f.write_text("x = 1\n", encoding="utf-8")
+    h1 = lineage.code_hash(tmp_path)
+    assert h1 == lineage.code_hash(tmp_path)
+    f.write_text("x = 2\n", encoding="utf-8")
+    assert lineage.code_hash(tmp_path) != h1
+    assert lineage.code_hash(tmp_path / "kosong") is None
+
+
+def test_artifact_sync_and_stage_states(tcfg):
+    logger.run_tracked(tcfg, "stage0", _producer)
+    s = store.artifact_sync(tcfg).set_index("artifact")
+    assert s.loc["episodes", "state"] == "sinkron"
+    # tabel referensi stage0 di data/reference (disalin ke root sementara) tidak ditulis run ini → sebagian dieksekusi
+    assert (s.loc[s["stage"] == "stage0", "state"] == "tanpa log").any()
+    assert store.stage_states(tcfg)["stage0"] == "sebagian dieksekusi"
+    write_artifact(tcfg, "episodes", _eps(0.5))                               # diganti di luar run (mis. unduhan Drive)
+    s = store.artifact_sync(tcfg).set_index("artifact")
+    assert s.loc["episodes", "state"] == "tidak sinkron" and s.loc["episodes", "producer_run"] is None
+    assert store.stage_states(tcfg)["stage0"] == "dieksekusi · output tidak sinkron"
+    write_artifact(tcfg, "fx_variation", _fxv())
+    logger.evaluate_existing(tcfg, "task1")
+    st_ = store.stage_states(tcfg)
+    assert st_["task1"] == "hanya dievaluasi" and st_["task4"] == "belum ada run"
+
+
+def test_task4_classifier_evaluator_synthetic(tcfg):
+    """D-141: bagian klasifier eksploratif — metrik arah C1/C2, beda berpasangan vs C1/M3/M1, prediksi selektif, segmen."""
+    rng = np.random.default_rng(5)
+    rows, cls = [], []
+    for o in pd.date_range("2024-01-01", periods=12, freq="28D"):
+        y = rng.normal(0.005, 0.03, 40)
+        base = {"origin": o, "horizon": 4, "province_id": np.arange(40) % 34 + 1, "region": "Jawa",
+                "commodity": np.where(np.arange(40) < 20, "beras", "cabai_rawit"), "y_true": y, "large_move": False}
+        for mo, pr in (("M1", 0.3 * y + rng.normal(0, 0.03, 40)), ("M3", 0.8 * y + rng.normal(0, 0.02, 40))):
+            rows.append(pd.DataFrame({**base, "model": mo, "y_pred": pr}))
+        for mo, noise in (("C1", 0.06), ("C2", 0.01)):
+            cls.append(pd.DataFrame({**base, "model": mo,
+                                     "p_up": 1 / (1 + np.exp(-(y + rng.normal(0, noise, 40)) / 0.03))}))
+    write_artifact(tcfg, "forecast_preds", pd.concat(rows, ignore_index=True))
+    write_artifact(tcfg, "direction_preds", pd.concat(cls, ignore_index=True))
+    ms = _m(evaluators.evaluate_task4(tcfg))
+    assert all(x.status != "failed" for x in ms.values()), [x for x in ms.values() if x.status == "failed"]
+    assert ms["h4_C2_dir_accuracy"].value > ms["h4_C1_dir_accuracy"].value
+    diff = ms["h4_C2_vs_C1_accuracy_diff"]
+    assert diff.status == "ok" and diff.context["ci_low"] > 0
+    assert {"h4_C2_vs_M3_accuracy_diff", "h4_C1_vs_M1_accuracy_diff", "h4_C2_selective"} <= set(ms)
+    seg = pd.DataFrame(ms["h4_dir_by_segment"].value)
+    assert {"C1", "C2", "M1", "M3"} <= set(seg["model"]) and seg.loc[seg["model"] == "C2", "mae"].isna().all()
+    a = assessment.assess("h4_C2_vs_C1_accuracy_diff", diff.value, diff.context)
+    assert a["assessment"] == "better"
+
+
+def test_task4_deep_evaluator_synthetic(tcfg):
+    """D-142: bagian model deep — regresi & arah per model, rasio MAE vs M1 + DM pada baris sama, beda TSMX_fx − TSMX."""
+    rng = np.random.default_rng(9)
+    rows, deep = [], []
+    for o in pd.date_range("2024-01-01", periods=14, freq="28D"):
+        y = rng.normal(0.005, 0.03, 40)
+        base = {"origin": o, "horizon": 8, "province_id": np.arange(40) % 34 + 1, "region": "Jawa",
+                "commodity": "beras", "y_true": y, "large_move": False}
+        for mo, pr in (("M1", 0.2 * y + rng.normal(0, 0.03, 40)), ("M3", 0.5 * y + rng.normal(0, 0.02, 40))):
+            rows.append(pd.DataFrame({**base, "model": mo, "y_pred": pr}))
+        for mo, pr in (("TSMX", 0.2 * y + rng.normal(0, 0.03, 40)), ("TSMX_fx", 0.9 * y + rng.normal(0, 0.005, 40))):
+            deep.append(pd.DataFrame({**base, "model": mo, "y_pred": pr}))
+    write_artifact(tcfg, "forecast_preds", pd.concat(rows, ignore_index=True))
+    write_artifact(tcfg, "deep_preds", pd.concat(deep, ignore_index=True))
+    ms = _m(evaluators.evaluate_task4(tcfg))
+    assert all(x.status != "failed" for x in ms.values()), [x for x in ms.values() if x.status == "failed"]
+    assert {"h8_TSMX_fx_mae", "h8_TSMX_fx_dir_accuracy", "mae_ratio_vs_m1_h8_TSMX_fx", "dm_p_h8_TSMX_fx",
+            "mae_ratio_h8_TSMX_fx_vs_TSMX", "h8_TSMX_fx_vs_TSMX_accuracy_diff", "h8_TSMX_fx_vs_M3_accuracy_diff"} <= set(ms)
+    r = ms["mae_ratio_h8_TSMX_fx_vs_TSMX"]
+    assert r.value < 1 and assessment.assess(r.name, r.value, r.context)["assessment"] == "better"
+    m1 = ms["mae_ratio_vs_m1_h8_TSMX_fx"]
+    assert assessment.assess(m1.name, m1.value, m1.context, {"dm_p_h8_TSMX_fx": ms["dm_p_h8_TSMX_fx"].value})[
+        "assessment"] == "better"
+    seg = pd.DataFrame(ms["h8_dir_by_segment"].value)
+    assert {"TSMX", "TSMX_fx"} <= set(seg["model"]) and seg.loc[seg["model"] == "TSMX_fx", "mae"].notna().all()
+
+
+def test_bootstrap_p_and_bh_multiplicity():
+    """D-143: p bootstrap konsisten dengan interval persentil; hasil yang tidak lolos BH diturunkan ke inconclusive."""
+    from kagami.tracking.metrics import bootstrap_p
+
+    rng = np.random.default_rng(3)
+    far, near = rng.normal(0.05, 0.01, 999), rng.normal(0.01, 0.01, 999)
+    assert bootstrap_p(far, 0.0) < 0.01 and bootstrap_p(near, 0.0) > 0.05 and bootstrap_p([], 0.0) is None
+    lo, hi = np.percentile(near, [2.5, 97.5])
+    assert (lo > 0 or hi < 0) == (bootstrap_p(near, 0.0) < 0.05)
+    ctx = lambda p, lo, hi: json.dumps({"ci_low": lo, "ci_high": hi, "p_boot": p})   # noqa: E731
+    rows = [{"run_id": "r", "task_id": "task4", "group": "g", "name": f"h8_X{i}_vs_Y_accuracy_diff", "value": 0.02,
+             "status": "ok", "reason": None, "context": ctx(p, 0.001, 0.04)} for i, p in enumerate([0.001, 0.04, 0.045])]
+    rows += [{"run_id": "r", "task_id": "task4", "group": "g", "name": f"h8_Z{i}_vs_Y_accuracy_diff", "value": 0.0,
+              "status": "ok", "reason": None, "context": ctx(0.9, -0.02, 0.02)} for i in range(7)]
+    out = assessment.assess_table(pd.DataFrame(rows)).set_index("name")
+    assert out.loc["h8_X0_vs_Y_accuracy_diff", "assessment"] == "better"          # q = 0,01
+    assert out.loc["h8_X1_vs_Y_accuracy_diff", "assessment"] == "inconclusive"    # p 0,04 → q 0,15
+    assert "tidak lolos koreksi BH" in out.loc["h8_X1_vs_Y_accuracy_diff", "interpretation"]
+    assert out["family"].eq("beda akurasi berpasangan").all() and out["q_value"].notna().all()
+    off = assessment.assess_table(pd.DataFrame([{"run_id": "r", "task_id": "task4", "group": "g",
+                                                 "name": "mae_ratio_vs_m1_h8_M2", "value": 1.02, "status": "ok",
+                                                 "reason": None, "context": "{}"}]))
+    assert off["family"].isna().all()                                             # uji resmi tidak dikoreksi
+
+
+def test_direction_metrics_weighted_f1_and_coverage():
+    """D-144: F1 berbobot = rerata F1 kelas berbobot jumlah aktual; akurasi termasuk perubahan nol; cakupan."""
+    rng = np.random.default_rng(8)
+    y = rng.normal(0.01, 0.05, 300)
+    p = 0.5 * y + rng.normal(0, 0.04, 300)
+    y[:50] = 0.0
+    m = _m(direction_metrics(y, p))
+    yt, yp = y[50:], p[50:]
+    up, pu = yt > 0, yp > 0
+    tp, fn, fp, tn = (up & pu).sum(), (up & ~pu).sum(), (~up & pu).sum(), (~up & ~pu).sum()
+    f1u, f1d = 2 * tp / (2 * tp + fp + fn), 2 * tn / (2 * tn + fn + fp)
+    assert m["dir_f1_weighted"].value == pytest.approx((up.sum() * f1u + (~up).sum() * f1d) / len(yt))
+    assert m["dir_accuracy_incl_no_change"].value == pytest.approx((tp + tn) / 300)
+    assert m["dir_coverage"].value == pytest.approx(250 / 300)

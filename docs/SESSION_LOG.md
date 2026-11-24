@@ -9,6 +9,65 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-24 — Danen: WP-36 ✅ (optimasi klasifikasi arah Task 4 eksploratif, D-145)
+- Fitur per seri (8 kelompok, ablation), Optuna HGB (C1t 40 trial, C2t 12), TSMixer (10 trial, L1/BCE), threshold dari origin
+  pengembangan, kalibrasi residu TimesFM, kepala CatBoost TimesFM; test final origin ≥ 2024 tidak dipakai memilih apa pun.
+- C1-tuned macro F1 test 0,677 / 0,680 vs TimesFM 0,618 / 0,621 (lolos BH); kurs tidak membantu; TSMixer-tuned tidak lebih baik.
+- Laporan + skrip + konfigurasi di `docs/audit/20261124_task4_optimasi_arah.md`; `src/` & artefak tidak berubah.
+- Porting: `features/price_dynamics.py`, C1t/C2t di `models/direction.py`, `task4 --direction-tuned` → `direction_tuned_preds`,
+  `tests/test_direction_tuned.py` (6 tes); prediksi identik dengan eksperimen.
+- Belum: commit, bundle Kaggle/Drive dibangun ulang.
+
+### 2026-11-24 — Danen: WP-36 ✅ (kelengkapan klasifikasi, seed, kepekaan blok, D-144)
+- F1 berbobot/cakupan/akurasi termasuk nol; replikasi 3 seed model deep; kepekaan blok 2/3/4/6 & lag DM; segmen tahun origin;
+  tabel perbandingan model Task 4 + sakelar diagnostik; Riwayat ringkas; `evaluator_version` (schema 3); 2 tes baru.
+- Robustness Tier 2 tercatat identik dengan file resmi → sinkron. F1 makro terbaik 0,623 (TimesFM h 8); target 0,8 tidak tercapai.
+- Belum: commit, `evaluate all` bersih, restart 8501, lineage Task 1 & forecast resmi (Kaggle).
+
+### 2026-11-24 — Danen: WP-36 ✅ (koreksi multiplisitas, D-143)
+- `metrics.bootstrap_p`, p di direction_bootstrap/paired_accuracy_diff/tabel segmen (+ BH), `assessment.apply_multiplicity`,
+  kolom q (BH) di halaman 7, 1 tes baru; `evaluate task4` ulang.
+- Gugur: TSMX_fx vs TSMX h 4 (q 0,057), segmen kaku TimesFM/M2, lentur M1. findings.md & audit Lampiran C.7 disesuaikan.
+- Belum: restart app 8501, commit, `evaluate all` pada commit bersih (P1 sisa, Danen).
+
+### 2026-11-24 — Danen: WP-33 🔶 (findings: eksplorasi Task 4)
+- `results/findings.md`: Ringkasan butir 6, bagian "Eksplorasi Task 4" (D-139–D-142), keterbatasan model eksploratif.
+- Belum: commit/push, unggah findings.md baru ke Drive tim `results/`, makalah.
+
+### 2026-11-24 — Danen: WP-36 ✅ (model deep & foundation eksploratif, D-142)
+- `models.neural`: PatchTST, TSMixer (± kurs), TimesFM 3.0 zero-shot (± kovariat kurs); `task4.run_deep` + `--deep`, artefak
+  `deep_preds`, evaluator (MAE/M1 + DM, arah + interval, beda berpasangan), tabel di halaman 7, `tests/test_neural.py` + 1 tes.
+- Unduhan disetujui Danen: timesfm 3.0.2 + bobot TimesFM 3.0 (1,32 GB, non-komersial); Chronos-2 tidak.
+- Data asli: TFM MAE/M1 0,895 (h 8, DM p < 0,001), arah 0,62; kurs tidak membantu (TFM_fx ≈ TFM, TSMX_fx ≥ TSMX).
+- Belum: commit/push; findings.md belum memuat D-141/D-142; risiko kontaminasi pralatih TimesFM dicatat.
+
+### 2026-11-24 — Danen: WP-36 ✅ (klasifier arah eksploratif, D-141)
+- `models.direction` (HGB classifier C1 tanpa kurs, C2 + kurs), `task4.run_direction` + `--direction`, artefak `direction_preds`,
+  evaluator beda berpasangan + prediksi selektif, bagian baru di halaman 7, `tests/test_direction.py` + 1 tes evaluator.
+- Data asli: C2 0,617 vs baseline 0,545 (h 8, interval selisih 0,034..0,108); C2 − C1 tidak terbukti (+0,009); C1 − M1 +0,047.
+- Belum: commit/push; findings.md belum memuat hasil eksploratif ini; model DL ditolak sebelum pembekuan (D-141).
+
+### 2026-11-24 — Danen: WP-36 ✅ (audit halaman 7 + evaluasi dua lapis, D-140)
+- Audit 5 bagian halaman 7 → `docs/audit/20261124_audit_evaluasi_eksekusi.md`; lalu `tracking.assessment` (penilaian vs acuan),
+  `metrics.direction_bootstrap`/`direction_segment_table`/`feature_health`, `store.artifact_sync`/`stage_states`, `lineage.code_hash`/
+  `git_dirty`, halaman 7 ditulis ulang (5 bagian), wiring `task2`/`robustness` OPTIONAL + notebook 02/05, 8 tes baru.
+- Data asli: M1/M2 arah tidak berbeda dari baseline mayoritas; M3 di atas; komoditas kaku di bawah baseline semua model; 13/33
+  fitur clustering konstan; robustness resmi bukan output run eksekusi terakhir. `evaluate all` ulang → 7 log baru.
+- Belum: commit/push, restart server app 8501 (modul lama ter-cache), unggah ulang `kagami_code.zip`; usulan model DL ditunda.
+
+### 2026-11-24 — Danen: WP-36 ✅ (diagnostik klasifikasi arah Task 4, D-139)
+- `tracking.metrics.direction_metrics` (accuracy, baseline mayoritas, balanced acc., precision/recall/F1 per kelas, F1 makro, MCC,
+  ROC-AUC, PR-AUC, confusion) di `evaluate_task4`; `viz.plots.confusion_matrix` + tabel di app hal. 7; 2 tes rumus manual + penjaga.
+- Artefak resmi: akurasi arah 0,543 / 0,557 / 0,573 (M1 / M2 / M3, h 4) dan 0,560 / 0,560 / 0,602 (h 8) vs baseline kelas mayoritas 0,527 / 0,545; F1 makro 0,538 / 0,550 / 0,566 dan 0,551 / 0,549 / 0,594; MCC 0,08–0,19; ROC-AUC 0,567–0,627.
+- Log evaluasi-saja `task4` baru di `logs/`. Belum: commit/push, unggah ulang `kagami_code.zip`.
+
+### 2026-11-24 — Danen: WP-36 ✅ (run end-to-end penuh semua tahap)
+- `kagami all` + `robustness --tier2` lokal dari folder kode bersih (out_dir sementara): semua tahap sukses setelah 2 perbaikan.
+- Bug 1 (D-138): `task1` gagal setelah bootstrap + plasebo (5.312 dtk) karena `print` τ² ke stdout cp1252; `cli._utf8_stdio`.
+  Checkpoint membuat run ulang melanjutkan (task1 19 dtk). Bug 2 (D-138): halaman 7 crash pada format waktu log campuran.
+- Reproduksi 35 artefak: 17 identik sha256, 16 selisih ≤ 3,5e-11, angka kunci semua sama; app 7/7; pytest 357 lolos.
+- Belum: commit/push (cli.py, viz/plots.py, 2 tes, dokumen), unggah ulang `kagami_code.zip` ke Drive & Kaggle.
+
 ### 2026-11-24 — Danen: WP-36 ✅ (log eksekusi & evaluasi terpusat)
 - Audit + desain dilaporkan dulu, lalu `src/tracking/` (schemas, metrics berpenjaga, lineage sha256, evaluators per tahap, registry +
   DAG dari REQUIRES, store JSON tidak ditimpa, logger `@tracked`), hook pengamat `utils.io`, CLI `evaluate`/`runs`, log ikut Drive &

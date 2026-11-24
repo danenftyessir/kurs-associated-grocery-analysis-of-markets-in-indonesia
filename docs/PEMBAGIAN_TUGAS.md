@@ -50,7 +50,7 @@ tidak ada yang menunggu.
 | Area | Danen | Ardell | Abi |
 |---|---|---|---|
 | `src/data/` | `drivers.py` (episode), `panel.py`, `qa.py` | `reference.py`, tambahan loader sumber manual di `loaders.py` | – |
-| `src/features/` | – | `response.py`, `clustering.py`, `forecast.py` | – |
+| `src/features/` | `price_dynamics.py` (D-145) | `response.py`, `clustering.py`, `forecast.py` | – |
 | `src/models/` | `local_projection.py`, `event_study.py`, `association.py::kendall_exact` | `deviations.py`, `clustering.py`, `forecasting.py`, `association.py::meta_regression`/`fe_interaction` | – |
 | `src/evaluation/` | `power.py`, `heterogeneity.py`, `planted.py`, `forecast_eval.py`, `robustness.py`, `regimes.py`, `asymmetry.py`, `calibration.py` | `inference.py`, `stability.py` | – |
 | `src/pipelines/` | `stage0.py`, `task1.py`, `task3.py`, `robustness.py` | `task2.py`, `task4.py`, `package.py` | – |

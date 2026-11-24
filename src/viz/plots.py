@@ -330,25 +330,35 @@ def scenario_paths(pt: pd.DataFrame, shocks: list[float], selected: float) -> go
 
 
 # --------------------------------------------------------------------------- log eksekusi & evaluasi (WP-36, app hal. 7)
-RUN_STATUS_COLORS = {"success": S.BLUE, "failed": S.ORANGE, "belum ada run": S.NEUTRAL}
+RUN_STATUS_COLORS = {"success": S.BLUE, "failed": S.ORANGE, "belum ada run": S.NEUTRAL,
+                     # status tahap (D-140: eksekusi dipisah dari evaluasi-saja; output tidak sinkron ditandai)
+                     "dieksekusi": S.BLUE, "sebagian dieksekusi": "#5f97dc", "dieksekusi · output tidak sinkron": "#b58b00", "hanya dievaluasi": "#9cc3f0",
+                     "eksekusi gagal": S.ORANGE, "evaluasi gagal": S.ORANGE}
 RUN_STATUS_LABELS = {"success": "berhasil", "failed": "gagal", "belum ada run": "belum ada run"}
 
 
-def run_durations(runs: pd.DataFrame) -> go.Figure:
-    """Waktu eksekusi per run (tabel `tracking.store.runs_table`), satu titik per run, warna = status. Run evaluasi-saja
-    tidak punya waktu eksekusi teramati → tidak digambar (dihitung di subjudul)."""
+def run_durations(runs: pd.DataFrame, labels: dict[str, str] | None = None) -> go.Figure:
+    """Waktu eksekusi per run eksekusi (tabel `tracking.store.runs_table`) sebagai batang horizontal berlabel tahap +
+    waktu mulai, warna = status (D-140: bukan rerata lintas tahap). Run evaluasi-saja tidak punya waktu eksekusi
+    teramati → tidak digambar; tahap yang belum pernah dieksekusi disebut di subjudul."""
     d = runs[runs["duration_s"].notna()].copy()
-    n_eval = int(runs["duration_s"].isna().sum())
+    # format="ISO8601": log lama tanpa mikrodetik bercampur log baru dengan mikrodetik (D-138)
+    d["t"] = pd.to_datetime(d["started_at"], format="ISO8601", utc=True)
+    d = d.sort_values("t")
+    d["label"] = [f"{(labels or {}).get(t, t)} · {x:%d %b %H:%M}" for t, x in zip(d["task_id"], d["t"])]
+    never = [(labels or {}).get(t, t) for t in dict.fromkeys(runs["task_id"]) if t not in set(d["task_id"])]
     fig = go.Figure()
     for status, g in d.groupby("status"):
-        fig.add_trace(go.Scatter(
-            x=pd.to_datetime(g["started_at"]), y=g["duration_s"], mode="markers", name=RUN_STATUS_LABELS.get(status, status),
-            marker=dict(size=11, color=RUN_STATUS_COLORS.get(status, S.NEUTRAL)), text=g["task_id"],
-            customdata=g["run_id"], hovertemplate="%{text}<br>%{customdata}<br><b>%{y:.1f} dtk</b><extra></extra>"))
-    fig.update_yaxes(rangemode="tozero")
-    return S.finish(fig, "Waktu eksekusi per run",
-                    f"{len(d)} run eksekusi · {n_eval} run evaluasi-saja tanpa waktu eksekusi teramati",
-                    x="waktu mulai (UTC)", y="detik")
+        fig.add_trace(go.Bar(
+            x=g["duration_s"], y=g["label"], orientation="h", name=RUN_STATUS_LABELS.get(status, status),
+            marker_color=RUN_STATUS_COLORS.get(status, S.NEUTRAL), customdata=g["run_id"],
+            text=[S.fmt_num(v, 1) + " dtk" for v in g["duration_s"]], textposition="outside",
+            hovertemplate="%{y}<br>%{customdata}<br><b>%{x:.1f} dtk</b><extra></extra>"))
+    fig.update_yaxes(categoryorder="array", categoryarray=list(d["label"]))
+    sub = f"{len(d)} run eksekusi"
+    if never:
+        sub += " · belum ada waktu eksekusi tercatat: " + ", ".join(never)
+    return S.finish(fig, "Waktu eksekusi per run", sub, x="detik", height=max(260, 40 * len(d) + 140))
 
 
 def metric_trend(metrics: pd.DataFrame, runs: pd.DataFrame, task_id: str, name: str) -> go.Figure:
@@ -356,7 +366,7 @@ def metric_trend(metrics: pd.DataFrame, runs: pd.DataFrame, task_id: str, name: 
     digambar sebagai penanda abu-abu di sumbu bawah agar ketiadaan nilai tetap terlihat."""
     m = metrics[(metrics["task_id"] == task_id) & (metrics["name"] == name)].merge(
         runs[["run_id", "started_at", "run_type"]], on="run_id", how="left").sort_values("started_at")
-    m["x"] = pd.to_datetime(m["started_at"])
+    m["x"] = pd.to_datetime(m["started_at"], format="ISO8601", utc=True)
     m["v"] = pd.to_numeric(m["value"], errors="coerce")
     good = m[(m["status"] == "ok") & m["v"].notna()]
     bad = m[~m.index.isin(good.index)]
@@ -371,11 +381,32 @@ def metric_trend(metrics: pd.DataFrame, runs: pd.DataFrame, task_id: str, name: 
                     x="waktu mulai run (UTC)", y=name)
 
 
+def confusion_matrix(cm: list[list[int]], labels: list[str], title: str, subtitle: str = "") -> go.Figure:
+    """Confusion matrix (baris = aktual, kolom = ramalan) dari metrik `dir_confusion` log evaluasi Task 4 (D-139).
+    Warna = porsi baris (recall per kelas aktual), teks = jumlah + porsi baris."""
+    m = np.asarray(cm, float)
+    rows = m.sum(axis=1, keepdims=True)
+    frac = np.divide(m, rows, out=np.zeros_like(m), where=rows > 0)
+    text = [[f"{int(m[i, j]):,}".replace(",", ".") + f"<br>{frac[i, j] * 100:.1f}%".replace(".", ",")
+             for j in range(m.shape[1])] for i in range(m.shape[0])]
+    xs, ys = [f"ramalan {lab}" for lab in labels], [f"aktual {lab}" for lab in labels]
+    fig = go.Figure(go.Heatmap(z=frac, x=xs, y=ys, text=text, colorscale=S.SEQUENTIAL, zmin=0, zmax=1,
+                               colorbar=dict(title="porsi baris", tickformat=".0%"),
+                               hovertemplate="%{y} → %{x}<br>%{text}<extra></extra>"))
+    for i in range(m.shape[0]):          # teks per sel: putih di sel gelap, gelap di sel terang (kontras)
+        for j in range(m.shape[1]):
+            fig.add_annotation(x=xs[j], y=ys[i], text=text[i][j], showarrow=False,
+                               font=dict(size=14, color="#ffffff" if frac[i, j] >= 0.5 else "#0d366b"))
+    fig.update_yaxes(autorange="reversed")
+    return S.finish(fig, title, subtitle)
+
+
 def pipeline_graph(edges: pd.DataFrame, status: dict[str, str], stale: set[str] | None = None,
                    labels: dict[str, str] | None = None) -> go.Figure:
     """Graf dependensi antar-tahap dari REQUIRES/OPTIONAL (`tracking.registry.dependency_edges`). Lapisan = jalur
-    terpanjang dari sumber; garis penuh = input wajib, putus-putus = opsional; warna simpul = status run terakhir;
-    tahap yang inputnya berubah setelah run terakhir diberi tanda "basi"."""
+    terpanjang dari sumber; garis penuh = input wajib, putus-putus = opsional; warna simpul = status tahap
+    (`tracking.store.stage_states`: dieksekusi / output tidak sinkron / hanya dievaluasi / gagal; status run lama
+    success/failed tetap diterima); tahap yang inputnya berubah setelah run terakhir diberi tanda "basi"."""
     stale = stale or set()
     nodes = list(dict.fromkeys([*edges["producer"], *edges["consumer"]]))
     pairs = edges.groupby(["producer", "consumer"], as_index=False).agg(required=("required", "any"),
@@ -399,8 +430,9 @@ def pipeline_graph(edges: pd.DataFrame, status: dict[str, str], stale: set[str] 
         fig.add_trace(go.Scatter(x=[x0, x1], y=[y0, y1], mode="lines", showlegend=False, hoverinfo="skip",
                                  line=dict(color=S.NEUTRAL, width=1 + min(r.n, 6) / 2,
                                            dash="solid" if r.required else "dot")))
-        fig.add_annotation(x=(x0 + x1) / 2, y=(y0 + y1) / 2, text=str(r.n), showarrow=False,
-                           font=dict(size=10, color=S.NEUTRAL), hovertext=r.artifacts)
+        fig.add_annotation(x=(x0 + x1) / 2, y=(y0 + y1) / 2, text=str(r.n), showarrow=False,   # kontras (D-140)
+                           font=dict(size=12, color="#1a1a1a"), bgcolor="#ffffff", bordercolor=S.NEUTRAL,
+                           borderpad=2, hovertext=r.artifacts)
     for st_name in dict.fromkeys(status.get(n, "belum ada run") for n in nodes):
         members = [n for n in nodes if status.get(n, "belum ada run") == st_name]
         fig.add_trace(go.Scatter(
@@ -415,6 +447,6 @@ def pipeline_graph(edges: pd.DataFrame, status: dict[str, str], stale: set[str] 
     fig.update_xaxes(visible=False, range=[-0.7, x_max + 0.7])           # ruang untuk label simpul di tepi
     fig.update_yaxes(visible=False, range=[-y_abs - 0.6, y_abs + 0.4])
     fig = S.finish(fig, "Alur data antar-tahap", "garis penuh = input wajib · titik-titik = input opsional · angka = "
-                   "jumlah artefak · warna = status run terakhir", height=380)
+                   "jumlah artefak · warna = status tahap (eksekusi dipisah dari evaluasi-saja)", height=380)
     fig.update_xaxes(showgrid=False)
     return fig

@@ -594,6 +594,34 @@ python -m kagami task3
 python -m kagami robustness
 ```
 
+Analisis eksploratif tambahan (bukan uji praregistrasi, D-141): klasifier arah perubahan harga dengan rolling-origin yang
+sama dengan Task 4. Hasilnya tampil di app halaman 7 (Evaluasi per tahap → Task 4).
+
+```powershell
+python -m kagami task4 --direction
+```
+
+Klasifier arah tuned (D-145, eksploratif): C1 + fitur dinamika harga (deviasi dari rerata bergerak dan antarprovinsi, sinyal
+komoditas nasional, lag panjang, musiman) dengan hyperparameter yang dipilih pada origin 2021–2023 saja. Pada origin uji
+2024–2026, macro F1 arah 0,677 / 0,680 (h 4 / h 8) vs TimesFM 0,618 / 0,621. Laporan: `docs/audit/20261124_task4_optimasi_arah.md`.
+
+```powershell
+python -m kagami task4 --direction-tuned
+```
+
+Model deep learning & foundation model eksploratif (D-142): PatchTST, TSMixer, dan TimesFM 3.0. Butuh `pip install -e ".[deep]"`;
+TimesFM mengunduh bobot 1,32 GB (lisensi non-komersial) saat pertama dijalankan. Di CPU ± 2 jam.
+
+```powershell
+python -m kagami task4 --deep
+```
+
+Replikasi seed untuk PatchTST/TSMixer (origin & jadwal refit sama, seed berbeda), misalnya seed ke-2 dan ke-3:
+
+```powershell
+python -m kagami task4 --deep PTST_r2 PTST_r3 TSMX_r2 TSMX_r3 TSMX_fx_r2 TSMX_fx_r3
+```
+
 Task 1 paling lama: sekitar 7 detik per replikasi bootstrap atau plasebo, atau 1,5–2 jam di laptop untuk B = R = 499. Task 2
 dan Task 4 juga berat. Jika ingin, Anda bisa menjalankan pipeline yang sama lewat notebook di [notebooks/](notebooks/) di Kaggle
 atau Colab; langkahnya ada di [docs/NOTEBOOKS.md](docs/NOTEBOOKS.md).

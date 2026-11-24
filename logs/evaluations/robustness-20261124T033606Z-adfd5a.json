@@ -1,0 +1,221 @@
+{
+ "run_id": "robustness-20261124T033606Z-adfd5a",
+ "task_id": "robustness",
+ "evaluated_at": "2026-11-24T03:36:06.769859+00:00",
+ "metrics": [
+  {
+   "name": "n_rows_tier_1",
+   "group": "robustness & validasi",
+   "value": 382,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "checks": [
+     "exclude_covid_and_extreme_brent",
+     "fx_decomposition_global_dollar_vs_idr_specific",
+     "horizon_8_vs_12",
+     "lags_2_4_8",
+     "monthly_frequency",
+     "subperiod_pre_post_2021-04-05"
+    ]
+   }
+  },
+  {
+   "name": "share_baseline_in_ci_tier_1",
+   "group": "robustness & validasi",
+   "value": 0.9581151832460733,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 382,
+    "note": "cakupan tinggi bisa karena interval lebar; baca bersama kesamaan tanda & keputusan"
+   }
+  },
+  {
+   "name": "median_ci_width_tier_1",
+   "group": "robustness & validasi",
+   "value": 0.8330175945320468,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 382
+   }
+  },
+  {
+   "name": "sign_agreement_tier_1",
+   "group": "robustness & validasi",
+   "value": 0.8638743455497382,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 382,
+    "note": "porsi estimasi cek dengan tanda sama dengan estimasi utama"
+   }
+  },
+  {
+   "name": "share_detected_tier_1",
+   "group": "robustness & validasi",
+   "value": 0.15706806282722513,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 382,
+    "note": "porsi estimasi cek yang intervalnya tidak memuat nol"
+   }
+  },
+  {
+   "name": "median_abs_diff_over_se_tier_1",
+   "group": "robustness & validasi",
+   "value": 0.45288615203526744,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 382,
+    "note": "|estimasi cek − estimasi utama| / SE utama; < 1 = perubahan di bawah satu SE"
+   }
+  },
+  {
+   "name": "decision_agreement_tier_1",
+   "group": "robustness & validasi",
+   "value": 0.9162303664921466,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 382,
+    "note": "porsi cek dengan keputusan terdeteksi/tidak (±1,96·SE utama) sama dengan utama"
+   }
+  },
+  {
+   "name": "n_rows_tier_2",
+   "group": "robustness & validasi",
+   "value": 193,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "checks": [
+     "alternative_exposure_remoteness",
+     "alternative_variants",
+     "bapanas_outcome",
+     "last_observation_aggregation"
+    ]
+   }
+  },
+  {
+   "name": "share_baseline_in_ci_tier_2",
+   "group": "robustness & validasi",
+   "value": 0.9896373056994818,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 193,
+    "note": "cakupan tinggi bisa karena interval lebar; baca bersama kesamaan tanda & keputusan"
+   }
+  },
+  {
+   "name": "median_ci_width_tier_2",
+   "group": "robustness & validasi",
+   "value": 0.4730655916486586,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 193
+   }
+  },
+  {
+   "name": "sign_agreement_tier_2",
+   "group": "robustness & validasi",
+   "value": 0.927461139896373,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 193,
+    "note": "porsi estimasi cek dengan tanda sama dengan estimasi utama"
+   }
+  },
+  {
+   "name": "share_detected_tier_2",
+   "group": "robustness & validasi",
+   "value": 0.21761658031088082,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 193,
+    "note": "porsi estimasi cek yang intervalnya tidak memuat nol"
+   }
+  },
+  {
+   "name": "median_abs_diff_over_se_tier_2",
+   "group": "robustness & validasi",
+   "value": 0.17835983701553487,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 193,
+    "note": "|estimasi cek − estimasi utama| / SE utama; < 1 = perubahan di bawah satu SE"
+   }
+  },
+  {
+   "name": "decision_agreement_tier_2",
+   "group": "robustness & validasi",
+   "value": 0.9375,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 193,
+    "note": "porsi cek dengan keputusan terdeteksi/tidak (±1,96·SE utama) sama dengan utama"
+   }
+  },
+  {
+   "name": "n_rows_tier_V",
+   "group": "robustness & validasi",
+   "value": 104,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "checks": [
+     "V2_case_study_events",
+     "V2_case_study_forecast",
+     "V4_lp_vs_event_study"
+    ]
+   }
+  },
+  {
+   "name": "v4_mean_sign_agree",
+   "group": "robustness & validasi",
+   "value": 0.5083333333333333,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness",
+    "n": 30,
+    "note": "sign_agree = porsi jalur event vs implikasi LP dengan tanda sama (per komoditas × h)"
+   }
+  },
+  {
+   "name": "v4_mean_corr",
+   "group": "robustness & validasi",
+   "value": 0.14199059807152242,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "robustness"
+   }
+  }
+ ],
+ "schema_version": 2
+}

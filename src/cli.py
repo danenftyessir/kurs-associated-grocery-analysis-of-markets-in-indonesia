@@ -4,6 +4,9 @@
   snapshot          hash semua file mentah -> data/raw/checksums.csv
   download [KEY..]  Tingkat C: unduh ulang sumber http / cetak instruksi manual
   stage0|task1|task2|task3|task4|robustness   jalankan satu tahap (= satu notebook)
+  task4 --direction klasifier arah EKSPLORATIF (D-141) -> direction_preds (uji resmi tidak berubah)
+  task4 --direction-tuned [M..]  klasifier arah tuned EKSPLORATIF C1t/C2t (D-145) -> direction_tuned_preds
+  task4 --deep [M..] PatchTST/TSMixer/TimesFM 3.0 EKSPLORATIF (D-142) -> deep_preds
   all               stage0 -> task1 -> task2 -> task3 -> task4 -> robustness (satu pipeline_id di log)
   evaluate [TAHAP|all ..]  evaluasi artefak tahap yang sudah ada tanpa menjalankan ulang -> logs/ (WP-36)
   runs              riwayat run tercatat (logs/runs) + hasil yang basi karena input hulu berubah
@@ -72,7 +75,16 @@ def runs(cfg) -> None:
         print(stale.to_string(index=False))
 
 
+def _utf8_stdio() -> None:
+    """Pesan progres memuat τ², β, ≥ …; stdout yang diarahkan ke file di Windows memakai cp1252 dan crash (D-138)."""
+    for stream in (sys.stdout, sys.stderr):
+        enc = (getattr(stream, "encoding", None) or "").lower().replace("-", "")
+        if hasattr(stream, "reconfigure") and enc != "utf8":
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
 def main(argv: list[str] | None = None) -> int:
+    _utf8_stdio()
     ap = argparse.ArgumentParser(prog="kagami", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("command", choices=["status", "snapshot", "download", *PIPELINE, "all", "evaluate", "runs",
@@ -82,6 +94,12 @@ def main(argv: list[str] | None = None) -> int:
                     help="kunci sumber (`download`) atau nama tahap (`drive-pull`, `drive-push`, `evaluate`)")
     ap.add_argument("--client-secret", help="drive-auth: file client_secret OAuth (Desktop app) dari Google Cloud")
     ap.add_argument("--tier2", action="store_true", help="robustness: sertakan Tier 2")
+    ap.add_argument("--deep", action="store_true",
+                    help="task4: model deep/foundation EKSPLORATIF (D-142) -> deep_preds; keys = model (default semua)")
+    ap.add_argument("--direction", action="store_true",
+                    help="task4: hanya klasifier arah EKSPLORATIF (D-141) -> direction_preds; uji resmi tidak berubah")
+    ap.add_argument("--direction-tuned", action="store_true",
+                    help="task4: klasifier arah tuned EKSPLORATIF (D-145) -> direction_tuned_preds; keys = C1t/C2t (default keduanya)")
     ap.add_argument("--allow-missing", action="store_true", help="package: izinkan artefak belum lengkap")
     ap.add_argument("--raw", action="store_true", help="bundle: sertakan zip data mentah PRIVAT")
     args = ap.parse_args(argv)
@@ -93,6 +111,12 @@ def main(argv: list[str] | None = None) -> int:
         tracking.run_tracked(cfg, "snapshot", snapshot.run)
     elif args.command == "download":
         download.run(cfg, args.keys or None)
+    elif args.command == "task4" and args.deep:
+        task4.run_deep(cfg, tuple(args.keys) or None)
+    elif args.command == "task4" and args.direction_tuned:
+        task4.run_direction_tuned(cfg, tuple(args.keys) or None)
+    elif args.command == "task4" and args.direction:
+        task4.run_direction(cfg)
     elif args.command == "robustness":
         robustness.run(cfg, include_tier2=args.tier2)
     elif args.command in PIPELINE:

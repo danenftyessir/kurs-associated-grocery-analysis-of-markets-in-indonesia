@@ -15,6 +15,7 @@ from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact, require, write_artifact
 
 REQUIRES = ("profiles", "response_features", "placebo_stats", "boot_replicates")
+OPTIONAL = ("province_features",)   # pembanding partisi n_kota (D-140); notebook menariknya juga
 
 
 @tracked("task2")   # log eksekusi & evaluasi terpusat (WP-36, D-137)

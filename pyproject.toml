@@ -23,6 +23,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8", "nbformat>=5.9"]
 drive = ["google-api-python-client>=2.100", "google-auth>=2.20", "google-auth-oauthlib>=1.0"]
+# EKSPLORATIF (D-142): model deep & foundation Task 4; bobot TimesFM 3.0 (1,32 GB, lisensi non-komersial) diunduh saat run
+deep = ["torch>=2.2", "timesfm==3.0.2"]
 
 [project.scripts]
 kagami = "kagami.cli:main"

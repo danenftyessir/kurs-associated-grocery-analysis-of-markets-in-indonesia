@@ -107,12 +107,13 @@ def runs_table(cfg: Config) -> pd.DataFrame:
                      "git_commit": (r.git_commit or "")[:8] or None, "algorithm": "; ".join(r.algorithms),
                      "n_parents": len(r.parent_run_ids), "n_inputs": len(r.inputs), "n_outputs": len(r.outputs),
                      "metrics_ok": cnt["ok"], "metrics_na": cnt["not_applicable"], "metrics_failed": cnt["failed"],
-                     "error_type": r.error_type,
+                     "error_type": r.error_type, "git_dirty": r.git_dirty,
+                     "code_sha256": (r.code_sha256 or "")[:12] or None, "evaluator_version": r.evaluator_version,
                      "summary": f"{cnt['ok']} ok · {cnt['not_applicable']} tidak berlaku · {cnt['failed']} gagal"
                      if ms else ("tanpa evaluasi" if r.status == "success" else "run gagal")})
     cols = ["run_id", "task_id", "run_type", "status", "started_at", "duration_s", "evaluation_s", "pipeline_id",
             "dataset_id", "platform", "git_commit", "algorithm", "n_parents", "n_inputs", "n_outputs", "metrics_ok",
-            "metrics_na", "metrics_failed", "error_type", "summary"]
+            "metrics_na", "metrics_failed", "error_type", "git_dirty", "code_sha256", "evaluator_version", "summary"]
     return pd.DataFrame(rows, columns=cols)
 
 
@@ -154,6 +155,7 @@ def compare_runs(cfg: Config, run_ids: list[str]) -> dict[str, pd.DataFrame]:
         out = val.copy()
         for r in sel[1:]:
             out[f"delta {r.run_id}"] = val[r.run_id].map(_num) - val[base].map(_num)
+            out[f"perubahan {r.run_id}"] = [_change(a, b) for a, b in zip(val[base], val[r.run_id])]
         out["status"] = stat.apply(lambda s: "/".join(sorted(set(s.dropna()))), axis=1)
         metrics = out.reset_index()
     else:
@@ -161,7 +163,11 @@ def compare_runs(cfg: Config, run_ids: list[str]) -> dict[str, pd.DataFrame]:
     prm = []
     flat = {r.run_id: {**_flatten(r.params, "params"), **_flatten(r.call_args, "args"),
                        **{f"config.{k}": v[:12] for k, v in r.config_sha256.items()},
-                       "git_commit": (r.git_commit or "")[:8], "dataset_id": r.dataset_id, "platform": r.platform}
+                       **{f"env.{k}": v for k, v in (r.environment or {}).items()},
+                       "git_commit": (r.git_commit or "")[:8], "git_dirty": r.git_dirty,
+                       "code_sha256": (r.code_sha256 or "")[:12] or None, "run_type": r.run_type,
+                       "evaluator_version": r.evaluator_version,
+                       "dataset_id": r.dataset_id, "platform": r.platform}
             for r in sel}
     for key in sorted({k for d in flat.values() for k in d}):
         vals = [flat[r.run_id].get(key) for r in sel]
@@ -174,6 +180,26 @@ def compare_runs(cfg: Config, run_ids: list[str]) -> dict[str, pd.DataFrame]:
             shas = {r.run_id: next((a.sha256[:12] for a in getattr(r, io) if a.name == n), None) for r in sel}
             art.append({"io": io, "artifact": n, **shas, "changed": len({v for v in shas.values()}) > 1})
     return {"metrics": metrics, "params": pd.DataFrame(prm), "artifacts": pd.DataFrame(art)}
+
+
+def _missing(v: Any) -> bool:
+    return v is None or (isinstance(v, float) and np.isnan(v))
+
+
+def _change(base: Any, other: Any) -> str:
+    """sama | berubah | baru (tidak ada di run acuan) | hilang (tidak ada di run pembanding) — metrik baru tidak dihitung
+    sebagai perubahan nilai (D-140)."""
+    if _missing(base) and _missing(other):
+        return "sama"
+    if _missing(base):
+        return "baru"
+    if _missing(other):
+        return "hilang"
+    a, b = _num(base), _num(other)
+    if not (np.isnan(a) or np.isnan(b)):
+        return "sama" if np.isclose(a, b, rtol=1e-9, atol=1e-12) else "berubah"
+    return "sama" if json.dumps(base, sort_keys=True, default=str) == json.dumps(other, sort_keys=True, default=str) \
+        else "berubah"
 
 
 def _flatten(d: dict, prefix: str) -> dict[str, Any]:
@@ -213,3 +239,82 @@ def staleness(cfg: Config) -> pd.DataFrame:
             rows.append({"task_id": task, "run_id": r.run_id, "artifact": a.name, "recorded_sha": a.sha256[:12],
                          "current_sha": cur[:12] if cur else None, "stale": cur is not None and cur != a.sha256})
     return pd.DataFrame(rows, columns=["task_id", "run_id", "artifact", "recorded_sha", "current_sha", "stale"])
+
+
+SYNC_STATES = ("sinkron", "tidak sinkron", "hanya dievaluasi", "tanpa log")
+
+
+def artifact_sync(cfg: Config) -> pd.DataFrame:
+    """Lineage OUTPUT (D-140): untuk setiap artefak registry yang ada di lokasi baca, apakah file itu benar-benar ditulis
+    oleh run eksekusi tercatat. Run terbaru TIDAK dianggap produsen resmi hanya karena paling baru.
+
+    state: sinkron (run eksekusi terakhir yang menulis artefak itu menghasilkan file yang sama dengan file sekarang) |
+    tidak sinkron (run eksekusi terakhir menulis versi lain: file sekarang berasal dari luar run itu, mis. unduhan Drive
+    atau run di folder lain) | hanya dievaluasi (tidak ada run eksekusi yang menulisnya; hanya run evaluasi-saja yang
+    mencatat hash-nya) | tanpa log. Kolom: artifact, stage, current_sha, state, producer_run (run eksekusi dengan output
+    = file sekarang), last_execution_run, last_execution_sha, last_execution_rows, current_rows, evaluated_by."""
+    from kagami.utils.io import find_artifact
+
+    runs = load_runs(cfg)
+    rows = []
+    for name, art in ARTIFACTS.items():
+        p = find_artifact(cfg, name)
+        if p is None:
+            continue
+        cur = sha256_file(p)
+        execs = [(r, a) for r in runs if r.run_type == "execution" and r.status == "success"
+                 for a in r.outputs if a.name == name]
+        evals = [(r, a) for r in runs if r.run_type == "evaluation" for a in r.outputs if a.name == name]
+        producer = next((r.run_id for r, a in reversed(execs) if a.sha256 == cur), None)
+        last = execs[-1] if execs else None
+        cur_rows = next((a.rows for _, a in reversed(execs + evals) if a.sha256 == cur and a.rows is not None), None)
+        if last is not None:
+            state = "sinkron" if last[1].sha256 == cur else "tidak sinkron"
+        else:
+            state = "hanya dievaluasi" if any(a.sha256 == cur for _, a in evals) else "tanpa log"
+        rows.append({"artifact": name, "stage": art.stage, "current_sha": cur[:12], "state": state,
+                     "producer_run": producer, "last_execution_run": last[0].run_id if last else None,
+                     "last_execution_sha": last[1].sha256[:12] if last else None,
+                     "last_execution_rows": last[1].rows if last else None, "current_rows": cur_rows,
+                     "evaluated_by": next((r.run_id for r, a in reversed(evals) if a.sha256 == cur), None)})
+    return pd.DataFrame(rows, columns=["artifact", "stage", "current_sha", "state", "producer_run",
+                                       "last_execution_run", "last_execution_sha", "last_execution_rows",
+                                       "current_rows", "evaluated_by"])
+
+
+STAGE_STATES = ("dieksekusi", "sebagian dieksekusi", "dieksekusi · output tidak sinkron", "hanya dievaluasi",
+                "eksekusi gagal", "evaluasi gagal", "belum ada run")
+
+
+def stage_states(cfg: Config, sync: pd.DataFrame | None = None) -> dict[str, str]:
+    """Status tahap untuk dashboard (D-140), memisahkan eksekusi dari evaluasi-saja: dieksekusi (run eksekusi terakhir
+    sukses & semua output-nya sinkron) | sebagian dieksekusi (ada artefak tahap yang tidak pernah ditulis run eksekusi) |
+    dieksekusi · output tidak sinkron | hanya dievaluasi (tidak ada run eksekusi)
+    | eksekusi gagal | evaluasi gagal | belum ada run."""
+    from kagami.tracking.registry import ORDER
+
+    runs = load_runs(cfg)
+    sync = artifact_sync(cfg) if sync is None else sync
+    out: dict[str, str] = {}
+    for task in ORDER:
+        ex = [r for r in runs if r.task_id == task and r.run_type == "execution"]
+        ev = [r for r in runs if r.task_id == task and r.run_type == "evaluation"]
+        if ex:
+            last = ex[-1]
+            if last.status != "success":
+                out[task] = "eksekusi gagal"
+                continue
+            # hanya artefak milik tahap ini (stage0 juga menulis `checksums` milik snapshot; isinya sama, hanya kolom
+            # waktu `recorded_at` yang berbeda antar folder, jadi tidak menandai stage0)
+            names = {a.name for a in last.outputs if a.name in ARTIFACTS and ARTIFACTS[a.name].stage == task}
+            bad = sync[sync["artifact"].isin(names) & (sync["state"] == "tidak sinkron")]
+            # artefak tahap ini yang tidak pernah ditulis run eksekusi (mis. task4 --direction hanya menulis
+            # direction_preds; forecast_* tetap dari Kaggle) → tahap hanya sebagian dieksekusi di bawah pelacakan
+            unexec = sync[(sync["stage"] == task) & sync["state"].isin(["hanya dievaluasi", "tanpa log"])]
+            out[task] = ("dieksekusi · output tidak sinkron" if len(bad) else
+                         "sebagian dieksekusi" if len(unexec) else "dieksekusi")
+        elif ev:
+            out[task] = "hanya dievaluasi" if ev[-1].status == "success" else "evaluasi gagal"
+        else:
+            out[task] = "belum ada run"
+    return out

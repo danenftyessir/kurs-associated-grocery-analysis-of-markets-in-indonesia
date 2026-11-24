@@ -1,0 +1,138 @@
+{
+ "C1|4": {
+  "default": 0.5,
+  "dev": 0.48
+ },
+ "C1|8": {
+  "default": 0.5,
+  "dev": 0.425
+ },
+ "C2|4": {
+  "default": 0.5,
+  "dev": 0.485
+ },
+ "C2|8": {
+  "default": 0.5,
+  "dev": 0.51
+ },
+ "M1|4": {
+  "default": 0.0,
+  "dev": -0.00416
+ },
+ "M1|8": {
+  "default": 0.0,
+  "dev": -0.00242
+ },
+ "M3|4": {
+  "default": 0.0,
+  "dev": -0.001306
+ },
+ "M3|8": {
+  "default": 0.0,
+  "dev": -0.007309
+ },
+ "PTST|4": {
+  "default": 0.0,
+  "dev": -0.004372
+ },
+ "PTST|8": {
+  "default": 0.0,
+  "dev": -0.015233
+ },
+ "TSMX|4": {
+  "default": 0.0,
+  "dev": -0.005261
+ },
+ "TSMX|8": {
+  "default": 0.0,
+  "dev": -0.010641
+ },
+ "TFM|4": {
+  "default": 0.0,
+  "dev": -0.000965
+ },
+ "TFM|8": {
+  "default": 0.0,
+  "dev": -0.004162
+ },
+ "TFM_fx|4": {
+  "default": 0.0,
+  "dev": -0.002522
+ },
+ "TFM_fx|8": {
+  "default": 0.0,
+  "dev": -0.010792
+ },
+ "C1t|4": {
+  "default": 0.5,
+  "dev": 0.5
+ },
+ "C1t|8": {
+  "default": 0.5,
+  "dev": 0.46
+ },
+ "C2t|4": {
+  "default": 0.5,
+  "dev": 0.505
+ },
+ "C2t|8": {
+  "default": 0.5,
+  "dev": 0.475
+ },
+ "TFMhead|4": {
+  "default": 0.5,
+  "dev": 0.495
+ },
+ "TFMhead|8": {
+  "default": 0.5,
+  "dev": 0.535
+ },
+ "TFMcal|4": {
+  "default": 0.5,
+  "dev": 0.48
+ },
+ "TFMcal|8": {
+  "default": 0.5,
+  "dev": 0.445
+ },
+ "TSMXt|4": {
+  "default": 0.5,
+  "dev": 0.445
+ },
+ "TSMXt|8": {
+  "default": 0.5,
+  "dev": 0.375
+ },
+ "TSMXt_r2|4": {
+  "default": 0.5,
+  "dev": NaN
+ },
+ "TSMXt_r2|8": {
+  "default": 0.5,
+  "dev": NaN
+ },
+ "TSMXt_r3|4": {
+  "default": 0.5,
+  "dev": NaN
+ },
+ "TSMXt_r3|8": {
+  "default": 0.5,
+  "dev": NaN
+ },
+ "C1t_s2|4": {
+  "default": 0.5,
+  "dev": NaN
+ },
+ "C1t_s2|8": {
+  "default": 0.5,
+  "dev": NaN
+ },
+ "C1t_s3|4": {
+  "default": 0.5,
+  "dev": NaN
+ },
+ "C1t_s3|8": {
+  "default": 0.5,
+  "dev": NaN
+ }
+}

@@ -19,6 +19,7 @@ from kagami.utils.io import exists, read_artifact, require, write_artifact
 
 REQUIRES = ("profiles", "events", "episodes", "panel_weekly", "eligibility", "drivers_weekly",
             "world_prices_weekly", "forecast_eval")
+OPTIONAL = ("pihps_daily", "exposure", "province_features")   # hanya Tier 2 (tier2_inputs, D-140)
 
 
 @tracked("robustness")   # log eksekusi & evaluasi terpusat (WP-36, D-137)

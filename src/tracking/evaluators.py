@@ -8,13 +8,17 @@ Matriks tahap × metrik: docs/TRACKING.md §2.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
 from sklearn.metrics import adjusted_rand_score
 
-from kagami.tracking.metrics import clustering_metrics, failed, interval_consistency, na, ok, regression_metrics, share
+from kagami.tracking.metrics import (clustering_metrics, direction_bootstrap, direction_metrics, direction_segment_table,
+                                     failed, feature_health, interval_consistency, na, ok, paired_accuracy_diff,
+                                     regression_metrics, selective_accuracy, share)
+from kagami.stats.regression import diebold_mariano
 from kagami.tracking.schemas import Metric
 from kagami.utils.config import Config
 from kagami.utils.io import exists, read_artifact
@@ -23,6 +27,61 @@ STATUS_ORDER = ("observed", "carry_forward", "short", "missing")
 DRIVERS_NAT = ("e", "w")
 FORECAST_PROTOCOL = ("rolling-origin pseudo-real-time; latih hanya t + h ≤ origin, harga dunia as-of available_at "
                      "(features.forecast.split_origin; dites di tests/test_forecast.py)")
+DIR_SEED_OFFSET = 3901       # RNG bootstrap blok origin metrik arah: cfg.seed + 3901 (D-140)
+RIGID_CF_SHARE = 0.5         # komoditas "kaku" untuk segmen evaluasi: porsi sel carry_forward ≥ 0,5 (deskriptif, U22)
+
+
+def _origin_block(cfg: Config, h: int) -> int:
+    """Panjang blok bootstrap origin = ceil(h / langkah origin) + 1: origin yang target-nya bertumpuk selalu satu blok
+    (h 4 → 2, h 8 → 3 dengan langkah 4 minggu)."""
+    step = int(cfg.params["forecast"]["origin_step_weeks"])
+    return int(np.ceil(h / step)) + 1
+
+
+def _rigid_commodities(cfg: Config) -> list[str] | None:
+    pw = _load(cfg, "panel_weekly")
+    if pw is None:
+        return None
+    cf = (pw["status"] == "carry_forward").groupby(pw["commodity"]).mean()
+    return sorted(cf.index[cf >= RIGID_CF_SHARE])
+
+
+DEEP_MODELS = ("PTST", "TSMX", "TSMX_fx", "TFM", "TFM_fx")   # D-142 (= models.neural.ALL_MODELS)
+SELECTIVE_COVERAGES = (1.0, 0.75, 0.5, 0.25)
+BLOCK_SENSITIVITY = (2, 3, 4, 6)                  # panjang blok bootstrap origin yang diuji (D-144)
+DM_LAG_SENSITIVITY = (1, 2, 3, 5)                 # lag HAC uji DM yang diuji (D-144)
+REPLICATE_PAT = r"^(?P<base>.+)_r(?P<rep>\d+)$"   # replikasi seed model deep (= models.neural.REPLICATE)
+EVALUATOR_VERSION = "2026-11-24.d144"             # naik setiap evaluator berubah; dicatat di RunRecord (D-144)   # prediksi selektif klasifier eksploratif (D-141; diagnostik)
+
+
+def _attach_boot(ms: list[Metric], y_true, score, origin, block: int, seed: int) -> None:
+    """Tambahkan interval bootstrap blok origin (D-140) ke konteks metrik arah yang berstatus ok."""
+    if not any(m.status == "ok" for m in ms):
+        return
+    boot = direction_bootstrap(y_true, score, origin, block, seed=seed + DIR_SEED_OFFSET)
+    if not boot:
+        return
+    for m in ms:
+        if m.status != "ok":
+            continue
+        key = m.name.rsplit("_dir_", 1)[-1]
+        if boot.get(key):
+            m.context.update(ci_low=boot[key][0], ci_high=boot[key][1])
+        if key == "accuracy" and boot.get("accuracy_gap"):
+            m.context.update(gap_ci_low=boot["accuracy_gap"][0], gap_ci_high=boot["accuracy_gap"][1])
+        pk = boot.get("accuracy_gap_p" if key == "accuracy" else f"{key}_p")
+        if pk is not None:                                   # p bootstrap vs acuan → koreksi BH di assessment (D-143)
+            m.context["p_boot"] = pk
+        m.context.update(bootstrap=f"blok origin {boot['block']} × {boot['reps']} replikasi, {boot['n_origins']} origin")
+
+
+def _max_run(flags: np.ndarray) -> int:
+    """Panjang rangkaian True berurutan terpanjang."""
+    best = cur = 0
+    for f in flags:
+        cur = cur + 1 if f else 0
+        best = max(best, cur)
+    return best
 
 
 def _load(cfg: Config, name: str) -> pd.DataFrame | None:
@@ -86,6 +145,20 @@ def evaluate_stage0(cfg: Config) -> list[Metric]:
         res += [ok(f"status_share_{s}", share(pw["status"] == s), g, artifact="panel_weekly") for s in STATUS_ORDER]
         res.append(ok("log_price_missing_share", share(pw["log_price"].isna()), g, artifact="panel_weekly",
                       note="sel tanpa harga (status missing/short) tidak diisi"))
+        d = pw.sort_values(["commodity", "province_id", "week"])
+        cf = d["status"].eq("carry_forward")
+        streak = cf.groupby([d["commodity"], d["province_id"]]).apply(lambda s: _max_run(s.to_numpy()))
+        rows = [{"commodity": c, "carry_forward_share": round(float(cf[d["commodity"] == c].mean()), 4),
+                 "observed_share": round(float(d.loc[d["commodity"] == c, "status"].eq("observed").mean()), 4),
+                 "max_carry_forward_streak_weeks": int(streak.loc[c].max()),
+                 "median_series_max_streak_weeks": float(streak.loc[c].median())}
+                for c in sorted(d["commodity"].unique())]
+        res.append(ok("carry_forward_by_commodity", rows, g, artifact="panel_weekly",
+                      note="kekakuan harga (U22): carry_forward = harga sama dengan minggu sebelumnya; bukan data jelek, "
+                           "tetapi mengurangi variasi untuk mendeteksi respons kurs"))
+        res.append(ok("n_rigid_commodities", int(sum(r["carry_forward_share"] >= RIGID_CF_SHARE for r in rows)), g,
+                      artifact="panel_weekly", threshold=RIGID_CF_SHARE,
+                      commodities=[r["commodity"] for r in rows if r["carry_forward_share"] >= RIGID_CF_SHARE]))
         return res
 
     def eligibility() -> list[Metric]:
@@ -266,6 +339,15 @@ def evaluate_task2(cfg: Config) -> list[Metric]:
         X = feature_matrix(cfg, feats)
         lab = ward_labels(X.to_numpy(), k_sel)
         res = clustering_metrics(X.to_numpy(), lab, g, partition=f"Ward k = {k_sel}", artifact="response_features")
+        fh = feature_health(X)
+        note = ("fitur konstan = deviasi provinsi tersusut habis ke rerata oleh EB (τ² = 0); tidak membawa informasi "
+                "antarprovinsi, jadi silhouette dihitung di ruang efektif yang lebih kecil")
+        res += [ok("n_features", fh["n_features"], g, artifact="response_features"),
+                ok("n_constant_features", fh["n_constant"], g, artifact="response_features",
+                   features=fh["constant_features"], note=note),
+                ok("effective_dimensions", fh["effective_dimensions"], g, artifact="response_features"),
+                ok("n_redundant_feature_pairs", fh["n_redundant_pairs"], g, artifact="response_features",
+                   note="pasangan fitur bervariasi dengan |r| ≥ 0,95")]
         stored = ward.reindex(X.index)["cluster"]
         res.append(ok("ward_labels_reproduced_ari", float(adjusted_rand_score(stored.astype(str), lab))
                       if k_sel >= 2 else float((stored.nunique() == 1)), g,
@@ -292,9 +374,12 @@ def evaluate_task2(cfg: Config) -> list[Metric]:
         for k in [int(k) for k in cfg.params["clustering"]["k_range"] if int(k) >= 2]:
             ms = {m.name: m for m in clustering_metrics(X, ward_labels(X, k), g, partition=f"Ward k = {k}",
                                                         accepted=k == k_sel)}
-            for name in ("silhouette", "davies_bouldin", "calinski_harabasz"):
+            # silhouette kandidat sudah dilaporkan di "pemilihan k vs plasebo" (dari artefak); di sini hanya DB/CH
+            # deskriptif + cek integritas silhouette dihitung ulang (D-140: tanpa metrik ganda / teks sebagai metrik)
+            for name in ("davies_bouldin", "calinski_harabasz"):
                 m = ms[name]
                 m.name = f"{name}_k{k}"
+                m.context["note"] = "deskriptif; k dipilih dari silhouette vs p95 plasebo, bukan DB/CH"
                 res.append(m)
             if sel is not None and ms["silhouette"].status == "ok":
                 stored = sel.loc[sel["k"] == k, "silhouette"]
@@ -303,8 +388,6 @@ def evaluate_task2(cfg: Config) -> list[Metric]:
         res.append(ok("silhouette_recompute_max_abs_diff", float(max(diffs)), g, artifact="cluster_selection",
                       note="cek integritas: silhouette dihitung ulang vs artefak") if diffs
                    else na("silhouette_recompute_max_abs_diff", g, "cluster_selection tidak ada / tanpa silhouette"))
-        res.append(Metric("candidate_note", g, "kandidat k ≥ 2 tidak diterima bila silhouette ≤ p95 plasebo; DB/CH di "
-                                                "sini deskriptif, bukan dasar pemilihan k", "ok"))
         return res
 
     def planted() -> list[Metric]:
@@ -459,17 +542,293 @@ def evaluate_task4(cfg: Config) -> list[Metric]:
                    else na("mae_crosscheck_max_abs_diff", g, "forecast_eval tidak ada untuk dibandingkan"))
         return res
 
+    def direction() -> list[Metric]:
+        g = "arah perubahan (diagnostik klasifikasi)"
+        preds = _load(cfg, "forecast_preds")
+        if preds is None:
+            return [_missing("dir_accuracy", g, "forecast_preds")]
+        res = []
+        for (h, model), d in preds.groupby(["horizon", "model"], sort=True):
+            ms = direction_metrics(d["y_true"], d["y_pred"], g, prefix=f"h{h}_{model}_", artifact="forecast_preds",
+                                   horizon=int(h), model=model, protocol=FORECAST_PROTOCOL,
+                                   note="diagnostik tambahan (bukan praregistrasi, D-139): tanda ramalan regresi vs "
+                                        "tanda perubahan harga; uji resmi tetap MAE & DM")
+            _attach_boot(ms, d["y_true"], d["y_pred"], d["origin"], _origin_block(cfg, int(h)), cfg.seed)
+            res += ms
+        return res
+
+    def classifier() -> list[Metric]:
+        g = "klasifier arah (eksploratif, D-141)"
+        dp = _load(cfg, "direction_preds")
+        if dp is None:
+            return [na("classifier_available", g, "artefak `direction_preds` belum ada (eksploratif: `python -m kagami task4 "
+                       "--direction`)", artifact="direction_preds")]
+        note = ("EKSPLORATIF (D-141, bukan praregistrasi): klasifier HGB dilatih langsung untuk arah; skor = p_up − 0,5; "
+                "C1 tanpa kurs, C2 + kurs (fitur M3); uji resmi H5 tetap MAE & DM")
+        res = []
+        for (h, model), d in dp.groupby(["horizon", "model"], sort=True):
+            score = d["p_up"] - 0.5
+            ms = direction_metrics(d["y_true"], score, g, prefix=f"h{h}_{model}_", artifact="direction_preds",
+                                   horizon=int(h), model=model, protocol=FORECAST_PROTOCOL, note=note)
+            _attach_boot(ms, d["y_true"], score, d["origin"], _origin_block(cfg, int(h)), cfg.seed)
+            res += ms
+            res.append(ok(f"h{h}_{model}_selective", selective_accuracy(d["y_true"], d["p_up"], d["origin"],
+                                                                        SELECTIVE_COVERAGES), g,
+                          artifact="direction_preds", horizon=int(h), model=model,
+                          note="prediksi selektif: per origin hanya baris paling yakin |p − 0,5| (cakupan q); akurasi "
+                               "harus dibaca bersama cakupan & baseline pada baris terpilih"))
+        preds = _load(cfg, "forecast_preds")
+        key = [c for c in ("horizon", "origin", "province_id", "region", "commodity") if c in dp.columns]
+        wide = dp.assign(score=dp["p_up"] - 0.5).pivot_table(index=key, columns="model", values="score",
+                                                            aggfunc="first")
+        if preds is not None and set(key) <= set(preds.columns):
+            for mo in ("M1", "M3"):                       # pembanding regresi pada baris yang sama
+                if mo in set(preds["model"]):
+                    wide = wide.join(preds[preds["model"] == mo].set_index(key)["y_pred"].rename(mo), how="left")
+        y = dp.drop_duplicates(key).set_index(key)["y_true"].reindex(wide.index)
+        w = wide.assign(y_true=y).reset_index()
+        for h, d in w.groupby("horizon", sort=True):
+            for a, b, what in (("C2", "C1", "ablation fitur kurs pada klasifier"),
+                               ("C2", "M3", "klasifier vs regresi dengan fitur sama"),
+                               ("C1", "M1", "klasifier tanpa kurs vs ridge dasar")):
+                if a not in d or b not in d:
+                    continue
+                r = paired_accuracy_diff(d["y_true"], d[a], d[b], d["origin"], _origin_block(cfg, int(h)),
+                                         seed=cfg.seed + DIR_SEED_OFFSET)
+                name = f"h{h}_{a}_vs_{b}_accuracy_diff"
+                res.append(ok(name, r["diff"], g, ci_low=r["ci_low"], ci_high=r["ci_high"], p_boot=r["p"], acc_a=r["acc_a"],
+                              acc_b=r["acc_b"], n=r["n"], n_origins=r["n_origins"], comparison=what,
+                              note="selisih akurasi arah pada baris yang sama; interval bootstrap blok origin berpasangan")
+                           if r else na(name, g, "kurang dari 3 origin bersama"))
+        return res
+
+    def deep() -> list[Metric]:
+        g = "model deep & foundation (eksploratif, D-142)"
+        dd = _load(cfg, "deep_preds")
+        if dd is None:
+            return [na("deep_available", g, "artefak `deep_preds` belum ada (eksploratif: `python -m kagami task4 --deep`)",
+                       artifact="deep_preds")]
+        note = ("EKSPLORATIF (D-142, bukan praregistrasi): PatchTST/TSMixer dilatih ulang tiap 16 minggu, TimesFM 3.0 "
+                "zero-shot; origin & baris uji sama dengan M0–M3; uji resmi H5 tetap M2 vs M1")
+        preds = _load(cfg, "forecast_preds")
+        dp = _load(cfg, "direction_preds")
+        dd = dd[~dd["model"].astype(str).str.match(REPLICATE_PAT)]       # replikasi seed diringkas di seed_replication
+        key = [c for c in ("horizon", "origin", "province_id", "region", "commodity") if c in dd.columns]
+        step = int(cfg.params["forecast"]["origin_step_weeks"])
+        frames = [dd] + ([preds[preds["model"].isin(["M1", "M3"])]] if preds is not None else [])
+        if dp is not None:
+            frames.append(dp[dp["model"] == "C2"].assign(y_pred=dp["p_up"] - 0.5).drop(columns="p_up"))
+        allp = pd.concat(frames, ignore_index=True)
+        wide = allp.pivot_table(index=key, columns="model", values="y_pred", aggfunc="first")
+        y = dd.drop_duplicates(key).set_index(key)["y_true"]
+        w = wide.join(y, how="inner").reset_index()
+        res = []
+        for (h, model), d in dd.groupby(["horizon", "model"], sort=True):
+            ctx = dict(artifact="deep_preds", horizon=int(h), model=model, protocol=FORECAST_PROTOCOL, note=note)
+            res += regression_metrics(d["y_true"], d["y_pred"], g, prefix=f"h{h}_{model}_", **ctx)
+            ms = direction_metrics(d["y_true"], d["y_pred"], g, prefix=f"h{h}_{model}_", **ctx)
+            _attach_boot(ms, d["y_true"], d["y_pred"], d["origin"], _origin_block(cfg, int(h)), cfg.seed)
+            res += ms
+        for h, d in w.groupby("horizon", sort=True):
+            pairs = [(m, "M1") for m in DEEP_MODELS] + [("TSMX_fx", "TSMX"), ("TFM_fx", "TFM")]
+            for a, b in pairs:
+                if a not in d or b not in d or d[a].isna().all() or d[b].isna().all():
+                    continue
+                s = d.dropna(subset=[a, b, "y_true"])
+                ea, eb = (s["y_true"] - s[a]).abs(), (s["y_true"] - s[b]).abs()
+                pa = ea.groupby(s["origin"]).mean()
+                pb = eb.groupby(s["origin"]).mean()
+                stat, p = diebold_mariano(pb.to_numpy(), pa.to_numpy(), h=math.ceil(int(h) / step), loss="abs")
+                ratio = float(ea.mean() / eb.mean())
+                name = f"mae_ratio_vs_m1_h{h}_{a}" if b == "M1" else f"mae_ratio_h{h}_{a}_vs_{b}"
+                res.append(ok(name, ratio, g, dm_p=None if not np.isfinite(p) else float(p), n=int(len(s)),
+                              n_origins=int(s["origin"].nunique()), artifact="deep_preds",
+                              note="rasio MAE pada baris yang sama; DM HAC pada selisih MAE per origin (seperti forecast_eval)"))
+                if b == "M1":
+                    res.append(ok(f"dm_p_h{h}_{a}", float(p), g, artifact="deep_preds") if np.isfinite(p)
+                               else na(f"dm_p_h{h}_{a}", g, "DM tidak terdefinisi"))
+            for a, b, what in [(m, "M3", "model deep vs regresi gradient boosting terbaik") for m in DEEP_MODELS] + \
+                              [(m, "C2", "model deep vs klasifier arah (D-141)") for m in DEEP_MODELS] + \
+                              [("TSMX_fx", "TSMX", "ablation kurs pada TSMixer"), ("TFM_fx", "TFM", "kovariat kurs pada TimesFM")]:
+                if a not in d or b not in d or d[a].isna().all() or d[b].isna().all():
+                    continue
+                r = paired_accuracy_diff(d["y_true"], d[a], d[b], d["origin"], _origin_block(cfg, int(h)),
+                                         seed=cfg.seed + DIR_SEED_OFFSET)
+                name = f"h{h}_{a}_vs_{b}_accuracy_diff"
+                res.append(ok(name, r["diff"], g, ci_low=r["ci_low"], ci_high=r["ci_high"], p_boot=r["p"], acc_a=r["acc_a"],
+                              acc_b=r["acc_b"], n=r["n"], n_origins=r["n_origins"], comparison=what,
+                              note="selisih akurasi arah pada baris yang sama; interval bootstrap blok origin berpasangan")
+                           if r else na(name, g, "kurang dari 3 origin bersama"))
+        return res
+
+    def seeds() -> list[Metric]:
+        g = "replikasi seed model deep (D-144)"
+        dd = _load(cfg, "deep_preds")
+        if dd is None or not dd["model"].astype(str).str.match(REPLICATE_PAT).any():
+            return [na("seed_replication", g, "belum ada replikasi seed (`kagami task4 --deep PTST_r2 TSMX_r2 ...`)",
+                       artifact="deep_preds")]
+        preds = _load(cfg, "forecast_preds")
+        key = [c for c in ("horizon", "origin", "province_id", "region", "commodity") if c in dd.columns]
+        ext = dd["model"].astype(str).str.extract(REPLICATE_PAT)
+        d = dd.assign(base=ext["base"].fillna(dd["model"].astype(str)), rep=ext["rep"].fillna("1").astype(int))
+        d = d[d["base"].isin([b for b, x in d.groupby("base") if x["rep"].nunique() >= 2])]
+        res = []
+        for h, dh in d.groupby("horizon", sort=True):
+            m1 = None
+            if preds is not None:
+                m1 = preds[(preds["model"] == "M1") & (preds["horizon"] == h)].set_index(key)["y_pred"]
+            rows = []
+            for (b, r), x in dh.groupby(["base", "rep"], sort=True):
+                ms = {mm.name.rsplit("dir_", 1)[-1]: mm.value for mm in direction_metrics(x["y_true"], x["y_pred"], g)
+                      if mm.status == "ok"}
+                mae = float((x["y_true"] - x["y_pred"]).abs().mean())
+                ratio = None
+                if m1 is not None:
+                    ref = m1.reindex(x.set_index(key).index).to_numpy()
+                    ratio = mae / float(np.nanmean(np.abs(x["y_true"].to_numpy() - ref)))
+                rows.append({"model": b, "seed": int(r), "mae": mae, "mae_ratio_vs_m1": ratio,
+                             **{k: ms.get(k) for k in ("accuracy", "f1_macro", "f1_weighted", "mcc", "roc_auc")}})
+            if not rows:
+                continue
+            tab = pd.DataFrame(rows)
+            summ = []
+            for b, x in tab.groupby("model"):
+                s = {"model": b, "n_seeds": int(len(x))}
+                for k in ("mae_ratio_vs_m1", "accuracy", "f1_macro", "f1_weighted", "mcc"):
+                    v = pd.to_numeric(x[k], errors="coerce")
+                    s.update({f"{k}_mean": float(v.mean()), f"{k}_sd": float(v.std(ddof=1)), f"{k}_min": float(v.min()),
+                              f"{k}_max": float(v.max())})
+                summ.append(s)
+            res.append(ok(f"h{h}_seed_replication", summ, g, artifact="deep_preds", horizon=int(h), per_seed=rows,
+                          note="seed berbeda pada origin, jendela, dan jadwal refit yang sama; sd antar seed = ketidakpastian "
+                               "pelatihan, bukan ketidakpastian sampel"))
+        return res
+
+    def block_sensitivity() -> list[Metric]:
+        g = "kepekaan panjang blok bootstrap (D-144)"
+        preds = _load(cfg, "forecast_preds")
+        if preds is None:
+            return [_missing("block_sensitivity", g, "forecast_preds")]
+        frames = [preds[preds["model"].isin(["M1", "M2", "M3"])]]
+        dp, dd = _load(cfg, "direction_preds"), _load(cfg, "deep_preds")
+        if dp is not None:
+            frames.append(dp.assign(y_pred=dp["p_up"] - 0.5).drop(columns="p_up"))
+        if dd is not None:
+            frames.append(dd[~dd["model"].astype(str).str.match(REPLICATE_PAT)])
+        allp = pd.concat(frames, ignore_index=True)
+        key = [c for c in ("horizon", "origin", "province_id", "region", "commodity") if c in allp.columns]
+        res = []
+        for h, d in allp.groupby("horizon", sort=True):
+            w = d.pivot_table(index=key, columns="model", values="y_pred", aggfunc="first").join(
+                d.drop_duplicates(key).set_index(key)["y_true"]).reset_index()
+            rows = []
+            pairs = [("TFM", "M1"), ("TFM", "M3"), ("C2", "M3"), ("C2", "C1"), ("C1", "M1"), ("TSMX_fx", "TSMX"),
+                     ("TFM_fx", "TFM")]
+            for blk in BLOCK_SENSITIVITY:
+                for mo in [c for c in ("M1", "M2", "M3", "C1", "C2", *DEEP_MODELS) if c in w]:
+                    b = direction_bootstrap(w["y_true"], w[mo], w["origin"], blk, reps=499,
+                                            seed=cfg.seed + DIR_SEED_OFFSET, ranking=False)
+                    if b and b.get("accuracy_gap"):
+                        rows.append({"block": str(blk), "comparison": f"{mo} vs baseline mayoritas",
+                                     "ci_low": b["accuracy_gap"][0], "ci_high": b["accuracy_gap"][1],
+                                     "p": b["accuracy_gap_p"]})
+                for a, bb in pairs:
+                    if a in w and bb in w:
+                        r = paired_accuracy_diff(w["y_true"], w[a], w[bb], w["origin"], blk, reps=499,
+                                                 seed=cfg.seed + DIR_SEED_OFFSET)
+                        if r:
+                            rows.append({"block": str(blk), "comparison": f"akurasi {a} − {bb}", "ci_low": r["ci_low"],
+                                         "ci_high": r["ci_high"], "p": r["p"]})
+            for lag in DM_LAG_SENSITIVITY:                                     # DM: kepekaan lag HAC
+                for a, bb in (("TFM", "M1"), ("M2", "M1"), ("TFM_fx", "TFM"), ("TSMX_fx", "TSMX")):
+                    if a in w and bb in w:
+                        s = w.dropna(subset=[a, bb, "y_true"])
+                        pa = (s["y_true"] - s[a]).abs().groupby(s["origin"]).mean()
+                        pb = (s["y_true"] - s[bb]).abs().groupby(s["origin"]).mean()
+                        _, pv = diebold_mariano(pb.to_numpy(), pa.to_numpy(), h=lag + 1, loss="abs")
+                        rows.append({"block": f"DM lag {lag}", "comparison": f"MAE {a} / {bb}", "ci_low": None,
+                                     "ci_high": None, "p": float(pv) if np.isfinite(pv) else None,
+                                     "ratio": float((s["y_true"] - s[a]).abs().mean() / (s["y_true"] - s[bb]).abs().mean())})
+            tab = pd.DataFrame(rows)
+            stable = []
+            for _, x in tab[tab["ci_low"].notna()].groupby("comparison"):
+                dec = ((x["ci_low"] > 0).astype(int) - (x["ci_high"] < 0).astype(int)).tolist()
+                stable.append(len(set(dec)) == 1)
+            res.append(ok(f"h{h}_block_sensitivity", tab.to_dict("records"), g, horizon=int(h),
+                          blocks=list(BLOCK_SENSITIVITY), dm_lags=list(DM_LAG_SENSITIVITY),
+                          default_block=_origin_block(cfg, int(h)),
+                          note="interval 95% selisih per panjang blok bootstrap origin (+ p DM per lag HAC); keputusan stabil "
+                               "= sisi interval terhadap nol sama di semua panjang blok"))
+            res.append(ok(f"h{h}_block_decisions_stable_share", float(np.mean(stable)) if stable else None, g,
+                          horizon=int(h), n=len(stable),
+                          note="porsi perbandingan yang keputusannya (di atas / memuat / di bawah nol) sama untuk blok "
+                               + ", ".join(map(str, BLOCK_SENSITIVITY)) + " origin"))
+        return res
+
+    def segments() -> list[Metric]:
+        g = "arah & galat per segmen"
+        preds = _load(cfg, "forecast_preds")
+        if preds is None:
+            return [_missing("dir_by_segment", g, "forecast_preds")]
+        com = cfg.commodities
+        rigid = _rigid_commodities(cfg)
+        dp = _load(cfg, "direction_preds")
+        if dp is not None and set(dp.columns) >= {"y_true", "p_up"}:      # klasifier eksploratif (D-141): skor p − 0,5
+            preds = pd.concat([preds, dp.assign(y_pred=dp["p_up"] - 0.5).drop(columns="p_up")], ignore_index=True)
+        deep = _load(cfg, "deep_preds")                                    # model deep & foundation (D-142)
+        if deep is not None:
+            preds = pd.concat([preds, deep[~deep["model"].astype(str).str.match(REPLICATE_PAT)]], ignore_index=True)
+        models = [m for m in ("M1", "M2", "M3", "C1", "C2", *DEEP_MODELS) if m in set(preds["model"])]
+        res = []
+        for h, d in preds.groupby("horizon", sort=True):
+            d = d.reset_index(drop=True)
+            c = d["commodity"]
+            segs: dict[str, dict] = {"semua": {"ALL": np.ones(len(d), bool)},
+                                     "komoditas": {k: (c == k).to_numpy() for k in sorted(c.unique())},
+                                     "jalur eksposur": {p: c.isin([k for k, v in com.items() if v["exposure_path"] == p])
+                                                        .to_numpy() for p in sorted({v["exposure_path"] for v in com.values()})},
+                                     "grup H5 (fokus)": {p: c.isin([k for k, v in com.items() if v["role"] == "focus"
+                                                                    and v["exposure_path"] == p]).to_numpy()
+                                                         for p in ("direct_import", "imported_input")}}
+            if rigid is not None:
+                segs["kekakuan harga"] = {"kaku (carry-forward ≥ 50%)": c.isin(rigid).to_numpy(),
+                                          "lentur": (~c.isin(rigid)).to_numpy()}
+            yr = pd.to_datetime(d["origin"]).dt.year                     # D-144: stabilitas antar tahun (cek kontaminasi)
+            segs["tahun origin"] = {str(y): (yr == y).to_numpy() for y in sorted(yr.unique())}
+            rows = direction_segment_table(d, segs, models, _origin_block(cfg, int(h)), seed=cfg.seed + DIR_SEED_OFFSET,
+                                           no_mae=("C1", "C2"))
+            res.append(ok(f"h{h}_dir_by_segment", rows, g, artifact="forecast_preds", horizon=int(h),
+                          rigid_commodities=sorted(rigid) if rigid is not None else None,
+                          note="selisih accuracy − baseline kelas mayoritas segmen dengan interval bootstrap blok origin; "
+                               "kaku = porsi sel carry_forward ≥ 50% di panel_weekly (U22); diagnostik, bukan uji resmi"))
+        return res
+
     def ablation() -> list[Metric]:
         g = "ablation fitur kurs"
         ab = _load(cfg, "ablation")
         if ab is None:
             return [_missing("share_fx_improves", g, "ablation")]
         d = ab[(ab["subset"] == "all") & (ab["level"] == "commodity")] if {"subset", "level"} <= set(ab) else ab
-        return [ok("share_fx_improves", share(d["delta_mae"] > 0), g, artifact="ablation", n=int(len(d)),
-                   subset="semua origin, per komoditas",
-                   note="delta_mae = MAE tanpa kurs − MAE penuh; > 0 berarti fitur kurs menurunkan MAE")]
+        res = [ok("share_fx_improves", share(d["delta_mae"] > 0), g, artifact="ablation", n=int(len(d)),
+                  n_improves=int((d["delta_mae"] > 0).sum()), subset="semua origin, per komoditas",
+                  note="delta_mae = MAE tanpa kurs − MAE penuh; > 0 berarti fitur kurs menurunkan MAE")]
+        preds = _load(cfg, "forecast_preds")
+        if preds is not None and {"M1", "M2_nofx"} <= set(preds["model"]):
+            key = [c for c in ("horizon", "origin", "province_id", "region", "commodity") if c in preds.columns]
+            a = preds[preds["model"] == "M1"].set_index(key)["y_pred"]
+            b = preds[preds["model"] == "M2_nofx"].set_index(key)["y_pred"].reindex(a.index)
+            res.append(ok("ablation_model_equals_m1", bool(np.allclose(a.to_numpy(), b.to_numpy(), equal_nan=True)), g,
+                          artifact="forecast_preds",
+                          note="True = M2_nofx (M2 tanpa kelompok fitur kurs) identik dengan M1, jadi ablation = "
+                               "perbandingan M2 vs M1 dan tidak menambah informasi"))
+        return res
 
     for grp, fn in (("evaluasi rolling-origin (artefak)", official), ("galat out-of-sample (dihitung ulang)", recompute),
+                    ("arah perubahan (diagnostik klasifikasi)", direction),
+                    ("klasifier arah (eksploratif, D-141)", classifier),
+                    ("model deep & foundation (eksploratif, D-142)", deep), ("arah & galat per segmen", segments),
+                    ("replikasi seed model deep (D-144)", seeds),
+                    ("kepekaan panjang blok bootstrap (D-144)", block_sensitivity),
                     ("ablation fitur kurs", ablation)):
         out += _section(grp, fn)
     return out
@@ -489,7 +848,25 @@ def evaluate_robustness(cfg: Config) -> list[Metric]:
                           checks=sorted(d["check_id"].unique())))
             if "baseline_in_ci" in d and d["baseline_in_ci"].notna().any():
                 res.append(ok(f"share_baseline_in_ci_tier_{tier}", share(_bool(d["baseline_in_ci"])), g,
-                              artifact="robustness", n=int(d["baseline_in_ci"].notna().sum())))
+                              artifact="robustness", n=int(d["baseline_in_ci"].notna().sum()),
+                              note="cakupan tinggi bisa karena interval lebar; baca bersama kesamaan tanda & keputusan"))
+                c = d.dropna(subset=["estimate", "baseline_estimate", "ci_low", "ci_high"])
+                if len(c):
+                    det = (c["ci_low"] > 0) | (c["ci_high"] < 0)
+                    ctx = {"artifact": "robustness", "n": int(len(c))}
+                    res += [ok(f"median_ci_width_tier_{tier}", float((c["ci_high"] - c["ci_low"]).median()), g, **ctx),
+                            ok(f"sign_agreement_tier_{tier}", share((c["estimate"] * c["baseline_estimate"]) > 0), g,
+                               **ctx, note="porsi estimasi cek dengan tanda sama dengan estimasi utama"),
+                            ok(f"share_detected_tier_{tier}", share(det), g, **ctx,
+                               note="porsi estimasi cek yang intervalnya tidak memuat nol")]
+                    if "baseline_se" in c and c["baseline_se"].notna().any():
+                        z = ((c["estimate"] - c["baseline_estimate"]).abs() / c["baseline_se"]).replace(
+                            [np.inf, -np.inf], np.nan).dropna()
+                        bdet = (c["baseline_estimate"].abs() > 1.96 * c["baseline_se"]).where(c["baseline_se"].notna())
+                        res += [ok(f"median_abs_diff_over_se_tier_{tier}", float(z.median()), g, **ctx,
+                                   note="|estimasi cek − estimasi utama| / SE utama; < 1 = perubahan di bawah satu SE"),
+                                ok(f"decision_agreement_tier_{tier}", share((det == bdet).where(bdet.notna())), g, **ctx,
+                                   note="porsi cek dengan keputusan terdeteksi/tidak (±1,96·SE utama) sama dengan utama")]
         v4 = rb[rb["check_id"].astype(str).str.startswith("V4")]
         if len(v4) and "sign_agree" in v4:
             res.append(ok("v4_mean_sign_agree", float(v4["sign_agree"].mean()), g, artifact="robustness",

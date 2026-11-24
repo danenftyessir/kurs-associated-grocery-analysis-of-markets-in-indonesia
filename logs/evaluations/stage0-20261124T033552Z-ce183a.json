@@ -1,0 +1,335 @@
+{
+ "run_id": "stage0-20261124T033552Z-ce183a",
+ "task_id": "stage0",
+ "evaluated_at": "2026-11-24T03:35:54.928805+00:00",
+ "metrics": [
+  {
+   "name": "panel_cells",
+   "group": "kualitas data panel",
+   "value": 157760,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly"
+   }
+  },
+  {
+   "name": "n_provinces",
+   "group": "kualitas data panel",
+   "value": 34,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly"
+   }
+  },
+  {
+   "name": "n_weeks",
+   "group": "kualitas data panel",
+   "value": 464,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly"
+   }
+  },
+  {
+   "name": "status_share_observed",
+   "group": "kualitas data panel",
+   "value": 0.49190542596348885,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly"
+   }
+  },
+  {
+   "name": "status_share_carry_forward",
+   "group": "kualitas data panel",
+   "value": 0.4922857505070994,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly"
+   }
+  },
+  {
+   "name": "status_share_short",
+   "group": "kualitas data panel",
+   "value": 0.005476673427991886,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly"
+   }
+  },
+  {
+   "name": "status_share_missing",
+   "group": "kualitas data panel",
+   "value": 0.010332150101419878,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly"
+   }
+  },
+  {
+   "name": "log_price_missing_share",
+   "group": "kualitas data panel",
+   "value": 0.010332150101419878,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly",
+    "note": "sel tanpa harga (status missing/short) tidak diisi"
+   }
+  },
+  {
+   "name": "carry_forward_by_commodity",
+   "group": "kualitas data panel",
+   "value": [
+    {
+     "commodity": "bawang_merah",
+     "carry_forward_share": 0.2229,
+     "observed_share": 0.7671,
+     "max_carry_forward_streak_weeks": 30,
+     "median_series_max_streak_weeks": 5.0
+    },
+    {
+     "commodity": "bawang_putih",
+     "carry_forward_share": 0.3858,
+     "observed_share": 0.6051,
+     "max_carry_forward_streak_weeks": 84,
+     "median_series_max_streak_weeks": 13.0
+    },
+    {
+     "commodity": "beras",
+     "carry_forward_share": 0.9176,
+     "observed_share": 0.0793,
+     "max_carry_forward_streak_weeks": 236,
+     "median_series_max_streak_weeks": 96.5
+    },
+    {
+     "commodity": "cabai_merah",
+     "carry_forward_share": 0.0787,
+     "observed_share": 0.9107,
+     "max_carry_forward_streak_weeks": 90,
+     "median_series_max_streak_weeks": 2.0
+    },
+    {
+     "commodity": "cabai_rawit",
+     "carry_forward_share": 0.0676,
+     "observed_share": 0.84,
+     "max_carry_forward_streak_weeks": 87,
+     "median_series_max_streak_weeks": 2.0
+    },
+    {
+     "commodity": "daging_ayam",
+     "carry_forward_share": 0.2072,
+     "observed_share": 0.7827,
+     "max_carry_forward_streak_weeks": 193,
+     "median_series_max_streak_weeks": 4.0
+    },
+    {
+     "commodity": "daging_sapi",
+     "carry_forward_share": 0.8955,
+     "observed_share": 0.0978,
+     "max_carry_forward_streak_weeks": 237,
+     "median_series_max_streak_weeks": 70.0
+    },
+    {
+     "commodity": "gula_pasir",
+     "carry_forward_share": 0.8449,
+     "observed_share": 0.1512,
+     "max_carry_forward_streak_weeks": 183,
+     "median_series_max_streak_weeks": 54.0
+    },
+    {
+     "commodity": "minyak_goreng",
+     "carry_forward_share": 0.8723,
+     "observed_share": 0.1238,
+     "max_carry_forward_streak_weeks": 217,
+     "median_series_max_streak_weeks": 71.0
+    },
+    {
+     "commodity": "telur_ayam",
+     "carry_forward_share": 0.4305,
+     "observed_share": 0.5614,
+     "max_carry_forward_streak_weeks": 78,
+     "median_series_max_streak_weeks": 10.5
+    }
+   ],
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly",
+    "note": "kekakuan harga (U22): carry_forward = harga sama dengan minggu sebelumnya; bukan data jelek, tetapi mengurangi variasi untuk mendeteksi respons kurs"
+   }
+  },
+  {
+   "name": "n_rigid_commodities",
+   "group": "kualitas data panel",
+   "value": 4,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "panel_weekly",
+    "threshold": 0.5,
+    "commodities": [
+     "beras",
+     "daging_sapi",
+     "gula_pasir",
+     "minyak_goreng"
+    ]
+   }
+  },
+  {
+   "name": "eligible_series",
+   "group": "kelayakan seri",
+   "value": 337,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "eligibility",
+    "n_series": 340
+   }
+  },
+  {
+   "name": "eligible_share",
+   "group": "kelayakan seri",
+   "value": 0.9911764705882353,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "eligibility"
+   }
+  },
+  {
+   "name": "n_episodes",
+   "group": "penggerak & episode",
+   "value": 13,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "episodes"
+   }
+  },
+  {
+   "name": "max_cum_dlog_e",
+   "group": "penggerak & episode",
+   "value": 0.1849262256392698,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "episodes"
+   }
+  },
+  {
+   "name": "sd_de",
+   "group": "penggerak & episode",
+   "value": 0.008244739572336587,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "drivers_weekly",
+    "period": "2018-01-01..2026-11-21",
+    "n_weeks": 464
+   }
+  },
+  {
+   "name": "n_depreciation_weeks",
+   "group": "penggerak & episode",
+   "value": 259,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "drivers_weekly",
+    "period": "2018-01-01..2026-11-21",
+    "n_weeks": 464
+   }
+  },
+  {
+   "name": "n_appreciation_weeks",
+   "group": "penggerak & episode",
+   "value": 200,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "drivers_weekly",
+    "period": "2018-01-01..2026-11-21",
+    "n_weeks": 464
+   }
+  },
+  {
+   "name": "world_price_missing_share",
+   "group": "penggerak & episode",
+   "value": 0.005813953488372093,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "world_prices_weekly"
+   }
+  },
+  {
+   "name": "mde_pt8_bawang_putih",
+   "group": "daya statistik (MDE)",
+   "value": 2.523601263985041,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "mde",
+    "threshold": 0.5
+   }
+  },
+  {
+   "name": "mde_pt8_gula_pasir",
+   "group": "daya statistik (MDE)",
+   "value": 0.8994472039977834,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "mde",
+    "threshold": 0.5
+   }
+  },
+  {
+   "name": "mde_pt8_minyak_goreng",
+   "group": "daya statistik (MDE)",
+   "value": 0.465227869185876,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "mde",
+    "threshold": 0.5
+   }
+  },
+  {
+   "name": "n_mde_pt8_above_threshold",
+   "group": "daya statistik (MDE)",
+   "value": 2,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "mde",
+    "threshold": 0.5,
+    "commodities": [
+     "bawang_putih",
+     "gula_pasir",
+     "minyak_goreng"
+    ]
+   }
+  },
+  {
+   "name": "price_spike_days",
+   "group": "QA",
+   "value": 59,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "pihps_daily",
+    "note": "lonjakan satu hari |Δlog| > 0,5 yang berbalik; ditandai, tidak dihapus"
+   }
+  }
+ ],
+ "schema_version": 2
+}
