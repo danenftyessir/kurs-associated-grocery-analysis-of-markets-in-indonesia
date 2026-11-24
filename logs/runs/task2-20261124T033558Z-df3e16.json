@@ -1,0 +1,211 @@
+{
+ "run_id": "task2-20261124T033558Z-df3e16",
+ "task_id": "task2",
+ "run_type": "evaluation",
+ "status": "success",
+ "started_at": "2026-11-24T03:35:58.212262+00:00",
+ "finished_at": "2026-11-24T03:35:58.364523+00:00",
+ "duration_s": null,
+ "evaluation_s": 0.114,
+ "pipeline_id": null,
+ "parent_run_ids": [
+  "task1-20261124T033554Z-6beae2",
+  "stage0-20261124T033552Z-ce183a"
+ ],
+ "dataset_id": "raw:c96ce7572b4c",
+ "platform": "local",
+ "python": "3.13.7",
+ "git_commit": "6c43a7a19ecf59324420fffc2176e5f89b16d46c",
+ "git_branch": "dev",
+ "config_sha256": {
+  "params.yaml": "43ed1daa3ac854461f6db9ca420b4668601ddf2819e237d6bab1cb4b4f1fb078",
+  "commodities.yaml": "537bb86f32a7d6ac74742c79c36f6b61f6e3fbc320373f83b84dfb19dcba0247"
+ },
+ "code_sha256": "24d15fb308a098632bd194037f8723e71b90ac0e67423eca9d016e651840d78d",
+ "git_dirty": true,
+ "environment": {
+  "python": "3.13.7",
+  "numpy": "2.3.4",
+  "pandas": "2.3.3",
+  "scipy": "1.16.3",
+  "scikit-learn": "1.8.0"
+ },
+ "kind": "clustering",
+ "algorithms": [
+  "Q/τ²/I² vs plasebo + BH",
+  "Ward (Euclidean)",
+  "K-Means (pembanding)",
+  "stabilitas bootstrap Jaccard",
+  "uji struktur tertanam"
+ ],
+ "params": {
+  "clustering": {
+   "k_range": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "feature_horizons": [
+    4,
+    8,
+    12
+   ],
+   "silhouette_placebo_pct": 95,
+   "kmeans_restarts": 50,
+   "jaccard_weak": 0.6,
+   "planted_deltas": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5
+   ],
+   "planted_reps": 200
+  },
+  "seed": 20261121
+ },
+ "call_args": {},
+ "inputs": [
+  {
+   "name": "profiles",
+   "path": "results/task1/profiles.parquet",
+   "location": "out_dir",
+   "sha256": "4cb0f1219e9e3ef9be31d0177e5bc0b71f3b3ee4e55938a7b0893eee9828e55f",
+   "bytes": 650669,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task1-20261124T033554Z-6beae2"
+  },
+  {
+   "name": "response_features",
+   "path": "results/task1/response_features.parquet",
+   "location": "out_dir",
+   "sha256": "03e750d7073fa5043656343e056b7814c853b77b52ad31a8f653ca753924d124",
+   "bytes": 25295,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task1-20261124T033554Z-6beae2"
+  },
+  {
+   "name": "placebo_stats",
+   "path": "results/task1/placebo_stats.parquet",
+   "location": "out_dir",
+   "sha256": "beec0c831c7c1d713ca6a3a2534a05c50ac54cff1386050f65c344785969c86d",
+   "bytes": 14453728,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task1-20261124T033554Z-6beae2"
+  },
+  {
+   "name": "boot_replicates",
+   "path": "results/task1/boot_replicates.parquet",
+   "location": "out_dir",
+   "sha256": "0cd5147c61f55be611e85266d0bc62ff7da5b9c3b83c1198cbdb0d33fd4b401f",
+   "bytes": 14551749,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task1-20261124T033554Z-6beae2"
+  },
+  {
+   "name": "province_features",
+   "path": "data/reference/province_features.csv",
+   "location": "out_dir",
+   "sha256": "0f5d99713be2b68d7655b9555267174988572b36cfd1ae2df51af34a48f6cde3",
+   "bytes": 3276,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  }
+ ],
+ "outputs": [
+  {
+   "name": "heterogeneity",
+   "path": "results/task2/heterogeneity.csv",
+   "location": "out_dir",
+   "sha256": "21be376da2d94055afc33cbb968c33945eb3c4a59a13991e640f361c2ce83d7a",
+   "bytes": 2612,
+   "rows": 41,
+   "columns": 9,
+   "missing_cells": 0,
+   "memory_mb": 0.006,
+   "producer_run_id": null
+  },
+  {
+   "name": "cluster_selection",
+   "path": "results/task2/cluster_selection.csv",
+   "location": "out_dir",
+   "sha256": "ba4b72a44bdb27589692d2f3f3640e1dcd47da61c0d5a8ff7bbd0dffa58c7b35",
+   "bytes": 305,
+   "rows": 6,
+   "columns": 4,
+   "missing_cells": 1,
+   "memory_mb": 0.0,
+   "producer_run_id": null
+  },
+  {
+   "name": "clusters",
+   "path": "results/task2/clusters.parquet",
+   "location": "out_dir",
+   "sha256": "34771e0059a8f64dc185c82d6c4cbbe7e851466bbbc4a786c56fc65321a5c5be",
+   "bytes": 4564,
+   "rows": 68,
+   "columns": 7,
+   "missing_cells": 34,
+   "memory_mb": 0.009,
+   "producer_run_id": null
+  },
+  {
+   "name": "coassign",
+   "path": "results/task2/coassign.parquet",
+   "location": "out_dir",
+   "sha256": "4f24fa8f82d9062212711b381e92df185427b0325902e23ffc9b7d20e58ed1fa",
+   "bytes": 2838,
+   "rows": 1156,
+   "columns": 3,
+   "missing_cells": 0,
+   "memory_mb": 0.027,
+   "producer_run_id": null
+  },
+  {
+   "name": "partition_compare",
+   "path": "results/task2/partition_compare.csv",
+   "location": "out_dir",
+   "sha256": "ac24eccd34fcdadfd35080509bc233918f16fec2c2e0baa76e3a0c4060a22e37",
+   "bytes": 95,
+   "rows": 4,
+   "columns": 3,
+   "missing_cells": 4,
+   "memory_mb": 0.0,
+   "producer_run_id": null
+  },
+  {
+   "name": "planted_recovery",
+   "path": "results/task2/planted_recovery.csv",
+   "location": "out_dir",
+   "sha256": "60d6463b79cda43c2268a8c50d8026e3e2806295b37b4c3f5937545795c6072f",
+   "bytes": 571,
+   "rows": 10,
+   "columns": 7,
+   "missing_cells": 0,
+   "memory_mb": 0.001,
+   "producer_run_id": null
+  }
+ ],
+ "peak_rss_mb": 535.6,
+ "error_type": null,
+ "note": "evaluasi artefak yang ada; waktu eksekusi tidak teramati (dijalankan sebelum/di luar pelacakan)",
+ "schema_version": 2
+}

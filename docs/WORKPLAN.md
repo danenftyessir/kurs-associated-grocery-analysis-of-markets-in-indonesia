@@ -403,6 +403,8 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 
 ### WP-33 — Temuan & makalah 🔶
 - 2026-11-23 (D-130): `results/findings.md` ditulis dari artefak (RQ1–RQ5, E2, robustness, keterbatasan, daftar artefak sumber). Makalah PDF ditunda.
+- 2026-11-24: `findings.md` + Ringkasan butir 6, bagian "Eksplorasi Task 4" (arah perubahan D-139/D-140, klasifier D-141, model deep &
+  TimesFM 3.0 D-142) dan keterbatasan model eksploratif (risiko kontaminasi pralatih TimesFM, lisensi). Versi di Drive tim basi.
 - Output: `results/findings.md` (dibaca app hal. 6) + makalah PDF sesuai struktur juknis: judul, abstrak, pendahuluan (latar belakang, tujuan & manfaat, batasan), kajian pustaka, solusi usulan (deskripsi, dataset, metode, perbedaan dengan solusi sebelumnya, matriks evaluasi), hasil eksperimen & pengujian, analisis, kesimpulan & saran, daftar pustaka.
 - Selesai bila: [ ] setiap angka di makalah berasal dari artefak (sebutkan nama artefak di komentar sumber); [ ] rujukan "belum diverifikasi" (U12) dicek atau dihapus.
 
@@ -432,5 +434,30 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
   robustness 486/486 baris Tier 1 + V identik (versi resmi juga memuat Tier 2). Task 1 & 4 (Kaggle/Colab) lewat `evaluate all`.
   Cek integritas: silhouette dihitung ulang = `cluster_selection` (selisih 0), MAE dari `forecast_preds` = `forecast_eval`
   (selisih 8e-17), konsistensi p–interval `national_calibrated` 48/48, meta-regresi 99/99; H2 26/30 (diharapkan, D-127).
+- Run end-to-end penuh 2026-11-24 (lokal, `python -m kagami all` + `robustness --tier2`, folder kode bersih dari `kagami_code.zip`,
+  out_dir sementara → tidak bisa melanjutkan dari bootstrap/prediksi resmi): run 1 `task1` gagal setelah 5.312 dtk (bootstrap 499 +
+  plasebo 499 selesai) di `print` τ² → D-138; run 2 lanjut dari checkpoint: stage0 17,6 dtk, task1 19,4 dtk, task2 93,8 dtk, task3
+  524 dtk, task4 431 dtk (M0–M3, 2 h × 76/75 origin), robustness 10,1 dtk (+ Tier 2 53,4 dtk); semua sukses, 0 metrik gagal.
+  Reproduksi 35 artefak: 17 identik sha256, 16 sama isi dengan selisih numerik ≤ 3,5e-11 (Task 1 resmi dari Kaggle), checksums
+  beda hanya `recorded_at`, findings = laporan manual. Angka kunci sama: MDE 2,52/0,90/0,465, plasebo |t| > 1,96 8,1%, boot_ratio
+  0,57/0,35/0,35, H0-Het 2, k = 1, Kendall −0,045 (p 0,93), M2/M1 1,014/1,017 (DM p 0,001/0,006), H5 tidak ditolak. App 7/7
+  halaman pada hasil baru; halaman 7 crash saat log lama (detik) bercampur log baru (mikrodetik) → diperbaiki (D-138). Log run ini
+  tidak dimasukkan ke `logs/` project: input hash-nya file e2e, jadi artefak resmi akan tampak "basi".
+- Diagnostik arah Task 4 (D-139, 2026-11-24): `direction_metrics` + confusion matrix app hal. 7; artefak resmi: akurasi arah 0,543 / 0,557 / 0,573 (M1 / M2 / M3, h 4) dan 0,560 / 0,560 / 0,602 (h 8) vs baseline kelas mayoritas 0,527 / 0,545; F1 makro 0,538 / 0,550 / 0,566 dan 0,551 / 0,549 / 0,594; MCC 0,08–0,19; ROC-AUC 0,567–0,627.
+  Log evaluasi-saja baru `task4` ditulis ke `logs/`.
+- Audit & perbaikan halaman 7 (D-140, 2026-11-24): penilaian dua lapis, interval bootstrap blok origin metrik arah, tabel per
+  segmen, sinkron artefak & status tahap, code hash/dirty, wiring OPTIONAL task2 & robustness + tes; `evaluate all` ulang (7 log
+  evaluasi-saja baru). Temuan utama di D-140; laporan audit `docs/audit/20261124_audit_evaluasi_eksekusi.md`.
+- Kelengkapan & kestabilan evaluasi (D-144, 2026-11-24): F1 makro h 8 (pada baris berubah, cakupan 0,907): TimesFM 0,623, C2 0,614, C1 0,605, TSMixer 0,604, M3 0,594, M1 0,551; F1 berbobot hampir sama; akurasi bila minggu tanpa perubahan dihitung salah: TimesFM 0,566, M1 0,508. Replikasi 3 seed (h 8): TSMixer MAE/M1 0,966 ± 0,007 (0,959..0,972), akurasi 0,610 ± 0,005; PatchTST 0,972 ± 0,011, 0,583 ± 0,016; TSMixer + kurs 0,995 ± 0,009 (lebih buruk dari TSMixer di ketiga seed). Kepekaan blok bootstrap 2/3/4/6 origin: 17/17 keputusan sama di kedua horizon; DM TimesFM vs M1 p < 0,001 dan M2 vs M1 p 0,006–0,018 untuk lag HAC 1–5. Per tahun origin, keunggulan MAE TimesFM bertahan pada 2026 (0,938) walau lebih kecil dari 2023–2024 (0,876 / 0,834). Robustness Tier 2 dijalankan tercatat: identik sha256 dengan file resmi (679 baris), sekarang sinkron. Audit Lampiran C.8.
+- Koreksi multiplisitas (D-143, 2026-11-24): BH per keluarga di penilaian halaman 7 & tabel segmen; `findings.md` dan audit
+  (Lampiran C.7) disesuaikan. Lolos BH: MAE TimesFM (± kurs) vs M1 h 4 & 8 (q ≤ 0,004); akurasi arah TimesFM vs M3 h 4 (q 0,015), C2 vs M3 h 4 (q 0,015), C1 vs M1 h 4 & 8 (q ≤ 0,024); akurasi arah vs baseline: semua model baru dan M3 (q ≤ 0,034), M1/M2 tidak. Gugur: TSMX_fx vs TSMX MAE h 4 (p 0,020 → q 0,057); segmen kaku TimesFM (q 0,053) & M2 (q 0,080); segmen lentur M1 (q 0,064). Beda berpasangan 5/30 bertahan; metrik arah vs acuan 123/132; rasio MAE eksploratif 4/14; tabel segmen h 8: 47 lebih baik, 15 lebih buruk dari 190.
+- Model deep & foundation EKSPLORATIF (D-142, 2026-11-24): `models.neural` (PatchTST, TSMixer ± kurs, TimesFM 3.0 ± kurs),
+  `kagami task4 --deep` → `deep_preds` (run eksekusi tercatat 7.632 dtk, CPU). TimesFM 3.0 zero-shot (TFM) MAE / M1 0,935 (h 4, DM p 0,0001) dan 0,895 (h 8, DM p < 0,001), R² vs ramalan nol 0,19 / 0,25 (M1 0,09 / 0,07), akurasi arah 0,616 / 0,623 (selisih vs baseline 0,049..0,116 / 0,026..0,122), ROC-AUC 0,66 / 0,69; TFM − M3 akurasi arah +0,043 (0,021..0,064) pada h 4, h 8 tidak terbukti. PatchTST & TSMixer: MAE / M1 0,96–1,00 (DM tidak nyata), akurasi arah 0,58–0,61. Fitur kurs tidak membantu: TFM_fx / TFM MAE 1,005 / 1,010 (tidak nyata), TSMX_fx / TSMX 1,041 (h 4, DM p 0,020, lebih buruk) / 1,029; selisih akurasi arah ± 0,01 (memuat nol). Komoditas kaku: semua model deep di bawah baseline arah (TFM −0,073 pada h 8). Catatan kontaminasi: TimesFM 3.0 dilatih ulang Google pada 2026 dengan korpus publik yang tidak diketahui isinya; deret harga pangan Indonesia periode uji 2021–2026 mungkin ikut di dalamnya, jadi keunggulan zero-shot adalah batas atas.
+- Optimasi klasifier arah EKSPLORATIF (D-145, 2026-11-24): `features.price_dynamics` + `models.direction` C1t/C2t,
+  `kagami task4 --direction-tuned` → `direction_tuned_preds`. Origin pengembangan (target ≤ 2023) untuk seleksi, test origin ≥ 2024:
+  C1t macro F1 0,677 / 0,680 vs TimesFM 0,618 / 0,621 (lolos BH); kurs, threshold, kepala TimesFM, TSMixer-tuned tidak menambah.
+  Laporan `docs/audit/20261124_task4_optimasi_arah.md`.
+- Klasifier arah EKSPLORATIF (D-141, 2026-11-24): `models.direction` C1/C2, `kagami task4 --direction` → `direction_preds`
+  (run eksekusi tercatat 1.119 dtk). C2 (+ kurs) akurasi arah 0,598 / 0,617 (h 4 / h 8) vs baseline mayoritas 0,527 / 0,545 (selisih +0,071, interval 0,034..0,108 pada h 8); C1 (tanpa kurs) 0,588 / 0,607; ROC-AUC C2 h 8 0,654 (0,623..0,682); MCC 0,17–0,23. C2 − C1 +0,010 (−0,005..0,024) / +0,009 (−0,007..0,027) → fitur kurs tidak terbukti membantu, konsisten dengan H5; C2 − M3 +0,025 (0,011..0,041) pada h 4, +0,014 (−0,000..0,031) pada h 8; C1 − M1 +0,045 / +0,047 (interval > 0). Komoditas kaku: C2 −0,026 (−0,067..0,024) → tidak lagi lebih buruk dari baseline (M3 −0,058); lentur +0,124. Prediksi selektif C1 h 8: akurasi 0,707 pada cakupan 25%.
 - Selesai bila: [x] setiap tahap tercatat (sukses/gagal) dengan metrik relevan atau alasan tidak berlaku; [x] run induk dari hash
   input; [x] log tidak pernah ditimpa; [x] metrik = rumus independen (tes); [x] app hal. 7 lima bagian.

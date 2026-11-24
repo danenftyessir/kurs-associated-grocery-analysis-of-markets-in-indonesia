@@ -51,7 +51,10 @@ def _base_record(cfg: Config, task_id: str, run_type: str) -> RunRecord:
     return RunRecord(run_id=new_id(task_id), task_id=task_id, run_type=run_type, status="success",
                      started_at=store.now_iso(), pipeline_id=_STATE["pipeline_id"], platform=detect_platform(),
                      python=lineage.python_version(), git_commit=commit, git_branch=branch,
-                     config_sha256=lineage.config_hashes(cfg), kind=spec.kind if spec else None,
+                     config_sha256=lineage.config_hashes(cfg), code_sha256=lineage.code_hash(cfg.root),
+                     git_dirty=lineage.git_dirty(cfg.root), environment=lineage.environment_versions(),
+                     evaluator_version=evaluators.EVALUATOR_VERSION,
+                     kind=spec.kind if spec else None,
                      algorithms=list(spec.algorithms) if spec else [], params=registry.task_params(cfg, task_id))
 
 

@@ -11,7 +11,7 @@ from __future__ import annotations
 import pandas as pd
 
 from kagami.evaluation import forecast_eval
-from kagami.models import forecasting
+from kagami.models import direction, forecasting, neural
 from kagami.utils import drive
 from kagami.tracking.logger import tracked
 from kagami.utils.config import Config
@@ -42,3 +42,45 @@ def run(cfg: Config) -> None:
     write_artifact(cfg, "forecast_preds", preds)
     write_artifact(cfg, "forecast_eval", forecast_eval.evaluate(cfg, preds))
     write_artifact(cfg, "ablation", forecast_eval.ablation(cfg, preds))
+
+
+@tracked("task4")
+def run_direction(cfg: Config) -> None:
+    """EKSPLORATIF (D-141): klasifier arah C1/C2 dengan rolling-origin & fitur yang sama -> artefak `direction_preds`.
+    Tidak mengubah `forecast_preds`/`forecast_eval`/`ablation` (uji resmi H5). CLI: `python -m kagami task4 --direction`."""
+    require(cfg, *REQUIRES)
+    panel_name = "panel_weekly" if exists(cfg, "panel_weekly") else "panel_weekly_region"
+    done = read_artifact(cfg, "direction_preds") if exists(cfg, "direction_preds") else None
+    preds = direction.rolling_direction(cfg, read_artifact(cfg, panel_name), read_artifact(cfg, "drivers_weekly"),
+                                        read_artifact(cfg, "world_prices_weekly"), done=done,
+                                        checkpoint=lambda d: write_artifact(cfg, "direction_preds", d))
+    write_artifact(cfg, "direction_preds", preds)
+
+
+@tracked("task4")
+def run_direction_tuned(cfg: Config, models: tuple[str, ...] | None = None) -> None:
+    """EKSPLORATIF (D-145): klasifier arah tuned C1t (+ fitur dinamika harga) / C2t (+ kurs), rolling-origin sama
+    -> artefak `direction_tuned_preds`. `direction_preds` & uji resmi tidak berubah.
+    CLI: `python -m kagami task4 --direction-tuned [C1t C2t]` (± 10–15 menit per model, CPU)."""
+    require(cfg, *REQUIRES)
+    panel_name = "panel_weekly" if exists(cfg, "panel_weekly") else "panel_weekly_region"
+    done = read_artifact(cfg, "direction_tuned_preds") if exists(cfg, "direction_tuned_preds") else None
+    preds = direction.rolling_direction_tuned(cfg, read_artifact(cfg, panel_name), read_artifact(cfg, "drivers_weekly"),
+                                              read_artifact(cfg, "world_prices_weekly"),
+                                              models=list(models) if models else None, done=done,
+                                              checkpoint=lambda d: write_artifact(cfg, "direction_tuned_preds", d))
+    write_artifact(cfg, "direction_tuned_preds", preds)
+
+
+@tracked("task4")
+def run_deep(cfg: Config, models: tuple[str, ...] | None = None) -> None:
+    """EKSPLORATIF (D-142): PatchTST, TSMixer (± kurs), TimesFM 3.0 zero-shot (± kurs) dengan origin & baris uji Task 4
+    -> artefak `deep_preds`. Uji resmi H5 tidak berubah. CLI: `python -m kagami task4 --deep [PTST TSMX TSMX_fx TFM TFM_fx]`.
+    Butuh PyTorch; TFM butuh paket `timesfm` 3.x + bobot google/timesfm-3.0-pytorch (lisensi non-komersial)."""
+    require(cfg, *REQUIRES)
+    panel_name = "panel_weekly" if exists(cfg, "panel_weekly") else "panel_weekly_region"
+    done = read_artifact(cfg, "deep_preds") if exists(cfg, "deep_preds") else None
+    preds = neural.rolling_deep(cfg, read_artifact(cfg, panel_name), read_artifact(cfg, "drivers_weekly"),
+                                read_artifact(cfg, "world_prices_weekly"), models=list(models) if models else None,
+                                done=done, checkpoint=lambda d: write_artifact(cfg, "deep_preds", d))
+    write_artifact(cfg, "deep_preds", preds)

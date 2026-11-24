@@ -54,7 +54,8 @@ ORDER = tuple(TASKS)
 
 NOT_APPLICABLE_FAMILIES: dict[str, str] = {
     "klasifikasi (accuracy, precision, recall, F1, ROC-AUC, PR-AUC, confusion matrix)":
-        "tidak ada tahap klasifikasi berlabel; klaster Task 2 tanpa ground truth",
+        "tidak ada tahap klasifikasi berlabel (klaster Task 2 tanpa ground truth); satu-satunya pemakaian = diagnostik "
+        "arah perubahan Task 4 (naik/turun dari ramalan regresi, kelompok 'arah perubahan', D-139)",
     "reduksi dimensi (explained variance, reconstruction error)":
         "tidak ada PCA/SVD/embedding di pipeline; fitur clustering = z-score fitur respons",
     "NLP (BLEU, ROUGE, perplexity, vocabulary, OOV)": "tidak ada data teks yang dimodelkan",

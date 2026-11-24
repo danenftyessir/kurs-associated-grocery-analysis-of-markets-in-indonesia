@@ -48,7 +48,7 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
                     io (write/read/require artefak), dates (week_start), todo (stub "WP-xx")
   data/             loaders ✔, snapshot ✔, download ✔, weekly ✔ (varian, agregasi, kelayakan),
                     drivers ✔ (penggerak, harga dunia; episode = WP-06), reference, panel (7 wilayah), qa
-  features/         response (EB + fitur respons), clustering (matriks fitur), forecast (fitur as-of)
+  features/         response (EB + fitur respons), clustering (matriks fitur), forecast (fitur as-of), price_dynamics (fitur dinamika harga, D-145)
   models/           local_projection, deviations, event_study, clustering (Ward, pilih k),
                     association (Kendall, meta-regresi, FE), forecasting (M0–M3)
   evaluation/       power (MDE), inference (bootstrap, plasebo), heterogeneity, stability, planted,
@@ -58,10 +58,11 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
   pipelines/        stage0 · task1 · task2 · task3 · task4 · robustness (REQUIRES + run(cfg)) · package (zip juri, bundle)
   viz/              plots: grafik bersama notebook & app · style: palet, label, format angka, tata letak grafik
   tracking/         log eksekusi & evaluasi terpusat: schemas · metrics (berpenjaga) · lineage (sha256, run induk) ·
-                    evaluators (per tahap) · registry (spesifikasi tahap, graf dependensi) · store (JSON) · logger
+                    evaluators (per tahap) · assessment (penilaian vs acuan, D-140) · registry (spesifikasi tahap, graf
+                    dependensi) · store (JSON, sinkron artefak, status tahap) · logger
                     (`@tracked` di setiap pipelines.<tahap>.run, `pipeline`, `evaluate_existing`)
 app/                Home.py (hal. 1) + pages/2..7 + common.py (hal. 7 = Evaluasi & Riwayat Eksekusi, membaca logs/)
-tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download · tracking
+tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download · tracking · direction · direction_tuned · neural
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)
 ```
@@ -109,6 +110,9 @@ Aturan lapisan: `data` → `features` → `models` → `evaluation`; `stats` & `
 | `python -m kagami snapshot` | hash file mentah → `data/raw/checksums.csv` |
 | `python -m kagami download [KEY ...]` | Tingkat C: unduh ulang sumber http, bandingkan hash; sumber manual → instruksi |
 | `python -m kagami stage0` / `task1` / … / `robustness [--tier2]` | satu tahap (= notebook yang sama) |
+| `python -m kagami task4 --deep [PTST TSMX TSMX_fx TFM TFM_fx]` | EKSPLORATIF (D-142): model deep & foundation → `deep_preds`; butuh extra `[deep]` |
+| `python -m kagami task4 --direction-tuned [C1t C2t]` | EKSPLORATIF (D-145): klasifier arah tuned (fitur dinamika harga + HGB Optuna) → `direction_tuned_preds`; uji resmi tidak berubah |
+| `python -m kagami task4 --direction` | EKSPLORATIF (D-141): klasifier arah C1/C2 → `direction_preds`; uji resmi Task 4 tidak berubah |
 | `python -m kagami all` | semua tahap berurutan (satu `pipeline_id` di log) |
 | `python -m kagami evaluate [TAHAP/all ...]` | evaluasi artefak tahap yang sudah ada tanpa menjalankan ulang → `logs/` (WP-36) |
 | `python -m kagami runs` | riwayat run tercatat + tahap yang inputnya berubah setelah run terakhir (hasil basi) |
@@ -159,6 +163,9 @@ Stub yang belum diimplementasikan melempar `NotImplementedYet` dengan pesan `WP-
 | `asymmetry` | results/task3/asymmetry.csv | task3 | WP-13 | ya | commodity, horizon, estimate, se, ci_low, ci_high, p_value, confirmatory, reject |
 | `national_calibrated` | results/task3/national_calibrated.csv | task3 | WP-13 | ya | commodity, driver, horizon, estimate, se, ci_low, ci_high, p_value, q_fdr |
 | `forecast_preds` | data/interim/forecast_preds.parquet | task4 | WP-26 | tidak | origin, horizon, model, region, commodity, y_true, y_pred, large_move |
+| `deep_preds` | data/interim/deep_preds.parquet | task4 | WP-36 | tidak | origin, horizon, model, region, commodity, y_true, y_pred, large_move (EKSPLORATIF, D-142: PTST, TSMX, TSMX_fx, TFM, TFM_fx; `task4 --deep`) |
+| `direction_tuned_preds` | data/interim/direction_tuned_preds.parquet | task4 | WP-36 | tidak | origin, horizon, model, region, commodity, y_true, p_up, large_move (EKSPLORATIF, D-145: klasifier arah tuned C1t/C2t; `task4 --direction-tuned`) |
+| `direction_preds` | data/interim/direction_preds.parquet | task4 | WP-36 | tidak | origin, horizon, model, region, commodity, y_true, p_up, large_move (EKSPLORATIF, D-141: klasifier arah C1/C2; `task4 --direction`) |
 | `forecast_eval` | results/task4/forecast_eval.csv | task4 | WP-27 | ya | horizon, model, subset, commodity, region, mae, rmse, mae_ratio_vs_m1, rmse_ratio_vs_m1, dm_stat, dm_p, n_origins, n_nonoverlap |
 | `ablation` | results/task4/ablation.csv | task4 | WP-27 | ya | horizon, commodity, region, mae_full, mae_without_fx, delta_mae |
 | `robustness` | results/robustness.csv | robustness | WP-28 | ya | check_id, tier, commodity, horizon, estimate, ci_low, ci_high, baseline_estimate, note |

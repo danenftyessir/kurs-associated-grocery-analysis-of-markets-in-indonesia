@@ -13,7 +13,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field, fields
 from typing import Any
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 3          # 2 (D-140): code_sha256, git_dirty, environment; 3 (D-144): evaluator_version
 STATUSES = ("success", "failed")
 RUN_TYPES = ("execution", "evaluation")          # evaluation = evaluasi artefak yang ada tanpa menjalankan ulang
 METRIC_STATUSES = ("ok", "not_applicable", "failed")
@@ -67,6 +67,10 @@ class RunRecord:
     git_commit: str | None = None
     git_branch: str | None = None
     config_sha256: dict[str, str] = field(default_factory=dict)
+    code_sha256: str | None = None               # sha256 src/**/*.py + app/**/*.py + configs/*.yaml (D-140)
+    git_dirty: bool | None = None                # True = file kode/config berubah tanpa commit; None = git tidak ada
+    environment: dict[str, str] = field(default_factory=dict)   # versi paket utama
+    evaluator_version: str | None = None         # versi evaluator yang menghitung log evaluasi run ini (D-144)
     kind: str | None = None
     algorithms: list[str] = field(default_factory=list)
     params: dict[str, Any] = field(default_factory=dict)

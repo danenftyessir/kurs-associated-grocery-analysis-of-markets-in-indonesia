@@ -1,0 +1,155 @@
+{
+ "run_id": "task4-20261124T001725Z-2da66d",
+ "task_id": "task4",
+ "run_type": "evaluation",
+ "status": "success",
+ "started_at": "2026-11-24T00:17:25.305500+00:00",
+ "finished_at": "2026-11-24T00:17:25.312569+00:00",
+ "duration_s": null,
+ "evaluation_s": 0.227,
+ "pipeline_id": null,
+ "parent_run_ids": [
+  "stage0-20261123T200517Z-a43730"
+ ],
+ "dataset_id": "raw:c96ce7572b4c",
+ "platform": "local",
+ "python": "3.13.7",
+ "git_commit": "6c43a7a19ecf59324420fffc2176e5f89b16d46c",
+ "git_branch": "dev",
+ "config_sha256": {
+  "params.yaml": "43ed1daa3ac854461f6db9ca420b4668601ddf2819e237d6bab1cb4b4f1fb078",
+  "commodities.yaml": "537bb86f32a7d6ac74742c79c36f6b61f6e3fbc320373f83b84dfb19dcba0247"
+ },
+ "kind": "forecasting_regression",
+ "algorithms": [
+  "M0 tanpa perubahan",
+  "M1 ridge dasar",
+  "M2 ridge + kurs & harga dunia",
+  "M3 gradient boosting",
+  "Diebold–Mariano HAC"
+ ],
+ "params": {
+  "forecast": {
+   "horizons": [
+    4,
+    8
+   ],
+   "first_origin": "2021-01-04",
+   "origin_step_weeks": 4,
+   "large_move_pct": 80,
+   "ridge_alphas": [
+    0.1,
+    1.0,
+    10.0,
+    100.0
+   ],
+   "feature_changes_weeks": [
+    1,
+    4,
+    8
+   ],
+   "hgb": {
+    "max_iter": 300,
+    "learning_rate": 0.05,
+    "max_leaf_nodes": 31
+   },
+   "bps_release_lag_days": 45,
+   "h5_correction": "holm",
+   "run_m3": true
+  },
+  "seed": 20261121
+ },
+ "call_args": {},
+ "inputs": [
+  {
+   "name": "panel_weekly_region",
+   "path": "data/processed/panel_weekly_region.parquet",
+   "location": "out_dir",
+   "sha256": "c7f7f659aaec59ae8601eac72dbeeb90a5222687fed0e72f4cab06236a3d5951",
+   "bytes": 306365,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261123T200517Z-a43730"
+  },
+  {
+   "name": "drivers_weekly",
+   "path": "data/processed/drivers_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "d85f7d3188e7c61aa8bbed1f944b7e7d7c45d38b2e712251aca884e2fe682c77",
+   "bytes": 47417,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261123T200517Z-a43730"
+  },
+  {
+   "name": "world_prices_weekly",
+   "path": "data/processed/world_prices_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "cc53e6dda096f26af7e18f2a20d51a3d0ea48d63b17f7649d9eae00f6db14edb",
+   "bytes": 35033,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261123T200517Z-a43730"
+  },
+  {
+   "name": "panel_weekly",
+   "path": "data/processed/panel_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "17ef839f31171b17674a72b1f01ad806deb05174b659352b0370366ca5606130",
+   "bytes": 777791,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261123T200517Z-a43730"
+  }
+ ],
+ "outputs": [
+  {
+   "name": "forecast_preds",
+   "path": "data/interim/forecast_preds.parquet",
+   "location": "out_dir",
+   "sha256": "79927c1a046957ce0c47c9254125f0c06a02001796ab39405f3a6da925577cf0",
+   "bytes": 2176575,
+   "rows": 254430,
+   "columns": 9,
+   "missing_cells": 0,
+   "memory_mb": 50.831,
+   "producer_run_id": null
+  },
+  {
+   "name": "forecast_eval",
+   "path": "results/task4/forecast_eval.csv",
+   "location": "out_dir",
+   "sha256": "8f129d760a7f3d0383b382d8d2e8c303d0dca312b8af37eb5e8741ddd1bc8338",
+   "bytes": 93753,
+   "rows": 600,
+   "columns": 18,
+   "missing_cells": 1318,
+   "memory_mb": 0.213,
+   "producer_run_id": null
+  },
+  {
+   "name": "ablation",
+   "path": "results/task4/ablation.csv",
+   "location": "out_dir",
+   "sha256": "bae7ccc7b97ff4f087ae4e354a76fbe1cac4c546aac61dbb63cab9196aef0981",
+   "bytes": 11922,
+   "rows": 120,
+   "columns": 9,
+   "missing_cells": 0,
+   "memory_mb": 0.03,
+   "producer_run_id": null
+  }
+ ],
+ "peak_rss_mb": 217.4,
+ "error_type": null,
+ "note": "evaluasi artefak yang ada; waktu eksekusi tidak teramati (dijalankan sebelum/di luar pelacakan)",
+ "schema_version": 1
+}

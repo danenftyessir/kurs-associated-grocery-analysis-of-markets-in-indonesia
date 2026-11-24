@@ -1,0 +1,84 @@
+{
+ "name": "C2t",
+ "groups": [
+  "lag",
+  "rmean",
+  "rstd",
+  "mom",
+  "season",
+  "dev",
+  "comm"
+ ],
+ "fx": true,
+ "best": {
+  "trial": 1,
+  "params": {
+   "learning_rate": 0.028084987257103646,
+   "max_iter": 250,
+   "max_leaf_nodes": 23,
+   "min_samples_leaf": 319,
+   "l2_regularization": 3.8547243967604845,
+   "max_features": 0.3348578429717507,
+   "balanced": false,
+   "decay_years": 0
+  },
+  "odd": 0.6775602676384154,
+  "dev_f1_h4": 0.6528202336515796,
+  "dev_f1_h8": 0.6789220966403593,
+  "dev_mean": 0.6658711651459694
+ },
+ "confirm": [
+  {
+   "trial": 1,
+   "params": {
+    "learning_rate": 0.028084987257103646,
+    "max_iter": 250,
+    "max_leaf_nodes": 23,
+    "min_samples_leaf": 319,
+    "l2_regularization": 3.8547243967604845,
+    "max_features": 0.3348578429717507,
+    "balanced": false,
+    "decay_years": 0
+   },
+   "odd": 0.6775602676384154,
+   "dev_f1_h4": 0.6528202336515796,
+   "dev_f1_h8": 0.6789220966403593,
+   "dev_mean": 0.6658711651459694
+  },
+  {
+   "trial": 5,
+   "params": {
+    "learning_rate": 0.03321620388044933,
+    "max_iter": 250,
+    "max_leaf_nodes": 28,
+    "min_samples_leaf": 29,
+    "l2_regularization": 0.8113485310933702,
+    "max_features": 0.3788110336306817,
+    "balanced": false,
+    "decay_years": 2
+   },
+   "odd": 0.6753117453212887,
+   "dev_f1_h4": 0.6543973226837467,
+   "dev_f1_h8": 0.6723762110873623,
+   "dev_mean": 0.6633867668855545
+  },
+  {
+   "trial": 8,
+   "params": {
+    "learning_rate": 0.08002196292533878,
+    "max_iter": 150,
+    "max_leaf_nodes": 45,
+    "min_samples_leaf": 308,
+    "l2_regularization": 0.04666126832625848,
+    "max_features": 0.3166573114167807,
+    "balanced": true,
+    "decay_years": 4
+   },
+   "odd": 0.6721126688537262,
+   "dev_f1_h4": 0.653498610163529,
+   "dev_f1_h8": 0.6683487806235006,
+   "dev_mean": 0.6609236953935147
+  }
+ ],
+ "n_trials": 12
+}

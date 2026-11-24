@@ -1,0 +1,225 @@
+{
+ "run_id": "task1-20261124T033554Z-6beae2",
+ "task_id": "task1",
+ "run_type": "evaluation",
+ "status": "success",
+ "started_at": "2026-11-24T03:35:54.933594+00:00",
+ "finished_at": "2026-11-24T03:35:55.087002+00:00",
+ "duration_s": null,
+ "evaluation_s": 0.67,
+ "pipeline_id": null,
+ "parent_run_ids": [
+  "stage0-20261124T033552Z-ce183a"
+ ],
+ "dataset_id": "raw:c96ce7572b4c",
+ "platform": "local",
+ "python": "3.13.7",
+ "git_commit": "6c43a7a19ecf59324420fffc2176e5f89b16d46c",
+ "git_branch": "dev",
+ "config_sha256": {
+  "params.yaml": "43ed1daa3ac854461f6db9ca420b4668601ddf2819e237d6bab1cb4b4f1fb078",
+  "commodities.yaml": "537bb86f32a7d6ac74742c79c36f6b61f6e3fbc320373f83b84dfb19dcba0247"
+ },
+ "code_sha256": "24d15fb308a098632bd194037f8723e71b90ac0e67423eca9d016e651840d78d",
+ "git_dirty": true,
+ "environment": {
+  "python": "3.13.7",
+  "numpy": "2.3.4",
+  "pandas": "2.3.3",
+  "scipy": "1.16.3",
+  "scikit-learn": "1.8.0"
+ },
+ "kind": "inference_estimation",
+ "algorithms": [
+  "local projections + SE cluster minggu",
+  "moving-block bootstrap bersama",
+  "plasebo geser-melingkar",
+  "event study vs jendela plasebo",
+  "penyusutan empirical Bayes (DL)"
+ ],
+ "params": {
+  "lp": {
+   "horizons": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "lags": 4,
+   "lags_robust": [
+    2,
+    4,
+    8
+   ],
+   "key_horizons": [
+    4,
+    8,
+    12
+   ]
+  },
+  "inference": {
+   "bootstrap_B": 499,
+   "bootstrap_B_nonfocus": 199,
+   "block_weeks": 13,
+   "placebo_R": 499,
+   "placebo_min_shift_weeks": 52,
+   "event_placebo_windows": 499,
+   "fdr_q": 0.05
+  },
+  "shrinkage": {
+   "tau2_method": "DL",
+   "tau2_check": "REML"
+  },
+  "seed": 20261121
+ },
+ "call_args": {},
+ "inputs": [
+  {
+   "name": "drivers_weekly",
+   "path": "data/processed/drivers_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "d85f7d3188e7c61aa8bbed1f944b7e7d7c45d38b2e712251aca884e2fe682c77",
+   "bytes": 47417,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "world_prices_weekly",
+   "path": "data/processed/world_prices_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "cc53e6dda096f26af7e18f2a20d51a3d0ea48d63b17f7649d9eae00f6db14edb",
+   "bytes": 35033,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "episodes",
+   "path": "results/stage0/episodes.csv",
+   "location": "out_dir",
+   "sha256": "0a31176cc60ada2e4b2fe445bde0dc05fe9f7ce3218efaf41f073698798b5ad2",
+   "bytes": 902,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "panel_weekly_region",
+   "path": "data/processed/panel_weekly_region.parquet",
+   "location": "out_dir",
+   "sha256": "c7f7f659aaec59ae8601eac72dbeeb90a5222687fed0e72f4cab06236a3d5951",
+   "bytes": 306365,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "eligibility",
+   "path": "results/stage0/eligibility.csv",
+   "location": "out_dir",
+   "sha256": "53fbc5d0bcb5c8c586ba6ddb39d4a255ea2fb57bb1e24439e4b8f4baeb8660b2",
+   "bytes": 20878,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "panel_weekly",
+   "path": "data/processed/panel_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "17ef839f31171b17674a72b1f01ad806deb05174b659352b0370366ca5606130",
+   "bytes": 777791,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  }
+ ],
+ "outputs": [
+  {
+   "name": "profiles",
+   "path": "results/task1/profiles.parquet",
+   "location": "out_dir",
+   "sha256": "4cb0f1219e9e3ef9be31d0177e5bc0b71f3b3ee4e55938a7b0893eee9828e55f",
+   "bytes": 650669,
+   "rows": 18850,
+   "columns": 12,
+   "missing_cells": 2860,
+   "memory_mb": 4.956,
+   "producer_run_id": null
+  },
+  {
+   "name": "boot_replicates",
+   "path": "results/task1/boot_replicates.parquet",
+   "location": "out_dir",
+   "sha256": "0cd5147c61f55be611e85266d0bc62ff7da5b9c3b83c1198cbdb0d33fd4b401f",
+   "bytes": 14551749,
+   "rows": 891679,
+   "columns": 8,
+   "missing_cells": 49270,
+   "memory_mb": 212.868,
+   "producer_run_id": null
+  },
+  {
+   "name": "placebo_stats",
+   "path": "results/task1/placebo_stats.parquet",
+   "location": "out_dir",
+   "sha256": "beec0c831c7c1d713ca6a3a2534a05c50ac54cff1386050f65c344785969c86d",
+   "bytes": 14453728,
+   "rows": 891679,
+   "columns": 8,
+   "missing_cells": 49270,
+   "memory_mb": 212.868,
+   "producer_run_id": null
+  },
+  {
+   "name": "events",
+   "path": "results/task1/events.parquet",
+   "location": "out_dir",
+   "sha256": "7ccb8f40588917cbaeb01c32c3e8414e697c118e4ac152441dd1754a65a07643",
+   "bytes": 215107,
+   "rows": 13520,
+   "columns": 11,
+   "missing_cells": 1600,
+   "memory_mb": 3.036,
+   "producer_run_id": null
+  },
+  {
+   "name": "response_features",
+   "path": "results/task1/response_features.parquet",
+   "location": "out_dir",
+   "sha256": "03e750d7073fa5043656343e056b7814c853b77b52ad31a8f653ca753924d124",
+   "bytes": 25295,
+   "rows": 417,
+   "columns": 12,
+   "missing_cells": 1146,
+   "memory_mb": 0.096,
+   "producer_run_id": null
+  }
+ ],
+ "peak_rss_mb": 523.5,
+ "error_type": null,
+ "note": "evaluasi artefak yang ada; waktu eksekusi tidak teramati (dijalankan sebelum/di luar pelacakan)",
+ "schema_version": 2
+}

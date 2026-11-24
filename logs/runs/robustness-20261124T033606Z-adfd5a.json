@@ -1,0 +1,254 @@
+{
+ "run_id": "robustness-20261124T033606Z-adfd5a",
+ "task_id": "robustness",
+ "run_type": "evaluation",
+ "status": "success",
+ "started_at": "2026-11-24T03:36:06.531941+00:00",
+ "finished_at": "2026-11-24T03:36:06.682095+00:00",
+ "duration_s": null,
+ "evaluation_s": 0.021,
+ "pipeline_id": null,
+ "parent_run_ids": [
+  "task1-20261124T033554Z-6beae2",
+  "stage0-20261124T033552Z-ce183a",
+  "task4-20261124T033558Z-70d427"
+ ],
+ "dataset_id": "raw:c96ce7572b4c",
+ "platform": "local",
+ "python": "3.13.7",
+ "git_commit": "6c43a7a19ecf59324420fffc2176e5f89b16d46c",
+ "git_branch": "dev",
+ "config_sha256": {
+  "params.yaml": "43ed1daa3ac854461f6db9ca420b4668601ddf2819e237d6bab1cb4b4f1fb078",
+  "commodities.yaml": "537bb86f32a7d6ac74742c79c36f6b61f6e3fbc320373f83b84dfb19dcba0247"
+ },
+ "code_sha256": "24d15fb308a098632bd194037f8723e71b90ac0e67423eca9d016e651840d78d",
+ "git_dirty": true,
+ "environment": {
+  "python": "3.13.7",
+  "numpy": "2.3.4",
+  "pandas": "2.3.3",
+  "scipy": "1.16.3",
+  "scikit-learn": "1.8.0"
+ },
+ "kind": "robustness",
+ "algorithms": [
+  "Tier 1: LP ulang per cek",
+  "validasi V2/V4",
+  "Tier 2 (opsional)"
+ ],
+ "params": {
+  "lp": {
+   "horizons": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "lags": 4,
+   "lags_robust": [
+    2,
+    4,
+    8
+   ],
+   "key_horizons": [
+    4,
+    8,
+    12
+   ]
+  },
+  "calendar": {
+   "week_rule": "iso",
+   "idulfitri": [
+    "2017-06-25",
+    "2018-06-15",
+    "2019-06-05",
+    "2020-05-24",
+    "2021-05-13",
+    "2022-05-02",
+    "2023-04-22",
+    "2024-04-10",
+    "2025-03-31",
+    "2026-03-20"
+   ],
+   "idulfitri_window": [
+    -6,
+    4
+   ],
+   "breaks": {
+    "jisdor_method_change": "2021-04-05",
+    "padg_7_2026": null
+   },
+   "exclusions": {
+    "covid": [
+     "2020-03-01",
+     "2020-06-30"
+    ],
+    "brent_extreme_abs_monthly_logchg": 0.25
+   }
+  },
+  "seed": 20261121
+ },
+ "call_args": {},
+ "inputs": [
+  {
+   "name": "profiles",
+   "path": "results/task1/profiles.parquet",
+   "location": "out_dir",
+   "sha256": "4cb0f1219e9e3ef9be31d0177e5bc0b71f3b3ee4e55938a7b0893eee9828e55f",
+   "bytes": 650669,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task1-20261124T033554Z-6beae2"
+  },
+  {
+   "name": "events",
+   "path": "results/task1/events.parquet",
+   "location": "out_dir",
+   "sha256": "7ccb8f40588917cbaeb01c32c3e8414e697c118e4ac152441dd1754a65a07643",
+   "bytes": 215107,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task1-20261124T033554Z-6beae2"
+  },
+  {
+   "name": "episodes",
+   "path": "results/stage0/episodes.csv",
+   "location": "out_dir",
+   "sha256": "0a31176cc60ada2e4b2fe445bde0dc05fe9f7ce3218efaf41f073698798b5ad2",
+   "bytes": 902,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "panel_weekly",
+   "path": "data/processed/panel_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "17ef839f31171b17674a72b1f01ad806deb05174b659352b0370366ca5606130",
+   "bytes": 777791,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "eligibility",
+   "path": "results/stage0/eligibility.csv",
+   "location": "out_dir",
+   "sha256": "53fbc5d0bcb5c8c586ba6ddb39d4a255ea2fb57bb1e24439e4b8f4baeb8660b2",
+   "bytes": 20878,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "drivers_weekly",
+   "path": "data/processed/drivers_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "d85f7d3188e7c61aa8bbed1f944b7e7d7c45d38b2e712251aca884e2fe682c77",
+   "bytes": 47417,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "world_prices_weekly",
+   "path": "data/processed/world_prices_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "cc53e6dda096f26af7e18f2a20d51a3d0ea48d63b17f7649d9eae00f6db14edb",
+   "bytes": 35033,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "forecast_eval",
+   "path": "results/task4/forecast_eval.csv",
+   "location": "out_dir",
+   "sha256": "8f129d760a7f3d0383b382d8d2e8c303d0dca312b8af37eb5e8741ddd1bc8338",
+   "bytes": 93753,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "task4-20261124T033558Z-70d427"
+  },
+  {
+   "name": "pihps_daily",
+   "path": "data/interim/pihps_daily.parquet",
+   "location": "out_dir",
+   "sha256": "6557514eb4867055694e0746d4e4964fac9d7b3d52fcb191233a352a67b66769",
+   "bytes": 1435023,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "exposure",
+   "path": "data/reference/exposure.csv",
+   "location": "out_dir",
+   "sha256": "7cb5b8fffa8f917e70a1866958307b6e6dd036a2093b3971ff5e1e778eb74f3a",
+   "bytes": 1477,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "province_features",
+   "path": "data/reference/province_features.csv",
+   "location": "out_dir",
+   "sha256": "0f5d99713be2b68d7655b9555267174988572b36cfd1ae2df51af34a48f6cde3",
+   "bytes": 3276,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  }
+ ],
+ "outputs": [
+  {
+   "name": "robustness",
+   "path": "results/robustness.csv",
+   "location": "out_dir",
+   "sha256": "2e5db241b2a6cc33e2b498cf37f443315daaeb710896352a4bdbdf9f79b21802",
+   "bytes": 186553,
+   "rows": 679,
+   "columns": 19,
+   "missing_cells": 2536,
+   "memory_mb": 0.373,
+   "producer_run_id": null
+  }
+ ],
+ "peak_rss_mb": 575.3,
+ "error_type": null,
+ "note": "evaluasi artefak yang ada; waktu eksekusi tidak teramati (dijalankan sebelum/di luar pelacakan)",
+ "schema_version": 2
+}

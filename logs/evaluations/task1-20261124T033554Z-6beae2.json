@@ -1,0 +1,161 @@
+{
+ "run_id": "task1-20261124T033554Z-6beae2",
+ "task_id": "task1",
+ "evaluated_at": "2026-11-24T03:35:58.208051+00:00",
+ "metrics": [
+  {
+   "name": "n_estimates_national",
+   "group": "estimasi LP",
+   "value": 598,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "profiles"
+   }
+  },
+  {
+   "name": "n_estimates_region",
+   "group": "estimasi LP",
+   "value": 4186,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "profiles"
+   }
+  },
+  {
+   "name": "n_estimates_province",
+   "group": "estimasi LP",
+   "value": 14066,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "profiles"
+   }
+  },
+  {
+   "name": "share_ci_excludes_zero_national",
+   "group": "estimasi LP",
+   "value": 0.0625,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "profiles",
+    "subset": "nasional, β_e & ω, h kunci",
+    "n": 48
+   }
+  },
+  {
+   "name": "median_se_national",
+   "group": "estimasi LP",
+   "value": 0.14157908966201077,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "profiles",
+    "subset": "nasional, β_e & ω, h kunci",
+    "n": 48
+   }
+  },
+  {
+   "name": "r2_in_sample",
+   "group": "estimasi LP",
+   "value": null,
+   "status": "not_applicable",
+   "reason": "LP dipakai untuk inferensi koefisien; fit_lp tidak menyimpan residual/R² di artefak, dan R² dalam-sampel tidak menilai respons kurs",
+   "context": {}
+  },
+  {
+   "name": "n_placebo_reps",
+   "group": "kalibrasi inferensi",
+   "value": 499,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "placebo_stats"
+   }
+  },
+  {
+   "name": "placebo_false_positive_rate",
+   "group": "kalibrasi inferensi",
+   "value": 0.08137980670368085,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "placebo_stats",
+    "expected": 0.05,
+    "n": 19452,
+    "note": "porsi |t| > 1,96 di bawah null plasebo; > 0,05 = SE cluster terlalu sempit"
+   }
+  },
+  {
+   "name": "n_bootstrap_reps",
+   "group": "kalibrasi inferensi",
+   "value": 499,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "boot_replicates"
+   }
+  },
+  {
+   "name": "boot_ratio_median_h4",
+   "group": "kalibrasi inferensi",
+   "value": 0.5674707529523867,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "boot_replicates",
+    "n": 16,
+    "note": "rerata replikasi / estimasi; < 1 = bootstrap menarik ke nol (U107)"
+   }
+  },
+  {
+   "name": "boot_ratio_median_h8",
+   "group": "kalibrasi inferensi",
+   "value": 0.34756742788217054,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "boot_replicates",
+    "n": 16,
+    "note": "rerata replikasi / estimasi; < 1 = bootstrap menarik ke nol (U107)"
+   }
+  },
+  {
+   "name": "boot_ratio_median_h12",
+   "group": "kalibrasi inferensi",
+   "value": 0.34713962389920794,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "boot_replicates",
+    "n": 16,
+    "note": "rerata replikasi / estimasi; < 1 = bootstrap menarik ke nol (U107)"
+   }
+  },
+  {
+   "name": "n_event_episodes",
+   "group": "event study",
+   "value": 13,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "events"
+   }
+  },
+  {
+   "name": "share_events_placebo_p05",
+   "group": "event study",
+   "value": 0.05277777777777778,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "events",
+    "n": 390,
+    "subset": "level national, h kunci"
+   }
+  }
+ ],
+ "schema_version": 2
+}

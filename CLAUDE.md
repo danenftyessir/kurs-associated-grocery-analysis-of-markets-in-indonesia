@@ -112,7 +112,7 @@ Tanggal acuan: 2026-11-24. Papan lengkap: `docs/WORKPLAN.md`.
   WP-30 (Tier 2 di artefak `robustness`, 2026-11-23), dan WP jalur B yang ditutup Danen 2026-11-23 (D-130): WP-07, WP-15, WP-16,
   WP-17, WP-19, WP-20, WP-23, WP-24, WP-25, WP-26, WP-31 (app), WP-32 (paket juri; G7 lolos 2026-11-23, Tingkat A & B),
   WP-36 (log eksekusi & evaluasi terpusat `src/tracking/` + app hal. 7, 2026-11-24, D-137).
-- **Sedang (🔶):** WP-33 (`findings.md` ada; makalah ditunda), WP-34 (audit app & findings selesai; makalah menunggu).
+- **Sedang (🔶):** WP-33 (`findings.md` ada, + eksplorasi Task 4 D-139–D-142 pada 2026-11-24; makalah ditunda), WP-34 (audit app & findings selesai; makalah menunggu).
 - **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`,
   `episodes`, `drivers_weekly`, `fx_variation`, `panel_weekly_region`, `mde`, `stage0_report`, Task 1–3, Task 4 (`forecast_preds`,
   `forecast_eval`, `ablation`; diunduh dari Drive 2026-11-23), `robustness` (lokal 2026-11-23; di Drive tim `results/` 2026-11-23). Tahap 0 di Drive tim
@@ -161,13 +161,36 @@ Tanggal acuan: 2026-11-24. Papan lengkap: `docs/WORKPLAN.md`.
 - **App daring & G7 ulang (D-135, 2026-11-24):** https://kagami.streamlit.app membaca artefak dari repo; 23 artefak yang dibaca app
   (± 1,4 MB, `ship=True`) kini di-track git (`.gitignore`), jadi artefak yang berubah harus ikut di-commit. `dist/` dibangun ulang
   (`bundle` 77 file, `package` 178 file 47,6 MB); Tingkat A 6/6 halaman dari zip baru. App live terisi setelah perubahan ini di-push.
-- **Log eksekusi & evaluasi (WP-36, D-137, 2026-11-24):** `logs/` berisi 11 run (7 evaluasi-saja artefak resmi + 4 eksekusi nyata
+- **Log eksekusi & evaluasi (WP-36, D-137, 2026-11-24):** `logs/` berisi 27 run per 2026-11-24 (19 evaluasi-saja artefak resmi, termasuk 11 dengan penilaian & interval D-140, + 8 eksekusi nyata
   stage0/task3/robustness/task2, dataset `raw:c96ce7572b4c`); hasil eksekusi task2 & task3 identik sha256 dengan artefak resmi.
   App hal. 7 membaca `logs/`; log ikut commit (app daring) dan zip juri. Task 1 & 4 berikutnya di Kaggle tercatat otomatis bila
   `kagami_code.zip` diperbarui.
+- **Run end-to-end penuh (2026-11-24, lokal, folder kode bersih):** `kagami all` + `robustness --tier2` sukses (setelah D-138; Task 1
+  bootstrap + plasebo 5.312 dtk, total ± 1,9 jam); 35 artefak tereproduksi (17 identik sha256, 16 selisih ≤ 3,5e-11, checksums beda
+  `recorded_at`); app 7/7 halaman; pytest 357 lolos (359 setelah D-139). Rincian di WORKPLAN WP-36.
+- **Penilaian dua lapis & lineage output (D-140, 2026-11-24):** audit halaman 7 (`docs/audit/20261124_audit_evaluasi_eksekusi.md`) →
+  `tracking.assessment` (status hitung ≠ penilaian vs acuan), interval bootstrap blok origin untuk metrik arah, tabel arah per
+  segmen, `artifact_sync`/`stage_states` (eksekusi dipisah dari evaluasi-saja), `code_sha256`/`git_dirty` (schema 2), wiring
+  `task2.OPTIONAL` (province_features) & `robustness.OPTIONAL` (Tier 2) + tes baca-vs-deklarasi. Temuan: akurasi arah M1/M2 tidak
+  berbeda dari baseline mayoritas (interval selisih memuat nol), M3 di atas (+0,021..0,088 h 8); komoditas kaku (carry-forward ≥ 50%:
+  beras, daging sapi, gula, minyak goreng) di bawah baseline untuk semua model; 13/33 fitur clustering konstan; `robustness`
+  resmi (679 baris) bukan output run eksekusi terakhir (486 baris). Hasil analisis & artefak tidak berubah.
+- **Kelengkapan & kestabilan evaluasi (D-144, 2026-11-24):** F1 makro h 8 (pada baris berubah, cakupan 0,907): TimesFM 0,623, C2 0,614, C1 0,605, TSMixer 0,604, M3 0,594, M1 0,551; F1 berbobot hampir sama; akurasi bila minggu tanpa perubahan dihitung salah: TimesFM 0,566, M1 0,508. Replikasi 3 seed (h 8): TSMixer MAE/M1 0,966 ± 0,007 (0,959..0,972), akurasi 0,610 ± 0,005; PatchTST 0,972 ± 0,011, 0,583 ± 0,016; TSMixer + kurs 0,995 ± 0,009 (lebih buruk dari TSMixer di ketiga seed). Kepekaan blok bootstrap 2/3/4/6 origin: 17/17 keputusan sama di kedua horizon; DM TimesFM vs M1 p < 0,001 dan M2 vs M1 p 0,006–0,018 untuk lag HAC 1–5. Per tahun origin, keunggulan MAE TimesFM bertahan pada 2026 (0,938) walau lebih kecil dari 2023–2024 (0,876 / 0,834). Robustness Tier 2 dijalankan tercatat: identik sha256 dengan file resmi (679 baris), sekarang sinkron.
+- **Koreksi multiplisitas (D-143, 2026-11-24):** Lolos BH: MAE TimesFM (± kurs) vs M1 h 4 & 8 (q ≤ 0,004); akurasi arah TimesFM vs M3 h 4 (q 0,015), C2 vs M3 h 4 (q 0,015), C1 vs M1 h 4 & 8 (q ≤ 0,024); akurasi arah vs baseline: semua model baru dan M3 (q ≤ 0,034), M1/M2 tidak. Gugur: TSMX_fx vs TSMX MAE h 4 (p 0,020 → q 0,057); segmen kaku TimesFM (q 0,053) & M2 (q 0,080); segmen lentur M1 (q 0,064). Beda berpasangan 5/30 bertahan; metrik arah vs acuan 123/132; rasio MAE eksploratif 4/14; tabel segmen h 8: 47 lebih baik, 15 lebih buruk dari 190.
+- **Optimasi klasifikasi arah EKSPLORATIF (D-145, 2026-11-24):** fitur per seri (deviasi MA/spasial, sinyal nasional, lag panjang,
+  musiman) + Optuna HGB, dipilih di origin pengembangan (target ≤ 2023), dinilai di test final origin ≥ 2024: C1-tuned macro F1
+  0,677 / 0,680 (h 4 / 8) vs TimesFM 0,618 / 0,621 (lolos BH); kurs, threshold, kepala TimesFM-CatBoost, TSMixer-tuned tidak
+  menambah. Di `src/`: `features.price_dynamics` + `models.direction` C1t/C2t, `kagami task4 --direction-tuned` →
+  `direction_tuned_preds` (identik dengan eksperimen); laporan `docs/audit/20261124_task4_optimasi_arah.md`; uji resmi tidak berubah.
+- **Model deep & foundation EKSPLORATIF (D-142, 2026-11-24):** `kagami task4 --deep` → `deep_preds` (PatchTST, TSMixer ± kurs,
+  TimesFM 3.0 zero-shot ± kurs; butuh extra `[deep]`, bobot TimesFM 1,32 GB non-komersial). TimesFM 3.0 zero-shot (TFM) MAE / M1 0,935 (h 4, DM p 0,0001) dan 0,895 (h 8, DM p < 0,001), R² vs ramalan nol 0,19 / 0,25 (M1 0,09 / 0,07), akurasi arah 0,616 / 0,623 (selisih vs baseline 0,049..0,116 / 0,026..0,122), ROC-AUC 0,66 / 0,69; TFM − M3 akurasi arah +0,043 (0,021..0,064) pada h 4, h 8 tidak terbukti. PatchTST & TSMixer: MAE / M1 0,96–1,00 (DM tidak nyata), akurasi arah 0,58–0,61. Fitur kurs tidak membantu: TFM_fx / TFM MAE 1,005 / 1,010 (tidak nyata), TSMX_fx / TSMX 1,041 (h 4, DM p 0,020, lebih buruk) / 1,029; selisih akurasi arah ± 0,01 (memuat nol). Komoditas kaku: semua model deep di bawah baseline arah (TFM −0,073 pada h 8). Catatan kontaminasi: TimesFM 3.0 dilatih ulang Google pada 2026 dengan korpus publik yang tidak diketahui isinya; deret harga pangan Indonesia periode uji 2021–2026 mungkin ikut di dalamnya, jadi keunggulan zero-shot adalah batas atas.
+- **Klasifier arah EKSPLORATIF (D-141, 2026-11-24):** `kagami task4 --direction` → `direction_preds` (HGB classifier, fitur &
+  rolling-origin Task 4; C1 tanpa kurs, C2 + kurs). C2 (+ kurs) akurasi arah 0,598 / 0,617 (h 4 / h 8) vs baseline mayoritas 0,527 / 0,545 (selisih +0,071, interval 0,034..0,108 pada h 8); C1 (tanpa kurs) 0,588 / 0,607; ROC-AUC C2 h 8 0,654 (0,623..0,682); MCC 0,17–0,23. C2 − C1 +0,010 (−0,005..0,024) / +0,009 (−0,007..0,027) → fitur kurs tidak terbukti membantu, konsisten dengan H5; C2 − M3 +0,025 (0,011..0,041) pada h 4, +0,014 (−0,000..0,031) pada h 8; C1 − M1 +0,045 / +0,047 (interval > 0). Komoditas kaku: C2 −0,026 (−0,067..0,024) → tidak lagi lebih buruk dari baseline (M3 −0,058); lentur +0,124. Prediksi selektif C1 h 8: akurasi 0,707 pada cakupan 25%. Bukan uji praregistrasi; H5 tetap dari MAE + DM.
+- **Diagnostik arah Task 4 (D-139, 2026-11-24):** log evaluasi Task 4 memuat metrik klasifikasi arah (naik/turun) dari ramalan regresi;
+  akurasi arah 0,543 / 0,557 / 0,573 (M1 / M2 / M3, h 4) dan 0,560 / 0,560 / 0,602 (h 8) vs baseline kelas mayoritas 0,527 / 0,545; F1 makro 0,538 / 0,550 / 0,566 dan 0,551 / 0,549 / 0,594; MCC 0,08–0,19; ROC-AUC 0,567–0,627. Bukan uji: M2 tidak lebih baik dari M1 pada h 8; kesimpulan H5 tetap. App hal. 7 menampilkan tabel + confusion matrix.
 - **Berikutnya — Danen (semua jalur):** push pekerjaan lewat `feat/` (remote `dev` maju; U102 selesai 2026-11-23, D-133);
-  unggah ulang `kagami_code.zip` (dibangun ulang 2026-11-24 03.27, 85 file termasuk `src/tracking/`; diuji dari folder ekstrak bersih)
-  ke `MyDrive/kagami/` dan dataset Kaggle `kagami-code`; zip juri `dist/kagami_submission.zip` dibangun ulang 03.31 (212 file, 44,6 MB, + `logs/` 23 file & tracking; Tingkat A 7/7
+  unggah ulang `kagami_code.zip` (dibangun ulang 2026-11-24 07.25 dengan D-138 & D-139, 85 file termasuk `src/tracking/`; diuji dari folder ekstrak bersih)
+  ke `MyDrive/kagami/` dan dataset Kaggle `kagami-code`; zip juri `dist/kagami_submission.zip` dibangun ulang 07.25 (214 file, 44,6 MB, + `logs/` 25 file & tracking; Tingkat A 7/7
   halaman dari folder ekstrak bersih tanpa "Menunggu hasil"); makalah & video saat dilanjutkan (WP-33/34). Pembekuan hasil 27 Nov.
   Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
@@ -284,7 +307,7 @@ Aturan menulis agar tidak cepat basi:
 - Perangkat lokal terbatas: tahap berat (task1, task2, task4, robustness) dijalankan di Kaggle/Colab (§17).
 
 ### 4.2 Paket terpasang
-numpy 2.3, pandas 2.3, scipy 1.16, scikit-learn 1.8, pyarrow 24, openpyxl 3.1, pyyaml 6, streamlit 1.57, plotly 6.7,
+numpy 2.3, pandas 2.3, scipy 1.16, scikit-learn 1.8, torch 2.12 (CPU) & timesfm 3.0.2 (opsional `[deep]`, D-142; bobot TimesFM 3.0 di cache Hugging Face), pyarrow 24, openpyxl 3.1, pyyaml 6, streamlit 1.57, plotly 6.7,
 matplotlib 3.10, pytest 9.1, nbformat 5.10, joblib 1.5 (dependensi eksplisit sejak D-127). Opsional `[drive]` (google-api-python-client, google-auth,
 google-auth-oauthlib) untuk `drive-pull/push/auth` di lokal; belum terpasang di mesin Danen, sudah ada di Kaggle/Colab. **Tidak ada** statsmodels/linearmodels (D-009) — jangan
 menambahkannya; pakai `src/stats/`.
@@ -574,7 +597,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `todo` · ✔ · lempar `NotImplementedYet("WP-xx ...")`.
 
 #### src/utils/artifacts.py
-(Tidak ada fungsi publik; berisi dataclass `Artifact` dan dict `ARTIFACTS` — 35 artefak.)
+(Tidak ada fungsi publik; berisi dataclass `Artifact` dan dict `ARTIFACTS` — 38 artefak; `direction_preds` (D-141), `direction_tuned_preds` (D-145) & `deep_preds` (D-142) eksploratif.)
 
 ### 9.2 Lapisan data
 
@@ -672,6 +695,11 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `split_origin` · ✔ · (train, test) satu origin dari feature_table: train t + h ≤ origin, test t = origin.
 - `build_features` · ✔ · (train, test) per origin; as-of join `available_at`; target p_{t+h} − p_t.
 
+#### src/features/price_dynamics.py
+(konstanta `GROUPS` 9 kelompok fitur, `SELECTED_GROUPS` 7 hasil ablation; EKSPLORATIF D-145)
+- `extend_table` · ✔ · feature_table + fitur dinamika harga per seri dari log harga s.d. t (lag panjang, EWM, sd, momentum, musiman `_h{h}`, deviasi MA/rentang/spasial, umur carry-forward, sinyal nasional komoditas).
+- `group_columns` · ✔ · nama kolom kelompok untuk satu horizon (kolom musiman berakhiran `_h{h}`).
+
 ### 9.4 Lapisan models
 
 #### src/models/local_projection.py
@@ -708,6 +736,24 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 (konstanta `MODELS` = M0..M3)
 - `fit_predict` · ✔ · M0 nol, M1 ridge base (alpha CV waktu), M2 + fx, M3 HGB + id; drop_groups untuk ablation.
 - `rolling_predictions` · ✔ · loop horizon × origin × model (+ `M2_nofx`) → artefak `forecast_preds`; `run_m3`; lanjut dari checkpoint.
+
+#### src/models/direction.py
+(konstanta `CLASSIFIERS` = C1 base+id, C2 base+fx+id; EKSPLORATIF D-141, bukan uji praregistrasi; `TUNED_CLASSIFIERS` C1t/C2t + `TUNED_HGB`, D-145)
+- `fit_predict_proba` · ✔ · HistGradientBoostingClassifier (params.forecast.hgb) dilatih langsung untuk arah naik/turun (y = 0 dibuang) → probabilitas naik.
+- `rolling_direction` · ✔ · loop horizon × origin × klasifier dengan rolling-origin Task 4 → artefak `direction_preds`; lanjut dari checkpoint.
+- `tuned_columns` · ✔ · D-145: (kolom numerik, kategori) C1t (base + `price_dynamics.SELECTED_GROUPS`) / C2t (+ fx) per horizon.
+- `fit_predict_proba_tuned` · ✔ · D-145: HGB dengan `TUNED_HGB` (Optuna pada origin pengembangan, dibekukan) → probabilitas naik.
+- `rolling_direction_tuned` · ✔ · D-145: rolling-origin Task 4 untuk C1t/C2t pada tabel + fitur dinamika → artefak `direction_tuned_preds`; lanjut dari checkpoint.
+
+#### src/models/neural.py
+(konstanta `SEQ_MODELS` PTST/TSMX/TSMX_fx, `FOUNDATION_MODELS` TFM/TFM_fx, hiperparameter tetap; EKSPLORATIF D-142; butuh torch, TFM butuh `timesfm` 3.x)
+- `split_replicate` · ✔ · nama replikasi seed `<model>_r<k>` → (model dasar, k); hanya model deep yang dilatih (D-144).
+- `series_arrays` · ✔ · feature_table → matriks minggu × seri (log harga ffill, de, dw as-of, target y_h, kode komoditas).
+- `fit_sequence_model` · ✔ · latih PatchTST / TSMixer (± kurs) global dengan loss L1 pada jendela yang target-nya terealisasi s.d. origin.
+- `predict_sequence_model` · ✔ · ramalan y_h (h 4 & 8) untuk pasangan (origin, seri).
+- `load_timesfm` · ✔ · muat TimesFM 3.0 (google/timesfm-3.0-pytorch, CPU); None bila paket tidak ada.
+- `predict_timesfm` · ✔ · zero-shot: konteks log harga s.d. origin (± kovariat masa lalu de & dw) → y_h = ramalan − p_t.
+- `rolling_deep` · ✔ · rolling-origin Task 4 (baris uji sama), refit model deep tiap `REFIT_EVERY` origin → artefak `deep_preds`; lanjut dari checkpoint.
 
 ### 9.5 Lapisan evaluation
 
@@ -802,6 +848,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 
 #### src/pipelines/task4.py
 - `run` · ✔ · rolling_predictions → forecast_preds.parquet → evaluate + ablation.
+- `run_direction` · ✔ · EKSPLORATIF (D-141): klasifier arah C1/C2 → `direction_preds` (`kagami task4 --direction`); uji resmi tidak berubah.
+- `run_direction_tuned` · ✔ · EKSPLORATIF (D-145): klasifier arah tuned C1t/C2t → `direction_tuned_preds` (`kagami task4 --direction-tuned [C1t C2t]`).
+- `run_deep` · ✔ · EKSPLORATIF (D-142): PatchTST, TSMixer ± kurs, TimesFM 3.0 ± kurs → `deep_preds` (`kagami task4 --deep [model ..]`).
 
 #### src/pipelines/robustness.py
 - `run` · ✔ · tier1 + validation (+ tier2 bila diminta).
@@ -830,9 +879,10 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `forest` · ✔ · forest plot estimasi + interval (nb03, nb05).
 - `sensitivity_heatmap` · ✔ · peta kepekaan respons kumulatif per komoditas × unit dari `response_features` (app hal. 2).
 - `cluster_sizes` · ✔ · jumlah provinsi per klaster + stabilitas Jaccard, klaster lemah ditandai (app hal. 3).
-- `run_durations` · ✔ · waktu eksekusi per run, warna = status (app hal. 7).
+- `run_durations` · ✔ · batang waktu eksekusi per run eksekusi berlabel tahap, warna = status; tahap tanpa eksekusi di subjudul (app hal. 7).
 - `metric_trend` · ✔ · satu metrik antar run sebuah tahap; tidak berlaku/gagal ditandai (app hal. 7).
-- `pipeline_graph` · ✔ · graf dependensi tahap dari REQUIRES/OPTIONAL, status run terakhir, tanda basi (app hal. 7).
+- `pipeline_graph` · ✔ · graf dependensi tahap dari REQUIRES/OPTIONAL, warna = status tahap (eksekusi vs evaluasi-saja, output tidak sinkron), tanda basi (app hal. 7).
+- `confusion_matrix` · ✔ · confusion matrix arah perubahan Task 4 (baris = aktual, warna = porsi baris) dari log evaluasi (app hal. 7, D-139).
 
 #### src/viz/style.py
 (konstanta palet `BLUE`/`ORANGE`/`AQUA`/`NEUTRAL`, `DIVERGING`, `SEQUENTIAL`, `STATUS_COLORS`, `MODEL_COLORS`; label `DRIVER_LABELS`,
@@ -858,9 +908,18 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `failed` · ✔ · Metric `failed` + alasan.
 - `clustering_metrics` · ✔ · n_clusters, ukuran, WCSS, silhouette/DB/CH hanya bila 2 ≤ k ≤ n − 1 dan tanpa NaN.
 - `regression_metrics` · ✔ · MAE, MSE, RMSE, R², R² vs ramalan nol, MAPE (tidak berlaku bila ada y = 0); pasangan NaN dibuang & dicatat.
+- `direction_metrics` · ✔ · diagnostik arah (D-139): tanda ramalan regresi vs tanda y → accuracy, baseline mayoritas, balanced acc.,
+  precision/recall/F1 naik & turun, F1 makro, MCC, ROC-AUC, PR-AUC, confusion; y = 0 / ramalan = 0 dikeluarkan & dicatat; M0 / satu kelas → tidak berlaku.
 - `data_profile` · ✔ · baris, kolom, sel kosong, memori (MB) sebuah DataFrame.
 - `interval_consistency` · ✔ · porsi baris dengan p < α ⇔ interval tidak memuat nol + jumlah ketidakcocokan.
 - `share` · ✔ · porsi True (NaN dibuang).
+- `bootstrap_p` · ✔ · p dua sisi bootstrap persentil terhadap nilai acuan (konsisten dengan interval persentil; D-143).
+- `origin_block_indices` · ✔ · matriks indeks bootstrap blok bergerak atas origin berurutan (D-140).
+- `direction_bootstrap` · ✔ · interval 95% metrik arah (akurasi, selisih vs baseline mayoritas, balanced acc., F1 makro, MCC, ROC-AUC, PR-AUC) dengan bootstrap blok origin; unit = origin, bukan baris (D-140).
+- `direction_segment_table` · ✔ · metrik arah + MAE per segmen (komoditas, jalur, grup H5, kekakuan harga) × model, selisih vs baseline dengan interval & penilaian (D-140).
+- `paired_accuracy_diff` · ✔ · selisih akurasi arah A − B pada baris yang sama + interval bootstrap blok origin berpasangan (D-141).
+- `selective_accuracy` · ✔ · prediksi selektif: per origin hanya baris paling yakin |p − 0,5| (cakupan q) → cakupan, akurasi, baseline, F1 makro (D-141).
+- `feature_health` · ✔ · fitur konstan (tersusut habis), dimensi efektif, sel kosong, pasangan redundan |r| ≥ 0,95 (D-140).
 
 #### src/tracking/lineage.py
 (kelas `Recorder` = pengamat io: input di-hash saat dibaca, output di akhir run)
@@ -874,6 +933,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `git_info` · ✔ · (commit, branch) dari .git tanpa menjalankan git.
 - `peak_rss_mb` · ✔ · memori puncak proses (psutil/resource; None bila tak ada).
 - `python_version` · ✔ · versi Python.
+- `code_hash` · ✔ · sha256 isi `src/**/*.py`, `app/**/*.py`, `configs/*.yaml` (path relatif) → sidik jari kode (D-140).
+- `git_dirty` · ✔ · kode/config berubah tanpa commit (`git status --porcelain`, baca-saja); None tanpa repo/git.
+- `environment_versions` · ✔ · versi Python, numpy, pandas, scipy, scikit-learn.
 
 #### src/tracking/registry.py
 (`TaskSpec`, `TASKS` 7 tahap, `ORDER`, `NOT_APPLICABLE_FAMILIES`)
@@ -895,6 +957,14 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `compare_runs` · ✔ · metrik + delta vs run acuan, beda parameter/lingkungan, sha256 input/output per run.
 - `latest_runs` · ✔ · run terakhir per tahap.
 - `staleness` · ✔ · input run terakhir yang file-nya kini berbeda (hasil basi).
+- `artifact_sync` · ✔ · lineage OUTPUT: setiap artefak = hasil run eksekusi terakhir (sinkron) / versi lain (tidak sinkron) / hanya dievaluasi / tanpa log (D-140).
+- `stage_states` · ✔ · status tahap: dieksekusi / output tidak sinkron / hanya dievaluasi / gagal / belum ada run (D-140).
+
+#### src/tracking/assessment.py
+(`LABELS`, `COLUMNS`, `RULES`; lapis kedua D-140: status hitung ≠ kualitas hasil)
+- `assess` · ✔ · penilaian satu metrik terhadap acuan eksplisit (peluang, baseline mayoritas, α + uji binomial, rasio 1 + DM, p95 plasebo, ambang MDE, nol integritas) → better / worse / inconclusive / expected / review / info + interpretasi.
+- `assess_table` · ✔ · tambah kolom reference, reference_label, ci_low, ci_high, assessment, interpretation ke metrics_table (dihitung saat dibaca; berlaku juga untuk log lama), lalu `apply_multiplicity`.
+- `apply_multiplicity` · ✔ · BH per keluarga per run (beda berpasangan, metrik arah vs acuan, rasio MAE eksploratif): q ≥ 0,05 → belum terbukti; kolom family, p_value, q_value (D-143).
 
 #### src/tracking/evaluators.py
 (`EVALUATORS`; hanya membaca artefak; artefak hilang → not_applicable + alasan; galat bagian → failed)
@@ -903,7 +973,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `evaluate_task1` · ✔ · jumlah estimasi, porsi interval tidak memuat nol, positif palsu plasebo, boot_ratio, event study; R² = tidak berlaku.
 - `evaluate_task2` · ✔ · H0-Het, silhouette per k vs p95, validitas partisi terpilih, DB/CH kandidat, cek silhouette dihitung ulang, batas deteksi, ARI.
 - `evaluate_task3` · ✔ · Kendall, meta-regresi, H2, E2, terkalibrasi + konsistensi p–interval.
-- `evaluate_task4` · ✔ · MAE/RMSE/rasio/DM resmi, galat dihitung ulang dari forecast_preds (cek silang MAE), ablation.
+- `evaluate_task4` · ✔ · MAE/RMSE/rasio/DM resmi, galat dihitung ulang dari forecast_preds (cek silang MAE), diagnostik arah (D-139) + interval bootstrap blok origin & tabel per segmen (D-140), ablation + cek M2_nofx = M1.
 - `evaluate_robustness` · ✔ · baris per tier, porsi baseline dalam interval, V4.
 - `evaluate` · ✔ · dispatcher per tahap (tahap tanpa evaluator → not_applicable).
 
@@ -1210,24 +1280,27 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_task2.py` | Task 2 end-to-end pada profil provinsi sintetis dengan 3 kelompok tertanam |
 | `test_association.py` | WP-23/24: meta-regresi & interaksi FE memulihkan koefisien tertanam; p ⇔ interval laporan & q BH (U106), p bootstrap sisi = persentil |
 | `test_forecast.py` | WP-25/26: tanpa kebocoran as-of, origin, model M0–M3 & M2_nofx, checkpoint |
+| `test_direction.py` | D-141 (eksploratif): klasifier C2 (+ kurs) memulihkan sinyal kurs tertanam lebih baik dari C1, penjaga (satu kelas, y = 0, model tak dikenal), bentuk & resume rolling_direction, beda akurasi berpasangan, prediksi selektif |
+| `test_direction_tuned.py` | D-145 (eksploratif): fitur dinamika harga tanpa informasi sesudah origin (harga & status masa depan dirusak → fitur ≤ origin sama), nilai fitur yang diketahui (lag, MA, musiman, deviasi spasial Σ = 0, umur carry-forward), kolom & penjaga C1t/C2t, C1t memulihkan mean-reversion tertanam lebih baik dari C1, bentuk & resume `rolling_direction_tuned` |
+| `test_neural.py` | D-142 (eksploratif): jendela latih tanpa target belum terealisasi, PatchTST/TSMixer tidak memakai data sesudah origin (ubah masa depan → ramalan sama), adapter TimesFM hanya konteks s.d. origin (forecaster palsu), baris uji = Task 4, resume |
 | `test_task1.py` | `task1.run` end-to-end pada artefak sintetis (B/R kecil): semua artefak tahap tertulis, interval tidak menyempit, tiga level |
 | `test_synthetic.py` | generator sintetis Task 1 (`tests/synthetic.py`): skema = kontrak artefak, jawaban tertanam pulih |
 | `test_app_data.py` | halaman Streamlit terender dengan artefak sintetis berskema kontrak, termasuk `national_calibrated`, `asymmetry`, `regime_profiles` (WP-31); `load` tidak meng-cache artefak hilang & membaca versi baru (D-136) |
 | `test_package.py` | WP-32: isi zip juri, tanpa data tanpa hak redistribusi, artefak ship hilang dilaporkan, CLI jalan dari folder baru |
-| `test_runtime.py` | lokasi default, tulis out/baca artefak tahap sebelumnya, override raw, deteksi Kaggle, layout Colab |
+| `test_runtime.py` | lokasi default, tulis out/baca artefak tahap sebelumnya, override raw, deteksi Kaggle, layout Colab, stdout CLI cp1252 (regresi D-138) |
 | `test_notebooks.py` | satu notebook per tahap, valid, sel 0–1 identik, tanpa output, sel setup jalan lokal |
 | `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis; tanpa interval → tanpa pita; format angka & lencana (regresi NaN); peta tanpa subplot geo (offline) & nilai wilayah ke provinsi; V18 hanya Tier 1/2 + komponen dekomposisi; V19 subjudul H2; geometri referensi = 34 provinsi crosswalk |
 | `test_app.py` | 7 halaman Streamlit jalan tanpa exception (artefak ada/belum) |
-| `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app |
+| `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app, artefak yang dibaca pipeline dideklarasikan REQUIRES/OPTIONAL (D-140) |
 | `test_claude_md.py` | §9 dokumen ini sinkron dengan kode (fungsi publik & status stub) |
 | `test_handoff.py` | format setiap `docs/handoff/*.md`: nama file, frontmatter, bagian wajib, status vs kotak centang |
 | `test_drive.py` | sinkron Drive dengan Drive palsu di memori: path dicerminkan, timpa bukan duplikat, pull ke anggota lain, hanya tahap diminta, lokal tanpa token dilewati, push/pull data mentah bolak-balik (MD5, glob, tidak menimpa) |
 | `test_download.py` | resolusi tautan unduhan terbaru (pola Pink Sheet) & url cadangan, tanpa jaringan |
-| `test_tracking.py` | WP-36: metrik clustering/regresi = rumus numpy independen, penjaga not_applicable (k = 1, k = n, NaN, y = 0), run sukses/gagal & galat dilempar ulang, log tidak ditimpa, bertingkat & pipeline_id, run induk dari hash, hasil basi & perbandingan, evaluasi-saja, graf DAG, git, log Drive bolak-balik, cek integritas silhouette & MAE pada artefak asli, halaman app 7 |
+| `test_tracking.py` | WP-36: metrik clustering/regresi = rumus numpy independen, penjaga not_applicable (k = 1, k = n, NaN, y = 0), run sukses/gagal & galat dilempar ulang, log tidak ditimpa, bertingkat & pipeline_id, run induk dari hash, hasil basi & perbandingan, evaluasi-saja, graf DAG, git, log Drive bolak-balik, cek integritas silhouette & MAE pada artefak asli, halaman app 7, grafik run dengan format waktu campuran (D-138), metrik arah = rumus confusion/AUC/AP manual + penjaga (D-139); D-143: p bootstrap ⇔ interval & penurunan penilaian yang tidak lolos BH; D-144: F1 berbobot/cakupan/akurasi termasuk nol, ringkasan Task 4 & sakelar diagnostik; D-140: interval bootstrap origin mendeteksi sinyal & AUC/AP = sklearn, tabel segmen, kesehatan fitur, aturan penilaian, perubahan sama/berubah/baru/hilang, code hash, sinkron artefak & status tahap |
 | `test_docs_sync.py` | dokumen hidup tidak basi: tautan & path ada, papan WP vs stub, §2 vs papan, ID D-/U- ada, kunci `params.*` ada, sumber/komoditas/notebook/subpaket/tes terdokumentasi (§3.4) |
 
 ### 16.2 Menjalankan
-- Semua: `python -m pytest -q` (± 2–9 menit; 355 tes pada 2026-11-24). Subset: `python -m pytest -q tests/test_weekly.py -k eligibility`.
+- Semua: `python -m pytest -q` (± 2–9 menit; 387 tes pada 2026-11-24). Subset: `python -m pytest -q tests/test_weekly.py -k eligibility`.
 - Tes yang butuh mentah di-skip otomatis bila mentah tidak ada (paket juri).
 
 ### 16.3 Pola tes yang disarankan
@@ -1356,6 +1429,14 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-145 | Optimasi klasifikasi arah Task 4 eksploratif (fitur per seri, Optuna, threshold dev, kepala TimesFM–CatBoost); origin pengembangan ≤ 2023 vs test ≥ 2024; C1-tuned 0,677 / 0,680 | FINAL · eksploratif |
+| D-144 | F1 berbobot/cakupan/akurasi termasuk nol, replikasi seed model deep (`_r<k>`), kepekaan blok & lag DM, segmen tahun origin, ringkasan Task 4 di halaman 7, `evaluator_version`; robustness Tier 2 tercatat identik | FINAL (teknis) |
+| D-143 | Koreksi BH per keluarga untuk perbandingan eksploratif di penilaian halaman 7 & tabel segmen (p bootstrap persentil / DM); uji resmi tidak dikoreksi | FINAL (teknis) |
+| D-142 | Model deep & foundation EKSPLORATIF untuk Task 4 (PatchTST, TSMixer ± kurs, TimesFM 3.0 zero-shot ± kovariat kurs) → `deep_preds`; atas keputusan Danen 2026-11-24 sebelum pembekuan; Chronos-2 tidak diunduh | FINAL · eksploratif |
+| D-141 | Klasifier arah EKSPLORATIF (HGB classifier C1 tanpa kurs / C2 + kurs, rolling-origin Task 4) → `direction_preds`; dibandingkan berpasangan dengan C1, M3, M1 + prediksi selektif; bukan uji praregistrasi | FINAL · eksploratif |
+| D-140 | Evaluasi dua lapis (status hitung vs penilaian terhadap acuan), interval bootstrap blok origin metrik arah, tabel per segmen, lineage output & status tahap, sidik jari kode; wiring OPTIONAL task2/robustness | FINAL (teknis) |
+| D-139 | Diagnostik klasifikasi arah perubahan Task 4 (accuracy, F1, MCC, AUC, confusion) di log evaluasi & app hal. 7; bukan uji praregistrasi | FINAL (teknis) |
+| D-138 | CLI memaksa stdout UTF-8 (crash cp1252 saat output diarahkan ke file); grafik hal. 7 parse waktu ISO8601 campuran | FINAL (teknis) |
 | D-137 | Log eksekusi & evaluasi terpusat `src/tracking/` + `logs/` (JSON per run, tidak ditimpa), lineage sha256, metrik berpenjaga, app hal. 7; hasil analisis & params tidak berubah | FINAL (teknis) |
 | D-136 | App: artefak yang belum ada tidak di-cache; kunci cache = path + mtime + ukuran (app daring tetap kosong setelah push) | FINAL (teknis) |
 | D-135 | Deploy app: 23 artefak yang dibaca app (± 1,4 MB, ship=True) di-track git; hal. 6 tidak menunggu robustness; `requirements.txt` di paket | FINAL (teknis) |
@@ -1472,6 +1553,9 @@ Selesai: U1, U2, U18, U23.
 26. **`st.cache_data` ikut menyimpan hasil "tidak ada"** (D-136): Streamlit Cloud menarik commit baru tanpa me-restart proses, jadi
     `None` yang di-cache sebelum artefak di-push bertahan dan app tetap "Menunggu hasil". Jangan meng-cache ketiadaan; masukkan mtime
     file ke kunci cache. Untuk deploy yang sudah tercemar: "Reboot app" di dasbor Streamlit Cloud.
+27. **stdout cp1252 di Windows** (D-138): output CLI yang diarahkan ke file (`python -m kagami all > log`) memakai cp1252, jadi
+    `print` berisi τ²/β/≥ crash, dalam kasus nyata setelah 88 menit bootstrap Task 1. `cli.main` kini memaksa UTF-8; skrip ad-hoc
+    yang memanggil pipeline tanpa CLI → set `PYTHONIOENCODING=utf-8`.
 
 ---
 

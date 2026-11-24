@@ -149,6 +149,50 @@ def git_info(root: Path) -> tuple[str | None, str | None]:
     return None, branch
 
 
+CODE_GLOBS = ("src/**/*.py", "app/**/*.py", "configs/*.yaml")
+
+
+def code_hash(root: Path) -> str | None:
+    """sha256 isi kode & config (D-140): pasangan (path relatif, sha256 file) untuk `CODE_GLOBS`, terurut. Dua run dengan
+    hash sama memakai kode identik walau commit sama-sama 'kotor'; berbeda platform tetap sebanding (path relatif)."""
+    root = Path(root)
+    files = sorted({p for g in CODE_GLOBS for p in root.glob(g) if p.is_file() and "__pycache__" not in p.parts})
+    if not files:
+        return None
+    h = hashlib.sha256()
+    for p in files:
+        h.update(f"{p.relative_to(root).as_posix()}\t{sha256_file(p)}\n".encode())
+    return h.hexdigest()
+
+
+def git_dirty(root: Path) -> bool | None:
+    """True bila ada file kode/config (src, app, configs) yang berubah dibanding commit (`git status --porcelain`,
+    baca-saja); None bila bukan repo git atau git tidak tersedia (Kaggle/Colab dari zip)."""
+    import subprocess
+
+    if not (Path(root) / ".git").exists():
+        return None
+    try:
+        res = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--", "src", "app", "configs"],
+                             cwd=root, capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return bool(res.stdout.strip()) if res.returncode == 0 else None
+
+
+def environment_versions() -> dict[str, str]:
+    """Versi Python + paket utama yang memengaruhi hasil (numpy, pandas, scipy, scikit-learn)."""
+    from importlib.metadata import PackageNotFoundError, version
+
+    out = {"python": python_version()}
+    for pkg in ("numpy", "pandas", "scipy", "scikit-learn"):
+        try:
+            out[pkg] = version(pkg)
+        except PackageNotFoundError:
+            continue
+    return out
+
+
 def peak_rss_mb() -> float | None:
     """Memori puncak proses (MB) sampai saat ini: psutil (Windows peak_wset) atau resource (Linux); None bila tak ada."""
     try:

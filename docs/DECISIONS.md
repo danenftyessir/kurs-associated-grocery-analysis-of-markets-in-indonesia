@@ -415,6 +415,123 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-145 — Optimasi klasifikasi arah Task 4 EKSPLORATIF (fitur, Optuna, threshold, kepala TimesFM) · FINAL · eksploratif · 2026-11-24 (WP-36) · Danen
+Atas permintaan Danen (prioritas macro F1 arah h 4 & 8). Protokol ditetapkan sebelum tuning: origin pengembangan = origin + h ≤
+2023-12-31 (38 / 37), test final = origin ≥ 2024-01-01 (37 / 36), tidak dipakai untuk memilih fitur, hyperparameter, varian, atau
+threshold; baseline = prediksi resmi pada baris test identik; bootstrap blok origin + BH 26 perbandingan. Laporan, skrip, dan
+konfigurasi: `docs/audit/20261124_task4_optimasi_arah.md`. Tidak mengubah `src/`, `params.yaml`, artefak, atau uji praregistrasi.
+Diputuskan: (1) 8 kelompok fitur per seri dari log harga s.d. t (lag panjang, EWM, sd, momentum, musiman, deviasi MA/rentang/spasial,
+umur carry-forward, sinyal nasional komoditas), ablation di pengembangan → `vol` & `cf` dibuang; (2) C1-tuned = HGB Optuna TPE 40
+trial (lr 0,028, 250 iterasi, 23 daun, min_leaf 319, l2 3,85, max_features 0,335); (3) C2-tuned = sama + kurs (12 trial); (4) TSMixer
+Optuna 10 trial termasuk loss BCE arah; (5) threshold dari pengembangan; kalibrasi residu walk-forward TimesFM; (6) kepala CatBoost
+dari ramalan TimesFM walk-forward (+ fitur + OOF C1-tuned), dilatih hanya pada origin o' + h ≤ o. Ditolak: tuning pada semua origin
+(bocor ke test), threshold walk-forward dari periode test, prediksi selektif sebagai skor utama (mengecilkan cakupan).
+Uji kebocoran: merusak harga sesudah origin tidak mengubah 37 fitur baru pada minggu ≤ origin. Optuna 4.5.0 & CatBoost 1.2.8 hanya
+di lingkungan lokal (bukan dependensi paket).
+Hasil (test final): C1-tuned macro F1 0,677 / 0,680 (h 4 / 8; seed 2–3 ± 0,003) vs C1 0,586 / 0,607, TimesFM 0,618 / 0,621 →
++0,059 (0,043..0,075) / +0,053 (0,027..0,077) vs TimesFM, q 0,001; MCC 0,36, ROC-AUC 0,74, cakupan 0,855 / 0,907 (sama untuk semua).
+Kurs tidak membantu (C2t − C1t −0,004 / +0,001); threshold dev tidak menambah untuk klasifier, +0,012 / +0,024 untuk TimesFM;
+kepala TimesFM 0,672 / 0,676 = setara C1-tuned (−0,005 / +0,002); TSMixer-tuned tidak lebih baik dari resmi (h 8 thr dev −0,026,
+lolos BH). Kenaikan hampir seluruhnya dari fitur (deviasi & sinyal nasional), bukan hyperparameter. Bukan uji praregistrasi;
+H5 tetap tidak didukung.
+Porting (hari yang sama, atas keputusan Danen): `features/price_dynamics.py` (fitur), `models/direction.py` (`TUNED_HGB`,
+C1t/C2t, `rolling_direction_tuned`), `pipelines/task4.run_direction_tuned`, CLI `task4 --direction-tuned`, artefak eksploratif
+`direction_tuned_preds` (tidak dikirim, 38 artefak), tes `tests/test_direction_tuned.py`. Hyperparameter sebagai konstanta modul
+(bukan `params.yaml`, beku sejak G6). Prediksi identik dengan eksperimen (selisih p 0,0).
+
+### D-144 — Kelengkapan klasifikasi, replikasi seed, kepekaan blok, ringkasan Task 4 · FINAL (teknis) · 2026-11-24 (WP-36) · Danen
+Atas tinjauan lanjutan audit (Lampiran C). Diputuskan: (1) `direction_metrics` menambah F1 berbobot, cakupan, dan akurasi
+termasuk perubahan nol (kelas FLAT tetap tidak dimodelkan: butuh ambang baru setelah G6); (2) replikasi seed model deep lewat
+nama `<model>_r<k>` (seed + 1000·(k−1), origin & jadwal refit sama), diringkas `h{h}_seed_replication`, dikeluarkan dari metrik
+utama & segmen; (3) `h{h}_block_sensitivity` (blok 2/3/4/6 origin, lag DM 1/2/3/5) + porsi keputusan stabil; (4) segmen
+"tahun origin" (cek kontaminasi TimesFM); (5) halaman 7: tabel perbandingan model Task 4 tampil pertama, diagnostik lanjutan
+di balik sakelar, filter penilaian default tanpa "informasi", Riwayat mode "terbaru per tahap + eksekusi"; (6) RunRecord
+`evaluator_version` (schema 3); (7) robustness Tier 2 dijalankan tercatat ke folder sementara, identik sha256 → log diimpor,
+file resmi tidak diganti. Ditolak: kelas FLAT dengan ambang (deviasi praregistrasi), 5 seed (3 cukup untuk menunjukkan rentang;
+± 45 menit per 2 seed di CPU), menghapus log evaluasi lama (log tidak pernah ditimpa/dihapus, D-137).
+Hasil: F1 makro h 8 (pada baris berubah, cakupan 0,907): TimesFM 0,623, C2 0,614, C1 0,605, TSMixer 0,604, M3 0,594, M1 0,551; F1 berbobot hampir sama; akurasi bila minggu tanpa perubahan dihitung salah: TimesFM 0,566, M1 0,508. Replikasi 3 seed (h 8): TSMixer MAE/M1 0,966 ± 0,007 (0,959..0,972), akurasi 0,610 ± 0,005; PatchTST 0,972 ± 0,011, 0,583 ± 0,016; TSMixer + kurs 0,995 ± 0,009 (lebih buruk dari TSMixer di ketiga seed). Kepekaan blok bootstrap 2/3/4/6 origin: 17/17 keputusan sama di kedua horizon; DM TimesFM vs M1 p < 0,001 dan M2 vs M1 p 0,006–0,018 untuk lag HAC 1–5. Per tahun origin, keunggulan MAE TimesFM bertahan pada 2026 (0,938) walau lebih kecil dari 2023–2024 (0,876 / 0,834). Robustness Tier 2 dijalankan tercatat: identik sha256 dengan file resmi (679 baris), sekarang sinkron.
+
+### D-143 — Koreksi multiplisitas BH untuk perbandingan eksploratif di penilaian halaman 7 · FINAL (teknis) · 2026-11-24 (WP-36) · Danen
+Dari audit ulang (Lampiran C, butir 4): 30 beda akurasi berpasangan, 132 metrik arah vs acuan, dan 14 rasio MAE model
+eksploratif dinilai masing-masing pada 95%. Diputuskan: p bootstrap persentil dua sisi (`metrics.bootstrap_p`, konsisten dengan
+interval persentil) untuk metrik arah dan beda berpasangan, p DM untuk rasio MAE; `assessment.apply_multiplicity` menerapkan
+Benjamini–Hochberg per keluarga per run (q < 0,05 = `inference.fdr_q`), hasil yang tidak lolos diturunkan ke "belum terbukti
+berbeda" dengan alasan; tabel segmen dikoreksi BH di seluruh tabel per horizon. Uji resmi praregistrasi (M0/M2/M3 vs M1,
+H5 Holm) dan hipotesis tunggal tidak dimasukkan (sudah punya aturan inferensi sendiri). Ditolak: Holm (terlalu konservatif
+untuk diagnostik ratusan sel yang saling berkorelasi; BH konsisten dengan kebijakan FDR proyek), satu keluarga gabungan
+(mencampur pertanyaan berbeda). Hasil: Lolos BH: MAE TimesFM (± kurs) vs M1 h 4 & 8 (q ≤ 0,004); akurasi arah TimesFM vs M3 h 4 (q 0,015), C2 vs M3 h 4 (q 0,015), C1 vs M1 h 4 & 8 (q ≤ 0,024); akurasi arah vs baseline: semua model baru dan M3 (q ≤ 0,034), M1/M2 tidak. Gugur: TSMX_fx vs TSMX MAE h 4 (p 0,020 → q 0,057); segmen kaku TimesFM (q 0,053) & M2 (q 0,080); segmen lentur M1 (q 0,064). Beda berpasangan 5/30 bertahan; metrik arah vs acuan 123/132; rasio MAE eksploratif 4/14; tabel segmen h 8: 47 lebih baik, 15 lebih buruk dari 190.
+
+### D-142 — Model deep learning & foundation EKSPLORATIF untuk Task 4 · FINAL · eksploratif · 2026-11-24 (WP-36) · Danen
+Danen memutuskan (2026-11-24) model ditambahkan sekarang, tidak menunggu pembekuan 27 Nov; D-141 yang menolaknya sebelum
+pembekuan diganti untuk bagian ini. Unduhan disetujui Danen: paket `timesfm` 3.0.2 (PyPI) + bobot google/timesfm-3.0-pytorch
+(1,32 GB, TimesFM Non-Commercial License v1.0, diterima Danen); Chronos-2 TIDAK diunduh (tidak disetujui). Diputuskan:
+`models.neural` dengan PatchTST, TSMixer, TSMixer + kanal kurs & harga dunia as-of (ablation kurs), TimesFM 3.0 zero-shot dan
+TimesFM + kovariat masa lalu kurs & harga dunia. Target, origin, dan baris uji identik dengan M0–M3 (`split_origin`), jadi MAE,
+DM, dan metrik arah sebanding. Model deep dilatih global (embedding komoditas) dengan loss L1, refit tiap 4 origin (16 minggu),
+jendela latih hanya dengan target terealisasi s.d. origin; hiperparameter ditetapkan sebelum melihat hasil (lookback 52, d 32,
+2 lapis, 4 epoch, ≤ 40.000 jendela), sebagai konstanta modul eksploratif, BUKAN `params.yaml` (beku G6, sha256 di
+PREREGISTRATION). Tes: mengubah data sesudah origin tidak mengubah ramalan (tanpa kebocoran). Artefak `deep_preds` (tidak
+dikirim), `kagami task4 --deep`, extra `[deep]` di pyproject (torch, timesfm). Uji resmi H5 tetap M2 vs M1.
+Ditolak: TimesFM sebagai pengganti uji H5 (bukan praregistrasi; tidak menguji fitur kurs), fine-tuning TimesFM (CPU, tanpa GPU),
+menyertakan bobot di zip juri (1,32 GB, lisensi non-komersial; juri mengunduh sendiri).
+Hasil (run lokal CPU 2026-11-24, 7.632 dtk): TimesFM 3.0 zero-shot (TFM) MAE / M1 0,935 (h 4, DM p 0,0001) dan 0,895 (h 8, DM p < 0,001), R² vs ramalan nol 0,19 / 0,25 (M1 0,09 / 0,07), akurasi arah 0,616 / 0,623 (selisih vs baseline 0,049..0,116 / 0,026..0,122), ROC-AUC 0,66 / 0,69; TFM − M3 akurasi arah +0,043 (0,021..0,064) pada h 4, h 8 tidak terbukti. PatchTST & TSMixer: MAE / M1 0,96–1,00 (DM tidak nyata), akurasi arah 0,58–0,61. Fitur kurs tidak membantu: TFM_fx / TFM MAE 1,005 / 1,010 (tidak nyata), TSMX_fx / TSMX 1,041 (h 4, DM p 0,020, lebih buruk) / 1,029; selisih akurasi arah ± 0,01 (memuat nol). Komoditas kaku: semua model deep di bawah baseline arah (TFM −0,073 pada h 8). Catatan kontaminasi: TimesFM 3.0 dilatih ulang Google pada 2026 dengan korpus publik yang tidak diketahui isinya; deret harga pangan Indonesia periode uji 2021–2026 mungkin ikut di dalamnya, jadi keunggulan zero-shot adalah batas atas.
+
+### D-141 — Klasifier arah EKSPLORATIF (HGB classifier, rolling-origin Task 4) · FINAL · eksploratif · 2026-11-24 (WP-36) · Danen
+Atas permintaan Danen setelah D-140 menunjukkan ramalan regresi M1/M2 tidak lebih baik dari menebak arah terbanyak. Diputuskan:
+`models.direction` dengan HistGradientBoostingClassifier (sudah ada di scikit-learn, tanpa dependensi baru; hiperparameter =
+params.forecast.hgb, sama dengan M3 → tidak ada angka analisis baru) dilatih langsung untuk arah naik/turun (baris y = 0 dibuang),
+fitur & rolling-origin identik dengan Task 4 (`features.forecast.split_origin`, latih t + h ≤ origin, harga dunia as-of). Dua
+varian: C1 (base + id) dan C2 (base + fx + id = fitur M3) sehingga C2 − C1 = ablation kurs pada klasifier. Artefak baru
+`direction_preds` (tidak dikirim), `pipelines.task4.run_direction` / `kagami task4 --direction`; evaluasi di `evaluate_task4`
+(metrik arah + interval bootstrap blok origin, beda berpasangan C2 vs C1, C2 vs M3, C1 vs M1, prediksi selektif per origin,
+tabel per segmen). EKSPLORATIF: tidak menggantikan uji H5 (MAE + DM) dan tidak ditulis sebagai hasil konfirmatori.
+Ditolak: model deep learning / foundation model (TimesFM, Chronos-2, PatchTST) sebelum pembekuan 27 Nov (dependensi `torch`,
+unduhan bobot model, GPU, zip juri tidak bisa memuat bobot; tidak menjawab H5), kelas "tetap" dengan ambang (angka baru setelah
+G6), memilih ambang probabilitas di luar 0,5 dari data uji (bocor).
+Hasil (run lokal 2026-11-24, 1.119 dtk): C2 (+ kurs) akurasi arah 0,598 / 0,617 (h 4 / h 8) vs baseline mayoritas 0,527 / 0,545 (selisih +0,071, interval 0,034..0,108 pada h 8); C1 (tanpa kurs) 0,588 / 0,607; ROC-AUC C2 h 8 0,654 (0,623..0,682); MCC 0,17–0,23. C2 − C1 +0,010 (−0,005..0,024) / +0,009 (−0,007..0,027) → fitur kurs tidak terbukti membantu, konsisten dengan H5; C2 − M3 +0,025 (0,011..0,041) pada h 4, +0,014 (−0,000..0,031) pada h 8; C1 − M1 +0,045 / +0,047 (interval > 0). Komoditas kaku: C2 −0,026 (−0,067..0,024) → tidak lagi lebih buruk dari baseline (M3 −0,058); lentur +0,124. Prediksi selektif C1 h 8: akurasi 0,707 pada cakupan 25%.
+
+### D-140 — Evaluasi dua lapis, interval bootstrap metrik arah, lineage output, sidik jari kode · FINAL (teknis) · 2026-11-24 (WP-36) · Danen
+Dari audit halaman 7 (`docs/audit/20261124_audit_evaluasi_eksekusi.md`) dan rekomendasi tindak lanjutnya. Diputuskan (hanya lapisan
+`tracking`, app, wiring; hasil analisis, `params.yaml`, dan artefak tidak berubah):
+(1) status hitung (`ok`) dipisah dari penilaian terhadap acuan eksplisit (`tracking.assessment`, dihitung saat log dibaca);
+(2) interval 95% metrik arah Task 4 dari bootstrap blok origin (unit = origin; blok ceil(h/4) + 1; 999 replikasi; seed + 3901) +
+tabel per segmen (komoditas, jalur eksposur, grup H5, kekakuan harga = carry_forward ≥ 50%); (3) lineage output: `artifact_sync`
+dan `stage_states` memisahkan eksekusi dari evaluasi-saja dan menandai artefak yang bukan output run eksekusi terakhir;
+(4) RunRecord `code_sha256`, `git_dirty`, `environment` (schema 2; log lama tetap terbaca); (5) `task2.OPTIONAL = (province_features,)`,
+`robustness.OPTIONAL = (pihps_daily, exposure, province_features)` + notebook 02/05 menariknya + tes baca-vs-deklarasi (bug nyata:
+di cloud pembanding n_kota dan sebagian Tier 2 diam-diam dilewati); (6) kesehatan fitur clustering, kriteria robustness tambahan
+(lebar interval, kesamaan tanda, |Δ|/SE, kesamaan keputusan), cek ablation = M1; metrik ganda/teks dibuang.
+Ditolak: menulis penilaian ke log JSON (penilaian harus bisa diperbaiki tanpa menulis ulang log), bootstrap per baris (n baris
+melebih-lebihkan informasi), ablation per kelompok fitur atau model baru (butuh Task 4 ulang di Kaggle & eksploratif setelah
+pembekuan), mengimpor log run end-to-end folder lain (artefak resmi akan tampak tidak sinkron).
+Hasil pada artefak resmi: selisih akurasi arah vs baseline mayoritas h 8 M1 +0,015 (−0,029..0,053), M2 +0,015 (−0,024..0,049),
+M3 +0,057 (0,021..0,088); h 4 M3 +0,046 (0,011..0,072), M1/M2 memuat nol. Komoditas kaku: semua model di bawah baseline (M2 h 8
+−0,061, −0,123..−0,004). ROC-AUC M1 h 8 0,569 (0,535..0,608): di atas acak tetapi tidak lebih berguna dari menebak arah terbanyak.
+share_fx_improves 5/20 (binomial p 0,041). 13/33 fitur clustering konstan. `robustness` resmi (679 baris) bukan output run
+eksekusi terakhir (486 baris, tanpa Tier 2). Diagnostik, bukan uji praregistrasi.
+
+### D-139 — Diagnostik klasifikasi arah perubahan Task 4 di log evaluasi · FINAL (teknis) · 2026-11-24 (WP-36) · Danen
+Atas permintaan Danen (metrik seperti F1). Proyek tidak punya tugas klasifikasi berlabel, jadi keluarga klasifikasi tetap "tidak
+berlaku" untuk tahap 0–3 dan robustness. Satu turunan yang bermakna: arah perubahan harga dari ramalan regresi Task 4. Diputuskan:
+`tracking.metrics.direction_metrics` (kelas = tanda y; y = 0 dan ramalan = 0 dikeluarkan + dicatat; baseline kelas mayoritas;
+penjaga satu kelas & M0), dipanggil `evaluate_task4` per horizon × model, ditampilkan di app hal. 7 (tabel + `viz.plots.confusion_matrix`).
+Ditolak: kelas "tetap" dengan ambang |Δlog| (angka analisis baru setelah G6), menguji selisih akurasi antar model (observasi bertumpuk
+& berkorelasi; uji resmi = DM pada MAE), F1 untuk clustering Task 2 (tanpa ground truth; struktur tertanam sudah memakai ARI & recovery).
+Hasil pada artefak resmi: akurasi arah 0,543 / 0,557 / 0,573 (M1 / M2 / M3, h 4) dan 0,560 / 0,560 / 0,602 (h 8) vs baseline kelas mayoritas 0,527 / 0,545; F1 makro 0,538 / 0,550 / 0,566 dan 0,551 / 0,549 / 0,594; MCC 0,08–0,19; ROC-AUC 0,567–0,627. M3 terbaik pada arah walau MAE-nya lebih besar dari M1 pada h 4; M2 ≈ M1 pada h 8 → kesimpulan H5
+tidak berubah. Diagnostik, bukan uji praregistrasi; hasil analisis & artefak tidak berubah.
+
+### D-138 — CLI memaksa stdout/stderr UTF-8 (crash cp1252 saat output diarahkan ke file di Windows) · FINAL (teknis) · 2026-11-24 (WP-36) · Danen
+Ditemukan saat run end-to-end lokal semua tahap (`python -m kagami all > log`, folder kode bersih, 2026-11-24): `task1` gagal setelah
+bootstrap & plasebo selesai (5.312 dtk) di `print` τ² `features.response.shrink_deviations`, karena stdout yang diarahkan ke file di
+Windows memakai cp1252. Kaggle/Colab memakai UTF-8, jadi tidak pernah muncul di sana. Diputuskan: `cli.main` memanggil `_utf8_stdio`
+(reconfigure UTF-8, errors=replace) sebelum apa pun; tes regresi `test_runtime::test_cli_stdout_redirected_cp1252_does_not_crash`.
+Ditolak: mengganti semua simbol non-ASCII di pesan progres (banyak modul, mudah terulang). Log tracking mencatat kegagalan
+dengan benar (`logs/errors/`); checkpoint `boot_replicates`/`placebo_stats` membuat run ulang melanjutkan tanpa mengulang replikasi.
+Pada run yang sama ditemukan bug kedua: `viz.plots.run_durations`/`metric_trend` memakai `pd.to_datetime` tanpa format, sehingga
+halaman 7 crash bila log lama (`started_at` tanpa mikrodetik) bercampur log baru (dengan mikrodetik, sejak D-137). Diperbaiki dengan
+`format="ISO8601", utc=True` + tes `test_tracking::test_run_plots_accept_mixed_timestamp_formats`.
+Hasil analisis tidak berubah.
+
 ### D-137 — Log eksekusi & evaluasi terpusat (`src/tracking/`, `logs/`, app hal. 7) · FINAL (teknis) · 2026-11-24 (WP-36) · Danen
 Atas permintaan Danen: setiap eksekusi tahap harus menghasilkan log evaluasi terstruktur yang dapat ditelusuri dan dibandingkan.
 Diputuskan: subpaket baru `kagami.tracking` (bukan di `evaluation/`, yang berisi evaluasi statistik penelitian) dengan dekorator

@@ -70,3 +70,19 @@ def test_colab_not_mistaken_for_kaggle_when_kaggle_input_exists(tmp_path, monkey
     monkeypatch.setenv("KAGGLE_KERNEL_RUN_TYPE", "Interactive")
     monkeypatch.setenv("COLAB_RELEASE_TAG", "release-1")
     assert env.detect_platform() == "kaggle"                      # penanda Kaggle eksplisit tetap menang
+
+
+def test_cli_stdout_redirected_cp1252_does_not_crash(monkeypatch):
+    """Regresi D-138: stdout diarahkan ke file di Windows = cp1252 → print τ² dari task1 crash setelah bootstrap."""
+    import io
+    import sys
+
+    from kagami import cli
+
+    buf = io.BytesIO()
+    out = io.TextIOWrapper(buf, encoding="cp1252")
+    monkeypatch.setattr(sys, "stdout", out)
+    cli._utf8_stdio()
+    print("[task1] EB: selisih τ² DL vs REML, β ≥ 0")
+    sys.stdout.flush()
+    assert "τ² DL" in buf.getvalue().decode("utf-8")
