@@ -9,6 +9,13 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-25 — Danen: WP-36 ✅ (optimasi arah Task 4 ronde 2, D-146)
+- Diagnosis arah (kesalahan di perubahan kecil), fitur regulasi/spasial/kalender/prior/level, LightGBM/XGBoost/ensemble, spesialis
+  komoditas, dua tahap 3 kelas; semua dipilih di origin pengembangan → tidak ada yang mengalahkan C1-tuned.
+- 3 kelas test: macro F1 0,625 / 0,606. TCN/MLP multi-task di Colab T4 (akun danendrashafia1967, 9 run): semua −0,02..−0,07 vs C1-tuned.
+- Laporan `docs/audit/20261125_task4_ronde2.md`; `src/` tidak berubah.
+- Belum: commit.
+
 ### 2026-11-24 — Danen: WP-36 ✅ (optimasi klasifikasi arah Task 4 eksploratif, D-145)
 - Fitur per seri (8 kelompok, ablation), Optuna HGB (C1t 40 trial, C2t 12), TSMixer (10 trial, L1/BCE), threshold dari origin
   pengembangan, kalibrasi residu TimesFM, kepala CatBoost TimesFM; test final origin ≥ 2024 tidak dipakai memilih apa pun.

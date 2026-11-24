@@ -177,6 +177,10 @@ Tanggal acuan: 2026-11-24. Papan lengkap: `docs/WORKPLAN.md`.
   resmi (679 baris) bukan output run eksekusi terakhir (486 baris). Hasil analisis & artefak tidak berubah.
 - **Kelengkapan & kestabilan evaluasi (D-144, 2026-11-24):** F1 makro h 8 (pada baris berubah, cakupan 0,907): TimesFM 0,623, C2 0,614, C1 0,605, TSMixer 0,604, M3 0,594, M1 0,551; F1 berbobot hampir sama; akurasi bila minggu tanpa perubahan dihitung salah: TimesFM 0,566, M1 0,508. Replikasi 3 seed (h 8): TSMixer MAE/M1 0,966 ± 0,007 (0,959..0,972), akurasi 0,610 ± 0,005; PatchTST 0,972 ± 0,011, 0,583 ± 0,016; TSMixer + kurs 0,995 ± 0,009 (lebih buruk dari TSMixer di ketiga seed). Kepekaan blok bootstrap 2/3/4/6 origin: 17/17 keputusan sama di kedua horizon; DM TimesFM vs M1 p < 0,001 dan M2 vs M1 p 0,006–0,018 untuk lag HAC 1–5. Per tahun origin, keunggulan MAE TimesFM bertahan pada 2026 (0,938) walau lebih kecil dari 2023–2024 (0,876 / 0,834). Robustness Tier 2 dijalankan tercatat: identik sha256 dengan file resmi (679 baris), sekarang sinkron.
 - **Koreksi multiplisitas (D-143, 2026-11-24):** Lolos BH: MAE TimesFM (± kurs) vs M1 h 4 & 8 (q ≤ 0,004); akurasi arah TimesFM vs M3 h 4 (q 0,015), C2 vs M3 h 4 (q 0,015), C1 vs M1 h 4 & 8 (q ≤ 0,024); akurasi arah vs baseline: semua model baru dan M3 (q ≤ 0,034), M1/M2 tidak. Gugur: TSMX_fx vs TSMX MAE h 4 (p 0,020 → q 0,057); segmen kaku TimesFM (q 0,053) & M2 (q 0,080); segmen lentur M1 (q 0,064). Beda berpasangan 5/30 bertahan; metrik arah vs acuan 123/132; rasio MAE eksploratif 4/14; tabel segmen h 8: 47 lebih baik, 15 lebih buruk dari 190.
+- **Optimasi arah ronde 2 EKSPLORATIF (D-146, 2026-11-25):** fitur regulasi HET/HAP, spasial, kalender, prior, level; LightGBM/XGBoost/
+  ensemble; spesialis komoditas → tidak ada yang mengalahkan C1-tuned di pengembangan. Kesalahan arah terkonsentrasi pada perubahan
+  kecil (kuintil |y| terkecil macro F1 0,57). Target 3 kelas test 0,625 / 0,606. TCN/MLP multi-task (Colab T4, 3 seed): −0,02..−0,07 vs C1-tuned
+  di pengembangan; prediksi di Drive `KAGAMI/experiments/d146_tcn/out/`. Laporan `docs/audit/20261125_task4_ronde2.md`.
 - **Optimasi klasifikasi arah EKSPLORATIF (D-145, 2026-11-24):** fitur per seri (deviasi MA/spasial, sinyal nasional, lag panjang,
   musiman) + Optuna HGB, dipilih di origin pengembangan (target ≤ 2023), dinilai di test final origin ≥ 2024: C1-tuned macro F1
   0,677 / 0,680 (h 4 / 8) vs TimesFM 0,618 / 0,621 (lolos BH); kurs, threshold, kepala TimesFM-CatBoost, TSMixer-tuned tidak
@@ -1429,6 +1433,7 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-146 | Optimasi arah ronde 2 eksploratif (diagnosis perubahan kecil, fitur fundamental/spasial/kalender, LightGBM/XGBoost, spesialis, 3 kelas, TCN/MLP GPU); tidak ada yang mengalahkan C1-tuned | FINAL · eksploratif |
 | D-145 | Optimasi klasifikasi arah Task 4 eksploratif (fitur per seri, Optuna, threshold dev, kepala TimesFM–CatBoost); origin pengembangan ≤ 2023 vs test ≥ 2024; C1-tuned 0,677 / 0,680 | FINAL · eksploratif |
 | D-144 | F1 berbobot/cakupan/akurasi termasuk nol, replikasi seed model deep (`_r<k>`), kepekaan blok & lag DM, segmen tahun origin, ringkasan Task 4 di halaman 7, `evaluator_version`; robustness Tier 2 tercatat identik | FINAL (teknis) |
 | D-143 | Koreksi BH per keluarga untuk perbandingan eksploratif di penilaian halaman 7 & tabel segmen (p bootstrap persentil / DM); uji resmi tidak dikoreksi | FINAL (teknis) |

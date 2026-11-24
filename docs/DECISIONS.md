@@ -415,6 +415,19 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-146 — Optimasi arah Task 4 ronde 2 EKSPLORATIF (diagnosis, fitur fundamental, model lain, 3 kelas) · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Atas permintaan Danen (target 0,8–0,9, enam masalah A–F). Protokol sama dengan D-145: seleksi hanya di origin pengembangan (target
+≤ 2023); test origin ≥ 2024 tidak dipakai memilih apa pun. Laporan & skrip: `docs/audit/20261125_task4_ronde2.md`. Tidak mengubah
+`src/`, `params.yaml`, atau artefak.
+Hasil: (1) kesalahan arah terkonsentrasi pada perubahan kecil (kuintil |y| terkecil macro F1 0,57; terbesar 0,74–0,79) dan drift naik;
+(2) fitur regulasi HET/HAP, spasial (tetangga & hub), kalender, level ≈ 0; prior historis & gabungan −0,016 pada h 8 (interval < 0);
+(3) LightGBM/XGBoost/ensemble −0,002..−0,006, spesialis per kelompok komoditas −0,010 / −0,015 → C1-tuned tetap model terpilih;
+(4) target 3 kelas (tahap 1 "berubah?" + C1-tuned, τ dari pengembangan 0,67 / 0,70): test macro F1 0,625 / 0,606, dilaporkan terpisah
+dari skor biner; (5) TCN multi-task & MLP (Colab T4, 3 varian × 3 seed): semua lebih buruk dari C1-tuned di pengembangan
+(TCN deret −0,04..−0,07, TCN + tabular −0,03..−0,05, MLP −0,02..−0,03) → test tidak dibuka; prediksi di Drive tim
+`KAGAMI/experiments/d146_tcn/out/`. Ditolak: ambang |y| untuk membuang perubahan kecil (penyederhanaan label), memilih fitur dari test.
+LightGBM 4.6.0 & XGBoost 3.0.5 hanya di lingkungan lokal (bukan dependensi paket).
+
 ### D-145 — Optimasi klasifikasi arah Task 4 EKSPLORATIF (fitur, Optuna, threshold, kepala TimesFM) · FINAL · eksploratif · 2026-11-24 (WP-36) · Danen
 Atas permintaan Danen (prioritas macro F1 arah h 4 & 8). Protokol ditetapkan sebelum tuning: origin pengembangan = origin + h ≤
 2023-12-31 (38 / 37), test final = origin ≥ 2024-01-01 (37 / 36), tidak dipakai untuk memilih fitur, hyperparameter, varian, atau
