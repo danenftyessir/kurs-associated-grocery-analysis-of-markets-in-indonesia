@@ -7,6 +7,8 @@ from kagami.data.loaders import LOADERS
 EXPECTED = {
     "jisdor": {"date", "idr_per_usd"},
     "pihps": {"date", "province_id", "province", "level", "commodity_group", "item", "price"},
+    "pihps_wholesale": {"date", "province_id", "province", "level", "commodity_group", "item", "price"},
+    "pihps_producer": {"date", "province_id", "province", "level", "commodity_group", "item", "price"},
     "pinksheet": {"month", "series", "unit", "usd_price"},
     "brent": {"date", "value"},
     "dollar_index": {"date", "value"},

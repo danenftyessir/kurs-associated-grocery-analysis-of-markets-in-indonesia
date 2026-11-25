@@ -27,6 +27,10 @@ adalah analisis kepekaan tambahan (lihat Keterbatasan).
 6. Eksploratif (bukan praregistrasi): foundation model TimesFM 3.0 tanpa pelatihan pada data kami menurunkan MAE terhadap
    M1 sebesar 10,5% pada h = 8 (DM p < 0,001), tetapi menambahkan kurs dan harga dunia ke TimesFM maupun TSMixer tidak
    menambah akurasi. Hasil ini memperkuat temuan 5: pola harga lebih informatif daripada kurs.
+7. Eksploratif: sebagai daftar pantau provinsi (2 komoditas dengan peluang naik tertinggi setiap minggu), klasifier arah
+   berbasis pola harga menangkap kenaikan harga material dengan presisi 0,18 (h = 4) dan 0,16 (h = 8) dalam evaluasi bersyarat
+   pseudo-real-time 2024–2026, sekitar dua kali laju-dasar 0,09 (2,0× dan 1,8×), sedangkan aturan tren sederhana 0,08–0,09.
+   Fitur kurs tidak menambah.
 
 **Jawaban sementara atas pertanyaan pemandu.** Perbedaan kepekaan lebih banyak tampak antarkomoditas daripada antarlokasi:
 estimasi nasional berkisar dari −1,67 (daging ayam) sampai 1,37 (cabai merah) pada h = 8, sedangkan variasi antarprovinsi
@@ -186,6 +190,41 @@ Rasio < 1 = lebih akurat dari M1. Baseline akurasi arah h = 8 = 0,545.
   vs M3 pada h = 4 (+0,043 dan +0,047, q 0,015); klasifier C2 vs M3 pada h = 4 (+0,025, q 0,015); C1 vs M1 pada h = 4 dan 8
   (+0,045 dan +0,047, q ≤ 0,024). Tidak ada perbandingan "dengan kurs vs tanpa kurs" yang lolos.
 
+**Klasifier arah teroptimasi (C1-tuned) dan nilainya sebagai daftar pantau (D-145, D-154).** Klasifier arah dengan fitur
+dinamika harga per seri (lag panjang, momentum, volatilitas, musiman, deviasi dari rata-rata bergerak dan dari provinsi lain,
+sinyal nasional komoditas) dipilih hanya pada origin pengembangan (target ≤ 2023), lalu dinilai sekali pada origin ≥ 2024
+(37 / 36 origin): F1 makro 0,677 (0,652..0,698) pada h = 4 dan 0,680 (0,653..0,706) pada h = 8, di atas TimesFM pada origin
+yang sama (+0,059 dan +0,053, q 0,001). Versi dengan fitur kurs tidak menambah. Tambahan harga pedagang besar dan produsen
+PIHPS serta informasi harga dalam-minggu tidak memberi perbaikan yang terbukti (D-150–D-152).
+
+Bagi pengguna seperti TPID, pertanyaannya adalah komoditas mana di provinsinya yang perlu diprioritaskan 4–8 minggu ke depan.
+Kriteria ditetapkan sebelum pengukuran. *Kenaikan material* = kenaikan h minggu yang termasuk 20% perubahan terbesar
+komoditas itu pada data latih (mis. ≥ 1,6% untuk beras dan ≥ 50% untuk cabai rawit pada h = 4). *Daftar pantau* = 2 komoditas
+dengan peluang naik tertinggi di setiap provinsi setiap minggu. *Pembanding* = empat aturan tanpa model: tren 4 minggu
+provinsi, tren nasional, posisi terhadap rata-rata 13 minggu, dan pola periode yang sama tahun lalu; yang terbaik di
+pengembangan menjadi pembanding resmi.
+
+| Origin ≥ 2024 (dibuka sekali) | h = 4 | h = 8 |
+|---|---|---|
+| Presisi daftar pantau C1-tuned | 0,18 (0,13..0,23) | 0,16 (0,11..0,21) |
+| Aturan sederhana pembanding | 0,085 (tren provinsi) | 0,089 (tren nasional) |
+| Selisih | +0,094 (0,055..0,132) | +0,072 (0,034..0,115) |
+| Laju-dasar kenaikan material | 0,088 | 0,089 |
+| Porsi kenaikan material yang tertangkap | 0,41 | 0,36 |
+| F1 makro arah saat harga bergerak material (aturan tanda tren) | 0,81 (0,50) | 0,81 (0,44) |
+| Brier skill terhadap klimatologi komoditas / ECE | 0,17 / 0,010 | 0,17 / 0,021 |
+
+- Dalam evaluasi bersyarat pseudo-real-time, daftar pantau berbasis pola historis menangkap kenaikan material sekitar dua kali
+  lebih sering daripada pilihan acak (2,0× / 1,8×), sedangkan aturan tren sederhana tidak lebih baik dari acak. Pada periode uji, aturan terbaik
+  justru "kembali ke rata-rata" (0,11 / 0,12); C1-tuned tetap di atasnya (+0,066 / +0,040; perbandingan ini tidak ditetapkan
+  sebelumnya sehingga tanpa interval).
+- Sekitar 1 dari 6 komoditas yang ditandai benar-benar naik material. Daftar ini cocok untuk memprioritaskan pemantauan, bukan
+  memicu tindakan otomatis.
+- Kelemahan klasifier ada pada perubahan kecil (F1 makro pada kuintil |perubahan| terkecil ± 0,57), bukan pada pergerakan yang
+  penting bagi pengguna. Pada 25% prediksi paling yakin setiap minggu, akurasi arah 0,83 (h = 4) dan 0,81 (h = 8).
+- Di origin pengembangan kriteria yang sama lolos (selisih presisi +0,110 / +0,067), kecuali kalibrasi h = 8 yang gagal tipis
+  (ECE 0,056 > 0,05).
+
 ## Eksplorasi E2 — Respons per rezim HET/HAP
 
 145 sel (10 komoditas, 3–6 rezim, h 4/8/12, IDR/USD & harga dunia). Interval dikalibrasi terhadap 499 plasebo
@@ -227,6 +266,10 @@ koreksi multiplisitas. Pola terkuat (eksploratif): bawang putih pada rezim Perba
   harga pangan Indonesia periode 2021–2026 ikut di dalamnya, keunggulannya dalam evaluasi ini adalah batas atas. Keunggulan
   yang lebih kecil pada origin 2026 (MAE/M1 0,938) konsisten dengan kemungkinan itu, tetapi tidak membuktikannya. Bobot TimesFM
   (1,32 GB) memakai lisensi non-komersial dan tidak ikut paket juri.
+- **Daftar pantau Task 4.** Kriteria dan pembanding ditetapkan sebelum pengukuran, model tidak diubah, dan periode uji dibuka
+  sekali untuk kriteria ini; namun periode uji yang sama sudah dipakai untuk melaporkan F1 makro C1-tuned (D-145). Asumsi bahwa
+  praktik TPID tanpa model berupa membaca tren belum divalidasi dengan pengguna. "Material" relatif per komoditas, bukan ambang
+  rupiah atau persen yang sama untuk semua komoditas.
 - **Harga diatur.** Banyak minggu tanpa perubahan harga untuk komoditas yang diatur (beras 92%, daging sapi 90%, gula 85%,
   minyak goreng 87% sel carry-forward); ini kekakuan harga nyata, bukan data hilang, dan membatasi respons yang teramati.
 - **Cakupan.** Kesimpulan berlaku untuk 10 komoditas, 34 provinsi (kerangka lama), dan periode 2018–2026.
@@ -236,4 +279,6 @@ koreksi multiplisitas. Pola terkuat (eksploratif): bawang putih pada rezim Perba
 `eligibility`, `episodes`, `mde` (Tahap 0); `profiles`, `events` (Task 1); `heterogeneity`, `cluster_selection`,
 `partition_compare`, `planted_recovery` (Task 2); `assoc`, `asymmetry`, `regime_profiles`, `national_calibrated`
 (Task 3); `forecast_eval` (Task 4); `robustness`. Eksplorasi Task 4: `forecast_preds`, `direction_preds`, `deep_preds` dan
-log evaluasi Task 4 di `logs/evaluations/` (app halaman 7). Rambu klaim: CLAUDE.md §20.
+log evaluasi Task 4 di `logs/evaluations/` (app halaman 7). Klasifier arah teroptimasi dan daftar pantau:
+`direction_tuned_preds` (tidak dikirim; dibangun ulang dengan `python -m kagami task4 --direction-tuned`), definisi & kriteria
+di D-145 dan D-154 (`docs/DECISIONS.md`). Rambu klaim: CLAUDE.md §20.

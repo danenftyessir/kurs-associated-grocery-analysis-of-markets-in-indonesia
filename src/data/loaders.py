@@ -376,6 +376,8 @@ def load_gkg_beras(cfg: Config) -> pd.DataFrame:
 LOADERS = {
     "jisdor": load_jisdor,
     "pihps": load_pihps,
+    "pihps_wholesale": lambda cfg: load_pihps(cfg, "pihps_wholesale"),
+    "pihps_producer": lambda cfg: load_pihps(cfg, "pihps_producer"),
     "pinksheet": load_pinksheet,
     "brent": lambda cfg: load_fred(cfg, "brent"),
     "dollar_index": lambda cfg: load_fred(cfg, "dollar_index"),

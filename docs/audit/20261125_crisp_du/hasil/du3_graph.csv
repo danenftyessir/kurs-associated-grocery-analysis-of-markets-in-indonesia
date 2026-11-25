@@ -1,0 +1,13 @@
+du,role,signal,horizon,rho,lo,hi,p,n,q_bh
+DU-3,kandidat,tetangga − nasional: Δ4 (geo),4,0.0488,0.0033,0.085,0.0335,10966,0.0804
+DU-3,kandidat,tetangga − nasional: Δ4 (corr),4,0.0426,-0.0177,0.0882,0.1986,10966,0.2383
+DU-3,kandidat,tetangga − nasional: iw_gap (geo),4,0.0457,0.0164,0.0717,0.0065,10966,0.0195
+DU-3,kandidat,tetangga − nasional: iw_gap (corr),4,0.0673,0.0256,0.1023,0.0005,10966,0.003
+DU-3,kandidat,sendiri − tetangga: level (geo),4,-0.0217,-0.0411,-0.0012,0.0425,10966,0.085
+DU-3,kandidat,sendiri − tetangga: level (corr),4,-0.0218,-0.0419,0.0001,0.0535,10966,0.0918
+DU-3,kandidat,tetangga − nasional: Δ4 (geo),8,0.0174,-0.0202,0.045,0.4467,11307,0.4873
+DU-3,kandidat,tetangga − nasional: Δ4 (corr),8,0.013,-0.0426,0.0536,0.7809,11307,0.7809
+DU-3,kandidat,tetangga − nasional: iw_gap (geo),8,0.0426,0.0143,0.064,0.0005,11307,0.003
+DU-3,kandidat,tetangga − nasional: iw_gap (corr),8,0.0692,0.0199,0.1114,0.0015,11307,0.006
+DU-3,kandidat,sendiri − tetangga: level (geo),8,-0.0169,-0.0393,0.0049,0.1386,11307,0.1901
+DU-3,kandidat,sendiri − tetangga: level (corr),8,-0.0185,-0.0426,0.0049,0.1426,11307,0.1901

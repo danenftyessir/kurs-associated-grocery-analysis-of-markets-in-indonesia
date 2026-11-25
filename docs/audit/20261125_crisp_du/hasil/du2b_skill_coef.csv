@@ -1,0 +1,11 @@
+horizon,characteristic,coef_within_commodity_per_sd
+4,vol,-0.023
+4,zero_share,0.0054
+4,up_share,-0.0013
+4,mag,0.0053
+4,ac1,0.0067
+8,vol,-0.0256
+8,zero_share,-0.004
+8,up_share,0.0019
+8,mag,0.0151
+8,ac1,0.0093

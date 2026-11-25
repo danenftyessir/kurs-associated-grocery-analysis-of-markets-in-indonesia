@@ -1,0 +1,9 @@
+horizon,view,score,vs_best_naive,diff,lo,hi
+4,V1_prov_top2,model,R_mom,0.1095,0.0553,0.1509
+4,V1_prov_top2,IW_NAT,R_mom,0.113,0.0627,0.1529
+4,V2_nat_top10pct,model,R_rev,0.154,0.0774,0.2307
+4,V2_nat_top10pct,IW_NAT,R_rev,0.1533,0.0805,0.2175
+8,V1_prov_top2,model,R_nat,0.0668,0.027,0.1292
+8,V1_prov_top2,IW_NAT,R_nat,0.0747,0.0366,0.1447
+8,V2_nat_top10pct,model,R_rev,0.1025,0.0231,0.1757
+8,V2_nat_top10pct,IW_NAT,R_rev,0.1113,0.0405,0.1852

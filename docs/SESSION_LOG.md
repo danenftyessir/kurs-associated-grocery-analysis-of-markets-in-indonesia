@@ -9,6 +9,73 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-25 — Danen: WP-36 ✅ (Business Understanding Task 4 arah, D-154)
+- Protokol beku sebelum ukur: pengguna TPID, kenaikan material (p80 |y| komoditas di baris latih), kriteria S1 daftar pantau, S2 kalibrasi,
+  S3 arah saat bergerak material, 4 aturan naif. Tanpa model baru; C1-tuned dinilai dev lalu test sekali.
+- Test: daftar pantau provinsi presisi 0,18 / 0,16 (laju-dasar 0,09; aturan tren 0,08–0,09), recall 0,41 / 0,36; Brier skill 0,17;
+  macro F1 saat bergerak material 0,81. S1–S3 lolos di test; dev S2 h 8 gagal tipis (ECE 0,056).
+- Laporan `docs/audit/20261125_business_understanding.md`; S1–S3 jadi ukuran wajib di `docs/EKSPERIMEN.md`.
+- `results/findings.md`: Ringkasan butir 7 + subbagian C1-tuned & daftar pantau + Keterbatasan + sumber angka; app hal. 6 dites.
+  Belum: commit/push (app daring), unggah `findings.md` ke Drive tim, validasi asumsi praktik TPID.
+
+### 2026-11-25 — Danen: WP-36 ✅ (alur CRISP-DM + Data Understanding tiga arah, D-153)
+- Dokumen hidup `docs/EKSPERIMEN.md`: fase CRISP-DM di proyek, kartu 8 komponen, layar DU dengan kontrol, gerbang ke Modeling.
+- DU dev (tanpa model/test): lintas komoditas 0/360 lolos BH (co-trend 2021–2022); 5 tipe seri tetapi tidak menjelaskan skill di luar
+  komoditas; informasi tetangga setelah partial ρ 0,021–0,025 → ketiganya tidak lolos gerbang; laporan `docs/audit/20261125_crisp_du.md`.
+- Berikutnya (CRISP-DM): Business Understanding. Belum: commit.
+
+### 2026-11-25 — Danen: WP-36 ✅ (validasi `IW_NAT`, D-152)
+- Protokol beku sebelum run; tanpa kandidat baru. Audit kebocoran intraminggu 83 origin + 2 data penuh: 84/84 lolos, kontrol positif 84/84.
+- Dev: LOO ≈ rerata nasional (+0,005 / +0,001 vs `IW_NAT`); keserentakan tidak menambah; tanpa Jumat −0,010 h 4 (separuh keuntungan).
+- Prediksi maju C1-tuned & `IW_NAT` dibekukan (12 origin, 8.112 baris, sha256 di manifest); evaluasi beku, uji label 0 beda.
+- Daya: konfirmasi butuh ± 185 / 355 origin → validasi maju hanya penjaga. Belum: commit `forward_preds.csv` + manifest sebelum 27 Nov.
+
+### 2026-11-25 — Danen: WP-36 ✅ (pilot intraminggu & harga produsen PIHPS, D-151)
+- Protokol dibekukan sebelum run (sha256 di laporan); pembanding = `direction_tuned_preds` C1t persis (maks |Δp| 0).
+- Intraminggu (`pihps_daily`): `IW_NAT` lolos dev (+0,020 / +0,005) → test +0,0085 / +0,0033, q 0,28 / 0,30 → belum terbukti.
+- Unduh `pihps_producer` (3.570 permintaan, 0 galat, 0,4 MB) → sumber opsional + `LOADERS` + tes; tangga mingguan, eceran mendahului;
+  C1-tuned + fitur produsen −0,006..−0,001 di dev → test tidak dibuka. C1-tuned tetap.
+- Laporan `docs/audit/20261125_pilot_produsen_intraminggu.md`. Zip produsen & grosir diunggah ke Drive tim `data/raw/bi_pihps/` lewat
+  Chrome (ukuran byte identik; `checksums.csv` tidak diubah agar lineage stage0 tidak basi sebelum pembekuan). Belum: commit.
+
+### 2026-11-25 — Danen: WP-36 ✅ (pilot harga pedagang besar PIHPS, D-150)
+- Unduh `pihps_wholesale` (34 provinsi, 3.978 permintaan per bulan, 0 galat, 0,9 MB) → sumber opsional + entri `LOADERS` + tes loader.
+- Grosir kaku (carry_forward 85–98%), tidak mendahului eceran; C1-tuned + fitur grosir −0,006..+0,001 di pengembangan → test tidak dibuka.
+- Laporan `docs/audit/20261125_pilot_grosir.md`; C1-tuned tetap. Belum: commit; unggah berkas mentah baru ke Drive tim (`drive-push-raw`).
+
+### 2026-11-25 — Danen: WP-36 🔶 (riset sumber data hulu Task 4)
+- Baca-saja di situs: PIHPS Pedagang Besar sejak 2018-01, 31–34 provinsi, varian sama dengan eceran; Produsen sejak 2018-06/09,
+  cakupan tidak lengkap (gula 10, minyak 11, bawang putih 2 provinsi). Bapanas produsen = akses terbatas (SAPA). NASA POWER terbuka.
+- Bukti U19: tombol Download resmi PIHPS = `exportToExcel` grid dari endpoint yang sama. Laporan `docs/audit/20261125_sumber_data_hulu.md`.
+- Belum: unduh & pilot pedagang besar (butuh persetujuan Danen); izin BI untuk jenis pasar ini dipastikan `[HUMAN]`.
+
+### 2026-11-25 — Danen: WP-36 ✅ (split dev s.d. 2024 untuk tuas rezim, D-149)
+- Dev = origin + h ≤ 2024-12-31, test ≥ 2025 (pasca-hoc, aturan sama): 8 kalibrasi + 4 kelompok fitur rezim → tidak ada yang lolos.
+- Fitur kebijakan menghapus drift naik komoditas diatur 2024 (+0,086 / +0,149 → +0,017 / +0,005) tanpa menaikkan macro F1.
+- Laporan `docs/audit/20261125_task4_ronde4.md` §4; C1-tuned tetap. Belum: commit.
+
+### 2026-11-25 — Danen: WP-36 ✅ (ronde 4 Task 4 arah: rezim & kalibrasi temporal, D-148)
+- Preprocessing baseline dibekukan; `iw_gap` disimpan sebagai `C1t_iw` (prediksi lokal di `data/interim/`, tidak di `src/`).
+- Kalibrasi temporal (intercept / pergeseran prior) dan fitur sadar-rezim: tidak lolos origin pengembangan; drift baru muncul 2024+.
+- Galat fitur regulasi ronde 2: acuan beras premium sejak 2024-06 (hanya test). U108 = koreksi `episode` real-time.
+- Laporan `docs/audit/20261125_task4_ronde4.md`. Aturan baru: job > 1 jam → Chrome → Colab T4, output ke Drive terpusat.
+- Belum: commit; data produsen/grosir (sumber baru) menunggu keputusan.
+
+### 2026-11-25 — Danen: WP-36 ✅ (audit preprocessing Task 4 arah, D-147)
+- Audit mentah → agregasi → missing → fitur → label → dataset dengan C1-tuned tetap; label evaluasi & `src/` tidak berubah.
+- Tick Rp50 di semua harga harian; label < 1 tick 2,4–4,3%, tak stabil 8–12% (akurasi ≈ 0,5); label ≥ 10 tick tetap 0,68–0,71.
+- Kebocoran 76 origin × 54 kolom = 0 sel; flag `episode` bocor 1/76 origin (M2/C2 saja). Drift naik = rezim komoditas diatur 2024+.
+- 10 varian preprocessing (dev): hanya `iw_gap` lolos → test +0,004 / +0,005, belum terbukti (q 0,35 / 0,089); C1-tuned tetap.
+- 3 tes kebocoran baru di `tests/test_direction_tuned.py`; laporan `docs/audit/20261125_task4_audit_preprocessing.md`.
+- Belum: commit.
+
+### 2026-11-25 — Danen: WP-36 ✅ (optimasi arah Task 4 ronde 2, D-146)
+- Diagnosis arah (kesalahan di perubahan kecil), fitur regulasi/spasial/kalender/prior/level, LightGBM/XGBoost/ensemble, spesialis
+  komoditas, dua tahap 3 kelas; semua dipilih di origin pengembangan → tidak ada yang mengalahkan C1-tuned.
+- 3 kelas test: macro F1 0,625 / 0,606. TCN/MLP multi-task di Colab T4 (akun danendrashafia1967, 9 run): semua −0,02..−0,07 vs C1-tuned.
+- Laporan `docs/audit/20261125_task4_ronde2.md`; `src/` tidak berubah.
+- Belum: commit.
+
 ### 2026-11-24 — Danen: WP-36 ✅ (optimasi klasifikasi arah Task 4 eksploratif, D-145)
 - Fitur per seri (8 kelompok, ablation), Optuna HGB (C1t 40 trial, C2t 12), TSMixer (10 trial, L1/BCE), threshold dari origin
   pengembangan, kalibrasi residu TimesFM, kepala CatBoost TimesFM; test final origin ≥ 2024 tidak dipakai memilih apa pun.

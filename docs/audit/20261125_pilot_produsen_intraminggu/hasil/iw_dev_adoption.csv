@@ -1,0 +1,4 @@
+variant,mean_diff,pass_rule,candidate,flag_small,n_cols,open_test
+IW_FULL,0.0085,True,True,False,6,False
+IW_NAT,0.0123,True,True,False,8,True
+IW_REF,0.008,True,False,False,2,False

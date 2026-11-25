@@ -1,0 +1,3 @@
+variant,horizon,diff,lo,hi,p,n,diff_q1_small,lo_q1_small,hi_q1_small
+P04_intraweek,4,0.0038,-0.0045,0.0129,0.3487,10674,0.0129,-0.0076,0.0304
+P04_intraweek,8,0.0048,0.0003,0.0108,0.0445,11007,0.006,-0.0084,0.0192

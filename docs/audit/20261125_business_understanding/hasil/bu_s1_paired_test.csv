@@ -1,0 +1,5 @@
+horizon,view,score,vs_best_naive,diff,lo,hi
+4,V1_prov_top2,model,R_mom,0.0942,0.0545,0.132
+4,V2_nat_top10pct,model,R_rev,0.0898,0.0366,0.1423
+8,V1_prov_top2,model,R_nat,0.0719,0.0335,0.1148
+8,V2_nat_top10pct,model,R_rev,0.0539,-0.0033,0.1119

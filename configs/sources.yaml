@@ -26,6 +26,30 @@ pihps:
   url: https://www.bi.go.id/hargapangan
   availability: same_day
 
+pihps_wholesale:
+  path: bi_pihps/pihps_pedagang_besar_harian_2017-2026_retrieved_2026-11-25.zip
+  publisher: Bank Indonesia (PIHPS Nasional)
+  role: "Pilot eksploratif D-150 (tidak menambah daya prediksi arah; analisis margin deskriptif): harga pedagang besar harian, 34 provinsi x 10 komoditas"
+  coverage: "2017-03 .. 2026-11-19, hari kerja"
+  license: "Semua Hak Dilindungi; hanya turunan agregat yang dikirim; cakupan izin BI (U13) untuk jenis pasar ini dipastikan [HUMAN]"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bi.go.id/hargapangan/TabelHarga/PedagangBesarDaerah
+  availability: same_day
+  optional: true     # pilot; format zip sama dengan pihps (price_type_id=3), skrip docs/audit/20261125_pilot_grosir/scripts/fetch_pihps.py
+
+pihps_producer:
+  path: bi_pihps/pihps_produsen_harian_2018-2026_retrieved_2026-11-25.zip
+  publisher: Bank Indonesia (PIHPS Nasional)
+  role: "Pilot eksploratif D-151: harga tingkat produsen harian, 34 provinsi x 10 komoditas (cakupan tidak lengkap)"
+  coverage: "2018-03 .. 2026-11-19, hari kerja; provinsi berisi berbeda per komoditas"
+  license: "Semua Hak Dilindungi; hanya turunan agregat yang dikirim; cakupan izin BI (U13) untuk jenis pasar ini dipastikan [HUMAN]"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bi.go.id/hargapangan/WebSite/TabelHarga/GetGridDataDaerah?price_type_id=4
+  availability: same_day
+  optional: true     # pilot; format zip sama dengan pihps (price_type_id=4), skrip docs/audit/20261125_pilot_grosir/scripts/fetch_pihps.py
+
 
 pinksheet:
   path: wb_pinksheet/CMO-Historical-Data-Monthly.xlsx

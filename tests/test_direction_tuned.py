@@ -52,6 +52,62 @@ def test_no_future_information(cfg, data, table):
         np.testing.assert_allclose(a, b, equal_nan=True)
 
 
+def _all_origins(cfg, table):
+    weeks = table["week"].drop_duplicates()
+    return sorted(set(origins(cfg, weeks, 4)) | set(origins(cfg, weeks, 8)))
+
+
+def test_future_deletion_every_origin_full_matrix(cfg, data):
+    """D-147 (P10): untuk SETIAP origin h 4 & 8, data sesudah origin dihapus (panel, penggerak, harga dunia dengan
+    available_at > origin) lalu tabel dibangun ulang → SELURUH kolom non-target pada minggu ≤ origin dan target yang sudah
+    terealisasi (t + h ≤ origin, baris latih) identik dengan tabel penuh."""
+    panel, drivers, world = data
+    full = pdyn.extend_table(feature_table(cfg, panel, drivers, world, HS), panel, HS)
+    keys = ["week", "province_id", "commodity"]
+    feat = [c for c in full.columns if not c.startswith("y_")]
+    os_ = _all_origins(cfg, full)
+    assert len(os_) >= 10
+    for o in os_:
+        p, d, w = panel[panel["week"] <= o], drivers[drivers["week"] <= o], world[world["available_at"] <= o]
+        cut = pdyn.extend_table(feature_table(cfg, p, d, w, HS), p, HS)
+        a = full[full["week"] <= o].sort_values(keys).reset_index(drop=True)
+        b = cut[cut["week"] <= o].sort_values(keys).reset_index(drop=True)
+        pd.testing.assert_frame_equal(a[feat], b[feat], check_dtype=False)
+        for h in HS:
+            m = (a["week"] + pd.Timedelta(weeks=h) <= o).to_numpy()
+            np.testing.assert_array_equal(a.loc[m, f"y_{h}"].to_numpy(), b.loc[m, f"y_{h}"].to_numpy())
+
+
+def test_world_price_hidden_until_available_at(cfg, data):
+    """D-147 (P10): menggeser available_at sebuah bulan harga dunia ke sesudah origin = bulan itu hilang dari fitur ≤ origin
+    (hasil sama persis dengan menghapus baris itu)."""
+    panel, drivers, world = data
+    o = origins(cfg, drivers["week"], 4)[5]
+    late = world["available_at"] == world.loc[world["available_at"] <= o, "available_at"].max()
+    moved = world.assign(available_at=world["available_at"].where(~late, o + pd.Timedelta(weeks=1)))
+    a = feature_table(cfg, panel, drivers, moved, HS)
+    b = feature_table(cfg, panel, drivers, world[~late], HS)
+    cols = [c for c in a.columns if c.startswith("dw_")]
+    pd.testing.assert_frame_equal(a.loc[a["week"] <= o, cols].reset_index(drop=True),
+                                  b.loc[b["week"] <= o, cols].reset_index(drop=True))
+    assert not a.loc[a["week"] <= o, cols].equals(feature_table(cfg, panel, drivers, world, HS).loc[a["week"] <= o, cols])
+
+
+def test_unrealized_labels_do_not_change_prediction(cfg, data, table):
+    """D-147 (P10): label yang belum terealisasi pada origin (t + h > origin) diacak → prediksi origin itu identik."""
+    rng = np.random.default_rng(11)
+    for o in _all_origins(cfg, table)[::6]:
+        for h in HS:
+            bad = table.copy()
+            fut = (bad["week"] + pd.Timedelta(weeks=h) > o).to_numpy()
+            bad.loc[fut, f"y_{h}"] = rng.normal(0, 1, fut.sum())
+            if split_origin(cfg, table, o, h)[1].empty:                 # origin tanpa baris uji dilewati (seperti rolling)
+                continue
+            ref = fit_predict_proba_tuned(cfg, "C1t", *split_origin(cfg, table, o, h), h)
+            new = fit_predict_proba_tuned(cfg, "C1t", *split_origin(cfg, bad, o, h), h)
+            np.testing.assert_array_equal(ref.to_numpy(), new.to_numpy())
+
+
 def test_known_feature_values(table):
     t = table.sort_values(["province_id", "commodity", "week"]).reset_index(drop=True)
     g = t[(t["province_id"] == t["province_id"].iloc[0]) & (t["commodity"] == t["commodity"].iloc[0])].reset_index(drop=True)

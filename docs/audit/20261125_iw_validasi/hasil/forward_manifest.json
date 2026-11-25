@@ -1,0 +1,48 @@
+{
+ "frozen_at_utc": "2026-11-25T12:09:23+00:00",
+ "protocol_sha256": "3ec33d0f93b3f745b6f9c8abd664cbd6a6a23fb2ca1bfb1e8be762bb0ed0cf83",
+ "forward_preds_sha256": "28651b2b402c5b4429134b660c1e73587689dd81da7f43c088c4721ec9ad7928",
+ "n_rows": 8112,
+ "rows_by_horizon_model": {
+  "h4_IW_NAT": 1352,
+  "h4_base": 1352,
+  "h8_IW_NAT": 2704,
+  "h8_base": 2704
+ },
+ "origins": {
+  "h4": [
+   "2026-10-26",
+   "2026-11-02",
+   "2026-11-09",
+   "2026-11-16"
+  ],
+  "h8": [
+   "2026-09-28",
+   "2026-10-05",
+   "2026-10-12",
+   "2026-10-19",
+   "2026-10-26",
+   "2026-11-02",
+   "2026-11-09",
+   "2026-11-16"
+  ]
+ },
+ "data": {
+  "last_panel_week": "2026-11-16",
+  "last_daily_date": "2026-11-18",
+  "pihps_zip_sha256": "bfc7f343c0fb34e12556f479f9dcb32a6cdddec93c1dd59b820c39dfd62a9605",
+  "iw_parquet_rows": 175440
+ },
+ "code_sha256": {
+  "docs/audit/20261125_pilot_produsen_intraminggu/scripts/iw_build.py": "5be4fc7de2ce66e7387bf4c97858aa6ea023620a975bad5a7ef48ea495ce06d3",
+  "docs/audit/20261125_pilot_produsen_intraminggu/scripts/exp.py": "49bb90eaaf3df11d8f5d27a5bbaffc4cf52c92fab39307ca791b30f9bcd00056",
+  "docs/audit/20261125_task4_audit_preprocessing/scripts/p_exp.py": "d98b4154855a041c489f845b8319233d6e04c495c5a7fe4bbd4d62c9b8714139",
+  "docs/audit/20261125_iw_validasi/scripts/fw_freeze.py": "6e14a2016f0cf9a195186fdd230db209f38e9edecfcca0b8e81ab84a256be4dc",
+  "docs/audit/20261125_iw_validasi/scripts/fw_eval.py": "1949795cd5c69948be99a0b8168b45d5039914a0f0f8559e95cf1f515bdafb56",
+  "src/models/direction.py": "1f4e851227a08c463b74879c560fc39c93c56ae7ff7eb6533d94fb10b5bed11c",
+  "src/features/price_dynamics.py": "40cb8ecdf3c504b902a8c73e8b029c20b9e460a5961a5e83f8ad247196a0447c",
+  "src/features/forecast.py": "95cdb3c980072925e7c608b8d18f1439ef57661d736ef4c4e1186b9328fead71"
+ },
+ "threshold": 0.5,
+ "seed": 20261121
+}

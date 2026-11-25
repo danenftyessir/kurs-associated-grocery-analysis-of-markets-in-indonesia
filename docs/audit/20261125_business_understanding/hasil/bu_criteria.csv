@@ -1,0 +1,3 @@
+horizon,S1_pass,S1_diff,S1_lo,S2_pass,S2_bss,S2_ece,S3_pass,S3_diff,S3_lo
+4,True,0.1095,0.0553,True,0.1333,0.035,True,0.2357,0.1675
+8,True,0.0668,0.027,False,0.1596,0.0556,True,0.295,0.2307

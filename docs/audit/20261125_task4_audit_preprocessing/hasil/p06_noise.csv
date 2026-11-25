@@ -1,0 +1,11 @@
+commodity,sigma_noise_pct,sigma_signal_week_pct,noise_share_var_h4,noise_share_var_h8,acf1_weekly_dlog
+bawang_merah,0.0,8.4395,0.0,0.0,0.4202
+bawang_putih,0.0,5.7194,0.0,0.0,0.2446
+beras,0.0,1.0241,0.0,0.0,0.2128
+cabai_merah,7.4408,11.4651,0.174,0.0953,0.1486
+cabai_rawit,12.5986,12.8678,0.324,0.1933,0.2715
+daging_ayam,3.7893,3.5186,0.3671,0.2248,0.1687
+daging_sapi,0.9354,0.724,0.4549,0.2944,-0.1257
+gula_pasir,0.0,2.1513,0.0,0.0,0.3189
+minyak_goreng,0.0,2.0965,0.0,0.0,0.2234
+telur_ayam,2.3472,2.5942,0.2904,0.1699,0.3035

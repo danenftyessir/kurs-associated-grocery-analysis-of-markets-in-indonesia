@@ -1,0 +1,4 @@
+variant,mean_diff,pass_rule,candidate,flag_small,n_cols,open_test
+PR_ALL,-0.0039,False,True,False,16,False
+PR_DYN,-0.0021,False,True,False,5,False
+PR_TRANS,-0.0037,False,True,False,10,False
