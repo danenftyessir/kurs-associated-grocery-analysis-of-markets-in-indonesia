@@ -1,0 +1,47 @@
+[
+ {
+  "variant": "P03_no_ffill",
+  "mean_diff": -0.0017534274225177726,
+  "open_test": false
+ },
+ {
+  "variant": "P03_train_observed_ends",
+  "mean_diff": -0.019225216640111842,
+  "open_test": false
+ },
+ {
+  "variant": "P04_features_lastday",
+  "mean_diff": -0.00026325213297290206,
+  "open_test": false
+ },
+ {
+  "variant": "P04_intraweek",
+  "mean_diff": 0.008008540601745218,
+  "open_test": true
+ },
+ {
+  "variant": "P06_drop_lt2ticks",
+  "mean_diff": -0.0018847328074573233,
+  "open_test": false
+ },
+ {
+  "variant": "P06_drop_subtick",
+  "mean_diff": -0.002701285529028985,
+  "open_test": false
+ },
+ {
+  "variant": "P06_weight_stability",
+  "mean_diff": -0.003493466819509239,
+  "open_test": false
+ },
+ {
+  "variant": "P08_volnorm",
+  "mean_diff": -0.009212766545007411,
+  "open_test": false
+ },
+ {
+  "variant": "P09_commodity_balanced",
+  "mean_diff": -0.004526926857529312,
+  "open_test": false
+ }
+]

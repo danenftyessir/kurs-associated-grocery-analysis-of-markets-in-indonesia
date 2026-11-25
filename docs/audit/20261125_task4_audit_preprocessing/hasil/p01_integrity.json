@@ -1,0 +1,230 @@
+{
+ "raw_level2_cells": 1755507,
+ "raw_duplicate_keys": 0,
+ "raw_nonnull": 1644287,
+ "raw_nonpositive": 5,
+ "raw_noninteger": 0,
+ "daily_rows": 800642,
+ "daily_duplicate_keys": 0,
+ "daily_weekday_share": {
+  "0": 0.2025,
+  "1": 0.2015,
+  "2": 0.1996,
+  "3": 0.199,
+  "4": 0.1974
+ },
+ "precision": {
+  "bawang_merah": {
+   "median_price": 35400.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.5029232522419859,
+    "250": 0.4554204033097161,
+    "500": 0.24442600208095921,
+    "1000": 0.12241738096417777
+   },
+   "share_nonzero_daily_change": 0.5658256710203474,
+   "median_abs_daily_change_rp": 500.0,
+   "p10_abs_daily_change_rp": 100.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 1.5197568389057752
+  },
+  "bawang_putih": {
+   "median_price": 34600.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.500396373185354,
+    "250": 0.4595823217559332,
+    "500": 0.25168458603775457,
+    "1000": 0.1289946985086459
+   },
+   "share_nonzero_daily_change": 0.4432327938734541,
+   "median_abs_daily_change_rp": 400.0,
+   "p10_abs_daily_change_rp": 100.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 1.146131805157593
+  },
+  "beras": {
+   "median_price": 13150.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.48016993658343243,
+    "250": 0.2688144074514467,
+    "500": 0.13270412207689258,
+    "1000": 0.06558412604042806
+   },
+   "share_nonzero_daily_change": 0.09227776263289633,
+   "median_abs_daily_change_rp": 100.0,
+   "p10_abs_daily_change_rp": 50.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 0.7067137809187279
+  },
+  "cabai_merah": {
+   "median_price": 42750.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.5150400158576773,
+    "250": 0.4772169776258084,
+    "500": 0.2703733987462524,
+    "1000": 0.15033821452464136
+   },
+   "share_nonzero_daily_change": 0.7343835208963363,
+   "median_abs_daily_change_rp": 1250.0,
+   "p10_abs_daily_change_rp": 250.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 2.7027027027027026
+  },
+  "cabai_rawit": {
+   "median_price": 52500.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.5208662214126695,
+    "250": 0.48941509815826756,
+    "500": 0.28678405181137423,
+    "1000": 0.16327329150644268
+   },
+   "share_nonzero_daily_change": 0.7389209108948314,
+   "median_abs_daily_change_rp": 1400.0,
+   "p10_abs_daily_change_rp": 300.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 2.883506343713956
+  },
+  "daging_ayam": {
+   "median_price": 35650.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.5075623381932143,
+    "250": 0.3406334774368566,
+    "500": 0.18589354507054467,
+    "1000": 0.09798213776957475
+   },
+   "share_nonzero_daily_change": 0.5935683747444079,
+   "median_abs_daily_change_rp": 350.0,
+   "p10_abs_daily_change_rp": 100.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 1.0510510510510511
+  },
+  "daging_sapi": {
+   "median_price": 130650.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.5776087414363409,
+    "250": 0.6185284753279897,
+    "500": 0.4260211350487494,
+    "1000": 0.25051103209901016
+   },
+   "share_nonzero_daily_change": 0.09577988473693995,
+   "median_abs_daily_change_rp": 1250.0,
+   "p10_abs_daily_change_rp": 200.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 0.9174311926605505
+  },
+  "gula_pasir": {
+   "median_price": 14500.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.5317609751263502,
+    "250": 0.33440689723516004,
+    "500": 0.18988455058963433,
+    "1000": 0.10759587751461698
+   },
+   "share_nonzero_daily_change": 0.13984930725952363,
+   "median_abs_daily_change_rp": 100.0,
+   "p10_abs_daily_change_rp": 50.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 0.6944444444444444
+  },
+  "minyak_goreng": {
+   "median_price": 18750.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.4961710986096999,
+    "250": 0.36487323734232113,
+    "500": 0.187764863324329,
+    "1000": 0.09601992515674952
+   },
+   "share_nonzero_daily_change": 0.12091535677096246,
+   "median_abs_daily_change_rp": 150.0,
+   "p10_abs_daily_change_rp": 50.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 0.7220216606498195
+  },
+  "telur_ayam": {
+   "median_price": 27300.0,
+   "share_multiple": {
+    "10": 1.0,
+    "50": 1.0,
+    "100": 0.5363119495608873,
+    "250": 0.24274442283633302,
+    "500": 0.13473139190645478,
+    "1000": 0.0717692088540957
+   },
+   "share_nonzero_daily_change": 0.4045751391005861,
+   "median_abs_daily_change_rp": 200.0,
+   "p10_abs_daily_change_rp": 50.0,
+   "share_change_lt50": 0.0,
+   "median_abs_daily_change_pct": 0.7326007326007326
+  }
+ },
+ "weeks_with_within_week_variation": 0.6011656652050741,
+ "n_days_dist": {
+  "1": 0.0012,
+  "2": 0.0093,
+  "3": 0.0234,
+  "4": 0.105,
+  "5": 0.8611
+ },
+ "abs_mean_vs_last_median_pct": 0.938974034983886,
+ "within_week_by_commodity": {
+  "bawang_merah": {
+   "within_var": 0.8419,
+   "n_days": 4.8164
+  },
+  "bawang_putih": {
+   "within_var": 0.7228,
+   "n_days": 4.8164
+  },
+  "beras": {
+   "within_var": 0.2234,
+   "n_days": 4.8155
+  },
+  "cabai_merah": {
+   "within_var": 0.939,
+   "n_days": 4.8155
+  },
+  "cabai_rawit": {
+   "within_var": 0.9431,
+   "n_days": 4.8123
+  },
+  "daging_ayam": {
+   "within_var": 0.8491,
+   "n_days": 4.8162
+  },
+  "daging_sapi": {
+   "within_var": 0.2134,
+   "n_days": 4.8153
+  },
+  "gula_pasir": {
+   "within_var": 0.3213,
+   "n_days": 4.8167
+  },
+  "minyak_goreng": {
+   "within_var": 0.2799,
+   "n_days": 4.816
+  },
+  "telur_ayam": {
+   "within_var": 0.7055,
+   "n_days": 4.8163
+  }
+ },
+ "weekly_price_not_multiple_of_50": 0.43448408377634024
+}

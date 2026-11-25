@@ -1,0 +1,10 @@
+variant,mean_diff,open_test
+P03_no_ffill,-0.0017534274225177726,False
+P03_train_observed_ends,-0.019225216640111842,False
+P04_features_lastday,-0.00026325213297290206,False
+P04_intraweek,0.008008540601745218,True
+P06_drop_lt2ticks,-0.0018847328074573233,False
+P06_drop_subtick,-0.002701285529028985,False
+P06_weight_stability,-0.003493466819509239,False
+P08_volnorm,-0.009212766545007411,False
+P09_commodity_balanced,-0.004526926857529312,False

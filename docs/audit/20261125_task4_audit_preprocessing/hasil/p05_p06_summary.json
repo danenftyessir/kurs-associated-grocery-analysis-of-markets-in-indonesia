@@ -1,0 +1,51 @@
+{
+ "qa_spike_days_in_period": 46,
+ "weekly_extreme_moves": {
+  "terisolasi, tidak berbalik": 2262,
+  "kejadian pasar (terkonfirmasi lintas provinsi)": 1646,
+  "kandidat galat (terisolasi & berbalik)": 460
+ },
+ "weekly_extreme_share_of_cells": 0.028098705709801094,
+ "labels_touching_outlier_weeks": {
+  "dev_h4": {
+   "n": 147,
+   "share": 0.01340507021703447,
+   "acc": 0.6802721088435374
+  },
+  "dev_h8": {
+   "n": 156,
+   "share": 0.01379676306712656,
+   "acc": 0.6666666666666666
+  },
+  "test_h4": {
+   "n": 78,
+   "share": 0.007307476110174255,
+   "acc": 0.5897435897435898
+  },
+  "test_h8": {
+   "n": 84,
+   "share": 0.007631507222676479,
+   "acc": 0.6666666666666666
+  }
+ },
+ "noise_dominated_dev_h4": {
+  "share": 0.24338865584534014,
+  "acc_noise_dom": 0.5563881603596853,
+  "acc_rest": 0.6885621308906834
+ },
+ "noise_dominated_dev_h8": {
+  "share": 0.17988856460599628,
+  "acc_noise_dom": 0.5722713864306784,
+  "acc_rest": 0.7012832955893454
+ },
+ "noise_dominated_test_h4": {
+  "share": 0.2766535506839048,
+  "acc_noise_dom": 0.5804266847273959,
+  "acc_rest": 0.7173941199326512
+ },
+ "noise_dominated_test_h8": {
+  "share": 0.2134096484055601,
+  "acc_noise_dom": 0.5644955300127714,
+  "acc_rest": 0.7191037191037191
+ }
+}

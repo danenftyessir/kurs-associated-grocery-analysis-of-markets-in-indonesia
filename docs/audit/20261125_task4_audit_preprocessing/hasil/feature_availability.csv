@@ -1,0 +1,50 @@
+feature,group,first_week,na_share_all,na_share_dev,na_share_test,na_due_price_missing,na_before_first_week,series_covered,zero_share,n_unique,reason
+lag_dp_1,base,2018-01-08,0.0146,0.0179,0.0079,0.7062,0.1482,339,0.2539,90888,harga mingguan hilang
+lag_dp_4,base,2018-01-29,0.0211,0.0274,0.008,0.4902,0.4096,339,0.1478,101891,campuran (pemanasan + harga hilang)
+lag_dp_8,base,2018-02-26,0.0297,0.0401,0.0081,0.3481,0.5814,339,0.0986,105460,pemanasan jendela di awal periode
+month,base,2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.0,12,lengkap
+idf_rel_week,base,2018-04-30,0.7866,0.7891,0.7815,0.0084,0.0466,340,0.0194,11,campuran (pemanasan + harga hilang)
+db_1,base,2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.0022,464,lengkap
+db_4,base,2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.0,464,lengkap
+dp1_l1,lag,2018-01-15,0.0122,0.0142,0.008,0.645,0.355,339,0.2561,90945,harga mingguan hilang
+dp1_l2,lag,2018-01-22,0.0143,0.0174,0.008,0.548,0.4524,339,0.2556,90783,harga mingguan hilang
+dp1_l3,lag,2018-01-29,0.0165,0.0205,0.008,0.4759,0.5245,339,0.2551,90621,pemanasan jendela di awal periode
+lag_dp_13,lag,2018-04-02,0.0404,0.056,0.0082,0.2556,0.6933,339,0.0689,106660,pemanasan jendela di awal periode
+lag_dp_26,lag,2018-07-02,0.0684,0.0973,0.0084,0.1511,0.8198,339,0.0369,106126,pemanasan jendela di awal periode
+lag_dp_52,lag,2018-12-31,0.1241,0.1797,0.0088,0.0833,0.9033,338,0.0175,101210,pemanasan jendela di awal periode
+ewm_dp_4,rmean,2018-01-29,0.0142,0.0186,0.0051,0.3941,0.6086,339,0.0026,154750,pemanasan jendela di awal periode
+ewm_dp_13,rmean,2018-02-26,0.0228,0.0313,0.0051,0.2454,0.7574,339,0.0019,153498,pemanasan jendela di awal periode
+std_dp_4,rstd,2018-01-22,0.0144,0.0174,0.008,0.549,0.4514,339,0.1252,127270,harga mingguan hilang
+std_dp_13,rstd,2018-02-12,0.0207,0.0268,0.008,0.3745,0.6258,339,0.04,130671,pemanasan jendela di awal periode
+std_dp_26,rstd,2018-04-02,0.0358,0.0491,0.0082,0.2188,0.7828,339,0.0133,129923,pemanasan jendela di awal periode
+up_share_13,mom,2018-02-12,0.0207,0.0268,0.008,0.3745,0.6258,339,0.083,59,pemanasan jendela di awal periode
+dn_share_13,mom,2018-02-12,0.0207,0.0268,0.008,0.3745,0.6258,339,0.0978,58,pemanasan jendela di awal periode
+accel_4,mom,2018-02-26,0.0253,0.0335,0.0081,0.3175,0.6832,339,0.085,126286,pemanasan jendela di awal periode
+run_sign,mom,2018-01-08,0.0136,0.0164,0.0079,0.5762,0.1905,339,0.2532,906,harga mingguan hilang
+woy_sin,season,2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.0,53,lengkap
+woy_cos,season,2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.0,53,lengkap
+yseas_52_h4,season,2018-12-31,0.1194,0.1727,0.0088,0.0646,0.939,338,0.1341,92283,pemanasan jendela di awal periode
+yseas_104_h4,season,2019-12-30,0.2304,0.3374,0.0087,0.0336,0.9727,338,0.1158,81616,pemanasan jendela di awal periode
+dev_ma13,dev,2018-02-05,0.0187,0.0238,0.008,0.4237,0.5769,339,0.0441,144317,pemanasan jendela di awal periode
+dev_ma52,dev,2018-06-25,0.0617,0.0875,0.0084,0.1293,0.873,339,0.0025,145778,pemanasan jendela di awal periode
+range_pos_52,dev,2018-01-01,0.0003,0.0005,0.0,1.0,0.0,340,0.0686,92799,lengkap
+spatial_dev,dev,2018-01-01,0.0079,0.0078,0.0079,1.0,0.0016,339,0.0,147026,harga mingguan hilang
+spatial_dev_chg4,dev,2018-01-29,0.0166,0.0207,0.008,0.4789,0.5214,339,0.0,134430,pemanasan jendela di awal periode
+nat_dp_1,comm,2018-01-08,0.0022,0.0032,0.0,0.0059,1.0,340,0.0,4630,pemanasan jendela di awal periode
+nat_dp_4,comm,2018-01-29,0.0086,0.0128,0.0,0.0059,1.0,340,0.0,4600,pemanasan jendela di awal periode
+nat_dp_8,comm,2018-02-26,0.0172,0.0256,0.0,0.0059,1.0,340,0.0,4560,pemanasan jendela di awal periode
+nat_up_share_4,comm,2018-01-29,0.0086,0.0128,0.0,0.0059,1.0,340,0.022,94,pemanasan jendela di awal periode
+nat_std_13,comm,2018-02-12,0.0129,0.0192,0.0,0.0059,1.0,340,0.0,4580,pemanasan jendela di awal periode
+yseas_52_h8,season,2018-12-31,0.1195,0.1729,0.0088,0.0655,0.9381,338,0.091,96206,pemanasan jendela di awal periode
+yseas_104_h8,season,2019-12-30,0.2306,0.3375,0.0088,0.0341,0.9722,338,0.0784,85010,pemanasan jendela di awal periode
+de_1,fx,2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.0108,460,lengkap
+de_4,fx,2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.0,464,lengkap
+de_8,fx,2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.0,464,lengkap
+dw_1,fx,2018-01-01,0.4,0.4,0.4,0.0226,0.0022,204,0.4616,534,campuran (pemanasan + harga hilang)
+dw_4,fx,2018-01-01,0.4,0.4,0.4,0.0226,0.0022,204,0.0491,534,campuran (pemanasan + harga hilang)
+dw_8,fx,2018-01-01,0.4,0.4,0.4,0.0226,0.0022,204,0.0,908,campuran (pemanasan + harga hilang)
+episode,fx,2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.8685,2,lengkap
+reg_gap,reg(ronde2),2022-03-21,0.6617,0.8891,0.1904,0.0153,0.7195,308,0.0008,19626,belum berlaku (regulasi) / harga hilang
+reg_active,reg(ronde2),2018-01-01,0.0,0.0,0.0,0.0,0.0,340,0.6576,2,lengkap
+reg_weeks_since_change,reg(ronde2),2022-03-21,0.6576,0.8868,0.1824,0.0091,0.724,310,0.0026,232,belum berlaku (regulasi) / harga hilang
+reg_change_52,reg(ronde2),2023-03-20,0.7597,0.9591,0.3465,0.0095,0.7741,310,0.2121,8,belum berlaku (regulasi) / harga hilang

@@ -18,6 +18,8 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 | Kunci | Isi | Cakupan terverifikasi | Peran | Kirim mentah? |
 |---|---|---|---|---|
 | `pihps` | PIHPS harian pasar tradisional, 34 prov × 31 baris (10 komoditas + 21 varian) | 2017-03-28 .. 2026-11-19 | Outcome | Tidak |
+| `pihps_wholesale` | PIHPS harian **pedagang besar** (`price_type_id=3`), format zip sama dengan `pihps` (`optional`, pilot D-150; diambil 2026-11-25 per bulan per provinsi) | 2017-03 .. 2026-11-19 | Fitur eksploratif Task 4 arah | Tidak |
+| `pihps_producer` | PIHPS harian **produsen** (`price_type_id=4`), format zip sama dengan `pihps` (`optional`, pilot D-151; diambil 2026-11-25 per bulan per provinsi) | 2018-03 .. 2026-11-19 | Fitur eksploratif Task 4 arah | Tidak |
 | `jisdor` | JISDOR IDR/USD harian | 2013-05-20 .. 2026-11-18 (3.269 hari) | Penggerak 1 | Tidak |
 | `pinksheet` | Pink Sheet bulanan USD | 1960-01 .. 2026-10 (update 3 Nov 2026) | Penggerak 2 | Ya (CC BY 4.0) |
 | `brent` | FRED DCOILBRENTEU harian | 2013-01-02 .. 2026-11-11 | Kontrol | Ya |
@@ -80,6 +82,28 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 - Snapshot pra-merge (`pihps_pasar_tradisional_harian_2017-2026_retrieved_2026-11-18.zip`) dipensiunkan ke
   `data/raw/_superseded/bi_pihps/` (D-102): inventaris tim menandainya rusak; tidak dipakai, tidak diunggah ke Drive.
 - Harga provinsi = rerata kota sampel (82 kota, 2 pasar/kota, 2 pedagang/komoditas) → derau berbeda antarprovinsi.
+
+### PIHPS pedagang besar (`pihps_wholesale`, opsional, pilot D-150)
+- Zip 34 CSV `pihps_provNN_<Nama>.csv` + `MANIFEST.csv` + `ERRORS.json`, **format sama dengan `pihps`** (lebar: `province_id,
+  province, level, commodity, <tanggal...>`), sehingga dibaca `load_pihps(cfg, "pihps_wholesale")`. Diambil 2026-11-25 dengan
+  `docs/audit/20261125_pilot_grosir/scripts/fetch_pihps.py`: endpoint `GetGridDataDaerah`, `price_type_id=3`, harian, per bulan per
+  provinsi (3.978 permintaan, 0 galat, ± 30 menit; rentang panjang sangat lambat di server: 1 bulan ± 1 dtk, 1 tahun ± 62 dtk).
+- Isi = data yang diekspor tombol "Download" resmi tabel pedagang besar (ekspor grid sisi-klien; lihat U19).
+- Cakupan: 25–31 baris per provinsi, 2.384–2.448 hari; awal 2017-07 .. 2017-09 (Kalimantan Utara 2017-09-07), akhir 2026-11-19.
+  Varian sama dengan pasar tradisional.
+- Panel mingguan (aturan `aggregate_weekly` yang sama): carry_forward 85–98% sel (observed 1–6%), missing ≤ 10% (cabai rawit);
+  seri layak 29–34 per komoditas. Median log grosir − log eceran −0,06 (daging sapi) .. −0,24 (bawang merah).
+- Hak: sama dengan `pihps` (Semua Hak Dilindungi, `redistribute: false`); cakupan izin BI (U13) untuk jenis pasar ini dipastikan `[HUMAN]`.
+
+### PIHPS produsen (`pihps_producer`, opsional, pilot D-151)
+- Zip berformat sama dengan `pihps`/`pihps_wholesale`, dibaca `load_pihps(cfg, "pihps_producer")`. Diambil 2026-11-25 dengan skrip
+  D-150 yang sama (`price_type_id=4`, per bulan per provinsi 2018-03 .. 2026-11-19, 3.570 permintaan, 0 galat, ± 31 menit, 0,4 MB).
+- Cakupan tidak lengkap: DKI Jakarta kosong; NTT berhenti 2023-12-25, Kepri 2026-10-16; awal 2018-03-26 (Jawa Tengah) .. 2018-10-25.
+  Provinsi berisi: telur 33, ayam & cabai merah 32, daging sapi 31, cabai rawit 30, beras 28, bawang merah 26, minyak goreng 14,
+  gula 11, bawang putih 2; porsi sel mingguan berisi 2019+ 0,05 (bawang putih) .. 0,94 (telur).
+- Bentuk: tangga mingguan (88% minggu satu nilai harian, berubah pada 4% hari, perubahan besar: median |Δlog| cabai 0,22–0,23), jadi
+  status mingguan carry_forward 99–100% karena nilai diulang harian. Median log eceran − log produsen 0,09 (daging sapi) .. 0,84 (bawang putih).
+- Hak: sama dengan `pihps`; cakupan izin BI (U13) untuk jenis pasar ini dipastikan `[HUMAN]`.
 
 ### JISDOR (`jisdor`)
 - Excel BI, header di baris 5: `NO, Tanggal ("5/20/2013 12:00:00 AM"), Kurs ("9.760,00")`.

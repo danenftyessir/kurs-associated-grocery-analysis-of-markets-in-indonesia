@@ -415,6 +415,107 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-154 — Business Understanding Task 4 arah: kriteria bisnis S1–S3 di samping macro F1; C1-tuned memenuhi sebagai daftar pantau TPID · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Fase CRISP-DM 1 atas pilihan Danen. Protokol ditulis sebelum ukur (`docs/audit/20261125_business_understanding/PROTOKOL.md`, sha256
+dicatat): pengguna TPID; kenaikan material = y_h ≥ persentil 80 |y_h| komoditas di baris latih (aturan `large_move_pct`, tanpa info masa
+depan); S1 daftar pantau provinsi (2 komoditas teratas per provinsi) presisi > aturan naif terbaik (tren sendiri/nasional, balik ke
+rata-rata, pola tahun lalu) dengan interval > 0; S2 Brier skill > 0 & ECE ≤ 0,05; S3 macro F1 saat bergerak material > aturan tanda tren.
+Dev: S1 lolos (+0,110 / +0,067), S3 lolos, S2 gagal tipis h 8 (ECE 0,056). Test dibuka sekali (C1-tuned + aturan naif dari dev): S1–S3
+lolos di kedua horizon; daftar pantau presisi 0,18 / 0,16 (laju-dasar 0,09), recall 0,41 / 0,36; arah saat bergerak material macro F1
+0,81. Tidak ada model baru; label & macro F1 resmi tetap. Kriteria S1–S3 menjadi ukuran wajib di samping macro F1 (`docs/EKSPERIMEN.md`).
+Batasan: asumsi praktik TPID belum divalidasi pengguna (`[HUMAN]`); "material" relatif per komoditas. Laporan
+`docs/audit/20261125_business_understanding.md`.
+
+### D-153 — Alur eksperimen Task 4 berbasis CRISP-DM + kartu 8 komponen; Data Understanding tiga arah tidak lolos gerbang Modeling · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Keputusan Danen: pengembangan Task 4 tidak lagi "fitur → model → skor → ulang", tetapi mengikuti CRISP-DM (IF4041 Modul 01) dengan kartu
+eksperimen 8 komponen (problem, karakteristik data, pengetahuan, hipotesis, metode, validasi, kontrol kebocoran, keputusan) sebelum
+implementasi; aturan di dokumen hidup `docs/EKSPERIMEN.md`, termasuk layar Data Understanding dengan kontrol positif/negatif dan gerbang
+ke Modeling. Fokus berikutnya: pola sekuensial, clustering, graf. Data Understanding (dev saja, tanpa model baru): K1 lintas komoditas
+0/360 lolos BH, pasangan terkuat = co-trend 2021–2022; K2 5 tipe seri (silhouette 0,34, ARI vs komoditas 0,31) tetapi tidak menjelaskan
+skill di luar komoditas; K3 informasi tetangga di luar intraminggu sendiri + nasional ρ 0,021–0,025 (± 1/5 kontrol positif). Ketiganya
+tidak lolos gerbang Modeling; K2 dilanjutkan hanya sebagai Knowledge Presentation (tipologi). C1-tuned, label, origin pengembangan
+≤ 2023, dan perlindungan test 2024+ tetap. Langkah CRISP-DM berikutnya: Business Understanding (ukuran keberhasilan bagi TPID di dekat
+batas informasi). Laporan `docs/audit/20261125_crisp_du.md`.
+
+### D-152 — Validasi `IW_NAT`: kebocoran semua origin, diagnostik LOO/Jumat, prediksi maju beku; bukan kandidat baru · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Tindak lanjut tinjauan pasca-D-151. Protokol ditulis sebelum run (`docs/audit/20261125_iw_validasi/PROTOKOL.md`, sha256 dicatat): tidak ada
+kandidat baru, `IW_NAT` beku, diagnostik hanya di origin pengembangan, test 2024+ tidak dibuka. `available_at` fitur minggu t = Sabtu
+(Jumat + revisi H+1). Audit kebocoran 83 origin + 2 data penuh (hapus/rusak/hapus acak sesudah cutoff, rusak hanya provinsi lain, Jumat
+untuk varian tanpa Jumat): 84/84 lolos, kontrol positif 84/84. Diagnostik dev: LOO = rerata D-151 (r 0,998; +0,005 / +0,001 vs `IW_NAT`) →
+sinyal nasional dari provinsi lain; keserentakan arah tidak menambah; tanpa Jumat −0,010 (h 4) → separuh keuntungan h 4 = nowcast harga
+terkini. Prediksi maju C1-tuned & `IW_NAT` dibekukan untuk 12 origin yang targetnya belum terealisasi (8.112 baris, sha256 di manifest;
+evaluasi beku, label = target resmi). Daya: MDE batch maju 0,04–0,12; mendeteksi +0,0085 / +0,0033 butuh ± 185 / 355 origin (± 14 / 27
+tahun) → validasi maju hanya penjaga kegagalan besar, bukan jalan konfirmasi. C1-tuned tetap; eksplorasi keluarga intraminggu di
+pengembangan dihentikan. Ditolak: menjadikan LOO/keserentakan kandidat (selisih ≤ derau pelatihan, overfitting pengembangan). Laporan
+`docs/audit/20261125_iw_validasi.md`.
+
+### D-151 — Pilot informasi intraminggu & harga produsen PIHPS untuk Task 4 arah: produsen tidak membantu, `IW_NAT` belum terbukti · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Tindak lanjut roadmap pasca-D-150 (prioritas 1 harga produsen, prioritas 2 intraminggu). Protokol ditulis sebelum run
+(`docs/audit/20261125_pilot_produsen_intraminggu/PROTOKOL.md`, sha256 dicatat): C1-tuned beku, label & baris resmi, seleksi di origin
+pengembangan, aturan lolos D-147, satu kandidat per keluarga membuka test sekali. Pembanding = `direction_tuned_preds` C1t persis.
+(A) Intraminggu dari `pihps_daily` (gap/return/rentang/volatilitas/jumlah hari/umur hari terakhir + rerata nasional): `IW_NAT` lolos
+dev (+0,020 / +0,005) → test +0,0085 (−0,003..0,024) / +0,0033 (−0,004..0,011), q BH 0,28 / 0,30 → belum terbukti; test keluarga ini
+tidak bersih (`iw_gap` dilihat di D-147). (B) Atas persetujuan Danen, `pihps_producer` diunduh (`price_type_id=4`, 3.570 permintaan,
+0 galat, 0,4 MB; DKI kosong) dan didaftarkan `optional` (`redistribute: false`): seri tangga mingguan dengan lompatan besar, eceran
+mendahului produsen; semua varian −0,006..−0,001 di dev → test tidak dibuka. C1-tuned tetap model terpilih; `IW_NAT` dicatat sebagai
+varian eksploratif terbaik. Ditolak: memakai test 2024+ lagi untuk keluarga intraminggu (konfirmasi hanya pada origin baru). Laporan
+`docs/audit/20261125_pilot_produsen_intraminggu.md`.
+
+### D-150 — Pilot harga pedagang besar PIHPS untuk Task 4 arah: sumber opsional `pihps_wholesale`, tidak menambah daya prediksi · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Atas persetujuan Danen (unduh & pilot). Data diambil lewat endpoint grid yang sama dengan tombol "Download" resmi
+(`price_type_id=3`, per bulan per provinsi, 3.978 permintaan, 0 galat) → zip berformat `pihps` di `data/raw/bi_pihps/`, didaftarkan
+`optional` (`redistribute: false`), loader = `load_pihps(cfg, "pihps_wholesale")`. Fakta: carry_forward 85–98% sel mingguan; grosir
+median 6–24% di bawah eceran; tidak mendahului eceran (korelasi Δeceran(t−1)→Δgrosir(t) ≥ arah sebaliknya). Pilot C1-tuned + fitur
+grosir (Δ grosir 1/4/8, rerata nasional, selisih grosir–eceran & deviasinya, Δ relatif) dengan protokol D-147: tidak ada yang lolos
+pengembangan (−0,006..+0,001), test tidak dibuka. C1-tuned tetap; data grosir disimpan untuk analisis margin deskriptif, tidak dipakai
+model/artefak resmi. Ditolak: memasukkan grosir ke fitur resmi; mengakali reCAPTCHA Bapanas untuk harga produsen (jalur sah = SAPA,
+`[HUMAN]`). Laporan `docs/audit/20261125_pilot_grosir.md`.
+
+### D-149 — Split pengembangan s.d. 2024 untuk tuas sadar-rezim Task 4 arah (pasca-hoc eksploratif) · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Atas keputusan Danen setelah D-148 (drift baru muncul 2024+, tidak terpilih dari dev ≤ 2023). Ditetapkan sebelum run: pengembangan =
+origin + h ≤ 2024-12-31 (52 / 51 origin), test = origin ≥ 2025-01-01, kandidat (8 kalibrasi temporal, 4 kelompok fitur rezim) dan
+aturan buka test sama dengan D-147/D-148. Berlabel pasca-hoc karena hasil test 2024 sudah pernah dilihat. Hasil: tidak ada kandidat
+lolos (terbaik kalibrasi prior 26 minggu +0,000 / +0,000; fitur rezim −0,011..+0,001) → test 2025+ tidak dibuka. Pada origin dev
+2024, fitur kebijakan (`R_PO`) menghapus kelebihan prediksi naik komoditas diatur (+0,086 / +0,149 → +0,017 / +0,005) tanpa menaikkan
+macro F1 (−0,002 / −0,010): baris yang dibalik sebelumnya benar ± 57%, jadi drift = bias proporsi, bukan pembatas skor; kalibrasi
+berbasis label terealisasi memperburuk 2024 (tertinggal h minggu). C1-tuned tetap; tuas berikutnya = informasi baru (produsen/grosir,
+pasokan). Laporan `docs/audit/20261125_task4_ronde4.md` §4. `src/`, `params.yaml`, artefak tidak berubah.
+
+### D-148 — Roadmap pasca-audit Task 4 arah: preprocessing beku, `iw_gap` eksploratif, uji rezim & kalibrasi temporal · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Atas keputusan Danen setelah D-147. (1) Preprocessing baseline **dibekukan** (rerata hari teramati, target dari harga teramati, fitur
+C1-tuned, tanpa normalisasi tambahan, carry_forward dipertahankan). (2) `iw_gap` disimpan sebagai varian eksploratif terpisah `C1t_iw`
+(skrip audit D-147, prediksi lokal `data/interim/c1t_intraweek_preds.parquet`); tidak mengganti C1-tuned dan tidak diporting ke `src/`.
+(3) Fitur sadar-rezim (base rate terealisasi 13/26 minggu, keseimbangan arah mingguan, umur kebijakan, jarak ke acuan; tanggal
+diketahui vs berlaku dicatat) dan (4) kalibrasi probabilitas temporal (intercept dari prediksi lampau, koreksi pergeseran prior) diuji
+dengan protokol D-147 (seleksi di origin pengembangan, C1-tuned tetap): tidak ada yang lolos aturan buka test; terbaik prior 26
+minggu a = 0,5 +0,006 / +0,008 (interval memuat nol), fitur rezim −0,009..+0,001. Penyebab struktural: drift komoditas diatur baru
+muncul 2024+ (dev kelebihan prediksi naik +0,004 / +0,005; fitur kebijakan kosong 72–83% di dev) sehingga tidak dapat dipilih dari
+origin ≤ 2023. Ditemukan galat di fitur regulasi eksperimen ronde 2 (D-146): acuan beras sejak 2024-06-02 = batas atas premium
+Rp15.800 (rentang diisi `value_max_rp`); hanya periode test, seleksi D-146 tidak terdampak; diperbaiki di fitur ronde ini.
+(5) Data produsen/grosir/pasokan dan (6–7) benchmark/ensemble menunggu sumber baru. Koreksi flag `episode` real-time = U108 (saat
+pipeline fx dijalankan ulang); `range_pos_52` tidak diprioritaskan. Job > 1 jam dijalankan di Colab T4 dengan output ke folder Drive
+terpusat (`1m2gJk7kYQn4n5Gkn81xfRPbGReQWgYht`). Laporan `docs/audit/20261125_task4_ronde4.md`. `src/`, `params.yaml`, artefak tidak
+berubah. C1-tuned tetap model arah terpilih.
+
+### D-147 — Audit preprocessing Task 4 (klasifikasi arah) EKSPLORATIF: label, agregasi, kebocoran, seimbang-seri · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Atas permintaan Danen (audit ulang mentah → agregasi → missing → fitur → label → dataset sebelum menambah model/fitur). Evaluator
+tetap C1-tuned; label evaluasi resmi tidak diubah; seleksi hanya di origin pengembangan. Laporan & skrip:
+`docs/audit/20261125_task4_audit_preprocessing.md`. Tidak mengubah `src/`, `params.yaml`, atau artefak; 3 tes regresi kebocoran baru.
+Temuan: (1) tidak ada kesalahan preprocessing yang mengubah label/fitur: 0 duplikat, target dari harga teramati tanpa isi, uji
+perturbasi & penghapusan masa depan pada 76 origin × 54 kolom = 0 sel berbeda; (2) harga harian PIHPS seluruhnya kelipatan Rp50 (tick
+0,32% beras, 0,28% gula, 0,23% minyak goreng); label < 1 tick 2,4–4,3% dan label yang berbalik bila hari di-resample 8–12% → akurasi
+≈ 0,5, tetapi pada label ≥ 10 tick akurasi tetap 0,68–0,71 → derau pembentukan data hanya ± 0,01–0,015 dari celah skor;
+(3) autokorelasi lag-1 Δ mingguan positif (efek rerata 5 hari), sebagian perubahan label sudah terjadi di dalam minggu origin;
+(4) flag `episode` (grup fx, M2/C2) memakai informasi sesudah origin pada 1/76 origin (penggabungan episode berdempetan) → dicatat,
+tidak diperbaiki (bias menguntungkan M2; H5 tetap tidak didukung); `range_pos_52` mengisi 0,5 untuk nilai tak terdefinisi;
+(5) drift naik = pergeseran rezim komoditas diatur 2024+, bukan dominasi seri.
+Eksperimen (10 varian, origin pengembangan, aturan buka test ditetapkan sebelum run): membuang label latih < 1 / < 2 tick, bobot
+stabilitas, tanpa ffill, fitur dari harga hari terakhir ≈ 0; latih hanya ujung `observed` −0,017 / −0,022, normalisasi per seri dan
+bobot seimbang komoditas lebih buruk di h 8; hanya `iw_gap` (log hari terakhir − log rerata minggu origin) + `n_days` lolos
+(+0,014 h 4 dev) → test +0,004 (−0,005..0,013) / +0,005 (0,000..0,011), q BH 0,35 / 0,089 = belum terbukti. C1-tuned tetap model
+terpilih; `iw_gap` tidak diporting. Ditolak: *fixed-market cohort* (data per pasar tidak ada di repo), mengubah label evaluasi atau
+membuang perubahan kecil dari evaluasi.
+
 ### D-146 — Optimasi arah Task 4 ronde 2 EKSPLORATIF (diagnosis, fitur fundamental, model lain, 3 kelas) · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
 Atas permintaan Danen (target 0,8–0,9, enam masalah A–F). Protokol sama dengan D-145: seleksi hanya di origin pengembangan (target
 ≤ 2023); test origin ≥ 2024 tidak dipakai memilih apa pun. Laporan & skrip: `docs/audit/20261125_task4_ronde2.md`. Tidak mengubah

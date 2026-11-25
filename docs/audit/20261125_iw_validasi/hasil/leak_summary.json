@@ -1,0 +1,31 @@
+{
+ "n_origins": 83,
+ "n_grid": 76,
+ "n_forward": 8,
+ "full_data_checks": 2,
+ "a_delete_ok": {
+  "tested": 84,
+  "passed": 84
+ },
+ "b_perturb_ok": {
+  "tested": 84,
+  "passed": 84
+ },
+ "c_missing_ok": {
+  "tested": 84,
+  "passed": 84
+ },
+ "d_other_prov_ok": {
+  "tested": 84,
+  "passed": 84
+ },
+ "e_nofri_ok": {
+  "tested": 84,
+  "passed": 84
+ },
+ "e_control_detects": {
+  "tested": 84,
+  "passed": 84
+ },
+ "seconds": 293
+}

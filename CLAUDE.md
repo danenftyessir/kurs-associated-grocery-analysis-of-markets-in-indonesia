@@ -37,6 +37,7 @@ aturan, data, metode ringkas, jebakan yang sudah ditemukan, dan template. Bagian
 | Riwayat sesi (per anggota) | `docs/SESSION_LOG.md` |
 | Pesan antar anggota (serah-terima) | `docs/handoff/*.md`, format `docs/HANDOFF.md` |
 | Log eksekusi & evaluasi (skema, matriks tahap × metrik) | `docs/TRACKING.md` + `src/tracking/` |
+| Alur eksperimen eksploratif Task 4 (CRISP-DM, kartu 8 komponen, layar DU, aturan evaluasi) | `docs/EKSPERIMEN.md` (D-153) |
 
 CLAUDE.md meringkas semua di atas agar agent bisa bekerja tanpa membuka semuanya; bila ringkasan di sini bertentangan
 dengan sumber kebenaran, ikuti sumber kebenaran lalu perbaiki CLAUDE.md.
@@ -102,7 +103,7 @@ bukan kegagalan. k = 1, asosiasi nol, rasio MAE ≈ 1 adalah hasil sah. Tabel "J
 
 ## 2. Status saat ini (perbarui setiap akhir sesi)
 
-Tanggal acuan: 2026-11-24. Papan lengkap: `docs/WORKPLAN.md`.
+Tanggal acuan: 2026-11-25. Papan lengkap: `docs/WORKPLAN.md`.
 
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-06 (13 episode), WP-08 (panel 7 wilayah),
@@ -177,6 +178,53 @@ Tanggal acuan: 2026-11-24. Papan lengkap: `docs/WORKPLAN.md`.
   resmi (679 baris) bukan output run eksekusi terakhir (486 baris). Hasil analisis & artefak tidak berubah.
 - **Kelengkapan & kestabilan evaluasi (D-144, 2026-11-24):** F1 makro h 8 (pada baris berubah, cakupan 0,907): TimesFM 0,623, C2 0,614, C1 0,605, TSMixer 0,604, M3 0,594, M1 0,551; F1 berbobot hampir sama; akurasi bila minggu tanpa perubahan dihitung salah: TimesFM 0,566, M1 0,508. Replikasi 3 seed (h 8): TSMixer MAE/M1 0,966 ± 0,007 (0,959..0,972), akurasi 0,610 ± 0,005; PatchTST 0,972 ± 0,011, 0,583 ± 0,016; TSMixer + kurs 0,995 ± 0,009 (lebih buruk dari TSMixer di ketiga seed). Kepekaan blok bootstrap 2/3/4/6 origin: 17/17 keputusan sama di kedua horizon; DM TimesFM vs M1 p < 0,001 dan M2 vs M1 p 0,006–0,018 untuk lag HAC 1–5. Per tahun origin, keunggulan MAE TimesFM bertahan pada 2026 (0,938) walau lebih kecil dari 2023–2024 (0,876 / 0,834). Robustness Tier 2 dijalankan tercatat: identik sha256 dengan file resmi (679 baris), sekarang sinkron.
 - **Koreksi multiplisitas (D-143, 2026-11-24):** Lolos BH: MAE TimesFM (± kurs) vs M1 h 4 & 8 (q ≤ 0,004); akurasi arah TimesFM vs M3 h 4 (q 0,015), C2 vs M3 h 4 (q 0,015), C1 vs M1 h 4 & 8 (q ≤ 0,024); akurasi arah vs baseline: semua model baru dan M3 (q ≤ 0,034), M1/M2 tidak. Gugur: TSMX_fx vs TSMX MAE h 4 (p 0,020 → q 0,057); segmen kaku TimesFM (q 0,053) & M2 (q 0,080); segmen lentur M1 (q 0,064). Beda berpasangan 5/30 bertahan; metrik arah vs acuan 123/132; rasio MAE eksploratif 4/14; tabel segmen h 8: 47 lebih baik, 15 lebih buruk dari 190.
+- **Ronde 4 Task 4 arah EKSPLORATIF (D-148, 2026-11-25):** preprocessing baseline dibekukan; `iw_gap` disimpan sebagai varian
+  `C1t_iw` (tidak di `src/`). Fitur sadar-rezim (base rate terealisasi 13/26 minggu, arah mingguan, umur kebijakan, jarak ke acuan) dan
+  kalibrasi temporal (intercept, pergeseran prior) tidak lolos origin pengembangan (terbaik prior 26 minggu +0,006 / +0,008, interval
+  memuat nol): drift komoditas diatur baru muncul 2024+ sehingga tidak bisa dipilih dari dev ≤ 2023. Fitur regulasi ronde 2 ternyata
+  memakai acuan beras premium sejak 2024-06 (hanya test). Job > 1 jam → Colab T4, output ke Drive terpusat. Laporan
+  `docs/audit/20261125_task4_ronde4.md`.
+- **Split dev s.d. 2024 (D-149, 2026-11-25, pasca-hoc eksploratif):** kalibrasi & fitur rezim diuji ulang dengan dev origin + h ≤
+  2024-12-31: tidak ada yang lolos (test 2025+ tidak dibuka). Fitur kebijakan menghapus drift naik komoditas diatur 2024 (+0,086 /
+  +0,149 → +0,017 / +0,005) tanpa menaikkan macro F1 → drift = bias proporsi, bukan pembatas skor. C1-tuned tetap; tuas berikutnya
+  hanya data baru (produsen/grosir, pasokan).
+- **Riset sumber data hulu (2026-11-25, baca-saja):** kandidat terkuat PIHPS Pedagang Besar (`price_type_id=3`, sejak 2018-01, 31–34
+  provinsi, varian sama dengan eceran); Produsen (`=4`) cakupan tidak lengkap; Bapanas produsen akses terbatas (SAPA); NASA POWER
+  terbuka. Bukti U19: tombol Download resmi PIHPS mengekspor grid dari endpoint yang sama. Laporan `docs/audit/20261125_sumber_data_hulu.md`.
+- **Pilot pedagang besar (D-150, 2026-11-25):** `pihps_wholesale` diunduh (34 provinsi, 3.978 permintaan, 0 galat) dan didaftarkan
+  opsional; sangat kaku (carry_forward 85–98%), tidak mendahului eceran; C1-tuned + fitur grosir −0,006..+0,001 di pengembangan → tidak
+  lolos, test tidak dibuka, C1-tuned tetap. Laporan `docs/audit/20261125_pilot_grosir.md`.
+- **Pilot intraminggu & produsen (D-151, 2026-11-25):** protokol beku sebelum run. Intraminggu (`pihps_daily`, + rerata nasional)
+  `IW_NAT` lolos dev (+0,020 / +0,005) → test 0,686 / 0,683 vs C1-tuned 0,677 / 0,680 (+0,0085 / +0,0033, q 0,28 / 0,30, belum
+  terbukti; test tidak bersih karena `iw_gap` D-147). `pihps_producer` diunduh (3.570 permintaan, 0 galat; DKI kosong) dan didaftarkan
+  opsional: tangga mingguan, eceran mendahului produsen; fitur produsen −0,006..−0,001 di dev → test tidak dibuka. C1-tuned tetap.
+  Laporan `docs/audit/20261125_pilot_produsen_intraminggu.md`.
+- **Validasi `IW_NAT` (D-152, 2026-11-25):** tanpa kandidat baru. Kebocoran fitur intraminggu diuji di 83 origin + 2 data penuh (84/84
+  lolos, kontrol positif terdeteksi); `available_at` = Sabtu (revisi H+1). Dev: LOO ≈ rerata nasional (+0,005 / +0,001) → sinyal dari provinsi
+  lain; tanpa Jumat −0,010 (h 4) → separuh keuntungan h 4 = nowcast harga terkini. Prediksi maju C1-tuned & `IW_NAT` dibekukan (12 origin
+  2026-09-28..11-16, 8.112 baris, `docs/audit/20261125_iw_validasi/hasil/forward_preds.csv` + manifest; perlu di-commit sebelum 27 Nov; target
+  lengkap 2026-11-27..2027-01-15). Daya: konfirmasi +0,0085 butuh ± 14 tahun origin → validasi maju hanya penjaga. Laporan
+  `docs/audit/20261125_iw_validasi.md`.
+- **Alur CRISP-DM Task 4 (D-153, 2026-11-25):** eksperimen eksploratif wajib kartu 8 komponen + layar Data Understanding sebelum
+  modeling (`docs/EKSPERIMEN.md`). DU dev untuk pola sekuensial lintas komoditas (0/360 lolos BH; pasangan terkuat = co-trend 2021–2022),
+  clustering seri (5 tipe, silhouette 0,34, tidak menjelaskan skill di luar komoditas), dan graf provinsi (informasi tetangga ρ 0,021–0,025
+  setelah partial, ± 1/5 kontrol positif): ketiganya tidak lolos gerbang Modeling; tipologi 5 tipe dipakai sebagai pengetahuan. Laporan
+  `docs/audit/20261125_crisp_du.md`.
+- **Business Understanding Task 4 arah (D-154, 2026-11-25):** kriteria bisnis ditetapkan sebelum ukur: S1 daftar pantau provinsi
+  (presisi kenaikan material vs aturan naif), S2 kalibrasi, S3 arah saat bergerak material. C1-tuned (tanpa model baru), test dibuka sekali:
+  daftar pantau 2 komoditas/provinsi presisi 0,18 / 0,16 vs laju-dasar 0,09 dan aturan tren 0,08–0,09 (recall 0,41 / 0,36); Brier skill
+  0,17, ECE 0,01–0,02; macro F1 saat bergerak material 0,81 vs 0,44–0,50. Dev S2 h 8 gagal tipis (ECE 0,056). Nilai Task 4 arah bagi TPID =
+  daftar pantau prioritas, bukan macro F1. Laporan `docs/audit/20261125_business_understanding.md`. Masuk `results/findings.md`
+  (Ringkasan butir 7, subbagian C1-tuned & daftar pantau, Keterbatasan) 2026-11-25; app daring baru menampilkannya setelah di-push,
+  salinan `findings.md` di Drive tim (2026-11-23) belum diperbarui.
+- **Audit preprocessing Task 4 arah EKSPLORATIF (D-147, 2026-11-25):** tidak ada kesalahan preprocessing yang mengubah label/fitur
+  (target dari harga teramati tanpa isi; kebocoran 76 origin × 54 kolom × perturbasi/penghapusan masa depan = 0 sel berbeda).
+  Harga harian PIHPS seluruhnya kelipatan Rp50 (tick 0,32% beras); label < 1 tick 2,4–4,3% dan label tak stabil terhadap resample
+  hari 8–12% → akurasi ≈ 0,5, tetapi label ≥ 10 tick pun hanya 0,68–0,71 → derau data ± 0,01–0,015 dari celah skor. Flag `episode`
+  (M2/C2) bocor pada 1/76 origin (dicatat, tidak diperbaiki). Drift naik = rezim komoditas diatur 2024+. 10 varian preprocessing
+  (C1-tuned tetap, dev): pembersihan label latih, tanpa ffill, fitur hari terakhir ≈ 0; latih ujung `observed` saja −0,02; hanya
+  `iw_gap` (hari terakhir vs rerata minggu origin) lolos → test +0,004 / +0,005, belum terbukti (q 0,35 / 0,089); C1-tuned tetap.
+  Laporan `docs/audit/20261125_task4_audit_preprocessing.md`.
 - **Optimasi arah ronde 2 EKSPLORATIF (D-146, 2026-11-25):** fitur regulasi HET/HAP, spasial, kalender, prior, level; LightGBM/XGBoost/
   ensemble; spesialis komoditas → tidak ada yang mengalahkan C1-tuned di pengembangan. Kesalahan arah terkonsentrasi pada perubahan
   kecil (kuintil |y| terkecil macro F1 0,57). Target 3 kelas test 0,625 / 0,606. TCN/MLP multi-task (Colab T4, 3 seed): −0,02..−0,07 vs C1-tuned
@@ -203,7 +251,8 @@ Tanggal acuan: 2026-11-24. Papan lengkap: `docs/WORKPLAN.md`.
 - **Isi Drive tim (2026-11-20, diunggah lewat browser):** `data/raw/` lengkap 24 file + `checksums.csv`,
   artefak `pihps_daily`, `panel_weekly`, `world_prices_weekly`, `eligibility`, P1 (`drivers_weekly`, `episodes`, `fx_variation`,
   `panel_weekly_region`), `mde` dan `stage0_report` (versi 2026-11-21). Akses umum folder "siapa saja yang memiliki link
-  dapat mengedit" diterima Danen 2026-11-23 (U24 🟢).
+  dapat mengedit" diterima Danen 2026-11-23 (U24 🟢). 2026-11-25 (Chrome): + zip opsional `pihps_wholesale` & `pihps_producer` di
+  `data/raw/bi_pihps/` (ukuran byte identik dengan lokal); `checksums.csv` belum memuat keduanya (sengaja, lineage stage0).
 - **Data baru 2026-11-20 (D-101):** BPS impor v2 (+bawang putih), revisi regulasi, `jarak_hub`, `konkordansi_hs`,
   `hortikultura_produksi` — input WP-07 (Ardell). Versi lama di `data/raw/_superseded/`.
 - **Pertukaran artefak & data mentah:** folder Drive tim https://drive.google.com/drive/folders/15T5ry1VIP_ZhzXqdVAwPLI4vfRySOx8D lewat `utils.drive` (D-100).
@@ -238,6 +287,8 @@ non-teknis). User sesi ini bisa salah satu dari mereka; bila belum jelas, **tany
 5. Daftarkan langkah kerja di task list aplikasi (bukan di teks pesan).
 
 ### 3.2 Selama bekerja
+- Eksperimen eksploratif Task 4 (D-153): tulis kartu 8 komponen dan jalankan layar Data Understanding (`docs/EKSPERIMEN.md` §2–§3)
+  sebelum menulis kode modeling; jangan mengusulkan model/fitur baru tanpa kartu yang lolos gerbang.
 - Baca kode stub WP itu (docstring = spesifikasi kontrak). Jangan mengubah signature yang dipanggil `pipelines/` tanpa
   memperbarui pemanggilnya dan dokumen.
 - Tulis tes dulu atau bersamaan: data sintetis dengan jawaban yang diketahui (§16).
@@ -410,7 +461,7 @@ datmin/
 ├── configs/
 │   ├── params.yaml           SEMUA angka analisis (dibekukan di G6)
 │   ├── commodities.yaml      10 komoditas: varian, peran, jalur eksposur, padanan Pink Sheet, HS, FAOSTAT
-│   ├── sources.yaml          24 sumber mentah: path relatif raw_dir, lisensi, redistribute, retrieval, availability
+│   ├── sources.yaml          26 sumber mentah (6 opsional): path relatif raw_dir, lisensi, redistribute, retrieval, availability
 │   └── runtime.yaml          folder Drive tim (ID), kredensial Drive, folder kerja Colab (bukan parameter analisis)
 ├── data/
 │   ├── raw/<sumber>/         snapshot mentah (TIDAK pernah ditimpa; salinan di Drive tim, D-101); raw/checksums.csv
@@ -998,6 +1049,8 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 | Kunci | Isi | Cakupan | Peran | Redistribusi |
 |---|---|---|---|---|
 | `pihps` | PIHPS v2 merged, 34 prov × 31 baris (10 komoditas + 21 varian), harian | 2017-03-28..2026-11-19 | outcome | tidak |
+| `pihps_wholesale` | PIHPS pedagang besar (grosir) harian, format sama dengan `pihps` (`optional`, pilot D-150) | 2017-03..2026-11-19 | fitur eksploratif Task 4 | tidak |
+| `pihps_producer` | PIHPS harga produsen harian (`price_type_id=4`), format sama dengan `pihps` (`optional`, pilot D-151; cakupan provinsi tidak lengkap) | 2018-03..2026-11-19 | fitur eksploratif Task 4 | tidak |
 | `jisdor` | JISDOR harian | 2013-05-20..2026-11-18 | penggerak 1 | tidak |
 | `pinksheet` | World Bank CMO bulanan USD | 1960-01..2026-10 | penggerak 2 | ya (CC BY) |
 | `brent` | FRED DCOILBRENTEU | 2013..2026-11-11 | kontrol | ya |
@@ -1285,7 +1338,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_association.py` | WP-23/24: meta-regresi & interaksi FE memulihkan koefisien tertanam; p ⇔ interval laporan & q BH (U106), p bootstrap sisi = persentil |
 | `test_forecast.py` | WP-25/26: tanpa kebocoran as-of, origin, model M0–M3 & M2_nofx, checkpoint |
 | `test_direction.py` | D-141 (eksploratif): klasifier C2 (+ kurs) memulihkan sinyal kurs tertanam lebih baik dari C1, penjaga (satu kelas, y = 0, model tak dikenal), bentuk & resume rolling_direction, beda akurasi berpasangan, prediksi selektif |
-| `test_direction_tuned.py` | D-145 (eksploratif): fitur dinamika harga tanpa informasi sesudah origin (harga & status masa depan dirusak → fitur ≤ origin sama), nilai fitur yang diketahui (lag, MA, musiman, deviasi spasial Σ = 0, umur carry-forward), kolom & penjaga C1t/C2t, C1t memulihkan mean-reversion tertanam lebih baik dari C1, bentuk & resume `rolling_direction_tuned` |
+| `test_direction_tuned.py` | D-145 (eksploratif): fitur dinamika harga tanpa informasi sesudah origin (harga & status masa depan dirusak → fitur ≤ origin sama), D-147: penghapusan data sesudah origin di SETIAP origin h 4 & 8 → seluruh matriks fitur + target terealisasi identik, harga dunia tersembunyi sampai `available_at`, label belum terealisasi tidak mengubah prediksi, nilai fitur yang diketahui (lag, MA, musiman, deviasi spasial Σ = 0, umur carry-forward), kolom & penjaga C1t/C2t, C1t memulihkan mean-reversion tertanam lebih baik dari C1, bentuk & resume `rolling_direction_tuned` |
 | `test_neural.py` | D-142 (eksploratif): jendela latih tanpa target belum terealisasi, PatchTST/TSMixer tidak memakai data sesudah origin (ubah masa depan → ramalan sama), adapter TimesFM hanya konteks s.d. origin (forecaster palsu), baris uji = Task 4, resume |
 | `test_task1.py` | `task1.run` end-to-end pada artefak sintetis (B/R kecil): semua artefak tahap tertulis, interval tidak menyempit, tiga level |
 | `test_synthetic.py` | generator sintetis Task 1 (`tests/synthetic.py`): skema = kontrak artefak, jawaban tertanam pulih |
@@ -1433,6 +1486,14 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-154 | Business Understanding Task 4 arah: kriteria bisnis S1–S3 (daftar pantau, kalibrasi, arah saat bergerak material) di samping macro F1; C1-tuned lolos di test | FINAL · eksploratif |
+| D-153 | Alur eksperimen Task 4 = CRISP-DM + kartu 8 komponen (`docs/EKSPERIMEN.md`); DU pola sekuensial / clustering / graf tidak lolos gerbang Modeling | FINAL · eksploratif |
+| D-152 | Validasi `IW_NAT`: kebocoran 84/84 lolos, LOO = rerata nasional, separuh keuntungan h 4 dari harga Jumat, prediksi maju beku (12 origin); daya tidak cukup untuk konfirmasi; C1-tuned tetap | FINAL · eksploratif |
+| D-151 | Pilot intraminggu & harga produsen PIHPS (`pihps_producer`, opsional): produsen tidak membantu (dev −0,006..−0,001); `IW_NAT` test +0,0085 / +0,0033 belum terbukti; C1-tuned tetap | FINAL · eksploratif |
+| D-150 | Pilot harga pedagang besar PIHPS (`pihps_wholesale`, opsional): kaku, tidak mendahului eceran, tidak menaikkan macro F1 C1-tuned | FINAL · eksploratif |
+| D-149 | Split dev s.d. 2024 (pasca-hoc): kalibrasi & fitur rezim tetap tidak lolos; fitur kebijakan hapus drift tanpa menaikkan macro F1 | FINAL · eksploratif |
+| D-148 | Roadmap pasca-audit: preprocessing beku, `iw_gap` eksploratif terpisah, fitur rezim & kalibrasi temporal tidak lolos dev (drift baru 2024+), koreksi `episode` = U108, job > 1 jam di Colab T4 | FINAL · eksploratif |
+| D-147 | Audit preprocessing Task 4 arah eksploratif (tick Rp50, label rapuh, agregasi hari, kebocoran semua origin, seimbang-seri, eksperimen preprocessing dengan C1-tuned tetap); label & `src/` tidak berubah | FINAL · eksploratif |
 | D-146 | Optimasi arah ronde 2 eksploratif (diagnosis perubahan kecil, fitur fundamental/spasial/kalender, LightGBM/XGBoost, spesialis, 3 kelas, TCN/MLP GPU); tidak ada yang mengalahkan C1-tuned | FINAL · eksploratif |
 | D-145 | Optimasi klasifikasi arah Task 4 eksploratif (fitur per seri, Optuna, threshold dev, kepala TimesFM–CatBoost); origin pengembangan ≤ 2023 vs test ≥ 2024; C1-tuned 0,677 / 0,680 | FINAL · eksploratif |
 | D-144 | F1 berbobot/cakupan/akurasi termasuk nol, replikasi seed model deep (`_r<k>`), kepekaan blok & lag DM, segmen tahun origin, ringkasan Task 4 di halaman 7, `evaluator_version`; robustness Tier 2 tercatat identik | FINAL (teknis) |
@@ -1502,6 +1563,7 @@ tidak boleh dikutip sebelum dicek.
 | U105 | Struktur tertanam kini ditanam sebelum penyusutan EB (D-126); batas deteksi δ = 0,2 | 🟢 |
 | U106 | p meta-regresi `assoc` tidak konsisten dengan interval (11 baris) & ARI 0 saat k = 1 → diperbaiki D-132 (0/88 baris p < 0,05; ARI NaN) | 🟢 |
 | U107 | Bootstrap blok 13 minggu menarik β ke nol (rasio 0,57 / 0,35 / 0,35 pada h 4 / 8 / 12) → interval resmi terlalu konservatif; nasional diatasi tambahan D-129, provinsi & PT jadi keterbatasan | 🟡 |
+| U108 | Flag `episode` (grup fx: M2/C2) memakai informasi sesudah origin pada 1/76 origin (penggabungan episode) → perbaiki ke real-time saat pipeline fx dijalankan ulang (D-148) | 🟡 |
 Selesai: U1, U2, U18, U23.
 
 ---

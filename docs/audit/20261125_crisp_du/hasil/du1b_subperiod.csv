@@ -1,0 +1,13 @@
+signal,horizon,period,rho,lo,hi,p,n
+beras->minyak_goreng prov,4,2021–2022,-0.1589,-0.2295,-0.031,0.0155,751
+beras->minyak_goreng prov,4,2023,-0.0922,-0.1599,-0.0373,0.0005,294
+beras->minyak_goreng nat,4,2021–2022,-0.2747,-0.4412,-0.1099,0.0045,751
+beras->minyak_goreng nat,4,2023,-0.0527,-0.1328,0.0251,0.1406,294
+beras->minyak_goreng prov,8,2021–2022,-0.1601,-0.264,-0.0014,0.0475,817
+beras->minyak_goreng prov,8,2023,0.0183,-0.0357,0.0473,0.5668,314
+beras->minyak_goreng nat,8,2021–2022,-0.3599,-0.6226,-0.0225,0.0345,817
+beras->minyak_goreng nat,8,2023,0.0574,-0.0318,0.1346,0.1386,314
+gula_pasir->cabai_merah prov,8,2021–2022,0.1985,0.0211,0.3362,0.0215,877
+gula_pasir->cabai_merah prov,8,2023,0.2204,0.0285,0.2437,0.0075,372
+bawang_putih->cabai_rawit nat,8,2021–2022,-0.1048,-0.237,0.0622,0.2376,803
+bawang_putih->cabai_rawit nat,8,2023,-0.4006,-0.5142,-0.1508,0.0015,341

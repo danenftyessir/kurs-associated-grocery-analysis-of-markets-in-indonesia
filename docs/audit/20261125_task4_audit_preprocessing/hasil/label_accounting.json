@@ -1,0 +1,20 @@
+{
+ "4": {
+  "grid_rows": 156400,
+  "p_t_missing": 1622,
+  "y_nan_endpoint_missing": 343,
+  "dropped_lag_nan_with_y": 3704,
+  "usable": 150731,
+  "usable_share": 0.9638,
+  "y_zero_share_of_usable": 0.151
+ },
+ "8": {
+  "grid_rows": 155040,
+  "p_t_missing": 1614,
+  "y_nan_endpoint_missing": 348,
+  "dropped_lag_nan_with_y": 3702,
+  "usable": 149376,
+  "usable_share": 0.9635,
+  "y_zero_share_of_usable": 0.1014
+ }
+}
