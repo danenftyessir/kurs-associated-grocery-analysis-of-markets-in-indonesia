@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-11-26T18:29:34.485567+07:00",
+ "checked_at": "2026-11-26T22:23:40.940773+07:00",
  "sources": {
   "D-152": {
    "preds": "docs/audit/20261125_iw_validasi/hasil/forward_preds.csv",
@@ -40,9 +40,9 @@
     "src/features/price_dynamics.py": "sama",
     "src/features/forecast.py": "berubah"
    },
-   "git_tracked_preds": false,
-   "git_tracked_manifest": false,
-   "git_first_commit": null,
+   "git_tracked_preds": true,
+   "git_tracked_manifest": true,
+   "git_first_commit": "ec6dd19 2026-11-26T20:45:13+07:00",
    "pihps_zip_sha256": "bfc7f343c0fb34e12556f479f9dcb32a6cdddec93c1dd59b820c39dfd62a9605"
   }
  },

@@ -1,0 +1,9 @@
+check,n,n_unmatched,max_abs_diff,y_equal,pass,detail,n_without_target,horizon,origin,n_future_ymax_changed
+c1t_refit_equals_official,25259,0.0,0.0,True,True,,,,,
+universe_dev,25263,,,,True,"{4: 12800, 8: 12463}",4.0,,,
+perturb_future,337,,0.0,,True,,,4.0,2021-06-21,95578.0
+perturb_future,337,,0.0,,True,,,4.0,2022-06-20,78330.0
+perturb_future,337,,0.0,,True,,,4.0,2023-11-06,54126.0
+perturb_future,337,,0.0,,True,,,8.0,2021-06-21,96784.0
+perturb_future,337,,0.0,,True,,,8.0,2022-05-23,80656.0
+perturb_future,337,,0.0,,True,,,8.0,2023-10-09,56726.0

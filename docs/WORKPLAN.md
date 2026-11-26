@@ -312,6 +312,8 @@ Pipeline `pipelines.task4` · notebook `04_task4_forecast` · berat → Kaggle/C
 - Kode 2026-11-20 (Ardell): `origins`, `feature_table`, `split_origin`, `build_features`; `tests/test_forecast.py` (tes kebocoran termasuk mengacak data masa depan).
 - File: `src/features/forecast.py`. Selesai bila: [x] tes kebocoran: untuk origin acak, tidak ada fitur dengan `available_at` > origin dan tidak ada target dengan t+h > origin di train.
 
+- D-162 (2026-11-26, U108): fitur `episode` = `data.drivers.realtime_episode_flag` (minggu pemicu s.d. t), bukan flag periode penuh;
+  6/61 minggu berubah. Tes `test_drivers` (setara deteksi ulang s.d. t) & `test_forecast` (de sesudah t0 tidak mengubah fitur).
 ### WP-26 — Model M0–M3 rolling-origin ✅
 - Kode 2026-11-20 (Ardell); M0–M3 ± 2 dtk/origin untuk M3 pada data asli.
 - File: `src/models/forecasting.py` → `data/interim/forecast_preds.parquet`. Selesai bila: [x] origin tiap 4 minggu dari 2021-01-04 (76 origin h 4, 75 h 8); [x] M3 dapat dimatikan via flag bila waktu habis (`forecast.run_m3`).
@@ -336,6 +338,8 @@ Pipeline `pipelines.task4` · notebook `04_task4_forecast` · berat → Kaggle/C
 ## Robustness & validasi
 Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat → Kaggle/Colab.
 
+- D-162 (2026-11-26): dijalankan ulang lokal dengan flag episode real-time (task4 2.029 dtk): M2/M1 1,0086 (DM p 0,009) / 1,0125 (p 0,025),
+  M3/M1 1,037 / 1,014, H5 1,112 / 1,115 (Holm 1,0); M0/M1/M2_nofx identik → kesimpulan sama. Laporan `docs/audit/20261126_kelemahan_tercatat.md` §1.
 ### WP-28 — Robustness Tier 1
 - File: `src/evaluation/robustness.py::tier1` (+ `fx_decomposition`). Tes `tests/test_robustness.py`. Konvensi teknis D-111.
 - Selesai: [x] 6 cek `TIER1` pada h 4/8/12, driver e & w, interval ±1,96·SE cluster; [x] data asli: 382 baris, **21 dtk lokal**.
@@ -402,6 +406,10 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - G7 ulang 2026-11-24 03.31 (Danen, WP-36): `package` 212 file, 44,6 MB, tanpa artefak hilang (+ `src/tracking/`, app hal. 7, `logs/`
   23 file, docs/TRACKING.md); tanpa `pihps_daily` & PIHPS mentah. Diekstrak ke folder bersih → `tests/test_app.py` 7/7, ketujuh halaman
   tanpa exception & tanpa "Menunggu hasil"; hal. 7 membaca 11 run. `bundle` 85 file.
+- Gladi G7 2026-11-26 (Danen, persiapan pembekuan): `package` 300 file, 47,0 MB (60,6 MB terurai), tanpa artefak hilang; mentah hanya 10 sumber
+  `redistribute: true` (termasuk NASA POWER); `bundle` 89 file. Diekstrak ke folder bersih dan paket didaftarkan dari `src/` zip (bukan instalasi
+  proyek): 7/7 halaman tanpa exception & tanpa "Menunggu hasil", `test_app` + `test_package` + `test_calibration` 19 lolos. Tingkat B tidak diulang
+  (task3, task4, robustness baru saja dijalankan ulang dari data turunan yang sama, D-162/D-163).
 
 ### WP-33 — Temuan & makalah 🔶
 - 2026-11-23 (D-130): `results/findings.md` ditulis dari artefak (RQ1–RQ5, E2, robustness, keterbatasan, daftar artefak sumber). Makalah PDF ditunda.

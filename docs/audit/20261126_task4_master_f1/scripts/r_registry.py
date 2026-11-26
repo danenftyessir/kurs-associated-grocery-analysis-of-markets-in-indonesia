@@ -262,6 +262,39 @@ for kind, desc in _KDESC.items():
         rationale="ECE turun tetapi Brier tidak membaik (pergeseran laju naik antarperiode tidak dapat dipelajari dari origin lampau)"
                   + ("; K2 menaikkan presisi daftar pantau h 8 tetapi memperburuk peluang — petunjuk untuk kartu K4 (U109)" if kind == "K2" else ""),
         repro="docs/audit/20261126_kalibrasi_pantau/scripts/kal.py (PROTOKOL.md sha256 e0b50c8f…)")
+# ---------------- D-165 (Jalur A: prospektif, GDELT, sumber pasokan; tanpa modeling) — dari docs/audit/jalur_a_macro_f1/EXPERIMENT_LOG.csv
+_JA = os.path.join(AUD, "jalur_a_macro_f1")
+if os.path.exists(os.path.join(_JA, "EXPERIMENT_LOG.csv")):
+    _L = pd.read_csv(os.path.join(_JA, "EXPERIMENT_LOG.csv"), keep_default_na=False)
+    _ST = {"BLOCKED": "BLOCKED", "REJECT": "REJECTED", "ACCEPT": "COMPLETE"}
+    for _, r in _L[~_L["experiment_id"].str.startswith("JA-B04")].iterrows():
+        _ci = r["confidence_interval"].split("; ") if r["confidence_interval"] != "n/a" else ["", ""]
+        _dl = r["delta_vs_c1t"].replace("ΔAUC ", "").split("; ") if r["delta_vs_c1t"] != "n/a" else ["", ""]
+        add(r["experiment_id"], "D-165", r["workstream"], r["hypothesis"], r["feature_family"], r["preprocessing"], r["model"], "-",
+            ci4=f"ΔAUC {_dl[0]} ({_ci[0]})" if len(_ci) == 2 and _ci[0] else "", ci8=f"ΔAUC {_dl[1]} ({_ci[1]})" if len(_ci) == 2 and _ci[1] else "",
+            status=_ST[r["decision"].split(" ")[0]], decision=r["decision"], rationale=r["reason"],
+            repro=f"docs/audit/jalur_a_macro_f1/ ({r['script']})", data=r["data_source"], origins="dev 2021–2023 (mingguan) / origin maju 2026")
+    _C = pd.read_csv(os.path.join(_JA, "hasil", "b_screen_controls.csv"))
+    for sset, g in _C.groupby("set", sort=False):
+        a, b = g.set_index("horizon").loc[4], g.set_index("horizon").loc[8]
+        add(f"JA-B04-{sset}", "D-165", "kalibrasi layar G5", "kontrol positif kesegaran nasional terdeteksi; derau tidak" if sset == "POS" else "derau tidak terdeteksi",
+            "iw_gap_nat" if sset == "POS" else "N(0,1)", "-", "increment-only offset logit konsensus C1t, walk-forward 4 minggu", "-",
+            ci4=f"ΔAUC {a['d_auc']:+.4f} ({a['lo']:+.4f}..{a['hi']:+.4f})", ci8=f"ΔAUC {b['d_auc']:+.4f} ({b['lo']:+.4f}..{b['hi']:+.4f})",
+            status="COMPLETE", decision="kalibrasi daya (bukan kandidat)",
+            rationale=("tidak lolos aturan G5 → MDE layar ± 0,023 AUC" if sset == "POS" else "≈ 0 sesuai harapan") + f"; q BH {a['q_bh']:.3f}/{b['q_bh']:.3f}",
+            repro="docs/audit/jalur_a_macro_f1/scripts/b_gdelt_screen.py --tag controls", origins="minggu 2021-01-04 .. 2023-12-31 − h (mingguan)",
+            data="konsensus C1t OOS mingguan (D-158) + fresh.parquet")
+# ---------------- D-162 (U108: flag episode real-time; C2 & C2t dijalankan ulang, menggantikan prediksi lama)
+_U = pd.read_csv(os.path.join(AUD, "20261126_kelemahan_tercatat", "hasil", "u108_preds.csv"))
+for mod_, art in (("C2", "direction_preds"), ("C2t", "direction_tuned_preds")):
+    r = _U[(_U["artifact"] == art) & (_U["model"] == mod_)].iloc[0]
+    add(f"D162-{mod_}", "D-162", "perbaikan bug (U108)", "flag episode periode penuh membocorkan penggabungan pemicu masa depan",
+        f"{mod_} (grup fx) dengan `episode` = minggu pemicu s.d. t", "resmi", "HGB" if mod_ == "C2" else "HGB TUNED_HGB", "0,5",
+        f4=r["f1_dev_h4_new"], f8=r["f1_dev_h8_new"], d4=r["f1_dev_h4_new"] - 0.656, d8=r["f1_dev_h8_new"] - 0.676,
+        ci4=f"sebelum {r['f1_dev_h4_old']:.4f}", ci8=f"sebelum {r['f1_dev_h8_old']:.4f}", status="COMPLETE",
+        decision="menggantikan prediksi lama di artefak", rationale="kesimpulan fitur kurs tetap; test 2024+ " +
+        f"{r['f1_test_h4_old']:.3f}/{r['f1_test_h8_old']:.3f} -> {r['f1_test_h4_new']:.3f}/{r['f1_test_h8_new']:.3f} (informasi, bukan seleksi)",
+        repro="python -m kagami task4 --direction / --direction-tuned C2t; docs/audit/20261126_kelemahan_tercatat/scripts/banding_u108.py")
 R = pd.DataFrame(rows)
 for c in ("macro_f1_h4", "macro_f1_h8", "delta_vs_c1t_h4", "delta_vs_c1t_h8"):
     R[c] = R[c].astype(float).round(4)

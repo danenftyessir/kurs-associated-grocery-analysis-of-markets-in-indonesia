@@ -9,6 +9,29 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-26 — Danen: WP-32 ✅ (persiapan pembekuan hasil 27 Nov)
+- 39/39 artefak ada; `checksums` cocok dengan 28 file mentah; sinkronisasi log: hanya `checksums` (beda `recorded_at`) & `findings` (tanpa log).
+- `bundle` 89 file, `package` 300 file 47,0 MB tanpa mentah berhak-terbatas; gladi G7 dari folder bersih 7/7 halaman, 19 tes lolos.
+- Prediksi maju D-152/D-158 sudah di-commit. Sisa: commit perubahan sesi ini, unggah bundel & findings ke Drive/Kaggle (`[HUMAN]`).
+
+### 2026-11-26 — Danen: WP-25/WP-36 ✅ (kelemahan tercatat & kalibrasi daftar pantau, D-162, D-163)
+- U108: `data.drivers.realtime_episode_flag` → fitur `episode` Task 4 real-time (+ tes); task4, `--direction`, C2t, robustness dijalankan ulang
+  (tercatat): M2/M1 1,009 / 1,013, H5 1,11 / 1,12 (Holm 1,0); M0/M1/C1/C1t identik; klaim "C2 > M3 h 4" gugur → `findings.md` diperbarui.
+- U107: baris PT di `national_calibrated` + artefak baru `province_calibrated` (task3 ulang; artefak task3 lain identik); 7 deviasi lolos BH global.
+- D-163a kalibrasi skor daftar pantau (protokol beku): ECE turun, Brier tidak → ditolak, test tidak dibuka. 13/33 fitur clustering konstan inert.
+- Registri 184 baris (bersama sesi D-164/D-165). Artefak app berubah (`forecast_eval`, `ablation`, `national_calibrated`, `robustness`) → perlu di-commit.
+
+### 2026-11-26 — Danen: WP-36 ✅ (Jalur A macro F1 & intelijen eksternal, D-165)
+- Folder `docs/audit/jalur_a_macro_f1/` (INITIAL_AUDIT, GDELT_FEASIBILITY, GDELT_PILOT, SUPPLY_SIDE_SOURCE_AUDIT, PROTOCOL, EXPERIMENT_LOG 24 baris,
+  RESULTS, RECOMMENDATIONS, skrip + 12 tes). Tiga sesi paralel di folder ini → nomor D-164 (K4) / D-165 (Jalur A); `src/` & artefak tidak disentuh.
+- A: prediksi maju D-152/D-158 utuh & di git sebelum target (`ca53742`, `ec6dd19`); 0 target terealisasi; evaluator dibekukan (penanda GAGAL_MAJU).
+- B: DOC API GDELT 429 menetap; 48 batch GKG Translingual (409 MB, scratchpad) → G1–G2 ✓, presisi penyaring 0,23 → 0,72; G5 butuh BigQuery sandbox
+  (± 0,3 TB, `[HUMAN]`). Kontrol positif `iw_gap_nat` tidak lolos layar G5 (ΔAUC +0,015; MDE ± 0,023) → catatan EKSPERIMEN §3.
+- C: 10 kandidat; Proyeksi Neraca Pangan Bapanas & luas tanam/EWS Kementan BLOCKED akses (U112), 6 ditolak. Tanpa modeling; C1-tuned tetap.
+- Registri hidup (builder `r_registry.py` + blok D-165). Belum: commit, evaluasi maju ≥ 2026-11-28.
+- Adendum 23.03 WIB: Danen masuk Google di panel browser; proyek `kagami-gdelt` tanpa billing; kueri beku 313,83 GB (biaya 0, job ID di manifest)
+  → 15.722 baris harian; layar G5 ΔAUC −0,008..+0,001 (q ≥ 0,46) → GDELT REJECTED, U113 ditutup.
+
 ### 2026-11-26 — Danen: WP-36 ✅ (CFSv2 lewat Colab, D-161)
 - Notebook Colab (`docs/audit/20261126_sumber_baru/colab/`, + `build_cell_map.py` untuk pemetaan grid → provinsi): 437/465 run 00Z Jumat
   (28 HTTP 404, 3 di dev), 1.818 dtk; mount Drive gagal (popup OAuth) → output runtime + unduh (izin unduh otomatis Chrome dari Danen).

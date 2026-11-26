@@ -415,6 +415,52 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-165 — Jalur A macro F1 & intelijen eksternal: prediksi maju diaudit & evaluator dibekukan, GDELT lolos G1–G2 tetapi G5 terblokir BigQuery, sumber pasokan baru terblokir akses; C1-tuned tetap · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
+Atas permintaan Danen (empat workstream; laporan `docs/audit/jalur_a_macro_f1/`; nomor dikoordinasikan dengan sesi paralel D-162–D-164).
+(A) Prediksi maju D-152 (C1t, IW_NAT) & D-158 (C1t, FR_REF, FR_CITY): sha256 = manifest, base identik, 338 seri, 0 NaN; kode yang berubah sejak beku
+hanya `forecast.py` (D-162, kolom `episode` grup fx, tidak dipakai keluarga ini). 0 target terealisasi (pertama 2026-11-27; semua h 4 2026-12-18, h 8
+2027-01-15). Evaluator gabungan (`a_forward_eval.py`; macro F1, F1 per kelas, AUC, Brier, ECE, Δ vs base + bootstrap provinsi; penanda GAGAL_MAJU
+bila Δ < −MDE D-152) dibekukan sebelum target ada. Kedua pembekuan ada di git sebelum target pertama (D-152 `ca53742`, D-158 `ec6dd19`
+2026-11-26 20.45 WIB). (B) GDELT: DOC API HTTP 429 menetap (4 percobaan s.d. 3,5 jam);
+berkas GKG Translingual dapat diakses: pilot 48 batch acak 2019–2023 (409 MB, di luar repo) → ± 130 artikel berbahasa Indonesia per batch, judul
+≥ 99% sejak 2020 (2019: 29%), lag `DATE` vs terbit ≤ 1 hari. Validasi manual 111 kandidat (judul/URL): presisi relevan 0,23 (pola naif; 18% salah
+cocok substring) → 0,72 (batas kata + kata kunci pasokan/kebijakan + dedup); G3 & G4 sebagian (berita harga reaktif; cakupan tipis selain beras &
+minyak goreng). G5 butuh hitungan lengkap: BigQuery sandbox tanpa billing, estimasi ± 0,3 TB < kuota 1 TiB → **BLOCKED `[HUMAN]`**; kueri, layar, dan
+tes dibekukan. Kalibrasi layar G5: kontrol positif kesegaran `iw_gap_nat` ΔAUC +0,015 (−0,002..+0,030) h 4, −0,004 h 8 → tidak lolos; kontrol
+negatif ≈ 0; MDE ± 0,023 AUC. Ambang tidak diubah; dicatat di `docs/EKSPERIMEN.md` §3. (C) 10 kandidat pasokan & kejadian: tidak ada yang lolos
+G1–G4 untuk dev. Proyeksi Neraca Pangan Bapanas (dataset *Terbatas*, vintage bulanan sejak Sept 2024) dan luas tanam/EWS hortikultura Kementan
+(tanpa seri publik) BLOCKED akses → digabung ke permintaan U112; HET/HAP (11 peristiwa dev), BBM (1), DIBI (mekanisme cuaca tertutup D-161),
+Google Trends, Bulog/SPHP, pelabuhan ditolak. (D) Tanpa modeling; test 2024+ tidak dibuka. Log `EXPERIMENT_LOG.csv` (24 baris) + registri hidup.
+Ditolak: DOC API berulang (blokir menetap), unduh arsip GKG lengkap (± 1,5 TB), LLM/embedding sebelum G5 terbukti.
+**Adendum 2026-11-26 23.03 WIB (persetujuan Danen "Ya, buat sandbox"):** proyek Google Cloud `kagami-gdelt` tanpa akun billing; cek partisi
+2022-03-15 → 7.791 rekaman Translingual `srclc:ind`; kueri beku (teks di editor = berkas, sha256 diverifikasi; hash protokol di komentar job)
+313,83 GB, biaya 0, 15.722 baris harian 2018-12-22..2023-12-31 (`hasil/gdelt_daily_counts.csv` + manifest). Layar G5 satu kali (skrip & protokol =
+versi beku): ΔAUC arah nasional di atas konsensus C1t −0,005..+0,001 (h 4) dan −0,008..−0,000 (h 8) untuk set V/D/P/S/ALL, q ≥ 0,46 → **GDELT
+REJECTED**, tanpa modeling provinsi; U113 ditutup. Titik estimasi ≤ 0 dan jauh di bawah kontrol positif → kegagalan bukan karena daya layar.
+
+### D-163 — Kelemahan tercatat: interval PT & provinsi terkalibrasi plasebo (U107), kalibrasi skor daftar pantau ditolak, fitur clustering konstan inert · FINAL · tambahan pasca-G6 / eksploratif · 2026-11-26 (WP-36) · Danen
+Atas permintaan Danen menutup kelemahan yang tercatat. (1) U107: `evaluation.calibration` diperluas — baris PT di `national_calibrated` =
+interval β_e terkalibrasi / γ(h) (p & q baris e; e/w identik dengan versi lama) dan artefak baru `province_calibrated` (task3, 1.623 baris;
+null |t*| dipool antarprovinsi per sel; q BH per sel). Hasil: PT 3/30 sel tidak memuat nol (resmi 1); bootstrap juga menarik deviasi provinsi ke
+nol (median boot_ratio 0,51–0,67), interval resmi provinsi tidak memuat nol hanya 0–2,4% (di bawah 5% bahkan di bawah null), terkalibrasi
+5–12%; BH global 1.623 sel: 7 deviasi (daging ayam Maluku/Papua/Kepulauan Riau, gula Kalimantan Barat/Tengah, minyak goreng ω Maluku Utara).
+Interval resmi tetap dikutip lebih dulu; tabel provinsi deskriptif (H0-Het tetap uji konfirmatori). Ditolak: mengganti bootstrap resmi (deviasi
+praregistrasi, butuh Task 1 ulang ± 2 jam). (2) D-163a kalibrasi walk-forward skor daftar pantau C1-tuned (protokol beku sha256 e0b50c8f…):
+K1 Platt / K3 isotonik menurunkan ECE dev ke ≤ 0,05 tetapi Brier tidak membaik (+0,001..+0,003); K2 (intersep komoditas) menaikkan presisi
+daftar pantau h 8 +0,046 (0,008..0,098) tetapi Brier +0,014 → tidak ada yang lolos, test tidak dibuka, C1-tuned tanpa kalibrasi tetap (petunjuk
+K2 diteruskan ke kartu K4). (3) 13/33 fitur clustering konstan (τ² = 0): jarak & silhouette identik dengan/tanpa kolom itu; 0 kolom derau
+float-jadi-pola pada 40 replikasi plasebo → tidak ada perubahan kode. Laporan `docs/audit/20261126_kelemahan_tercatat.md` §2–§3,
+`docs/audit/20261126_kalibrasi_pantau.md`.
+
+### D-162 — U108: flag `episode` Task 4 real-time (perbaikan bug) & Task 4 fx dijalankan ulang · FINAL (teknis) · 2026-11-26 (WP-25) · Danen
+Fitur `episode` grup fx (M2, M3, C2, C2t) kini `data.drivers.realtime_episode_flag` = minggu pemicu (Σ de 8 minggu s.d. t ≥ 0,03), identik dengan
+deteksi ulang episode dari data s.d. t (dites); flag periode penuh menandai minggu sela di antara pemicu yang digabung sebelum pemicu kedua
+terjadi (6 dari 61 minggu; 1 origin uji 2024-12-02). `drivers_weekly.episode` (event study, robustness) tidak berubah. Dijalankan ulang (tercatat):
+`forecast_preds`/`forecast_eval`/`ablation`, `direction_preds`, C2t di `direction_tuned_preds`, `robustness` (44 baris V2). M2/M1 1,0145 / 1,0166
+→ 1,0086 (DM p 0,009) / 1,0125 (p 0,025); H5 1,112 / 1,115 (Holm 1,0); C2 − C1 h 8 +0,012 (−0,004..0,030); C1/C1t/M0/M1 identik → kesimpulan
+H5 & fitur kurs tetap; klaim eksploratif "C2 > M3 pada h 4" gugur (q 0,36). Perbaikan bug sebelum pembekuan hasil, bukan deviasi
+praregistrasi (fitur tetap "episode", kini memenuhi aturan as-of). Laporan `docs/audit/20261126_kelemahan_tercatat.md` §1.
+
 ### D-161 — NOAA CFSv2 diuji lewat Colab: skill prakiraan nyata tetapi gagal gerbang 5; oracle cuaca terealisasi juga gagal → mekanisme tertutup · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
 Lanjutan D-160 atas persetujuan Danen ("Ya, lewat Colab"). Ekstraksi di Colab (`docs/audit/20261126_sumber_baru/colab/`): run 00Z Jumat
 minggu t (cadangan Kamis/Rabu; terbit sebelum `available_at` Minggu 00.00, D-155), byte-range 56 hari pertama `prate` & `tmax` dari fileServer

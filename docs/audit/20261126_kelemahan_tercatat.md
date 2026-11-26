@@ -13,7 +13,29 @@ episode hanya dari data s.d. t (dites di setiap t). Data asli: 61 → 55 minggu 
 gabungan); 1 origin uji berbeda (2024-12-02, h 4 & 8). `drivers_weekly.episode` (dipakai event study & robustness) tidak berubah.
 
 **Artefak dijalankan ulang** (CLI, tercatat di `logs/`): `forecast_preds` + `forecast_eval` + `ablation` (M0–M3 + M2_nofx), `direction_preds`
-(C1/C2), `direction_tuned_preds` (hanya C2t; baris C1t dipertahankan). Perbandingan sebelum/sesudah: §1a (diisi setelah run).
+(C1/C2), `direction_tuned_preds` (hanya C2t; baris C1t dipertahankan), lalu `robustness --tier2` (hanya 44 baris V2 forecast berubah).
+Run: task4 2.029 dtk, `--direction` 1.350 dtk, `--direction-tuned C2t` 504 dtk, robustness 363 dtk; task3 1.155 dtk (D-163).
+
+### 1a. Sebelum → sesudah (`hasil/u108_preds.csv`, `hasil/u108_forecast_eval.csv`)
+
+M0, M1, M2_nofx, C1, C1t identik (selisih ≤ 1e-15). M2, M3, C2, C2t berubah di **semua** origin, bukan hanya 2024-12-02, karena 6 minggu
+yang dikoreksi juga baris latih sehingga koefisien bergeser (maks |Δ| ramalan M2 0,030, M3 0,165 log).
+
+| Ukuran | Sebelum | Sesudah |
+|---|---|---|
+| M2/M1 MAE semua origin h 4 / h 8 (DM p) | 1,0145 (0,001) / 1,0166 (0,006) | 1,0086 (0,009) / 1,0125 (0,025) |
+| M3/M1 h 4 / h 8 (DM p) | 1,044 (0,031) / 1,015 (0,49) | 1,037 (0,052) / 1,014 (0,53) |
+| H5: M2/M1 h 8 large_move impor langsung / input impor (Holm) | 1,120 / 1,118 (1,0) | 1,112 / 1,115 (1,0) |
+| V2 M2/M1 origin 2026 h 4 / h 8 | 1,005 / 1,005 | 1,005 / 1,004 |
+| C2 macro F1 dev h 4 / h 8; test h 4 / h 8 | 0,595 / 0,610; 0,591 / 0,612 | 0,585 / 0,615; 0,581 / 0,614 |
+| C2t macro F1 dev h 4 / h 8; test h 4 / h 8 | 0,653 / 0,679; 0,673 / 0,678 | 0,654 / 0,675; 0,675 / 0,679 |
+| C2 akurasi arah h 8, selisih vs baseline (interval) | 0,617, +0,071 (0,034..0,108) | 0,620, +0,075 (0,038..0,110) |
+| C2 − C1 h 8 | +0,009 (−0,007..0,027) | +0,012 (−0,004..0,030) |
+| Beda berpasangan lolos BH (D-143) | 5/30 (termasuk C2 vs M3 h 4 +0,025, q 0,015) | 4/30 (C2 vs M3 h 4 +0,013, q 0,36) |
+
+**Kesimpulan tetap:** fitur kurs tidak memperbaiki MAE (M2 tetap sedikit lebih buruk dari M1, DM nyata pada α 0,05), H5 tidak didukung,
+fitur kurs tidak terbukti menambah akurasi arah, C1-tuned (tanpa fx) tidak berubah. Satu klaim eksploratif gugur: C2 lebih akurat dari M3
+pada h 4 (sudah diperbaiki di `findings.md`).
 
 ## 2. U107 — interval nasional PT & deviasi provinsi terkalibrasi plasebo (D-163)
 

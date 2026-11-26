@@ -1,0 +1,13 @@
+horizon,score,n_fp,n_fn,fp_share_turun,fp_share_tetap,fp_share_naik_nonmaterial,fp_share_hilang,fp_share_near_miss_ge_half_thr,fp_share_regulated,fn_share_regulated,fn_share_flat_prev4w,tp_share_flat_prev4w,fn_rank_median,fn_rank_ge6_share,jaccard_alarms,hits_only_k4,hits_only_c1t,hits_both,base_rate_mean,prec_k4_e80,prec_c1t,mean_p_k4_e80
+4,k4_e80,1827.0,778.0,0.3443,0.1604,0.4953,0.0,0.2107,0.5123,0.4537,0.1272,0.1202,5.0,0.356,,,,,,,,
+4,c1t,1941.0,892.0,0.2978,0.1448,0.5574,0.0,0.2128,0.3926,0.5583,0.1155,0.1353,5.0,0.4204,,,,,,,,
+4,overlap_k4_c1t,,,,,,,,,,,,,,0.4432,254.0,140.0,503.0,,,,
+4,origin_base_rate_rendah,,,,,,,,,,,,,,,,,,0.047,0.1165,0.1075,0.0797
+4,origin_base_rate_sedang,,,,,,,,,,,,,,,,,,0.1108,0.3186,0.2586,0.1233
+4,origin_base_rate_tinggi,,,,,,,,,,,,,,,,,,0.2013,0.4457,0.3812,0.1354
+8,k4_e80,1833.0,968.0,0.3693,0.0982,0.5319,0.0005,0.198,0.4828,0.5558,0.1725,0.1376,5.0,0.3626,,,,,,,,
+8,c1t,1959.0,1094.0,0.3405,0.0812,0.5784,0.0,0.2098,0.3338,0.6499,0.1636,0.1472,5.0,0.4132,,,,,,,,
+8,overlap_k4_c1t,,,,,,,,,,,,,,0.387,306.0,180.0,377.0,,,,
+8,origin_base_rate_rendah,,,,,,,,,,,,,,,,,,0.0482,0.1115,0.0858,0.0777
+8,origin_base_rate_sedang,,,,,,,,,,,,,,,,,,0.1115,0.2696,0.1581,0.1303
+8,origin_base_rate_tinggi,,,,,,,,,,,,,,,,,,0.2297,0.4208,0.405,0.1321

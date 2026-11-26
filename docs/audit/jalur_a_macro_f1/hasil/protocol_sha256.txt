@@ -1,0 +1,11 @@
+# Jalur A — protokol & skrip dibekukan sebelum data GDELT lengkap (BigQuery) tersedia
+frozen_at: 2026-11-26T15:16:27Z
+e6b46d952a4f79396a8a7c6370034b15584d0af635948d315564fb8a2a59e187 *docs/audit/jalur_a_macro_f1/PROTOCOL.md
+3c57533e1a2c7ce550e089dc8829442e1b37ee042c0cecc1a31e6d52c925c501 *docs/audit/jalur_a_macro_f1/scripts/b_gdelt_screen.py
+6d7535d460d0ac33e49be2e917244503031e1d691e3f781730e2f580a5a3ef27 *docs/audit/jalur_a_macro_f1/scripts/b_bq_daily_counts.sql
+29e0e5c33b475cd1d857320fe54cf13daf8b09a7eb5efe461aae1440e873e1c0 *docs/audit/jalur_a_macro_f1/scripts/b_gkg_sample.py
+b524d11a607aed4f8b40f8bfc03c541ce235f4f4b6ede5570b0f39a71120d410 *docs/audit/jalur_a_macro_f1/scripts/b_manual_eval.py
+9f1f0a32fa3d84498b90a52385be84a5ee8646543f8dfc5e1e93d80372c57b02 *docs/audit/jalur_a_macro_f1/hasil/b_manual_labels.csv
+python 3.13.7; numpy 2.3.4; pandas 2.3.3; sklearn 1.8.0
+KAGAMI_EXP c1t_weekly.parquet 75a1bc1b0d6418a3a6c320527d9582d816f85a6964b71fad1732c2b393d7dedb
+KAGAMI_EXP fresh.parquet c203a209c227ad8b243c7eee707db5ae660011d753af0c55d4ebe6dc87dbeac5
