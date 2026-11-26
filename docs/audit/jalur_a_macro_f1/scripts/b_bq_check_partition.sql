@@ -1,0 +1,1 @@
+/* KAGAMI D-165 cek partisi Translingual */ SELECT COUNT(*) AS n_all, COUNTIF(STARTS_WITH(TranslationInfo, 'srclc:ind')) AS n_ind FROM `gdelt-bq.gdeltv2.gkg_partitioned` WHERE _PARTITIONTIME = TIMESTAMP('2022-03-15')

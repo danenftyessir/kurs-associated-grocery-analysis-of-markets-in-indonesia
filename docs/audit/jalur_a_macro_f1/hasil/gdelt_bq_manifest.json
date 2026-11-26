@@ -1,0 +1,39 @@
+{
+ "source": "BigQuery gdelt-bq.gdeltv2.gkg_partitioned (GDELT GKG 2.1, aliran Translingual srclc:ind)",
+ "project": "kagami-gdelt (BigQuery sandbox, tanpa akun billing; diverifikasi halaman Billing 2026-11-26)",
+ "job_id": "kagami-gdelt:US.job_j8RyX5brhwq-4CrzbuHt1QjxHkOB",
+ "job_created": "2026-11-26T23:03:42+07:00",
+ "job_duration_s": 16.6,
+ "bytes_processed": "313.83 GB",
+ "bytes_billed_quota": "313.83 GB (kuota gratis sandbox 1 TiB/bulan; tanpa biaya)",
+ "validator_estimate": "313.83 GB (protokol: jalankan hanya bila <= 600 GB)",
+ "query_file": "scripts/b_bq_daily_counts_singleline.sql",
+ "query_sha256": "aac323026c98ecce885d6b91bafcb04bbfe933a0cf53ae4ae2492748b3a7ab17",
+ "query_text_in_editor_sha256_verified": true,
+ "protocol_sha256_in_query_comment": "e6b46d952a4f79396a8a7c6370034b15584d0af635948d315564fb8a2a59e187",
+ "check_partition": {
+  "partition": "2022-03-15",
+  "n_all": 355253,
+  "n_ind": 7791,
+  "bytes": "6.89 MB"
+ },
+ "csv": "hasil/gdelt_daily_counts.csv",
+ "csv_sha256": "5113ac3297ce23078ae20467d3d505c309aab554fc825d33bd1234b2d3e5c398",
+ "rows": 15722,
+ "day_min": "2018-12-22",
+ "day_max": "2023-12-31",
+ "n_days": 1836,
+ "groups": [
+  "bawang_merah",
+  "bawang_putih",
+  "beras",
+  "cabai",
+  "daging_ayam",
+  "daging_sapi",
+  "gula_pasir",
+  "minyak_goreng",
+  "telur_ayam",
+  "umum"
+ ],
+ "license": "GDELT (data terbuka, sitasi wajib); hanya hitungan agregat disimpan"
+}

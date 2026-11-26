@@ -57,6 +57,10 @@ untuk mengisi kartu.
 - **Sumber prakiraan** (D-161, sebelum biaya ekstraksi): uji dulu **oracle** = nilai TERREALISASI variabel yang diprakirakan pada jendela
   prakiraan yang sama (data teramati yang sudah ada, mis. NASA POWER untuk cuaca) dengan layar arah nasional di atas. Prakiraan tidak memuat
   informasi lebih dari realisasinya untuk mekanisme yang sama; oracle gagal → mekanisme tertutup, ekstraksi prakiraan tidak perlu.
+- **Daya layar arah nasional** (D-165): setiap layar arah nasional melaporkan kontrol positif `iw_gap_nat` dan kontrol negatif (derau) bersama
+  kandidat. Kalibrasi 2026-11-26: kontrol positif ΔAUC +0,015 (−0,002..+0,030) h 4, −0,004 h 8 → **tidak lolos** aturan G5 D-161; MDE ± 0,023.
+  Gagal G5 berarti "tidak lebih kuat dari sinyal tambahan terbaik yang diketahui", bukan "tanpa informasi". Ambang G5 tidak diubah sesudah data
+  kandidat terlihat; perubahan ambang hanya lewat protokol beku sebelum data dibaca.
 - Gerbang (heuristik, dikalibrasi pada kontrol positif): lanjut ke Modeling bila sinyal parsial q < 0,05 di kedua horizon **dan**
   besarnya ≥ ½ kontrol positif. Di bawah itu, keuntungan yang diharapkan di bawah derau pelatihan dev (± 0,005) dan MDE test
   (0,019 / 0,010, D-152), sehingga hasil Modeling tidak dapat diputuskan. Pengecualian harus beralasan pengetahuan, bukan skor.
@@ -94,7 +98,7 @@ untuk mengisi kartu.
 
 ## 6. Registri eksperimen terpusat (D-156)
 
-- Semua eksperimen Task 4 arah (D-145 dan seterusnya; per 2026-11-26 s.d. D-163), termasuk yang gagal, diblokir, dan ditolak, tercatat satu baris per varian di
+- Semua eksperimen Task 4 arah (D-145 dan seterusnya; per 2026-11-26 s.d. D-165; Jalur A memakai ID `JA-*`), termasuk yang gagal, diblokir, dan ditolak, tercatat satu baris per varian di
   [`docs/eksperimen_registry.csv`](eksperimen_registry.csv): ID, rujukan keputusan, fase, hipotesis, versi data, konfigurasi fitur /
   preprocessing / model / hyperparameter / threshold, origin, macro F1 h 4 & h 8, F1 per kelas (bila ada), Δ vs C1-tuned + interval,
   status, lokasi skrip, keputusan dan alasannya.

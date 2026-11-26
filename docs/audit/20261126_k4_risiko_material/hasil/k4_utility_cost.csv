@@ -1,0 +1,129 @@
+horizon,ratio_fn_fp,score,policy,cost_per_origin
+4,1,tanpa_alarm,-,40.395
+4,1,k4_e80,V1-K1,51.658
+4,1,k4_e80,V1-K2,68.553
+4,1,k4_e80,V1-K3,91.605
+4,1,c1t,V1-K1,56.342
+4,1,c1t,V1-K2,74.553
+4,1,c1t,V1-K3,97.184
+4,1,clim_e80,V1-K1,58.974
+4,1,clim_e80,V1-K2,82.5
+4,1,clim_e80,V1-K3,104.289
+4,1,clims_e80,V1-K1,67.711
+4,1,clims_e80,V1-K2,94.711
+4,1,clims_e80,V1-K3,117.921
+4,1,k4_e80_cal,tau=1/(1+r)=0.500 (himpunan peluang),42.219
+4,1,c1t_cal,tau=1/(1+r)=0.500 (himpunan peluang),43.156
+4,1,clims_e80,tau=1/(1+r)=0.500 (himpunan peluang),43.062
+4,2,tanpa_alarm,-,80.789
+4,2,k4_e80,V1-K1,80.684
+4,2,k4_e80,V1-K2,89.026
+4,2,k4_e80,V1-K3,106.605
+4,2,c1t,V1-K1,87.711
+4,2,c1t,V1-K2,98.026
+4,2,c1t,V1-K3,114.974
+4,2,clim_e80,V1-K1,91.658
+4,2,clim_e80,V1-K2,109.947
+4,2,clim_e80,V1-K3,125.632
+4,2,clims_e80,V1-K1,104.763
+4,2,clims_e80,V1-K2,128.263
+4,2,clims_e80,V1-K3,146.079
+4,2,k4_e80_cal,tau=1/(1+r)=0.333 (himpunan peluang),79.688
+4,2,c1t_cal,tau=1/(1+r)=0.333 (himpunan peluang),85.156
+4,2,clims_e80,tau=1/(1+r)=0.333 (himpunan peluang),92.125
+4,5,tanpa_alarm,-,201.974
+4,5,k4_e80,V1-K1,167.763
+4,5,k4_e80,V1-K2,150.447
+4,5,k4_e80,V1-K3,151.605
+4,5,c1t,V1-K1,181.816
+4,5,c1t,V1-K2,168.447
+4,5,c1t,V1-K3,168.342
+4,5,clim_e80,V1-K1,189.711
+4,5,clim_e80,V1-K2,192.289
+4,5,clim_e80,V1-K3,189.658
+4,5,clims_e80,V1-K1,215.921
+4,5,clims_e80,V1-K2,228.921
+4,5,clims_e80,V1-K3,230.553
+4,5,k4_e80_cal,tau=1/(1+r)=0.167 (himpunan peluang),149.625
+4,5,c1t_cal,tau=1/(1+r)=0.167 (himpunan peluang),169.812
+4,5,clims_e80,tau=1/(1+r)=0.167 (himpunan peluang),231.75
+4,10,tanpa_alarm,-,403.947
+4,10,k4_e80,V1-K1,312.895
+4,10,k4_e80,V1-K2,252.816
+4,10,k4_e80,V1-K3,226.605
+4,10,c1t,V1-K1,338.658
+4,10,c1t,V1-K2,285.816
+4,10,c1t,V1-K3,257.289
+4,10,clim_e80,V1-K1,353.132
+4,10,clim_e80,V1-K2,329.526
+4,10,clim_e80,V1-K3,296.368
+4,10,clims_e80,V1-K1,401.184
+4,10,clims_e80,V1-K2,396.684
+4,10,clims_e80,V1-K3,371.342
+4,10,k4_e80_cal,tau=1/(1+r)=0.091 (himpunan peluang),215.406
+4,10,c1t_cal,tau=1/(1+r)=0.091 (himpunan peluang),248.906
+4,10,clims_e80,tau=1/(1+r)=0.091 (himpunan peluang),344.062
+8,1,tanpa_alarm,-,44.622
+8,1,k4_e80,V1-K1,57.27
+8,1,k4_e80,V1-K2,75.703
+8,1,k4_e80,V1-K3,95.324
+8,1,c1t,V1-K1,62.892
+8,1,c1t,V1-K2,82.514
+8,1,c1t,V1-K3,102.73
+8,1,clim_e80,V1-K1,61.649
+8,1,clim_e80,V1-K2,78.946
+8,1,clim_e80,V1-K3,108.243
+8,1,clims_e80,V1-K1,67.324
+8,1,clims_e80,V1-K2,89.595
+8,1,clims_e80,V1-K3,115.108
+8,1,k4_e80_cal,tau=1/(1+r)=0.500 (himpunan peluang),49.533
+8,1,c1t_cal,tau=1/(1+r)=0.500 (himpunan peluang),47.867
+8,1,clims_e80,tau=1/(1+r)=0.500 (himpunan peluang),47.9
+8,2,tanpa_alarm,-,89.243
+8,2,k4_e80,V1-K1,91.216
+8,2,k4_e80,V1-K2,101.865
+8,2,k4_e80,V1-K3,114.297
+8,2,c1t,V1-K1,99.649
+8,2,c1t,V1-K2,112.081
+8,2,c1t,V1-K3,125.405
+8,2,clim_e80,V1-K1,97.784
+8,2,clim_e80,V1-K2,106.73
+8,2,clim_e80,V1-K3,133.676
+8,2,clims_e80,V1-K1,106.297
+8,2,clims_e80,V1-K2,122.703
+8,2,clims_e80,V1-K3,143.973
+8,2,k4_e80_cal,tau=1/(1+r)=0.333 (himpunan peluang),89.333
+8,2,c1t_cal,tau=1/(1+r)=0.333 (himpunan peluang),96.333
+8,2,clims_e80,tau=1/(1+r)=0.333 (himpunan peluang),104.8
+8,5,tanpa_alarm,-,223.108
+8,5,k4_e80,V1-K1,193.054
+8,5,k4_e80,V1-K2,180.351
+8,5,k4_e80,V1-K3,171.216
+8,5,c1t,V1-K1,209.919
+8,5,c1t,V1-K2,200.784
+8,5,c1t,V1-K3,193.432
+8,5,clim_e80,V1-K1,206.189
+8,5,clim_e80,V1-K2,190.081
+8,5,clim_e80,V1-K3,209.973
+8,5,clims_e80,V1-K1,223.216
+8,5,clims_e80,V1-K2,222.027
+8,5,clims_e80,V1-K3,230.568
+8,5,k4_e80_cal,tau=1/(1+r)=0.167 (himpunan peluang),183.267
+8,5,c1t_cal,tau=1/(1+r)=0.167 (himpunan peluang),195.667
+8,5,clims_e80,tau=1/(1+r)=0.167 (himpunan peluang),246.633
+8,10,tanpa_alarm,-,446.216
+8,10,k4_e80,V1-K1,362.784
+8,10,k4_e80,V1-K2,311.162
+8,10,k4_e80,V1-K3,266.081
+8,10,c1t,V1-K1,393.703
+8,10,c1t,V1-K2,348.622
+8,10,c1t,V1-K3,306.811
+8,10,clim_e80,V1-K1,386.865
+8,10,clim_e80,V1-K2,329.0
+8,10,clim_e80,V1-K3,337.135
+8,10,clims_e80,V1-K1,418.081
+8,10,clims_e80,V1-K2,387.568
+8,10,clims_e80,V1-K3,374.892
+8,10,k4_e80_cal,tau=1/(1+r)=0.091 (himpunan peluang),239.7
+8,10,c1t_cal,tau=1/(1+r)=0.091 (himpunan peluang),245.467
+8,10,clims_e80,tau=1/(1+r)=0.091 (himpunan peluang),348.267

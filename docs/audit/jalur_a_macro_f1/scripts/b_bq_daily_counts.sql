@@ -54,13 +54,13 @@ hits AS (
   FROM base b JOIN pats p ON REGEXP_CONTAINS(b.txt, p.pat) AND NOT REGEXP_CONTAINS(b.txt, r'pondok cabe')
 )
 SELECT h.day_utc, h.commodity_group,
-  COUNT(*) AS n_all,
-  COUNTIF(k_disrupt) AS n_disrupt,
-  COUNTIF(k_policy) AS n_policy,
-  COUNTIF(k_stabil) AS n_stabil,
-  COUNTIF(k_supply) AS n_supply,
-  COUNTIF(k_price AND NOT (k_disrupt OR k_policy OR k_stabil OR k_supply)) AS n_price_only,
-  COUNT(DISTINCT h.title_key) AS n_distinct_title,
+  COUNT(*) AS n_raw,                                                   -- tanpa dedup (diagnostik sindikasi)
+  COUNT(DISTINCT h.title_key) AS n_all,                                -- semua hitungan di bawah = judul unik per hari (dedup pilot B2)
+  COUNT(DISTINCT IF(k_disrupt, h.title_key, NULL)) AS n_disrupt,
+  COUNT(DISTINCT IF(k_policy, h.title_key, NULL)) AS n_policy,
+  COUNT(DISTINCT IF(k_stabil, h.title_key, NULL)) AS n_stabil,
+  COUNT(DISTINCT IF(k_supply, h.title_key, NULL)) AS n_supply,
+  COUNT(DISTINCT IF(k_price AND NOT (k_disrupt OR k_policy OR k_stabil OR k_supply), h.title_key, NULL)) AS n_price_only,
   COUNT(DISTINCT h.src) AS n_sources,
   ANY_VALUE(t.n_ind_total) AS n_ind_total
 FROM hits h JOIN totals t USING (day_utc)

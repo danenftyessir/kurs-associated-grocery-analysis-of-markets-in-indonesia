@@ -302,7 +302,7 @@ if __name__ == "__main__":
     for h in H:
         d = Ostore[h].d
         y = d["z_e80"].to_numpy(int)
-        for s in ("k4_e80", "c1t", best_naive[h], "clim_e80", "clims_e80"):
+        for s in dict.fromkeys(("k4_e80", "c1t", best_naive[h], "clim_e80", "clims_e80")):   # tanpa duplikat bila naif terbaik = CLIM
             for k in (1, 2, 3):
                 f = flags_k(d, s, k)
                 dd = d.assign(f=f, hit=f & (y == 1))

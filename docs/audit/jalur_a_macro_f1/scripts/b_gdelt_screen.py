@@ -3,7 +3,8 @@
 Protokol: PROTOCOL.md §B4 (dibekukan sebelum data GDELT penuh tersedia). Origin pengembangan saja; test 2024+ tidak dipakai.
 
 Masukan GDELT (keluaran kueri BigQuery `b_bq_daily_counts.sql`, CSV):
-  daily  : day_utc, commodity_group, n_all, n_disrupt, n_policy, n_stabil, n_supply, n_price_only, n_distinct_title, n_sources
+  daily  : day_utc, commodity_group, n_raw, n_all, n_disrupt, n_policy, n_stabil, n_supply, n_price_only, n_sources, n_ind_total
+           (n_all & kategori = judul unik per hari, dedup sindikasi; kategori = penyaring F2 pilot B2)
   totals : day_utc, n_ind_total (semua artikel berbahasa Indonesia hari itu; penyebut agar pertumbuhan cakupan GDELT tidak terbaca sinyal)
 Minggu origin t (Senin): artikel dengan DATE GDELT (UTC) pada hari Sabtu t−2 .. Jumat t+4 (7 hari). Jumat 23.59 UTC = Sabtu 06.59 WIB, sebelum
 `available_at` konservatif harga minggu t (Minggu 00.00 WIB, D-155) → tanpa informasi sesudah waktu prediksi.
