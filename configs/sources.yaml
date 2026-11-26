@@ -50,6 +50,44 @@ pihps_producer:
   availability: same_day
   optional: true     # pilot; format zip sama dengan pihps (price_type_id=4), skrip docs/audit/20261125_pilot_grosir/scripts/fetch_pihps.py
 
+ditjenpkh_sijagung:
+  path: ditjenpkh_pakan
+  glob: "sijagung_*.xlsx"
+  publisher: Direktorat Pakan, Ditjen Peternakan dan Kesehatan Hewan (Kementan) — SIJAGUNG 2.0
+  role: "Audit D-160 (tidak lolos gerbang sinyal): stok & pembelian jagung pabrik pakan per wilayah, bulanan, untuk daging ayam & telur"
+  coverage: "2019-01 .. 2026-08 (ekspor publik 2026-11-26; tabel publik tertinggal ± 3 bulan)"
+  license: "Data publik pemerintah; hanya turunan agregat yang dikirim"
+  redistribute: false
+  retrieval: manual
+  url: https://simpakan.ditjenpkh.pertanian.go.id/sijagung/backend/web/site/data-stok
+  availability: lag_days_90
+  optional: true     # skrip docs/audit/20261126_sumber_baru/scripts/fetch_pakan.py, MANIFEST.csv (url, sha256); SPORA export gagal (HTTP 500)
+
+pihps_city:
+  path: bi_pihps/pihps_kota_harian_2017-2026_retrieved_2026-11-26.zip
+  publisher: Bank Indonesia (PIHPS Nasional)
+  role: "Pilot eksploratif D-158: harga pasar tradisional harian per kabupaten/kota (110 kota x 31 varian) untuk breadth pasar"
+  coverage: "2017-03-27 .. 2026-11-25, hari kerja; cakupan awal berbeda per kota"
+  license: "Semua Hak Dilindungi; hanya turunan agregat yang dikirim; cakupan izin BI (U13) untuk data kota dipastikan [HUMAN]"
+  redistribute: false
+  retrieval: manual
+  url: https://www.bi.go.id/hargapangan/WebSite/TabelHarga/GetGridDataDaerah?price_type_id=1
+  availability: same_day
+  optional: true     # pilot; skrip docs/audit/20261126_nasional_lokal/scripts/fetch_kota.py (per kota per bulan), MANIFEST.csv di zip
+
+nasa_power:
+  path: nasa_power
+  glob: "power_daily_p*.csv"
+  publisher: NASA Langley Research Center (LaRC) POWER Project (MERRA-2)
+  role: "Pilot eksploratif D-157: cuaca harian (hujan terkoreksi, suhu) di centroid poligon terbesar 34 provinsi, untuk anomali cuaca di sentra produksi hortikultura"
+  coverage: "2016-01-01 .. 2026-11-20, harian, 34 titik (grid 0,5 x 0,625 derajat)"
+  license: "Terbuka tanpa batasan pakai; wajib mencantumkan NASA LaRC POWER Project; data dapat direvisi (vintage)"
+  redistribute: true
+  retrieval: manual
+  url: https://power.larc.nasa.gov/api/temporal/daily/point
+  availability: lag_days_7
+  optional: true     # pilot; skrip docs/audit/20261126_pilot_cuaca_impor/scripts/fetch_power.py, MANIFEST.csv (url, sha256)
+
 
 pinksheet:
   path: wb_pinksheet/CMO-Historical-Data-Monthly.xlsx

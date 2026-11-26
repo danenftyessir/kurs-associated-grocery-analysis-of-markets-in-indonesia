@@ -125,7 +125,10 @@ ARTIFACTS: dict[str, Artifact] = {
            "H2: uji Wald β⁺ = β⁻ nasional (SE cluster minggu) + pembanding bootstrap & plasebo (D-125)"),
         _A("national_calibrated", "results/task3/national_calibrated.csv", "task3", "WP-13",
            ("commodity", "driver", "horizon", "estimate", "se", "ci_low", "ci_high", "p_value", "q_fdr"), True,
-           "β_e & ω nasional h kunci: interval ±crit·SE & p terkalibrasi plasebo, q BH (tambahan, D-129)"),
+           "β_e & ω (+ PT, D-163) nasional h kunci: interval ±crit·SE & p terkalibrasi plasebo, q BH (tambahan, D-129)"),
+        _A("province_calibrated", "results/task3/province_calibrated.csv", "task3", "WP-15",
+           ("commodity", "driver", "horizon", "unit", "estimate", "se", "ci_low", "ci_high", "p_value", "q_fdr"), True,
+           "Deviasi provinsi δ (e & w, h kunci): interval ±crit·SE & p terkalibrasi plasebo, q BH per sel (tambahan, D-163)"),
         # ---------------- Task 4 ----------------
         _A("forecast_preds", "data/interim/forecast_preds.parquet", "task4", "WP-26",
            ("origin", "horizon", "model", "region", "commodity", "y_true", "y_pred", "large_move"), False,

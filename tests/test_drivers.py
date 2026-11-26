@@ -81,7 +81,7 @@ def test_world_prices(cfg, weeks):
 
 
 # ---------------- WP-06: episode depresiasi & tabel variasi kurs ----------------
-from kagami.data.drivers import find_episodes, fx_variation_table, mark_episode_weeks  # noqa: E402
+from kagami.data.drivers import find_episodes, fx_variation_table, mark_episode_weeks, realtime_episode_flag  # noqa: E402
 
 
 def _drivers_from_de(weeks, de):
@@ -113,6 +113,27 @@ def test_find_episodes_adjacent_vs_separate(cfg, weeks):
     de[115] = 0.03                      # pemicu 115..: jarak 8 minggu (berdempetan) -> digabung
     assert len(find_episodes(cfg, _drivers_from_de(weeks, de))) == 1
     assert find_episodes(cfg, _drivers_from_de(weeks, np.zeros(len(weeks)))).empty
+
+
+def test_realtime_episode_flag_equals_truncated_detection(cfg, weeks):
+    """D-162 (U108): flag real-time = flag periode penuh yang dihitung ulang hanya dari data s.d. t, di setiap t."""
+    rng = np.random.default_rng(5)
+    de = rng.normal(0, 0.008, len(weeks))
+    de[100], de[110] = 0.035, 0.031                       # dua pemicu berjarak <= 8 minggu -> digabung di periode penuh
+    drv = _drivers_from_de(weeks, de)
+    rt = realtime_episode_flag(cfg, drv)
+    for i in range(20, len(weeks), 3):
+        sub = drv.iloc[: i + 1]
+        flag = mark_episode_weeks(sub, find_episodes(cfg, sub))["episode"].iloc[-1]
+        assert rt.iloc[i] == flag
+    # bukti kebocoran flag periode penuh: minggu di antara dua pemicu ditandai 1, padahal pemicu kedua belum terjadi
+    de2 = np.zeros(len(weeks))
+    de2[100], de2[113] = 0.031, 0.031                       # pemicu 100..107 dan 113..120 (jarak 6 minggu) -> satu episode
+    d2 = _drivers_from_de(weeks, de2)
+    full = mark_episode_weeks(d2, find_episodes(cfg, d2))["episode"].to_numpy()
+    rt2 = realtime_episode_flag(cfg, d2).to_numpy()
+    assert full[108:113].sum() == 5 and rt2[108:113].sum() == 0
+    assert (rt2 <= full).all() and rt2[100:108].sum() == 8 and rt2[113:121].sum() == 8
 
 
 def test_mark_episode_weeks_and_fx_table(cfg, weeks):

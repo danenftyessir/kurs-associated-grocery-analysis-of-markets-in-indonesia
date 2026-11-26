@@ -1,0 +1,54 @@
+{
+ "frozen_at_utc": "2026-11-26T00:26:39+00:00",
+ "protocol_sha256": {
+  "PROTOKOL_I1.md": "51139d94275817d4ef3a335e81e24adf908f4e2a0c84f2d2a1bd3d46529723b8",
+  "PROTOKOL_I2.md": "743639135453807a507290fc3085d924de7725358de96a0637095c3f37b1fae7"
+ },
+ "forward_preds_sha256": "7586eaedad341e3e2899ef5c2588b83b232e0bfe32f504f2aa04cc397686d13d",
+ "n_rows": 12168,
+ "rows_by_horizon_model": {
+  "h4_FR_CITY": 1352,
+  "h4_FR_REF": 1352,
+  "h4_base": 1352,
+  "h8_FR_CITY": 2704,
+  "h8_FR_REF": 2704,
+  "h8_base": 2704
+ },
+ "origins": {
+  "h4": [
+   "2026-10-26",
+   "2026-11-02",
+   "2026-11-09",
+   "2026-11-16"
+  ],
+  "h8": [
+   "2026-09-28",
+   "2026-10-05",
+   "2026-10-12",
+   "2026-10-19",
+   "2026-10-26",
+   "2026-11-02",
+   "2026-11-09",
+   "2026-11-16"
+  ]
+ },
+ "data": {
+  "last_panel_week": "2026-11-16",
+  "pihps_zip_sha256": "bfc7f343c0fb34e12556f479f9dcb32a6cdddec93c1dd59b820c39dfd62a9605",
+  "pihps_city_zip_sha256": "28f977be4d9f88e163e06abb8c3e13f11f5b7faec2b161d63cf59746d9250e73",
+  "fresh_rows": 175440
+ },
+ "code_sha256": {
+  "docs/audit/20261126_nasional_lokal/scripts/fresh_du.py": "808588910c422d3e962919f807bbec292455cfb29f25b64f241e3c4d9bb4bc31",
+  "docs/audit/20261126_nasional_lokal/scripts/kb_build.py": "c35058c027eecd6eab75b393e6d64fabe83569d2d49c67d53f26be84d8f70f8e",
+  "docs/audit/20261126_nasional_lokal/scripts/i2_spec.py": "5ba3052873bbe90a24293b80dba7304d531d6b4e59cd09288eca7a5d95713262",
+  "docs/audit/20261126_nasional_lokal/scripts/fw_freeze_d158.py": "ab8a84a8f980248bc61e78337f5f86ae7dfa6fff52bb113a34b9f33ead10bee7",
+  "docs/audit/20261126_task4_master_f1/scripts/m_run.py": "a2d29c26e95f8a0b6d61ee68d197bf4304b908dda70a2dd35e59a6ed1da5caf7",
+  "src/models/direction.py": "1f4e851227a08c463b74879c560fc39c93c56ae7ff7eb6533d94fb10b5bed11c",
+  "src/features/price_dynamics.py": "40cb8ecdf3c504b902a8c73e8b029c20b9e460a5961a5e83f8ad247196a0447c",
+  "src/features/forecast.py": "95cdb3c980072925e7c608b8d18f1439ef57661d736ef4c4e1186b9328fead71"
+ },
+ "threshold": 0.5,
+ "seed": 20261121,
+ "catatan": "Evaluasi hanya sesudah semua target terealisasi (unduh PIHPS baru); bandingkan dengan forward_preds.csv D-152 (base & IW_NAT)."
+}

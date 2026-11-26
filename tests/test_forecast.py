@@ -50,6 +50,7 @@ def test_features_ignore_the_future(cfg, data):
     p2, d2, w2 = panel.copy(), drivers.copy(), world.copy()
     p2.loc[p2["week"] > t0, "log_price"] += rng.normal(0, 1, (p2["week"] > t0).sum())
     d2.loc[d2["week"] > t0, ["log_e", "log_brent"]] += 5.0
+    d2.loc[d2["week"] > t0, "de"] += 0.05                                 # D-162: flag episode real-time tidak melihat ke depan
     w2.loc[w2["week"] > t0, "log_w_idr"] += 5.0
     a = feature_table(cfg, panel, drivers, world, [H])
     b = feature_table(cfg, p2, d2, w2, [H])

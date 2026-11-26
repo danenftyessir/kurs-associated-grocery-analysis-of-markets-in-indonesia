@@ -1,0 +1,4 @@
+variant,d_h4,d_h8,mean_d,r1,r2,r3,r4,pass_all,skala_danen
+IMP,-0.0055,-0.0148,-0.0101,False,False,False,False,False,≤ 0
+W_LOC,0.0021,-0.0033,-0.0006,False,False,False,True,False,≤ 0
+W_NAT,-0.0025,-0.0032,-0.0029,False,False,False,True,False,≤ 0

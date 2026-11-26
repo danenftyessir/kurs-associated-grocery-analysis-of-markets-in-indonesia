@@ -1,0 +1,16 @@
+st_t,st_th,n,horizon
+carry_forward,carry_forward,22986,4
+carry_forward,observed,105,4
+carry_forward,short,6,4
+observed,carry_forward,102,4
+observed,observed,108,4
+observed,short,3,4
+short,carry_forward,6,4
+short,short,1,4
+carry_forward,carry_forward,15312,8
+carry_forward,observed,83,8
+carry_forward,short,5,8
+observed,carry_forward,81,8
+observed,observed,65,8
+observed,short,2,8
+short,carry_forward,6,8

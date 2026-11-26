@@ -98,3 +98,17 @@ signifikansi.
 - Eksplorasi keluarga intraminggu di origin pengembangan dihentikan (sudah dipakai di D-147, D-151, dan D-152, dan test 2024+ dua kali;
   selisih yang tersisa ≤ derau pelatihan). Prediksi maju beku menjadi satu-satunya bukti baru yang sah, dengan daya yang hanya cukup untuk mendeteksi kegagalan besar.
 - Jalur jangka panjang roadmap (cuaca sentra produksi, pasokan fisik) tidak berubah dan di luar jangkauan sebelum pembekuan.
+
+## 6. Adendum audit (D-155, 2026-11-25)
+
+Koreksi tafsiran atas audit Danen; bagian di atas tidak diubah.
+- **Dua jenis kebocoran.** Audit §1 membuktikan tidak ada *look-ahead observasional* (fitur tidak membaca observasi sesudah cutoff, 84/84).
+  *Kebocoran revisi/vintage* (nilai historis yang dipakai adalah nilai revisi yang baru tersedia sesudah waktu prediksi) tidak dapat diuji
+  karena PIHPS tidak menyediakan vintage. Kalimat yang tepat: tidak ditemukan kebocoran akibat observasi masa depan pada fitur yang diuji;
+  efek revisi data historis belum dapat diverifikasi.
+- **`available_at` Sabtu 00.00 mungkin terlalu awal.** Bila harga Jumat masih dapat direvisi sepanjang Sabtu (H+1), batas aman adalah
+  Minggu 00.00. Perubahan ini tidak mengubah nilai fitur (semua dari Senin–Jumat), hanya waktu prediksi yang dinyatakan, dan berlaku sama
+  untuk C1-tuned. Jendela revisi PIHPS perlu dipastikan dari dokumentasi BI atau pengamatan stempel waktu (`[HUMAN]`).
+- **Selisih C1-tuned vs IW_NAT** dirinci di adendum D-154 (`20261125_business_understanding.md` §6): IW_NAT membalik arah pada 12% / 7–8%
+  baris; perbaikan dan perusakan hampir seimbang (test h 4 721 vs 629). Pada prediksi maju kesepakatan 95,3% (batch berbeda, origin
+  terbaru).

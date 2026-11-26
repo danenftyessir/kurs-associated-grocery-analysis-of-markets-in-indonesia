@@ -79,3 +79,57 @@ Makna bagi TPID (test, evaluasi rolling-origin):
 `python docs/audit/20261125_business_understanding/scripts/bu.py` (dev) lalu `PART=test ...` (test; aturan naif pembanding dibaca dari
 hasil dev). Prediksi = `direction_tuned_preds` C1t (sama dengan `base` D-151). Menjalankan ulang dev setelah penambahan mode test memberi
 `bu_criteria.csv` identik byte-per-byte.
+
+## 6. Adendum audit (D-155, 2026-11-25 22.21; protokol `PROTOKOL_AUDIT.md`, sha256 `e50c5c91a629b163eb1a0058b5e0f7b5885b6d7c6fd52991dbc18b83faf8c598`)
+
+Menjawab audit Danen atas D-152–D-154. Bagian 0–5 di atas tidak diubah; koreksi tafsirannya ada di sini. Skrip `scripts/audit.py`,
+hasil `hasil/audit_*.csv`.
+
+**Validitas universe S1 (kritis): lolos.** Kandidat ranking = semua provinsi × komoditas yang fitur lag-nya tersedia pada origin, termasuk
+baris yang kemudian tidak berubah (y = 0: dev 1.832 / 1.154, test 1.803 / 1.132, dihitung bukan kenaikan material). Satu-satunya
+penyaringan berbasis target adalah baris yang targetnya tidak teramati: 2 + 2 baris dev, 0 test. Baris itu kini diikutkan (C1-tuned dilatih
+ulang pada origin itu; prediksi baris lain identik, maks |Δp| 0) dan dihitung tidak kena. Presisi tidak berubah (V1-K2 test 0,179 / 0,161).
+Ranking hanya memakai skor & fitur pada origin; ambang material dari baris latih.
+
+**Koreksi tafsiran:**
+- **Skor ≠ peluang kenaikan material.** Daftar pantau mengurutkan p_up C1-tuned, yaitu peluang *arah naik* bila harga berubah
+  (P(naik | y ≠ 0, X)), bukan P(kenaikan material | X). Hasil S1 sah sebagai **kualitas ranking**, bukan sebagai peluang risiko.
+  Kalibrasi S2 adalah kalibrasi peluang arah (baris y ≠ 0), bukan kalibrasi peluang kenaikan material.
+- **S3 bersyarat**: dihitung pada baris yang *ternyata* bergerak material, jadi menunjukkan kemampuan menentukan arah pada kelompok itu,
+  bukan kemampuan mengetahui sebelumnya baris mana yang akan bergerak material.
+- **Bukan validasi independen.** Kriteria ditetapkan sebelum ukur, tetapi periode test 2024+ sudah dipakai D-145–D-152. Ditulis sebagai
+  "evaluasi eksploratif dengan kriteria yang ditetapkan sebelumnya".
+- **Titik akhir, bukan kejadian.** Kenaikan material = perubahan rerata minggu t+h terhadap minggu t. Lonjakan di tengah jendela yang
+  kembali turun pada minggu t+h tidak terhitung, jadi ini bukan peringatan kejadian kapan pun dalam 4–8 minggu.
+- **Materialitas statistik ≠ materialitas kebijakan.** 58% / 56% alarm test (46% / 40% dev) jatuh pada beras, gula, minyak goreng, daging
+  sapi, yang ambang materialnya hanya 1,4–2,7% (h 4). Ambang kebijakan (disepakati pengguna) harus dilaporkan terpisah.
+
+**V1 vs V2 (jumlah alarm berbeda).** Presisi V2-10% lebih tinggi karena alarmnya separuh V1-K2. Pada jumlah alarm sama (V2-setara):
+
+| Test | Alarm/origin | Presisi h 4 / h 8 | Recall h 4 / h 8 | Alarm palsu/origin h 4 / h 8 | Provinsi beralarm/origin |
+|---|---|---|---|---|---|
+| V1-K1 (1 per provinsi) | 34 | 0,207 / 0,181 | 0,24 / 0,21 | 27 / 28 | 34 |
+| V1-K2 (S1) | 68 | 0,179 / 0,161 | 0,41 / 0,36 | 56 / 57 | 34 |
+| V1-K3 | 102 | 0,158 / 0,147 | 0,54 / 0,50 | 86 / 87 | 34 |
+| V2-10% nasional | 34 | 0,225 / 0,200 | 0,26 / 0,23 | 26 / 27 | 25,7 / 25,6 |
+| V2-setara nasional | 68 | 0,188 / 0,169 | 0,43 / 0,38 | 55 / 57 | 32,5 / 32,3 |
+
+Ranking nasional sedikit lebih presisi pada jumlah alarm sama, tetapi meninggalkan ± 1,5 provinsi per minggu tanpa alarm. Kalimat §2
+"V2 nasional kurang tegas" merujuk ke interval terhadap aturan naif (V2-10% h 8 memuat nol), bukan presisi. Anggaran K = 1/2/3 adalah
+pertukaran presisi–recall; tidak ada K yang dipilih (kapasitas TPID belum diketahui).
+
+**Pembanding.** Pembanding resmi tetap pilihan dev (`R_mom` h 4, `R_nat` h 8). Kepekaan terhadap `R_rev` (terbaik di test) kini dengan
+interval: +0,066 (0,033..0,101) / +0,041 (0,003..0,078).
+
+**C1-tuned vs IW_NAT (prediksi D-151, `hasil/audit_disagreement*.csv`).** Arah berbeda pada 12% (h 4) / 7–8% (h 8) baris dev & test.
+Di antara yang berbeda (y ≠ 0), test h 4: diperbaiki IW_NAT 721, dirusak 629 (bersih +92); h 8: 425 vs 393 (+32). Kuintil |y| terkecil
+test h 4 +33 (166 vs 133). Per komoditas test bersih: telur +42 / +39, cabai merah +42 / +9, beras +9 / +14; negatif bawang putih −19 / −22,
+cabai rawit −26 / −18, gula +13 / −25. Keuntungan IW_NAT adalah selisih kecil dari banyak pembalikan arah yang hampir saling meniadakan.
+
+**Kartu K4 (usulan, belum dijalankan): target operasional "risiko kenaikan material".** Problem: TPID butuh P(kenaikan material), bukan
+P(naik). Karakteristik data: laju-dasar 9–13%, ambang per komoditas. Hipotesis: klasifier yang dilatih langsung pada z = 1[y ≥ thr]
+(semua baris, termasuk y = 0) memberi ranking & peluang yang lebih sesuai daripada p_up. Metode: HGB dengan kolom C1-tuned, label z.
+Validasi: precision/recall@K, PR-AUC, Brier & kalibrasi pada z, dibandingkan dengan p_up C1-tuned; materialitas statistik dan kebijakan
+dilaporkan terpisah; versi "kejadian kapan pun dalam jendela" sebagai target kedua. Kebocoran: ambang dari baris latih per origin.
+Keputusan: hanya dijalankan setelah kebutuhan TPID (anggaran pemantauan, ambang kebijakan, titik akhir vs kejadian) divalidasi pengguna;
+periode test 2024+ tidak dipakai untuk memilih, konfirmasi lewat prediksi maju.

@@ -1,0 +1,95 @@
+{
+ "n_batches": 48,
+ "n_candidates": 111,
+ "F0": {
+  "n": 111,
+  "R": 25,
+  "P": 36,
+  "I": 50,
+  "precision_R": 0.22522522522522523,
+  "precision_RP": 0.5495495495495496
+ },
+ "F1": {
+  "n": 89,
+  "R": 24,
+  "P": 34,
+  "I": 31,
+  "precision_R": 0.2696629213483146,
+  "precision_RP": 0.651685393258427
+ },
+ "F2": {
+  "n": 28,
+  "R": 18,
+  "P": 10,
+  "I": 0,
+  "precision_R": 0.6428571428571429,
+  "precision_RP": 1.0
+ },
+ "F1d": {
+  "n": 80,
+  "R": 24,
+  "P": 25,
+  "I": 31,
+  "precision_R": 0.3,
+  "precision_RP": 0.6125
+ },
+ "F2d": {
+  "n": 25,
+  "R": 18,
+  "P": 7,
+  "I": 0,
+  "precision_R": 0.72,
+  "precision_RP": 1.0
+ },
+ "dup_share_F1": 0.10112359550561797,
+ "false_match_share_F0": 0.18018018018018017,
+ "false_match_left_F1": 1,
+ "relevant_lost_by_F2": 6,
+ "relevant_lost_by_F1": 1,
+ "commodity_link_accuracy_RP_F1": 1.0,
+ "share_umum_only_RP": 0.3275862068965517,
+ "category_R": {
+  "stabilization": 8,
+  "policy_trade": 5,
+  "supply": 3,
+  "production": 2,
+  "upstream_price": 2,
+  "market_supply": 1,
+  "policy_distribution": 1,
+  "policy_price": 1,
+  "policy_statement": 1,
+  "enforcement": 1
+ },
+ "category_P": {
+  "price_report": 8,
+  "general_food": 6,
+  "political": 5,
+  "aid_political": 4,
+  "production": 3,
+  "legal": 2,
+  "harvest": 2,
+  "policy_upstream": 2,
+  "aid_disaster": 1,
+  "market_other": 1,
+  "disaster": 1,
+  "stabilization": 1
+ },
+ "price_report_share_RP": 0.13793103448275862,
+ "share_R_with_id_adm1": 0.84,
+ "timeliness": {
+  "n_with_url_date": 49,
+  "lag_days_median": 0.0,
+  "share_lag_le_1d": 1.0,
+  "lag_days_max": 1.0,
+  "share_lag_negative": 0.0
+ },
+ "implied_per_day_F2d_R": 36.0,
+ "implied_per_day_F1d_RP": 98.0,
+ "by_year_F1d_R": {
+  "2019": 1,
+  "2020": 3,
+  "2021": 5,
+  "2022": 8,
+  "2023": 7
+ }
+}

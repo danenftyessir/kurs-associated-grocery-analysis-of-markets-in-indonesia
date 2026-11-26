@@ -45,6 +45,18 @@ untuk mengisi kartu.
   terhadap fitur terkait sebelum dibaca (contoh D-153 DU-3c).
 - Periksa pengganggu sebelum menulis hipotesis: stabilitas antarperiode (co-trend sesaat), kesulitan intrinsik vs kekurangan model (skill
   terhadap laju-dasar), tumpang tindih dengan fitur yang ada.
+- Sinyal **tingkat nasional** (konstan antarprovinsi pada komoditas × origin, mis. cuaca sentra, impor): korelasi residual pooled
+  bersifat in-sample dan hanya bervariasi antar ± 37 origin. Sebelum Modeling, wajib menyertakan koreksi logit walk-forward berparameter
+  kecil (koefisien dari origin lampau saja); D-157: korelasi 0,14–0,17 bertanda stabil tetap memperburuk macro F1 & Brier walk-forward.
+- **Kelayakan sumber baru** (D-159, sebelum DU): riwayat mencakup origin dev (≥ 2020 untuk pelatihan + 2021–2023), akses sah tanpa login/CAPTCHA,
+  tanggal ketersediaan (rilis/penutupan) dapat ditetapkan, frekuensi ≤ mingguan atau bertanggal, dan skala mengukur pasar (bukan log
+  program kecil). Gagal → tidak dimodelkan dan tidak di-backfill; hanya permintaan data atau evaluasi prospektif.
+- **Layar arah nasional** (D-158): kandidat yang menargetkan komponen nasional (komoditas × minggu) wajib menunjukkan AUC/akurasi arah
+  nasional walk-forward di atas **konsensus C1t** (rerata p_up provinsi OOS, AUC ± 0,75) sebelum modeling provinsi. Koreksi dibuat
+  increment-only (offset = logit konsensus); kalibrasi ulang konsensus dengan intersep/dummy komoditas historis dilarang (base rate bergeser).
+- **Sumber prakiraan** (D-161, sebelum biaya ekstraksi): uji dulu **oracle** = nilai TERREALISASI variabel yang diprakirakan pada jendela
+  prakiraan yang sama (data teramati yang sudah ada, mis. NASA POWER untuk cuaca) dengan layar arah nasional di atas. Prakiraan tidak memuat
+  informasi lebih dari realisasinya untuk mekanisme yang sama; oracle gagal → mekanisme tertutup, ekstraksi prakiraan tidak perlu.
 - Gerbang (heuristik, dikalibrasi pada kontrol positif): lanjut ke Modeling bila sinyal parsial q < 0,05 di kedua horizon **dan**
   besarnya ≥ ½ kontrol positif. Di bawah itu, keuntungan yang diharapkan di bawah derau pelatihan dev (± 0,005) dan MDE test
   (0,019 / 0,010, D-152), sehingga hasil Modeling tidak dapat diputuskan. Pengecualian harus beralasan pengetahuan, bukan skor.
@@ -60,3 +72,36 @@ untuk mengisi kartu.
 - Protokol (kandidat, aturan, kontrol kebocoran) ditulis dan di-hash sebelum run.
 - Keluarga intraminggu sudah memakai test 2024+ dua kali; konfirmasinya hanya lewat prediksi maju beku (D-152), yang dayanya hanya cukup
   untuk mendeteksi kegagalan besar.
+
+## 5. Ketepatan target, ukuran, dan klaim (D-155)
+
+- **Test 2024+ bukan data independen** (dipakai D-145–D-154). Hasil test baru ditulis "evaluasi eksploratif dengan kriteria yang ditetapkan
+  sebelumnya", bukan "validasi". Bukti independen hanya dari origin yang belum pernah dipakai (prediksi maju beku).
+- **Universe ranking/daftar pantau** = semua kandidat yang datanya tersedia pada origin, tanpa penyaringan berdasarkan target (termasuk
+  y = 0 dan target yang kemudian tidak teramati, dihitung tidak kena). Ranking hanya memakai informasi ≤ origin.
+- **Skor ≠ target bisnis.** p_up = P(naik | y ≠ 0, X). Untuk risiko kenaikan material, latih/kalibrasi pada target terpisah
+  z = 1[y ≥ ambang] (semua baris); jangan menyebut p_up "peluang kenaikan material". Kalibrasi hanya berlaku untuk label yang dilatih.
+- **Ukuran bersyarat pada hasil** (mis. F1 pada baris yang ternyata bergerak material) tidak menunjukkan kemampuan mengetahui sebelumnya;
+  beri label bersyarat.
+- **Materialitas statistik** (relatif riwayat komoditas) dan **materialitas kebijakan** (ambang yang disepakati pengguna) dilaporkan
+  terpisah. **Titik akhir** (perubahan minggu t + h vs t) berbeda dengan **kejadian dalam jendela** (kapan pun dalam h minggu).
+- **Daftar pantau** dibandingkan pada jumlah alarm yang sama; laporkan alarm per origin, presisi, recall, alarm palsu, sebaran provinsi &
+  komoditas. Anggaran pemantauan (K) tidak dipilih dari test.
+- **Kebocoran**: bedakan look-ahead observasional (dapat diuji dengan perturbasi/penghapusan data sesudah cutoff) dan revisi/vintage (tidak
+  dapat diuji tanpa vintage PIHPS). `available_at` konservatif = Minggu 00.00 sampai jendela revisi PIHPS dipastikan (`[HUMAN]`).
+- **Terminologi metode**: sebut screening/asosiasi bila bukan algoritma yang dimaksud (mis. screening asosiasi temporal ≠ sequential
+  pattern mining); validitas klaster dilaporkan dengan silhouette per k, DB/CH, dan stabilitas, bukan satu angka terbaik.
+
+## 6. Registri eksperimen terpusat (D-156)
+
+- Semua eksperimen Task 4 arah (D-145 dan seterusnya; per 2026-11-26 s.d. D-163), termasuk yang gagal, diblokir, dan ditolak, tercatat satu baris per varian di
+  [`docs/eksperimen_registry.csv`](eksperimen_registry.csv): ID, rujukan keputusan, fase, hipotesis, versi data, konfigurasi fitur /
+  preprocessing / model / hyperparameter / threshold, origin, macro F1 h 4 & h 8, F1 per kelas (bila ada), Δ vs C1-tuned + interval,
+  status, lokasi skrip, keputusan dan alasannya.
+- Status: `COMPLETE` (dijalankan penuh; acuan, diadopsi, atau hasil dicatat), `PARTIAL` (dijalankan dengan pemangkasan), `FAILED`
+  (eksekusi gagal), `BLOCKED` (tidak dapat dijalankan dengan data/akses yang ada), `REJECTED` (dijalankan, ditolak aturan atau gerbang).
+- Eksperimen baru menambah barisnya pada sesi yang sama. Pembangun saat ini: `docs/audit/20261126_task4_master_f1/scripts/r_registry.py`
+  (membaca CSV hasil setiap laporan; angka D-145/D-146 disalin dari laporannya).
+- Aturan "lebih baik secara berarti" yang dipakai D-156 (lebih ketat dari §4): §4 + q BH < 0,05 di antara kandidat sesi itu, Δ ≥ 0 di
+  ≥ 2 dari 3 tahun dev dan porsi origin Δ > 0 ≥ 0,5 di kedua horizon, F1 naik & turun tidak turun > 0,01, tidak ada komoditas turun
+  > 0,03 di kedua horizon.

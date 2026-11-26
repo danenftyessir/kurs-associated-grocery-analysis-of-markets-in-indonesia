@@ -1,0 +1,218 @@
+{
+ "run_id": "task3-20261126T111414Z-d63c24",
+ "task_id": "task3",
+ "evaluated_at": "2026-11-26T11:33:30.028400+00:00",
+ "metrics": [
+  {
+   "name": "kendall_tau_b",
+   "group": "asosiasi (E1, meta-regresi)",
+   "value": -0.0449466574975494,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "assoc",
+    "n": 10
+   }
+  },
+  {
+   "name": "kendall_p_exact",
+   "group": "asosiasi (E1, meta-regresi)",
+   "value": 0.930404541446208,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "assoc"
+   }
+  },
+  {
+   "name": "meta_n_p05",
+   "group": "asosiasi (E1, meta-regresi)",
+   "value": 0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "assoc",
+    "subset": "meta-regresi",
+    "n": 99
+   }
+  },
+  {
+   "name": "meta_n_q05",
+   "group": "asosiasi (E1, meta-regresi)",
+   "value": 0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "assoc",
+    "subset": "meta-regresi",
+    "n": 99
+   }
+  },
+  {
+   "name": "meta_p_interval_consistency",
+   "group": "asosiasi (E1, meta-regresi)",
+   "value": 1.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 99,
+    "alpha": 0.05,
+    "artifact": "assoc"
+   }
+  },
+  {
+   "name": "meta_p_interval_consistency_mismatches",
+   "group": "asosiasi (E1, meta-regresi)",
+   "value": 0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 99,
+    "alpha": 0.05,
+    "artifact": "assoc"
+   }
+  },
+  {
+   "name": "h2_n_confirmatory",
+   "group": "asimetri (H2)",
+   "value": 2,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "asymmetry"
+   }
+  },
+  {
+   "name": "h2_confirmatory_rejected",
+   "group": "asimetri (H2)",
+   "value": 0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "asymmetry"
+   }
+  },
+  {
+   "name": "h2_n_ci_excludes_zero",
+   "group": "asimetri (H2)",
+   "value": 0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "asymmetry",
+    "n": 30
+   }
+  },
+  {
+   "name": "h2_p_interval_consistency",
+   "group": "asimetri (H2)",
+   "value": 0.8666666666666667,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 30,
+    "alpha": 0.05,
+    "artifact": "asymmetry",
+    "note": "p = Wald, interval = Wald ∪ bootstrap (D-127): ketidakcocokan diharapkan"
+   }
+  },
+  {
+   "name": "h2_p_interval_consistency_mismatches",
+   "group": "asimetri (H2)",
+   "value": 4,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 30,
+    "alpha": 0.05,
+    "artifact": "asymmetry",
+    "note": "p = Wald, interval = Wald ∪ bootstrap (D-127): ketidakcocokan diharapkan"
+   }
+  },
+  {
+   "name": "e2_n_cells",
+   "group": "rezim HET/HAP (E2)",
+   "value": 145,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "regime_profiles"
+   }
+  },
+  {
+   "name": "e2_n_ci_excludes_zero",
+   "group": "rezim HET/HAP (E2)",
+   "value": 15,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "regime_profiles"
+   }
+  },
+  {
+   "name": "e2_min_q_fdr",
+   "group": "rezim HET/HAP (E2)",
+   "value": 0.145,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "regime_profiles"
+   }
+  },
+  {
+   "name": "cal_n_cells",
+   "group": "inferensi nasional terkalibrasi",
+   "value": 78,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "national_calibrated"
+   }
+  },
+  {
+   "name": "cal_n_ci_excludes_zero",
+   "group": "inferensi nasional terkalibrasi",
+   "value": 10,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "national_calibrated"
+   }
+  },
+  {
+   "name": "cal_n_q05",
+   "group": "inferensi nasional terkalibrasi",
+   "value": 6,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "artifact": "national_calibrated"
+   }
+  },
+  {
+   "name": "cal_p_interval_consistency",
+   "group": "inferensi nasional terkalibrasi",
+   "value": 1.0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 78,
+    "alpha": 0.05,
+    "artifact": "national_calibrated"
+   }
+  },
+  {
+   "name": "cal_p_interval_consistency_mismatches",
+   "group": "inferensi nasional terkalibrasi",
+   "value": 0,
+   "status": "ok",
+   "reason": null,
+   "context": {
+    "n": 78,
+    "alpha": 0.05,
+    "artifact": "national_calibrated"
+   }
+  }
+ ],
+ "schema_version": 3
+}

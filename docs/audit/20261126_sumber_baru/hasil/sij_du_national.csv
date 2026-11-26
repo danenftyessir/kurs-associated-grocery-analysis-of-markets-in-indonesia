@@ -1,0 +1,9 @@
+horizon,features,n,auc_cons,auc_inc,acc_cons,acc_inc,d_auc
+4,sj_days,300,0.7236,0.7091,0.64,0.6267,-0.0145
+4,sj_stock_yoy+sj_buy_yoy,260,0.7426,0.7079,0.65,0.6423,-0.0347
+4,sj_price_mom3+sj_price_yoy,260,0.7426,0.6916,0.65,0.6192,-0.0509
+4,sj_days+sj_stock_yoy+sj_buy_yoy+sj_price_mom3+sj_price_yoy,260,0.7426,0.63,0.65,0.55,-0.1126
+8,sj_days,292,0.7672,0.743,0.6815,0.6575,-0.0243
+8,sj_stock_yoy+sj_buy_yoy,244,0.7702,0.6784,0.6967,0.6557,-0.0918
+8,sj_price_mom3+sj_price_yoy,244,0.7702,0.6781,0.6967,0.6434,-0.0921
+8,sj_days+sj_stock_yoy+sj_buy_yoy+sj_price_mom3+sj_price_yoy,244,0.7702,0.5608,0.6967,0.5287,-0.2094

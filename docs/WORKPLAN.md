@@ -230,6 +230,8 @@ Pipeline `pipelines.task1` · notebook `01_task1_profiles` · berat → Kaggle/C
 - File: `src/evaluation/inference.py` → `boot_replicates`, `placebo_stats`, CI bootstrap di `profiles`.
 - Selesai bila: [x] satu indeks minggu per replikasi dipakai semua seri (tes `test_inference`); [x] plasebo provinsi hanya h ∈ {4, 8, 12}; [x] runtime diukur — ± 7 dtk/replikasi, B=R=499 fokus, 199 non-fokus (`bootstrap_B_nonfocus`).
 - Catatan (U107, D-129): blok 13 minggu menarik β ke nol (median rasio 0,57 / 0,35 / 0,35 pada h 4/8/12) → interval resmi konservatif; tambahan `national_calibrated`.
+- D-163 (2026-11-26): + baris PT di `national_calibrated` dan artefak `province_calibrated` (task3, 1.623 baris; boot_ratio provinsi median 0,51–0,67;
+  sel tidak memuat nol resmi 0–2,4% vs terkalibrasi 5–12%; q global < 0,05 pada 7 deviasi). Laporan `docs/audit/20261126_kelemahan_tercatat.md` §2.
 
 ### WP-17 — Penyusutan EB & fitur respons ✅
 - Kode 2026-11-21 (Ardell, D-201) + `tests/test_response.py`.
@@ -420,6 +422,8 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
       `kagami-code` (**PRIVAT**, `python -m kagami bundle`; `kagami-raw` opsional), bagikan ke Ardell. Ulangi bundle setiap `src/` berubah.
 - [ ] **Danen** · Taruh CSV penduduk 2025 & snapshot kab/kota Panel Harga di lokasi DATASETS.md §Menunggu diunggah (U103).
 - [ ] **Danen & Ardell** · Token Drive masing-masing (`drive-auth`) + Kaggle Secret `KAGAMI_DRIVE_TOKEN` (`docs/NOTEBOOKS.md` §Persiapan 2).
+- [ ] **Danen/Abi** · Wawancara validasi kebutuhan TPID (U109) dengan `docs/PANDUAN_WAWANCARA_TPID.md`; hasil → catatan `docs/audit/` + D-xxx.
+- [ ] **Abi** · Pastikan jendela revisi harga harian PIHPS untuk `available_at` (U110).
 - [ ] **Abi** · Rekam video demonstrasi (alur: masalah → app 6 halaman → Tingkat A/B).
 - [ ] **Abi** · Unggah makalah PDF + zip + video ke Google Drive dan form pendaftaran Gelombang 2.
 

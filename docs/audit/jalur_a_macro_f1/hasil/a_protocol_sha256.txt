@@ -1,0 +1,7 @@
+# Workstream A — evaluator prediksi maju dibekukan sebelum target pertama lengkap (Jumat 2026-11-27)
+frozen_at: 2026-11-26T11:34:14Z
+e7e69221bcd79bd9c74273ba331af29fa47c1b05c2a4929a692b03ef07d1c20e *docs/audit/jalur_a_macro_f1/scripts/a_forward_eval.py
+46c72d834492b99f6d42d6dc9db5471a43dbb4f4c793cd79b26c9800258edbbf *docs/audit/jalur_a_macro_f1/scripts/fw_common.py
+1949795cd5c69948be99a0b8168b45d5039914a0f0f8559e95cf1f515bdafb56 *docs/audit/20261125_iw_validasi/scripts/fw_eval.py
+28651b2b402c5b4429134b660c1e73587689dd81da7f43c088c4721ec9ad7928 *docs/audit/20261125_iw_validasi/hasil/forward_preds.csv
+7586eaedad341e3e2899ef5c2588b83b232e0bfe32f504f2aa04cc397686d13d *docs/audit/20261126_nasional_lokal/hasil/forward_preds_d158.csv

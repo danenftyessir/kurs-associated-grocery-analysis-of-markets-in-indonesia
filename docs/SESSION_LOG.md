@@ -9,6 +9,55 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-26 — Danen: WP-36 ✅ (CFSv2 lewat Colab, D-161)
+- Notebook Colab (`docs/audit/20261126_sumber_baru/colab/`, + `build_cell_map.py` untuk pemetaan grid → provinsi): 437/465 run 00Z Jumat
+  (28 HTTP 404, 3 di dev), 1.818 dtk; mount Drive gagal (popup OAuth) → output runtime + unduh (izin unduh otomatis Chrome dari Danen).
+- `cfs_du.py` (protokol beku, diuji dulu pada data sintetis): skill vs NASA POWER nyata (hujan 1–28 r 0,42–0,55) tetapi ΔAUC arah nasional
+  −0,029..+0,006 (q ≥ 0,105) → gagal gerbang 5; oracle cuaca terealisasi −0,013..−0,081 → mekanisme tertutup. C1-tuned tetap.
+- U113 tinggal GDELT; aturan oracle dulu untuk sumber prakiraan (EKSPERIMEN §3); registri 157 baris; findings.md + 1 kalimat.
+
+### 2026-11-26 — Danen: WP-36 ✅ (kelayakan sumber & penemuan sinyal, D-160)
+- GDELT & CFSv2: gerbang 1–3 ✓ tetapi akses tidak praktis (TB/BigQuery; NCSS 404, OPeNDAP 403, berkas penuh 8–37 GB) → U113 `[HUMAN]`.
+- SIJAGUNG diunduh (persetujuan Danen) & didaftarkan opsional (`load_sijagung`); gagal gerbang 5 (AUC nasional −0,01..−0,21 vs konsensus).
+- SPORA export HTTP 500; DIBI server HTTP 521 saat uji. Tanpa modeling; C1-tuned tetap. Registri 147 baris.
+
+### 2026-11-26 — Danen: WP-36 ✅ (audit kelayakan pasokan fisik, D-159)
+- Baca-saja: SP2KP stok mingguan di area admin berlogin; FDP log program 2024+; PIBC publik 1 rekaman (Jun 2025); GPM bulanan 2024+; KSA beras saja.
+- Syarat berhenti Danen berlaku: tanpa modeling/backfill, C1-tuned tetap. Spesifikasi permintaan data SP2KP (U112). Aturan kelayakan sumber EKSPERIMEN §3.
+
+### 2026-11-26 — Danen: WP-36 ✅ (National Shock Nowcasting, 2 iterasi, D-158)
+- Audit: Bapanas kab/kota tidak dapat diakses (U111); PIHPS 110 kota diunduh (persetujuan Danen; `pihps_city`, `load_pihps_city`, 0 galat).
+- Iterasi 1 (breadth kota + nasional→lokal) 0/5 lolos; uji kebocoran menangkap look-ahead cakupan (kb_cov, kp_n) → diperbaiki sebelum hasil dilihat.
+- Kelemahan: konsensus C1t = prediktor arah nasional terbaik; kalibrasi ulang & kota pemimpin memperburuk; informasi baru hanya kesegaran (h 4).
+- Iterasi 2: META increment-only gagal; FR_CITY +0,024 / +0,008 lolos aturan tetapi kontribusi kota ≈ 0 (= keluarga intraminggu) → C1-tuned tetap.
+- Prediksi maju beku `forward_preds_d158.csv` (perlu di-commit). Aturan baru EKSPERIMEN §3 (layar arah nasional). Registri 137 baris.
+
+### 2026-11-26 — Danen: WP-36 ✅ (pilot cuaca sentra & impor Task 4 arah, D-157)
+- NASA POWER diunduh (34 CSV, 3,6 MB, 2016–2026; persetujuan Danen) dan didaftarkan opsional `nasa_power` (sources.yaml, DATASETS.md).
+- Ruang: informasi nasional sempurna per komoditas × origin +0,105; hortikultura saja +0,049 / +0,042; beras ≤ +0,007 (`headroom.py`).
+- W_NAT −0,003 / −0,003, W_LOC +0,002 / −0,003, IMP −0,006 / −0,015, W_CAL pasca-hoc −0,003 / −0,005 (Brier memburuk) → C1-tuned tetap.
+- Kebocoran 0 sel; DU W_NAT ρ 0,14–0,17 bertanda stabil tetapi tidak tergeneralisasi walk-forward → aturan baru EKSPERIMEN §3. Registri 121 baris.
+- Belum: commit (termasuk `data/raw/nasa_power/` bila diinginkan; `checksums.csv` sengaja tidak memuatnya).
+
+### 2026-11-26 — Danen: WP-36 ✅ (audit preprocessing & optimasi macro F1 Task 4 arah, D-156)
+- Protokol beku + hash sebelum run; dev ≤ 2023 saja, test tidak dibuka. Skrip & hasil `docs/audit/20261126_task4_master_f1/`.
+- Fase A galat C1-tuned dev: oracle threshold global +0,000 / +0,006; AUC kuintil |y| terkecil 0,60 / 0,56; bias origin hari libur −0,10 / −0,16.
+- Fase B: tidak ada galat preprocessing baru (B01–B07). 40 fitur baru (8 keluarga), kebocoran 0 sel, tidak ada yang lolos layar DU.
+- 27 kandidat (fitur, hapus-satu, gabungan bersarang, jendela/peluruhan, threshold walk-forward, bobot kelas, 5 seed, 5 model) → 0 lolos;
+  C1-tuned tetap. Run 89 + 5 menit lokal (6 proses).
+- Registri hidup `docs/eksperimen_registry.csv` (117 baris D-145–D-156) + aturan `docs/EKSPERIMEN.md` §6; D-156.
+- Belum: commit; validasi TPID (U109) & jendela revisi PIHPS (U110) `[HUMAN]`.
+
+### 2026-11-25 — Danen: WP-36 ✅ (audit D-152–D-154, D-155)
+- Universe ranking S1 sah (y = 0 kandidat; 4 baris dev tanpa target diikutkan; presisi tetap). V1 vs V2 pada jumlah alarm sama;
+  K = 1/2/3 dilaporkan; kepekaan `R_rev` dengan interval; 57% alarm test pada komoditas diatur; IW_NAT membalik 12% baris (721 vs 629).
+- Koreksi klaim di `findings.md`, adendum laporan D-152/D-153/D-154, aturan `docs/EKSPERIMEN.md` §5. Usulan K4 ditunda (butuh TPID).
+- Belum: commit (termasuk `forward_preds.csv` + manifest sebelum 27 Nov), validasi TPID, jendela revisi PIHPS (`[HUMAN]`).
+- Panduan wawancara TPID `docs/PANDUAN_WAWANCARA_TPID.md` (asumsi A1–A11, alur 55 menit, lembar catatan, jawaban → keputusan);
+  isu U109 (validasi TPID) & U110 (jendela revisi PIHPS) dibuka; WP-35 bertambah dua item `[HUMAN]`.
+- Kartu daftar pantau contoh 34 provinsi (`docs/audit/20261125_business_understanding/kartu/`, halaman privat Claude): minggu 1–5 Des 2025
+  (aturan tetap), presisi minggu itu 0,07 / 0,01 vs mingguan 0,00–0,60; logika kartu = D-154 (presisi gabungan 0,1789 / 0,1614 identik).
+
 ### 2026-11-25 — Danen: WP-36 ✅ (Business Understanding Task 4 arah, D-154)
 - Protokol beku sebelum ukur: pengguna TPID, kenaikan material (p80 |y| komoditas di baris latih), kriteria S1 daftar pantau, S2 kalibrasi,
   S3 arah saat bergerak material, 4 aturan naif. Tanpa model baru; C1-tuned dinilai dev lalu test sekali.
