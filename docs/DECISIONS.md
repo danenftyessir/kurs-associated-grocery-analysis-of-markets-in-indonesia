@@ -415,6 +415,94 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-161 — NOAA CFSv2 diuji lewat Colab: skill prakiraan nyata tetapi gagal gerbang 5; oracle cuaca terealisasi juga gagal → mekanisme tertutup · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
+Lanjutan D-160 atas persetujuan Danen ("Ya, lewat Colab"). Ekstraksi di Colab (`docs/audit/20261126_sumber_baru/colab/`): run 00Z Jumat
+minggu t (cadangan Kamis/Rabu; terbit sebelum `available_at` Minggu 00.00, D-155), byte-range 56 hari pertama `prate` & `tmax` dari fileServer
+NCEI, dekode eccodes, rerata 182 sel grid per provinsi → 437/465 minggu 2017-12..2026-11 (28 tanpa run, HTTP 404; 3 di dev), 1.818 dtk.
+Mount Drive gagal (popup OAuth) → hasil diunduh dari runtime. Agregat provinsi mingguan disimpan sebagai hasil audit (bukan sumber terdaftar).
+Uji `cfs_du.py` (protokol dibekukan sebelum hasil): anomali terhadap klimatologi prakiraan init ≤ 2020, nasional tertimbang produksi ATAP untuk
+cabai merah/rawit & bawang merah, arah nasional increment-only di atas konsensus C1t walk-forward 2021–2023. Skill CFSv2 vs NASA POWER
+terealisasi nyata (hujan hari 1–28 r 0,42–0,55; suhu maks 0,58–0,61), tetapi ΔAUC −0,029..+0,006 (q ≥ 0,105; hujan 1–28 h 4 −0,014, interval
+< 0) → gerbang 5 gagal. Oracle (cuaca terealisasi pada jendela prakiraan) −0,013..−0,081 → informasi cuaca 1–8 minggu ke depan tidak
+menambah arah nasional di atas konsensus; kegagalan bukan soal skill prakiraan. **REJECTED, tanpa modeling; C1-tuned tetap.** U113 tinggal
+GDELT. Aturan baru `docs/EKSPERIMEN.md` §3: sumber prakiraan diuji oracle-nya dulu. Laporan `docs/audit/20261126_sumber_baru.md` §3.
+
+### D-160 — Kelayakan sumber & penemuan sinyal (GDELT, CFSv2, SIJAGUNG/SPORA, BNPB DIBI): tidak ada yang lolos lima gerbang; SIJAGUNG gagal sinyal; tanpa modeling · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
+Atas rancangan Danen (D-160 = kelayakan sumber, bukan optimasi). Gerbang: riwayat dev, ketersediaan, independensi, cakupan, sinyal arah nasional
+tambahan di atas konsensus C1t (walk-forward, D-158). GDELT: G1–G3 ✓ (DATE batch 15 menit), G4/G5 tidak teruji karena skala TB → BigQuery berbayar
+(U113). CFSv2: arsip seri waktu per run 2017–2026 di THREDDS NCEI, G1–G3 ✓, tetapi NetcdfSubset 404 & OPeNDAP 403; hanya berkas penuh 42,6 MB per
+variabel per run (± 8–37 GB untuk run mingguan 2018–2026 + eccodes) → di luar persetujuan; ekspektasi rendah karena prakiraan 4–8 minggu terutama
+memengaruhi panen sesudah horizon. SIJAGUNG diunduh (persetujuan Danen) & didaftarkan opsional `ditjenpkh_sijagung` + `load_sijagung`
+(2019-01..2026-08, lag publik ± 3 bulan → +90 hari): G5 gagal (residual |ρ| ≤ 0,11, q ≥ 0,65; AUC nasional increment-only −0,01..−0,21 vs
+konsensus untuk ayam & telur). SPORA export HTTP 500 (memori server). DIBI: tanggal kejadian saja, verifikasi triwulanan; server HTTP 521 saat uji.
+**C1-tuned tetap.** Laporan `docs/audit/20261126_sumber_baru.md`.
+
+### D-159 — Audit kelayakan data pasokan fisik & stok pasar (SP2KP, FDP, PIBC, GPM, KSA): tidak ada yang memenuhi syarat periode pengembangan; tanpa modeling · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
+Fase 1 rancangan Danen "Physical Supply & Market Inventory Intelligence", baca-saja (tanpa unduhan, tanpa login). SP2KP: portal publik hanya
+harga; stok/pasokan **mingguan** ada di modul admin berlogin (Stok Mingguan Bapok, Survey Stock Pasar Induk, ekspor Excel) → BLOCKED, permintaan
+resmi (U112). FDP: log program stabilisasi (39 pengiriman Jan–Okt 2026, 0,3–50 t), seri 2024+, bulanan B+1 → bukan ukuran arus pasokan. PIBC:
+endpoint publik stok/masuk/keluar masing-masing 1 rekaman (01 Jun 2025), portal tidak diperbarui → BLOCKED. GPM: jumlah kegiatan per kab/kota ×
+bulan 2024+, tanpa tanggal, vintage tarikan, kausalitas terbalik → kosong di dev. KSA: luas panen padi bulanan (realisasi 2018+), prakiraan
+historis tertimpa; hanya beras (headroom ≤ +0,007). Sesuai syarat berhenti Danen: tidak ada backfill, test tidak dipakai, **tidak ada
+modeling; C1-tuned tetap**. Spesifikasi permintaan data SP2KP (2018+, tanggal input/verifikasi/penutupan, stok & pasokan per pasar) di
+`docs/audit/20261126_pasokan_fisik.md` §2; aturan kelayakan sumber di `docs/EKSPERIMEN.md` §3.
+
+### D-158 — National Shock Nowcasting (breadth 110 kota PIHPS + model nasional–lokal), 2 iterasi: tidak ada perbaikan di luar keluarga intraminggu; C1-tuned tetap · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
+Atas rekomendasi Danen (Ide A breadth pasar, Ide B nasional → lokal) dengan dua iterasi mandiri; protokol tiap iterasi di-hash sebelum
+modeling (`docs/audit/20261126_nasional_lokal/PROTOKOL_I1.md`, `PROTOKOL_I2.md`); dev ≤ 2023, test tidak dibuka. Audit data: panel kab/kota
+Bapanas tidak dapat dipakai (portal tanpa unduhan/riwayat, SAPA terbatas → U111); pengganti PIHPS per kota diunduh atas persetujuan Danen
+(`pihps_city` opsional: 110 kota harian sejak 2017-03-27, 12.870 permintaan, 0 galat, 3,9 MB, `load_pihps_city`). Iterasi 1 (Δ macro F1
+h 4 / h 8): NL1 −0,002 / −0,003, NL2 −0,003 / +0,003, NL_BR −0,000 / +0,001, BR_NAT −0,006 / −0,008, BR_LOC −0,005 / −0,006 → 0 lolos. Uji
+kebocoran breadth menangkap look-ahead cakupan (`kb_cov` penyebut seluruh periode, `kp_n` 0 vs kosong; 533.750 sel) → diperbaiki sebelum
+hasil dilihat, uji ulang 0 sel. Kelemahan: konsensus C1t sendiri prediktor arah nasional terbaik (AUC 0,733 / 0,752 vs lapisan nasional
+0,724 / 0,725); kalibrasi ulang dengan intersep historis memperburuk (base rate bergeser); kota pemimpin tidak stabil; satu-satunya informasi
+baru = kesegaran (AUC nasional h 4 0,762 → 0,777–0,781 dengan increment-only). Iterasi 2: META (increment-only + β walk-forward) +0,009 /
+−0,005..+0,002 (gagal); FR_CITY +0,024 (0,006..0,043) / +0,008 (0,000..0,015) lolos aturan tetapi FR_REF (tanpa kota, ≈ IW_NAT) +0,024 /
++0,004 → kontribusi kota −0,000 / +0,004 (belum terbukti) → **tidak diadopsi; C1-tuned tetap**. Prediksi maju beku base/FR_REF/FR_CITY
+(`hasil/forward_preds_d158.csv`, 12.168 baris; base identik D-152). Aturan baru EKSPERIMEN §3: kandidat tingkat nasional wajib lolos layar
+arah nasional vs konsensus C1t; kalibrasi ulang konsensus dengan intersep historis dilarang. Laporan `docs/audit/20261126_nasional_lokal.md`.
+
+### D-157 — Pilot cuaca sentra produksi (NASA POWER) & realisasi impor bulanan untuk Task 4 arah: tidak membantu; C1-tuned tetap · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
+Atas usulan & persetujuan Danen (unduh NASA POWER 34 CSV, 3,6 MB; sumber baru `nasa_power` opsional, `redistribute: true` dengan
+atribusi). Protokol + kartu eksperimen dibekukan sebelum modeling (`docs/audit/20261126_pilot_cuaca_impor/PROTOKOL.md`); dev ≤ 2023, test
+tidak dibuka. Ruang: informasi sempurna arah nasional per komoditas × origin +0,105 (hortikultura saja +0,049 / +0,042; beras ≤ +0,007).
+Fitur: W_NAT 6 anomali cuaca tertimbang porsi produksi ATAP (cabai merah, cabai rawit, bawang merah), W_LOC + titik provinsi, IMP 4 fitur
+impor bulanan (Comtrade + BPS, rilis +45 hari); kebocoran 0 sel (12 origin). DU: W_NAT ρ parsial suhu maks +0,14 / +0,17, hujan 91 hari
+−0,09 / −0,16 (tanda stabil tiap tahun, interval lebar); tidak lolos gerbang. Modeling (Δ macro F1 h 4 / h 8): W_NAT −0,003 / −0,003,
+W_LOC +0,002 / −0,003, IMP −0,006 / −0,015 (lebih buruk, q 0,017); pasca-hoc koreksi logit walk-forward W_CAL −0,003 / −0,005 dengan Brier
+memburuk. 0 lolos → C1-tuned tetap; tutup fitur impor bulanan & cuaca titik provinsi. Aturan baru `docs/EKSPERIMEN.md` §3: sinyal tingkat
+nasional wajib diuji dengan koreksi walk-forward berparameter kecil sebelum modeling. Laporan `docs/audit/20261126_pilot_cuaca_impor.md`;
+`src/` & artefak tidak berubah.
+
+### D-156 — Audit preprocessing & optimasi macro F1 Task 4 arah: 27 kandidat baru, tidak ada yang mengungguli C1-tuned; registri eksperimen terpusat · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
+Atas master task Danen (audit preprocessing + optimasi macro F1 tanpa mengubah label). Protokol dibekukan & di-hash sebelum run
+(`docs/audit/20261126_task4_master_f1/PROTOKOL.md`, sha256 `f3b01357…`); seleksi hanya origin dev (≤ 2023), test 2024+ tidak dibuka.
+Fase A (galat C1-tuned dev): oracle threshold global hindsight +0,000 / +0,006, per origin +0,035 / +0,024; AUC kuintil |y| terkecil
+0,60 / 0,56 vs terbesar 0,77 / 0,82 → galat = informasi pada perubahan kecil + pergeseran base rate per origin, bukan threshold/model.
+Fase B: tidak ada galat preprocessing baru (grid, nol sejati 98,6% cf→cf, penyelarasan waktu persis); bias origin hari libur (−0,10 / −0,16
+porsi naik) adalah efek kalender origin, bukan komposisi hari. Kandidat (Δ macro F1 h 4 / h 8 vs C1-tuned): 8 keluarga fitur baru (40 kolom,
+kebocoran 0 sel, tidak ada yang lolos layar DU) −0,006..+0,003; gabungan bersarang (pilih dev-awal, nilai dev-akhir) +0,002 / −0,012;
+hapus-satu: `comm` −0,020 / −0,014, `lag` & `mom` ≈ 0; jendela 156 minggu −0,016 / −0,022; peluruhan −0,004 / −0,009; threshold walk-forward
+−0,005 / −0,003 (per komoditas −0,002 / −0,020); bobot kelas +0,001 / −0,006; 5 seed +0,000 / +0,002; LightGBM −0,003 / −0,002, XGBoost
+−0,005 / −0,013, CatBoost −0,007 / −0,009, ExtraTrees −0,008 / −0,022, logistik −0,031 / −0,057. 0/27 lolos aturan (Δ ≥ +0,005, interval
+> 0, q BH, konsistensi tahun & origin, tanpa kemunduran per kelas/komoditas) → **C1-tuned tetap**, test tidak dibuka, S1–S3 tidak dihitung
+ulang. Gerbang DU konkordan (8 gagal DU = 8 gagal Modeling). Baru: registri hidup `docs/eksperimen_registry.csv` (117 baris D-145–D-156;
+aturan `docs/EKSPERIMEN.md` §6). Ditolak: menyederhanakan set fitur (tanpa keuntungan), tuning ulang (sudah Optuna D-145). Laporan
+`docs/audit/20261126_task4_master_f1.md`; artefak & `src/` tidak berubah.
+
+### D-155 — Audit D-152–D-154: universe S1 valid; koreksi klaim (skor arah ≠ peluang kenaikan material, test bukan independen, titik akhir, materialitas statistik vs kebijakan) · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
+Menjawab audit Danen. Protokol audit ditulis sebelum hitung (`docs/audit/20261125_business_understanding/PROTOKOL_AUDIT.md`). Universe
+ranking S1 sah: baris y = 0 sudah kandidat; satu-satunya penyaringan berbasis target (target tak teramati) hanya 4 baris dev, 0 test, kini
+diikutkan → presisi tidak berubah. V1 vs V2: presisi V2-10% lebih tinggi karena alarmnya separuh; pada jumlah alarm sama V2 ≈ V1
+(0,188 vs 0,179) tetapi ± 1,5 provinsi/minggu tanpa alarm. Anggaran K = 1/2/3: presisi 0,21/0,18/0,16, recall 0,24/0,41/0,54 (test h 4);
+K tidak dipilih. Kepekaan vs `R_rev` dengan interval +0,066 (0,033..0,101) / +0,041 (0,003..0,078). 57% alarm test pada 4 komoditas
+diatur (ambang statistik 1,4–2,7%). IW_NAT membalik arah 12% / 7–8% baris, perbaikan ≈ perusakan (test h 4 721 vs 629). Koreksi tafsiran
+dan aturan baru di `docs/EKSPERIMEN.md` §5 dan `results/findings.md`; adendum di laporan D-152, D-153, D-154 (isi lama tidak diubah):
+p_up ≠ P(kenaikan material); S2 = kalibrasi arah; S3 bersyarat; test 2024+ bukan validasi independen; titik akhir ≠ kejadian dalam jendela;
+K1 = screening asosiasi temporal (bukan sequential pattern mining); silhouette datar k = 2..6 (tipologi deskriptif); graf geografis =
+proksi; `available_at` konservatif Minggu 00.00; kebocoran revisi tidak teruji. Usulan K4 (target risiko kenaikan material) ditunda sampai
+kebutuhan TPID divalidasi (`[HUMAN]`).
+
 ### D-154 — Business Understanding Task 4 arah: kriteria bisnis S1–S3 di samping macro F1; C1-tuned memenuhi sebagai daftar pantau TPID · FINAL · eksploratif · 2026-11-25 (WP-36) · Danen
 Fase CRISP-DM 1 atas pilihan Danen. Protokol ditulis sebelum ukur (`docs/audit/20261125_business_understanding/PROTOKOL.md`, sha256
 dicatat): pengguna TPID; kenaikan material = y_h ≥ persentil 80 |y_h| komoditas di baris latih (aturan `large_move_pct`, tanpa info masa

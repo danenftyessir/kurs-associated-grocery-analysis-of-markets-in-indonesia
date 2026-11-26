@@ -1,0 +1,16 @@
+{
+ "rows": 14858,
+ "weeks": 437,
+ "init_offset_days": {
+  "2": 34,
+  "3": 238,
+  "4": 14586
+ },
+ "max_offset_ok": true,
+ "min_offset_ok": true,
+ "base_runs": 157,
+ "days_prate_complete_min": 45,
+ "days_tmax_complete_min": 45,
+ "runs_prate_incomplete": 13,
+ "runs_tmax_incomplete": 15
+}

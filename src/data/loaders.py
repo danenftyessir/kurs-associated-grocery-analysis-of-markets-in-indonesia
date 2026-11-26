@@ -95,6 +95,26 @@ def _variant_group(items: pd.Series, level: pd.Series, file: str) -> pd.Series:
     return items.map(match)
 
 
+def load_pihps_city(cfg: Config) -> pd.DataFrame:
+    """D-158 (opsional). -> date, province_id, province, regency_id, regency, level, commodity_group, item, price (Rp; NaN = tidak teramati).
+
+    Zip PIHPS per KABUPATEN/KOTA (110 kota, pasar tradisional), satu CSV lebar per kota `pihps_kotaNNN_provPP_<nama>.csv`; grup varian dari
+    prefiks nama seperti `load_pihps` (D-022).
+    """
+    frames = []
+    with zipfile.ZipFile(cfg.source_path("pihps_city")) as zf:
+        for name in sorted(n for n in zf.namelist() if n.startswith("pihps_kota") and n.endswith(".csv")):
+            df = pd.read_csv(zf.open(name))
+            df["commodity"] = df["commodity"].map(norm_name)
+            df["commodity_group"] = _variant_group(df["commodity"], df["level"], name)
+            id_cols = ["province_id", "province", "regency_id", "regency", "level", "commodity_group", "commodity"]
+            frames.append(df.melt(id_vars=id_cols, var_name="date", value_name="price"))
+    out = pd.concat(frames, ignore_index=True).rename(columns={"commodity": "item"})
+    out["date"] = pd.to_datetime(out["date"])
+    out["price"] = pd.to_numeric(out["price"], errors="coerce").astype("float64")
+    return out[["date", "province_id", "province", "regency_id", "regency", "level", "commodity_group", "item", "price"]]
+
+
 def load_pihps_manifest(cfg: Config, key: str = "pihps") -> pd.DataFrame | None:
     """MANIFEST.csv dalam zip v2 (sha256 per file, endpoint, retrieved_at). None bila tidak ada."""
     with zipfile.ZipFile(cfg.source_path(key)) as zf:
@@ -373,6 +393,54 @@ def load_gkg_beras(cfg: Config) -> pd.DataFrame:
 
 
 # Registry: kunci sources.yaml -> loader. Dipakai oleh tests & `kagami status`.
+def load_nasa_power(cfg: Config) -> pd.DataFrame:
+    """D-157 (opsional). -> date, province_id, precip_mm, t2m, t2m_max dari CSV harian NASA POWER `power_daily_pNN.csv`.
+
+    Blok header `-BEGIN HEADER-`..`-END HEADER-` dilewati; tanggal dari YEAR + DOY (waktu lokal); -999 = NaN. province_id dari nama berkas.
+    """
+    import io
+    frames = []
+    for f in cfg.source_files("nasa_power"):
+        body = f.read_text(encoding="utf-8").split("-END HEADER-")[1]
+        d = pd.read_csv(io.StringIO(body)).replace(-999, np.nan)
+        frames.append(pd.DataFrame({
+            "date": pd.to_datetime(d["YEAR"].astype(str), format="%Y") + pd.to_timedelta(d["DOY"] - 1, unit="D"),
+            "province_id": int(re.search(r"p(\d+)\.csv$", f.name).group(1)),
+            "precip_mm": d["PRECTOTCORR"], "t2m": d["T2M"], "t2m_max": d["T2M_MAX"]}))
+    return pd.concat(frames, ignore_index=True)
+
+
+def load_sijagung(cfg: Config) -> pd.DataFrame:
+    """D-160 (opsional). -> month, report (stok|pembelian), region, measure, value dari ekspor publik SIJAGUNG (Ditjen PKH).
+
+    Lembar 'data': baris judul, baris tahun & bulan (sel gabungan), lalu baris wilayah (kolom B), subtotal pulau (kolom A) dan total nasional
+    (kolom A & B kosong → region 'NASIONAL'). Ukuran: stok → stock_ton, coverage_days; pembelian → purchase_ton, price_rp_kg.
+    """
+    import openpyxl
+    months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]
+    names = {"stok": ("stock_ton", "coverage_days"), "pembelian": ("purchase_ton", "price_rp_kg")}
+    rows = []
+    for f in cfg.source_files("ditjenpkh_sijagung"):
+        report = "stok" if "_stok_" in f.name else "pembelian"
+        vals = list(openpyxl.load_workbook(f, read_only=True)["data"].iter_rows(values_only=True))
+        years, mon = vals[4], vals[5]
+        yr, cols = None, []
+        for j in range(2, len(mon), 2):
+            yr = years[j] if years[j] is not None else yr
+            if mon[j] in months:
+                cols.append((j, pd.Timestamp(year=int(yr), month=months.index(mon[j]) + 1, day=1)))
+        for r in vals[7:]:
+            if not any(isinstance(x, (int, float)) for x in r[2:]):
+                continue
+            region = str(r[1] if r[1] is not None else (r[0] if r[0] is not None else "NASIONAL")).strip()
+            for j, m in cols:
+                for k, meas in enumerate(names[report]):
+                    v = r[j + k]
+                    if isinstance(v, (int, float)):
+                        rows.append((m, report, region, meas, float(v)))
+    return pd.DataFrame(rows, columns=["month", "report", "region", "measure", "value"])
+
+
 LOADERS = {
     "jisdor": load_jisdor,
     "pihps": load_pihps,
@@ -400,4 +468,7 @@ LOADERS = {
     "penduduk": load_penduduk,
     "n_kota": load_n_kota,
     "gkg_beras": load_gkg_beras,
+    "nasa_power": load_nasa_power,
+    "pihps_city": load_pihps_city,
+    "ditjenpkh_sijagung": load_sijagung,
 }

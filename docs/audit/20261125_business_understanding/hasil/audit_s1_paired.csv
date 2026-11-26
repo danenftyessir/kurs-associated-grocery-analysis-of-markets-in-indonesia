@@ -1,0 +1,9 @@
+part,horizon,vs,role,diff,lo,hi
+dev,4,R_mom,S1 resmi (pembanding pilihan dev),0.1095,0.0557,0.1509
+dev,4,R_rev,kepekaan,0.1382,0.0778,0.1978
+dev,8,R_nat,S1 resmi (pembanding pilihan dev),0.0668,0.027,0.1292
+dev,8,R_rev,kepekaan,0.1025,0.0366,0.1697
+test,4,R_mom,S1 resmi (pembanding pilihan dev),0.0942,0.0545,0.132
+test,4,R_rev,kepekaan,0.0656,0.0334,0.1006
+test,8,R_nat,S1 resmi (pembanding pilihan dev),0.0719,0.0335,0.1148
+test,8,R_rev,kepekaan,0.0408,0.0033,0.0776

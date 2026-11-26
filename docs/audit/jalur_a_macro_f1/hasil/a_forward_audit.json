@@ -1,0 +1,180 @@
+{
+ "checked_at": "2026-11-26T18:29:34.485567+07:00",
+ "sources": {
+  "D-152": {
+   "preds": "docs/audit/20261125_iw_validasi/hasil/forward_preds.csv",
+   "frozen_at_utc": "2026-11-25T12:09:23+00:00",
+   "sha256_manifest": "28651b2b402c5b4429134b660c1e73587689dd81da7f43c088c4721ec9ad7928",
+   "sha256_now": "28651b2b402c5b4429134b660c1e73587689dd81da7f43c088c4721ec9ad7928",
+   "sha256_ok": true,
+   "n_rows_manifest": 8112,
+   "code_vs_manifest": {
+    "docs/audit/20261125_pilot_produsen_intraminggu/scripts/iw_build.py": "sama",
+    "docs/audit/20261125_pilot_produsen_intraminggu/scripts/exp.py": "sama",
+    "docs/audit/20261125_task4_audit_preprocessing/scripts/p_exp.py": "sama",
+    "docs/audit/20261125_iw_validasi/scripts/fw_freeze.py": "sama",
+    "docs/audit/20261125_iw_validasi/scripts/fw_eval.py": "sama",
+    "src/models/direction.py": "sama",
+    "src/features/price_dynamics.py": "sama",
+    "src/features/forecast.py": "berubah"
+   },
+   "git_tracked_preds": true,
+   "git_tracked_manifest": true,
+   "git_first_commit": "ca53742 2026-11-25T21:41:35+07:00",
+   "pihps_zip_sha256": "bfc7f343c0fb34e12556f479f9dcb32a6cdddec93c1dd59b820c39dfd62a9605"
+  },
+  "D-158": {
+   "preds": "docs/audit/20261126_nasional_lokal/hasil/forward_preds_d158.csv",
+   "frozen_at_utc": "2026-11-26T00:26:39+00:00",
+   "sha256_manifest": "7586eaedad341e3e2899ef5c2588b83b232e0bfe32f504f2aa04cc397686d13d",
+   "sha256_now": "7586eaedad341e3e2899ef5c2588b83b232e0bfe32f504f2aa04cc397686d13d",
+   "sha256_ok": true,
+   "n_rows_manifest": 12168,
+   "code_vs_manifest": {
+    "docs/audit/20261126_nasional_lokal/scripts/fresh_du.py": "sama",
+    "docs/audit/20261126_nasional_lokal/scripts/kb_build.py": "sama",
+    "docs/audit/20261126_nasional_lokal/scripts/i2_spec.py": "sama",
+    "docs/audit/20261126_nasional_lokal/scripts/fw_freeze_d158.py": "sama",
+    "docs/audit/20261126_task4_master_f1/scripts/m_run.py": "sama",
+    "src/models/direction.py": "sama",
+    "src/features/price_dynamics.py": "sama",
+    "src/features/forecast.py": "berubah"
+   },
+   "git_tracked_preds": false,
+   "git_tracked_manifest": false,
+   "git_first_commit": null,
+   "pihps_zip_sha256": "bfc7f343c0fb34e12556f479f9dcb32a6cdddec93c1dd59b820c39dfd62a9605"
+  }
+ },
+ "rows": [
+  {
+   "horizon": 4,
+   "model": "FR_CITY",
+   "n": 1352
+  },
+  {
+   "horizon": 4,
+   "model": "FR_REF",
+   "n": 1352
+  },
+  {
+   "horizon": 4,
+   "model": "IW_NAT",
+   "n": 1352
+  },
+  {
+   "horizon": 4,
+   "model": "base",
+   "n": 1352
+  },
+  {
+   "horizon": 8,
+   "model": "FR_CITY",
+   "n": 2704
+  },
+  {
+   "horizon": 8,
+   "model": "FR_REF",
+   "n": 2704
+  },
+  {
+   "horizon": 8,
+   "model": "IW_NAT",
+   "n": 2704
+  },
+  {
+   "horizon": 8,
+   "model": "base",
+   "n": 2704
+  }
+ ],
+ "n_series": 338,
+ "p_range": [
+  0.0810263386,
+  0.9473560435
+ ],
+ "n_nan_p": 0,
+ "dup_keys": 0,
+ "closeness": [
+  {
+   "horizon": 4,
+   "model": "IW_NAT",
+   "corr_vs_base": 0.9178442444463604,
+   "agree_dir_vs_base": 0.9252958579881657,
+   "share_up_pred": 0.7440828402366864
+  },
+  {
+   "horizon": 4,
+   "model": "FR_REF",
+   "corr_vs_base": 0.9204396463828324,
+   "agree_dir_vs_base": 0.9193786982248521,
+   "share_up_pred": 0.7381656804733728
+  },
+  {
+   "horizon": 4,
+   "model": "FR_CITY",
+   "corr_vs_base": 0.9035854218529645,
+   "agree_dir_vs_base": 0.9097633136094675,
+   "share_up_pred": 0.7433431952662722
+  },
+  {
+   "horizon": 4,
+   "model": "FR_REF~IW_NAT",
+   "corr_vs_base": 0.9898322280272851,
+   "agree_dir_vs_base": 0.9644970414201184,
+   "share_up_pred": NaN
+  },
+  {
+   "horizon": 4,
+   "model": "base",
+   "corr_vs_base": 1.0,
+   "agree_dir_vs_base": 1.0,
+   "share_up_pred": 0.7596153846153846
+  },
+  {
+   "horizon": 8,
+   "model": "IW_NAT",
+   "corr_vs_base": 0.9795334041838416,
+   "agree_dir_vs_base": 0.9663461538461539,
+   "share_up_pred": 0.8054733727810651
+  },
+  {
+   "horizon": 8,
+   "model": "FR_REF",
+   "corr_vs_base": 0.9794144380538212,
+   "agree_dir_vs_base": 0.9670857988165681,
+   "share_up_pred": 0.8062130177514792
+  },
+  {
+   "horizon": 8,
+   "model": "FR_CITY",
+   "corr_vs_base": 0.967682036591979,
+   "agree_dir_vs_base": 0.9585798816568047,
+   "share_up_pred": 0.8021449704142012
+  },
+  {
+   "horizon": 8,
+   "model": "FR_REF~IW_NAT",
+   "corr_vs_base": 0.9937114600634174,
+   "agree_dir_vs_base": 0.9866863905325444,
+   "share_up_pred": NaN
+  },
+  {
+   "horizon": 8,
+   "model": "base",
+   "corr_vs_base": 1.0,
+   "agree_dir_vs_base": 1.0,
+   "share_up_pred": 0.808801775147929
+  }
+ ],
+ "pihps_now": {
+  "file": "pihps_pasar_tradisional_harian_2017-2026_v2_merged_retrieved_2026-11-18.zip",
+  "sha256": "bfc7f343c0fb34e12556f479f9dcb32a6cdddec93c1dd59b820c39dfd62a9605",
+  "same_as_frozen": true
+ },
+ "snapshot_last_date": "2026-11-18",
+ "n_targets_ready": 0,
+ "first_target_friday": "2026-11-27",
+ "all_h4_friday": "2026-12-18",
+ "all_h8_friday": "2027-01-15"
+}

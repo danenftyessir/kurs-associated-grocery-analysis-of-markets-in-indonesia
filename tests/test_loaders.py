@@ -31,6 +31,9 @@ EXPECTED = {
     "penduduk": {"province_id", "year", "population"},
     "n_kota": {"province_id", "n_kota"},
     "gkg_beras": {"year", "factor"},
+    "nasa_power": {"date", "province_id", "precip_mm", "t2m", "t2m_max"},
+    "pihps_city": {"date", "province_id", "regency_id", "regency", "level", "commodity_group", "item", "price"},
+    "ditjenpkh_sijagung": {"month", "report", "region", "measure", "value"},
 }
 
 

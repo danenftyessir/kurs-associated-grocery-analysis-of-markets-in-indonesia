@@ -138,6 +138,22 @@ def build_world_variants(cfg: Config, pinksheet: pd.DataFrame, jisdor: pd.DataFr
     return pd.concat(frames, ignore_index=True)[cols] if frames else pd.DataFrame(columns=cols)
 
 
+def realtime_episode_flag(cfg: Config, drivers: pd.DataFrame) -> pd.Series:
+    """D-162 (U108). Flag episode yang hanya memakai de s.d. minggu t (fitur `episode` Task 4).
+
+    = 1 bila minggu t adalah minggu pemicu (Σ de 8 minggu s.d. t >= ambang, aturan `find_episodes`), selain itu 0.
+    Setara dengan `mark_episode_weeks(drivers s.d. t, find_episodes(drivers s.d. t))` pada minggu t: dengan data s.d. t,
+    akhir episode terbaru = pemicu terakhir <= t, jadi t berada di dalam episode hanya bila t sendiri pemicu. Flag periode
+    penuh (`drivers_weekly.episode`) juga menandai minggu di antara dua pemicu yang digabung sebelum pemicu kedua diketahui.
+    -> Series 0/1 berindeks week (urut).
+    """
+    p = cfg.params["episodes"]
+    win, thr = int(p["window_weeks"]), float(p["cum_depreciation"])
+    d = drivers.sort_values("week")
+    roll = d["de"].rolling(win, min_periods=win).sum()
+    return pd.Series((roll >= thr).to_numpy().astype(int), index=pd.DatetimeIndex(d["week"]), name="episode")
+
+
 def mark_episode_weeks(drivers: pd.DataFrame, episodes: pd.DataFrame) -> pd.DataFrame:
     """WP-06. Tambah kolom `episode` (1 bila start_week <= week <= end_week suatu episode, selain itu 0)."""
     out = drivers.copy()

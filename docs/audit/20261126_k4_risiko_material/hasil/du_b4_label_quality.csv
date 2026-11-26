@@ -1,0 +1,3 @@
+horizon,n_target,n_missing_target,pos_share_lt2ticks,pos_share_lt5ticks,thr80_in_ticks_median,near_threshold_share_all,near_threshold_share_pos,label_flip_if_1tick_share_pos,dir_flip_ge5pct_pos,dir_flip_ge5pct_all,cf_end_share_pos,cf_end_share_all,pos_share_regulated,zany_rate,zend_rate,spike_revert_share_of_any,end_in_any
+4,12798,2,0.0,0.0554,62.9948,0.0193,0.0723,0.0723,0.0098,0.0976,0.6221,0.5834,0.5987,0.1367,0.1199,0.1229,1.0
+8,12461,2,0.0,0.0036,89.004,0.0118,0.0448,0.0448,0.003,0.0712,0.6414,0.5824,0.636,0.1677,0.1325,0.21,1.0

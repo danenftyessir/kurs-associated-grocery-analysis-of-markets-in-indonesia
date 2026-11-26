@@ -1,0 +1,6 @@
+variant,d_h4,d_h8,mean_d,r1,r2,r3,r4,pass_all,skala_danen
+BR_LOC,-0.0047,-0.0057,-0.0052,False,False,False,False,False,≤ 0
+BR_NAT,-0.0059,-0.0078,-0.0068,False,False,False,True,False,≤ 0
+NL1,-0.0018,-0.0032,-0.0025,False,False,False,True,False,≤ 0
+NL2,-0.0028,0.003,0.0001,False,False,False,True,False,≤ 0
+NL_BR,-0.0001,0.0007,0.0003,False,False,False,True,False,≤ 0

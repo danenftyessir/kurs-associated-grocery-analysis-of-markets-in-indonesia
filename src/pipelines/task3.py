@@ -55,4 +55,10 @@ def run(cfg: Config) -> None:
             write_artifact(cfg, "national_calibrated", cal)
         else:
             print("[task3] national_calibrated dilewati: profiles tanpa baris nasional (Task 1 versi wilayah)")
+        prov = calibration.province_calibrated(cfg, read_artifact(cfg, "profiles"), read_artifact(cfg, "placebo_stats"),
+                                               _maybe(cfg, "boot_replicates"))                  # D-163 (U107)
+        if len(prov):
+            write_artifact(cfg, "province_calibrated", prov)
+        else:
+            print("[task3] province_calibrated dilewati: profiles tanpa baris provinsi")
     write_artifact(cfg, "assoc", pd.concat(parts, ignore_index=True))

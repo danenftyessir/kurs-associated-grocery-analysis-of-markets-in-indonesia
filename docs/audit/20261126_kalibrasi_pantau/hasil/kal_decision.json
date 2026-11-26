@@ -1,0 +1,9 @@
+{
+ "pass": {
+  "K1": false,
+  "K2": false,
+  "K3": false
+ },
+ "chosen": null,
+ "protocol_sha256": "e0b50c8f26e42d60cb4bf26a51368b6de3d865124451cb14c274ad43e659c521"
+}

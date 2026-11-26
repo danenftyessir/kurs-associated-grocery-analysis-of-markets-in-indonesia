@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from kagami.data.drivers import realtime_episode_flag
 from kagami.utils.config import Config
 
 FEATURE_GROUPS = {
@@ -42,7 +43,9 @@ def _driver_features(cfg: Config, drivers: pd.DataFrame, weeks: pd.DatetimeIndex
     for k in ks:
         out[f"de_{k}"] = d["log_e"] - d["log_e"].shift(k)
         out[f"db_{k}"] = d["log_brent"] - d["log_brent"].shift(k)
-    out["episode"] = d["episode"] if "episode" in d else 0
+    # D-162 (U108): flag real-time dari de s.d. t, bukan `episode` periode penuh (yang menggabungkan pemicu masa depan)
+    out["episode"] = (realtime_episode_flag(cfg, drivers).reindex(weeks).fillna(0).astype(int)
+                      if "de" in drivers else 0)
     out["month"] = d["month"]
     out["idf_rel_week"] = d["idf_rel_week"]
     return out

@@ -1,0 +1,21 @@
+part,horizon,abs_y_quintile,differ,fixed,broken
+dev,4,Q1 terkecil,290,175,115
+dev,4,Q2,269,144,125
+dev,4,Q3,230,120,110
+dev,4,Q4,262,149,113
+dev,4,Q5 terbesar,297,194,103
+dev,8,Q1 terkecil,190,117,73
+dev,8,Q2,178,96,82
+dev,8,Q3,145,79,66
+dev,8,Q4,144,60,84
+dev,8,Q5 terbesar,157,83,74
+test,4,Q1 terkecil,299,166,133
+test,4,Q2,259,141,118
+test,4,Q3,226,107,119
+test,4,Q4,297,157,140
+test,4,Q5 terbesar,269,150,119
+test,8,Q1 terkecil,221,111,110
+test,8,Q2,186,92,94
+test,8,Q3,166,96,70
+test,8,Q4,154,79,75
+test,8,Q5 terbesar,91,47,44

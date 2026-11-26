@@ -1,0 +1,320 @@
+<title>Kartu Daftar Pantau KAGAMI</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: satu kolom sempit seperti lembar kerja analis; kontrol di atas, dua kartu prioritas berdampingan, tabel komoditas lain di bawah. */
+:root {
+  --bg: #f3f6f5;
+  --surface: #ffffff;
+  --ink: #15201d;
+  --muted: #576864;
+  --line: #d9e2df;
+  --accent: #0b6a58;
+  --accent-soft: #dff0eb;
+  --up: #b23c1c;
+  --up-soft: #fbe7df;
+  --rise: #8a5a00;
+  --rise-soft: #fbf1d9;
+  --down: #2b5c99;
+  --down-soft: #e3ecf8;
+  --flat: #5f6f6b;
+  --flat-soft: #e9eeec;
+  --band: #eef2f1;
+  --font-display: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-body: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1412; --surface: #151d1a; --ink: #e5eeeb; --muted: #9bada8; --line: #27322f;
+    --accent: #57c4a8; --accent-soft: #15302a; --up: #ff8c6b; --up-soft: #3a1d14; --rise: #e8b95a; --rise-soft: #33280f;
+    --down: #86b4ff; --down-soft: #16243a; --flat: #a3b3ae; --flat-soft: #1f2826; --band: #1b2421;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1412; --surface: #151d1a; --ink: #e5eeeb; --muted: #9bada8; --line: #27322f;
+  --accent: #57c4a8; --accent-soft: #15302a; --up: #ff8c6b; --up-soft: #3a1d14; --rise: #e8b95a; --rise-soft: #33280f;
+  --down: #86b4ff; --down-soft: #16243a; --flat: #a3b3ae; --flat-soft: #1f2826; --band: #1b2421;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 28px 48px; display: grid; gap: 22px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.05rem); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 1.12rem; font-weight: 700; }
+h3 { font-size: 1.2rem; font-weight: 700; }
+p { margin: 0; }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+header { display: grid; gap: 10px; }
+.eyebrow { font-size: 0.74rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.lede { color: var(--muted); max-width: 68ch; }
+.notice {
+  display: flex; gap: 10px; align-items: flex-start; background: var(--rise-soft); color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--rise) 35%, transparent); border-radius: var(--r); padding: 10px 14px; max-width: 80ch;
+}
+.notice strong { color: var(--rise); }
+.controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; }
+.field { display: grid; gap: 5px; }
+.field label, .field .lbl { font-size: 0.78rem; color: var(--muted); font-weight: 600; letter-spacing: 0.02em; }
+select {
+  font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 230px; max-width: 100%;
+}
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: inherit; border: 0; background: var(--bg); color: var(--ink); padding: 8px 14px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); font-weight: 700; }
+.reveal { font: inherit; font-weight: 700; border: 1px solid var(--accent); background: var(--surface); color: var(--accent); border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+.reveal[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+button:focus-visible, select:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
+.meta { color: var(--muted); font-size: 0.88rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px 18px; display: grid; gap: 12px; align-content: start; }
+.card-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.rank { font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.price { font-size: 1.05rem; }
+.price small { color: var(--muted); font-size: 0.78rem; }
+.score { display: grid; gap: 6px; }
+.score-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.score-val { font-size: 1.35rem; font-weight: 500; }
+.bar { height: 8px; border-radius: 99px; background: var(--band); overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+.hint { font-size: 0.8rem; color: var(--muted); }
+svg.spark { width: 100%; height: auto; display: block; }
+.ctx { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ctx div { background: var(--bg); border-radius: 8px; padding: 8px 10px; display: grid; gap: 2px; }
+.ctx .k { font-size: 0.72rem; color: var(--muted); line-height: 1.3; }
+.ctx .v { font-size: 0.95rem; }
+.outcome { border-top: 1px dashed var(--line); padding-top: 10px; display: grid; gap: 6px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; border-radius: 99px; padding: 3px 10px; width: fit-content; }
+.pill.sharp { background: var(--up-soft); color: var(--up); }
+.pill.rise { background: var(--rise-soft); color: var(--rise); }
+.pill.down { background: var(--down-soft); color: var(--down); }
+.pill.flat, .pill.na { background: var(--flat-soft); color: var(--flat); }
+.pill.hidden { background: var(--band); color: var(--muted); font-weight: 600; }
+.summary { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 16px; }
+.tablewrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; }
+th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font-size: 0.76rem; color: var(--muted); font-weight: 600; letter-spacing: 0.03em; }
+td.r, th.r { text-align: right; }
+tr:last-child td { border-bottom: 0; }
+tr.top td { background: var(--accent-soft); }
+.mini { display: inline-block; width: 64px; height: 6px; border-radius: 99px; background: var(--band); vertical-align: middle; margin-right: 8px; overflow: hidden; }
+.mini > span { display: block; height: 100%; background: var(--accent); }
+.howto { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.howto section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 18px; display: grid; gap: 8px; align-content: start; }
+.howto ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+footer { color: var(--muted); font-size: 0.84rem; display: grid; gap: 6px; max-width: 90ch; }
+@media (prefers-reduced-motion: no-preference) { .bar > span, .mini > span { transition: width 0.25s ease; } }
+@media (max-width: 420px) { .ctx { grid-template-columns: 1fr; } select { min-width: 0; width: 100%; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Bahan wawancara TPID · prototipe riset KAGAMI</span>
+    <h1>Kartu Daftar Pantau</h1>
+    <p class="lede" id="lede"></p>
+    <p class="notice"><span><strong>Contoh dari evaluasi historis, bukan ramalan.</strong> Kartu ini menunjukkan apa yang akan
+      tampil pada satu minggu di masa lalu. Skor adalah peluang <em>arah naik</em> bila harga berubah, bukan peluang kenaikan tajam.
+      Keputusan tetap pada petugas.</span></p>
+  </header>
+
+  <div class="controls" role="group" aria-label="Pilihan kartu">
+    <div class="field">
+      <label for="prov">Provinsi</label>
+      <select id="prov"></select>
+    </div>
+    <div class="field">
+      <span class="lbl" id="hlbl">Jangka waktu</span>
+      <div class="seg" role="group" aria-labelledby="hlbl">
+        <button type="button" id="h4" aria-pressed="true">4 minggu</button>
+        <button type="button" id="h8" aria-pressed="false">8 minggu</button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="lbl">Untuk diskusi</span>
+      <button type="button" class="reveal" id="reveal" aria-pressed="false">Tampilkan yang terjadi</button>
+    </div>
+    <p class="meta" id="meta"></p>
+  </div>
+
+  <div class="summary" id="summary" hidden></div>
+
+  <section aria-labelledby="prio-h" style="display:grid; gap:12px">
+    <h2 id="prio-h">Dua komoditas prioritas pemantauan</h2>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section aria-labelledby="oth-h" style="display:grid; gap:12px">
+    <h2 id="oth-h">Semua komoditas di provinsi ini, urut skor</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Komoditas</th><th class="r">Skor arah naik</th><th class="r">Harga 4 mgg terakhir</th><th class="r">Tren nasional 4 mgg</th><th class="r" id="th-after">Sesudah</th><th>Hasil</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+  </section>
+
+  <div class="howto">
+    <section>
+      <h2>Cara membaca</h2>
+      <ul>
+        <li>Setiap minggu, untuk setiap provinsi, dua komoditas dengan skor arah naik tertinggi masuk daftar pantau.</li>
+        <li>Skor 0,80 berarti model menilai arah naik lebih mungkin daripada turun bila harga berubah. Skor bukan besar kenaikan.</li>
+        <li>Grafik: harga rata-rata mingguan 13 minggu terakhir; area berarsir adalah minggu-minggu ke depan yang dinilai.</li>
+        <li>Kotak konteks adalah data pendukung untuk diperiksa petugas, bukan alasan di balik skor model.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Arti "naik tajam"</h2>
+      <ul>
+        <li>Kenaikan dari rata-rata minggu ini ke rata-rata minggu ke-4 (atau ke-8) yang termasuk 20% perubahan terbesar komoditas itu di masa lalu.</li>
+        <li>Ambangnya berbeda per komoditas, misalnya sekitar 1,6% untuk beras dan sekitar 50% untuk cabai rawit dalam 4 minggu.</li>
+        <li>Lonjakan di tengah jangka waktu yang sudah turun lagi di minggu terakhir tidak terhitung.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Batasan</h2>
+      <ul>
+        <li>Dalam evaluasi historis 2024–2026, sekitar 1 dari 6 komoditas yang ditandai benar-benar naik tajam (0,18 untuk 4 minggu, 0,16 untuk 8 minggu), kira-kira dua kali pilihan acak.</li>
+        <li>Periode itu juga dipakai saat model dikembangkan, jadi angka ini bukan validasi independen.</li>
+        <li>Cocok untuk memprioritaskan pemantauan dan pemeriksaan, bukan memicu intervensi otomatis.</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>
+    <p id="src"></p>
+    <p>Data turunan yang dibangun dari PIHPS (Bank Indonesia): rata-rata harga harian teramati per minggu, pasar tradisional, varian
+      representatif. Model: klasifier arah KAGAMI (C1-tuned, D-145), dinilai pada data sampai minggu yang ditampilkan. Minggu contoh
+      dipilih dengan aturan tetap sebelum hasil dilihat: minggu evaluasi resmi terakhir yang seluruhnya jatuh di tahun 2025.</p>
+  </footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const fmtN = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 });
+const fmt2 = new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt1 = new Intl.NumberFormat("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+const state = { prov: null, h: 4, reveal: false };
+const $ = (id) => document.getElementById(id);
+
+function dlabel(iso) { const d = new Date(iso + "T00:00:00"); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
+function pct(x) { if (x == null || !isFinite(x)) return "–"; const s = x > 0 ? "+" : x < 0 ? "−" : ""; return s + fmt1.format(Math.abs(x * 100)) + "%"; }
+function rp(x) { return x == null ? "–" : "Rp" + fmtN.format(x); }
+function verdict(o) {
+  if (!o || o.y == null) return { cls: "na", text: "Tidak teramati" };
+  if (o.sharp) return { cls: "sharp", text: "Naik tajam" };
+  if (o.y > 0) return { cls: "rise", text: "Naik, belum tajam" };
+  if (o.y < 0) return { cls: "down", text: "Turun" };
+  return { cls: "flat", text: "Tidak berubah" };
+}
+
+function spark(hist, after, h, reveal) {
+  const W = 320, H = 118, L = 54, R = 8, T = 10, B = 22, n = hist.length + h;
+  const shown = reveal ? hist.concat(after) : hist;
+  const vals = shown.filter((v) => v != null);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (hi - lo < hi * 0.01) { lo -= hi * 0.005; hi += hi * 0.005; }
+  const x = (i) => L + (i * (W - L - R)) / (n - 1);
+  const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  const path = (arr, off) => { let d = "", pen = false; arr.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + x(i + off).toFixed(1) + " " + y(v).toFixed(1) + " "; pen = true; }); return d; };
+  const last = hist.length - 1;
+  const firstIdx = hist.findIndex((v) => v != null);
+  const gapFree = hist.slice(firstIdx).every((v) => v != null);
+  const area = gapFree ? path(hist, 0) + `L${x(last).toFixed(1)} ${H - B} L${x(firstIdx).toFixed(1)} ${H - B} Z` : "";
+  let s = `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Harga mingguan">`;
+  s += `<rect x="${x(last).toFixed(1)}" y="${T}" width="${(x(n - 1) - x(last)).toFixed(1)}" height="${H - T - B}" fill="var(--band)"/>`;
+  s += `<line x1="${L}" x2="${W - R}" y1="${y(hi).toFixed(1)}" y2="${y(hi).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+  s += `<line x1="${L}" x2="${W - R}" y1="${y(lo).toFixed(1)}" y2="${y(lo).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+  s += `<text x="${L - 6}" y="${(y(hi) + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="var(--font-data)">${fmtN.format(Math.round(hi))}</text>`;
+  s += `<text x="${L - 6}" y="${(y(lo) + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="var(--font-data)">${fmtN.format(Math.round(lo))}</text>`;
+  s += `<path d="${area}" fill="var(--accent-soft)" stroke="none"/>`;
+  s += `<path d="${path(hist, 0)}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>`;
+  if (reveal) {
+    const seg = [hist[last]].concat(after);
+    s += `<path d="${path(seg, last)}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-dasharray="4 3"/>`;
+    const lastA = after.length - 1;
+    if (after[lastA] != null) s += `<circle cx="${x(n - 1).toFixed(1)}" cy="${y(after[lastA]).toFixed(1)}" r="3.5" fill="var(--ink)"/>`;
+  } else {
+    s += `<text x="${((x(last) + x(n - 1)) / 2).toFixed(1)}" y="${((T + H - B) / 2 + 5).toFixed(1)}" text-anchor="middle" font-size="16" font-weight="700" fill="var(--muted)">?</text>`;
+  }
+  if (hist[last] != null) s += `<circle cx="${x(last).toFixed(1)}" cy="${y(hist[last]).toFixed(1)}" r="4" fill="var(--accent)"/>`;
+  s += `<text x="${x(0).toFixed(1)}" y="${H - 6}" font-size="10" fill="var(--muted)">13 mgg lalu</text>`;
+  s += `<text x="${x(last).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="10" fill="var(--muted)">minggu ini</text>`;
+  s += `<text x="${x(n - 1).toFixed(1)}" y="${H - 6}" text-anchor="end" font-size="10" fill="var(--muted)">+${h} mgg</text>`;
+  return s + "</svg>";
+}
+
+function render() {
+  const P = DATA.provinces.find((p) => p.id === state.prov);
+  const rows = P["h" + state.h];
+  const H = DATA.horizons["h" + state.h];
+  $("lede").textContent = `Minggu ${dlabel(DATA.origin)} s.d. ${dlabel(DATA.origin_end)}. Daftar disusun sesudah harga minggu itu lengkap, untuk ${state.h} minggu ke depan.`;
+  $("meta").textContent = `${P.name} · wilayah ${P.region}`;
+  $("th-after").textContent = `Sesudah ${state.h} mgg`;
+  const top = rows.filter((r) => r.rank <= 2);
+  $("cards").innerHTML = top.map((r) => {
+    const v = verdict(r.out);
+    const outcome = state.reveal
+      ? `<div class="outcome"><span class="pill ${v.cls}">${v.text}</span><p class="num">Sesudah ${state.h} minggu: ${pct(r.out.y)} <span class="hint">(ambang tajam ${r.label.toLowerCase()}: ${pct(r.out.thr)})</span></p></div>`
+      : `<div class="outcome"><span class="pill hidden">Hasil disembunyikan</span><p class="hint">Diskusikan dulu: perlu dipantau? Apa yang akan dicek?</p></div>`;
+    return `<article class="card">
+      <div class="card-top"><div style="display:grid;gap:2px"><span class="rank">Prioritas ${r.rank} dari ${rows.length}</span><h3>${r.label}</h3></div>
+        <p class="price num">${rp(r.price)} <small>/${r.unit.replace("Rp/", "")} minggu ini</small></p></div>
+      <div class="score"><div class="score-row"><span class="hint">Skor arah naik</span><span class="score-val num">${fmt2.format(r.p_up)}</span></div>
+        <div class="bar" aria-hidden="true"><span style="width:${(r.p_up * 100).toFixed(0)}%"></span></div></div>
+      ${spark(r.hist, r.after, state.h, state.reveal)}
+      <div class="ctx">
+        <div><span class="k">Harga 4 minggu terakhir</span><span class="v num">${pct(r.chg4)}</span></div>
+        <div><span class="k">Tren nasional 4 minggu</span><span class="v num">${pct(r.nat4)}</span></div>
+        <div><span class="k">Terhadap rata-rata 13 mgg</span><span class="v num">${pct(r.pos13)}</span></div>
+      </div>
+      ${outcome}
+    </article>`;
+  }).join("");
+  $("rows").innerHTML = rows.map((r) => {
+    const v = verdict(r.out);
+    return `<tr class="${r.rank <= 2 ? "top" : ""}"><td>${r.label}</td>
+      <td class="r num"><span class="mini" aria-hidden="true"><span style="width:${(r.p_up * 100).toFixed(0)}%"></span></span>${fmt2.format(r.p_up)}</td>
+      <td class="r num">${pct(r.chg4)}</td><td class="r num">${pct(r.nat4)}</td>
+      <td class="r num">${state.reveal ? pct(r.out.y) : "?"}</td>
+      <td>${state.reveal ? `<span class="pill ${v.cls}">${v.text}</span>` : `<span class="pill hidden">disembunyikan</span>`}</td></tr>`;
+  }).join("");
+  const sm = $("summary");
+  sm.hidden = !state.reveal;
+  if (state.reveal) {
+    sm.innerHTML = `<p><strong>Minggu ini secara nasional:</strong> dari ${H.flagged} komoditas yang masuk daftar pantau di ${H.provinces} provinsi, <span class="num">${H.hits}</span> naik tajam dalam ${state.h} minggu (presisi <span class="num">${fmt2.format(H.hits / H.flagged)}</span>). Dari seluruh ${H.candidates} komoditas, <span class="num">${H.all_hits}</span> naik tajam.</p>
+      <p class="hint">Presisi minggu ini lebih rendah daripada ${H.weekly_higher} dari ${H.weekly_n} minggu evaluasi 2024–2026. Presisi mingguan berkisar <span class="num">${fmt2.format(H.weekly_min)}</span>–<span class="num">${fmt2.format(H.weekly_max)}</span> (median <span class="num">${fmt2.format(H.weekly_median)}</span>; gabungan <span class="num">${fmt2.format(H.hist_precision)}</span>). Hasil satu minggu sangat bervariasi; nilai daftar pantau hanya terlihat dari banyak minggu.</p>`;
+  }
+  $("h4").setAttribute("aria-pressed", String(state.h === 4));
+  $("h8").setAttribute("aria-pressed", String(state.h === 8));
+  const rv = $("reveal");
+  rv.setAttribute("aria-pressed", String(state.reveal));
+  rv.textContent = state.reveal ? "Sembunyikan hasil" : "Tampilkan yang terjadi";
+  $("src").textContent = `Kartu dibuat ${DATA.generated}. Satuan harga mengikuti PIHPS (Rp/kg; minyak goreng Rp/liter).`;
+}
+
+function init() {
+  const sel = $("prov");
+  const provs = DATA.provinces.slice().sort((a, b) => a.name.localeCompare(b.name, "id"));
+  sel.innerHTML = provs.map((p) => `<option value="${p.id}">${p.name}</option>`).join("");
+  const fromHash = new URLSearchParams(location.hash.slice(1)).get("prov");
+  const start = provs.find((p) => String(p.id) === fromHash) || provs.find((p) => p.name === DATA.default_province) || provs[0];
+  state.prov = start.id;
+  sel.value = String(start.id);
+  sel.addEventListener("change", () => { state.prov = Number(sel.value); state.reveal = false; try { history.replaceState(null, "", "#prov=" + sel.value); } catch (e) {} render(); });
+  $("h4").addEventListener("click", () => { state.h = 4; render(); });
+  $("h8").addEventListener("click", () => { state.h = 8; render(); });
+  $("reveal").addEventListener("click", () => { state.reveal = !state.reveal; render(); });
+  render();
+}
+init();
+</script>

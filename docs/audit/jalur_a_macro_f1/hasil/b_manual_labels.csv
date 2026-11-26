@@ -1,0 +1,112 @@
+idx,label,true_group,category,reason
+0,P,umum,aid_disaster,bantuan sembako korban banjir; tanpa komoditas spesifik
+1,P,beras,market_other,anekdot politik pasar induk beras
+2,I,,false_match,"""pangan"" dalam ""lapangan"""
+3,P,beras,production,praktik budidaya padi organik
+4,I,,false_match,"""Pondok Cabe"" (tempat)"
+5,R,beras,policy_trade,rencana ekspor beras Bulog
+6,P,umum,general_food,lumbung pangan (politik umum)
+7,I,,retail_promo,promo minimarket
+8,I,,retail_promo,promo minimarket
+9,I,,false_match,"""pangan"" dalam ""Pangandaran"""
+10,I,,false_match,"""sawit"" (kebun, harimau)"
+11,R,bawang_putih,production,rencana swasembada bawang putih Jatim
+12,I,,false_match,slug memuat substring komoditas
+13,I,,aid_charity,paket sembako bantuan
+14,I,,aid_charity,bagi beras ke pesantren
+15,I,,aid_charity,paket sembako bantuan
+16,I,,aid_charity,paket sembako bantuan
+17,I,,lifestyle,gizi makanan
+18,I,,aid_charity,paket sembako bantuan
+19,R,beras,stabilization,bansos beras Bulog 10 juta keluarga
+20,R,beras,stabilization,duplikat berita 19 (sumber lain)
+21,I,,false_match,"""beras"" dalam ""berasal"""
+22,I,,false_match,CSR perikanan/peternakan
+23,P,beras,production,prioritas tanam padi vs kedelai
+24,I,,crime,penipuan beras gratis
+25,R,beras,upstream_price,harga gabah vs HPP
+26,I,,lifestyle,kesehatan gula
+27,I,,aid_charity,administrasi bantuan pangan
+28,R,daging_sapi,supply,pasokan Australia menyusut
+29,I,,false_match,lingkungan kebun sawit
+30,I,,aid_charity,cara cek bansos
+31,P,beras,disaster,lahan sawah terendam banjir (human interest)
+32,R,daging_sapi,market_supply,pedagang daging sapi minta intervensi pemerintah
+33,I,,retail_promo,promo supermarket
+34,I,,retail_promo,promo minimarket
+35,I,,lifestyle,tanaman hias air cucian beras
+36,I,,lifestyle,berkebun cabai di rumah
+37,I,,false_match,"""pangan"" dalam ""Pangandaran"""
+38,I,,false_match,"""beras"" dalam ""berasal"""
+39,I,,accident,minyak goreng tumpah di jalan
+40,I,,false_match,"""pangan"" dalam ""lapangan"""
+41,P,umum,general_food,prakiraan harga pangan dunia
+42,I,,lifestyle,kecantikan air beras
+43,I,,false_match,"""beras"" dalam ""berasal"""
+44,I,,lifestyle,pengganti beras (gizi)
+45,P,minyak_goreng,policy_upstream,moratorium sawit (jangka panjang)
+46,P,cabai,production,promosi budidaya/ekspor cabai
+47,I,,aid_charity,paket sembako bantuan
+48,I,,false_match,cek fakta uang koin bergambar sawit
+49,I,,false_match,"""pangan"" dalam ""lapangan"""
+50,P,bawang_merah,harvest,panen bawang merah seremonial (lokal kecil)
+51,R,telur_ayam,stabilization,serapan telur dari peternak untuk stabilisasi
+52,P,bawang_merah,harvest,panen bawang merah seremonial (lokal kecil)
+53,R,cabai,supply,tanam cabai luar musim untuk stok & harga
+54,I,,false_match,"""pangan"" dalam ""ketimpangan"""
+55,I,,retail_promo,diskon minimarket
+56,I,,aid_charity,donasi paket bahan pokok
+57,P,umum,general_food,ringkasan berita pangan (G20)
+58,I,,false_match,impor alkes / lapangan kerja
+59,I,,false_match,"""pangan"" dalam ""lapangan"""
+60,R,minyak_goreng,policy_trade,larangan ekspor minyak goreng/CPO
+61,P,minyak_goreng,legal,kasus mafia minyak goreng
+62,R,minyak_goreng,policy_trade,stop ekspor CPO; pasokan minyak goreng
+63,R,minyak_goreng,policy_trade,larangan ekspor & penangkapan mafia
+64,R,minyak_goreng,upstream_price,harga TBS sawit anjlok sesudah larangan ekspor
+65,I,,lifestyle,kecoa/telur busuk di supermarket
+66,P,daging_sapi,price_report,laporan harga eceran lokal (reaktif)
+67,P,daging_sapi,price_report,laporan harga eceran lokal (reaktif)
+68,R,minyak_goreng,policy_trade,larangan ekspor CPO & migor
+69,I,,lifestyle,resep kue
+70,P,minyak_goreng,price_report,daftar harga minimarket (reaktif)
+71,I,,general_food,program kampung tahan pangan lokal
+72,R,minyak_goreng,policy_distribution,evaluasi MinyaKita
+73,R,minyak_goreng,stabilization,distribusi MinyaKita di pasar
+74,R,minyak_goreng,stabilization,distribusi MinyaKita & keluhan harga
+75,P,minyak_goreng,political,komentar presiden soal harga minyak goreng
+76,I,,political,kunjungan presiden & bansos
+77,I,,lifestyle,penyimpanan telur
+78,I,,lifestyle,resep
+79,P,umum,general_food,krisis pangan (umum)
+80,I,,false_match,"""beras"" dalam ""berasrama"""
+81,P,minyak_goreng,legal,sidang kartel minyak goreng
+82,P,umum,general_food,krisis pangan global
+83,R,umum,policy_price,Bapanas tetapkan harga acuan pembelian
+84,P,umum,general_food,krisis pangan global
+85,I,,false_match,"""pangan"" dalam ""lapangan"""
+86,P,umum,stabilization,bazar pangan murah lokal
+87,R,minyak_goreng,supply,stok MinyaKita gudang Bulog kosong
+88,P,minyak_goreng,policy_upstream,peremajaan sawit (jangka panjang)
+89,R,umum,policy_statement,menteri: kenaikan harga bahan pokok tak terhindarkan
+90,R,umum,enforcement,penindakan penimbunan bahan pokok
+91,R,beras,stabilization,penyerapan produksi beras Bapanas
+92,I,,aid_charity,paket sembako bantuan
+93,I,,lifestyle,resep
+94,P,cabai,price_report,laporan harga lokal menjelang Iduladha (reaktif)
+95,I,,false_match,"""pangan"" dalam ""lapangan"""
+96,P,umum,price_report,kunjungan menteri: harga bapok murah
+97,R,beras,stabilization,strategi daerah stabilkan harga beras
+98,P,umum,political,menteri tinjau stok & harga (galeri foto)
+99,P,umum,political,duplikat 98
+100,P,beras,aid_political,menteri bagikan beras gratis
+101,P,beras,aid_political,duplikat 100
+102,P,beras,aid_political,duplikat 100
+103,P,umum,political,duplikat 98
+104,P,umum,price_report,duplikat 96
+105,P,beras,aid_political,duplikat 100
+106,P,umum,price_report,duplikat 96
+107,P,umum,price_report,duplikat 96
+108,P,umum,political,duplikat 98
+109,R,beras,production,akselerasi produksi padi
+110,R,beras,stabilization,bansos beras nasional

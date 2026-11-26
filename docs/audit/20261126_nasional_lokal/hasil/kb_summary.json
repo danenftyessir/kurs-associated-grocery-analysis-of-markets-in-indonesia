@@ -1,0 +1,73 @@
+{
+ "daily_rows": 2346523,
+ "coverage": {
+  "bawang_merah": {
+   "n_city": "110",
+   "first": "2017-03-27",
+   "last": "2026-11-25"
+  },
+  "bawang_putih": {
+   "n_city": "110",
+   "first": "2017-03-27",
+   "last": "2026-11-25"
+  },
+  "beras": {
+   "n_city": "108",
+   "first": "2017-03-27",
+   "last": "2026-11-25"
+  },
+  "cabai_merah": {
+   "n_city": "108",
+   "first": "2017-03-27",
+   "last": "2026-11-25"
+  },
+  "cabai_rawit": {
+   "n_city": "101",
+   "first": "2017-03-29",
+   "last": "2026-11-25"
+  },
+  "daging_ayam": {
+   "n_city": "110",
+   "first": "2017-03-27",
+   "last": "2026-11-25"
+  },
+  "daging_sapi": {
+   "n_city": "109",
+   "first": "2017-03-27",
+   "last": "2026-11-25"
+  },
+  "gula_pasir": {
+   "n_city": "109",
+   "first": "2017-03-27",
+   "last": "2026-11-25"
+  },
+  "minyak_goreng": {
+   "n_city": "110",
+   "first": "2017-03-27",
+   "last": "2026-11-25"
+  },
+  "telur_ayam": {
+   "n_city": "110",
+   "first": "2017-03-27",
+   "last": "2026-11-25"
+  }
+ },
+ "kb_nan_dev": {
+  "kb_up_1": 0.038,
+  "kb_up_4": 0.047,
+  "kb_down_4": 0.047,
+  "kb_accel": 0.06,
+  "kb_med_4": 0.047,
+  "kb_p90_4": 0.047,
+  "kb_disp_4": 0.047,
+  "kb_persist": 0.044,
+  "kb_cov": 0.033
+ },
+ "kp_nan_dev": {
+  "kp_up_4": 0.086,
+  "kp_disp_4": 0.28,
+  "kp_n": 0.086,
+  "kp_rel_up_4": 0.086
+ },
+ "kp_n_dev_mean": 2.842843787483243
+}

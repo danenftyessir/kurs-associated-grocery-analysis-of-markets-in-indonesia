@@ -20,6 +20,9 @@ Semua data mentah ada di folder Drive tim, subfolder `data/raw/` dengan path yan
 | `pihps` | PIHPS harian pasar tradisional, 34 prov × 31 baris (10 komoditas + 21 varian) | 2017-03-28 .. 2026-11-19 | Outcome | Tidak |
 | `pihps_wholesale` | PIHPS harian **pedagang besar** (`price_type_id=3`), format zip sama dengan `pihps` (`optional`, pilot D-150; diambil 2026-11-25 per bulan per provinsi) | 2017-03 .. 2026-11-19 | Fitur eksploratif Task 4 arah | Tidak |
 | `pihps_producer` | PIHPS harian **produsen** (`price_type_id=4`), format zip sama dengan `pihps` (`optional`, pilot D-151; diambil 2026-11-25 per bulan per provinsi) | 2018-03 .. 2026-11-19 | Fitur eksploratif Task 4 arah | Tidak |
+| `ditjenpkh_sijagung` | SIJAGUNG (Ditjen PKH): stok & pembelian jagung pabrik pakan per wilayah, bulanan (`optional`, audit D-160; ekspor publik 2026-11-26) | 2019-01 .. 2026-08 | Audit sinyal Task 4 (ayam, telur); tidak lolos gerbang 5 | Tidak |
+| `pihps_city` | PIHPS harian **per kabupaten/kota** (110 kota, pasar tradisional, 31 varian; `optional`, pilot D-158; diambil 2026-11-26 per kota per bulan) | 2017-03-27 .. 2026-11-25 | Fitur eksploratif Task 4 arah (breadth pasar) | Tidak |
+| `nasa_power` | NASA POWER cuaca harian (hujan terkoreksi PRECTOTCORR, T2M, T2M_MAX) di centroid poligon terbesar 34 provinsi (`optional`, pilot D-157; diambil 2026-11-26, 34 CSV, 3,6 MB) | 2016-01-01 .. 2026-11-20 | Fitur eksploratif Task 4 arah (cuaca sentra hortikultura) | Ya (wajib atribusi) |
 | `jisdor` | JISDOR IDR/USD harian | 2013-05-20 .. 2026-11-18 (3.269 hari) | Penggerak 1 | Tidak |
 | `pinksheet` | Pink Sheet bulanan USD | 1960-01 .. 2026-10 (update 3 Nov 2026) | Penggerak 2 | Ya (CC BY 4.0) |
 | `brent` | FRED DCOILBRENTEU harian | 2013-01-02 .. 2026-11-11 | Kontrol | Ya |
@@ -104,6 +107,33 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 - Bentuk: tangga mingguan (88% minggu satu nilai harian, berubah pada 4% hari, perubahan besar: median |Δlog| cabai 0,22–0,23), jadi
   status mingguan carry_forward 99–100% karena nilai diulang harian. Median log eceran − log produsen 0,09 (daging sapi) .. 0,84 (bawang putih).
 - Hak: sama dengan `pihps`; cakupan izin BI (U13) untuk jenis pasar ini dipastikan `[HUMAN]`.
+
+### SIJAGUNG (`ditjenpkh_sijagung`, opsional, audit D-160)
+- 2 xlsx (`sijagung_stok_*.xlsx`: stok ton & kecukupan produksi hari; `sijagung_pembelian_*.xlsx`: volume KA 14% ton & harga Rp/kg) per wilayah
+  pabrik pakan (Lampung, Aceh & Sumbar, Sumut, DKI & Banten, Jabar, Jateng, Jatim, Kalbar & Kalsel, Sulsel) + subtotal pulau + total nasional,
+  bulanan 2019-01..2026-08; dibaca `load_sijagung`. Diambil 2026-11-26 lewat tombol Export publik (`docs/audit/20261126_sumber_baru/scripts/fetch_pakan.py`).
+- As-of: tabel publik pada 2026-11-26 berakhir Agustus 2026 → availability konservatif akhir bulan + 90 hari. Ekspor harga pakan SPORA gagal
+  (HTTP 500, memori server) untuk semua rentang.
+
+### PIHPS per kabupaten/kota (`pihps_city`, opsional, pilot D-158)
+- Zip 110 CSV `pihps_kotaNNN_provPP_<Nama>.csv` (lebar: `province_id, province, regency_id, regency, level, commodity, <tanggal...>`) +
+  `MANIFEST.csv` + `ERRORS.json`, dibaca `load_pihps_city`. Diambil 2026-11-26 dengan `docs/audit/20261126_nasional_lokal/scripts/fetch_kota.py`
+  (turunan skrip D-150): endpoint `GetGridDataDaerah`, `price_type_id=1`, `regency_id` per kota, harian, per kota per bulan (12.870 permintaan).
+- 110 kota = kota sampel PIHPS (`n_kota`); harga provinsi = gabungan kota-kota ini. Varian sama dengan `pihps`.
+- Cakupan: 109–110 kota per komoditas sejak 2017-03-27 (rerata 2,6 kota per provinsi); 0 galat unduh. Kolom `first_date`/`n_dates` di
+  MANIFEST bergeser 2 kolom identitas (bug skrip, diperbaiki untuk pengambilan berikutnya; nilai harga tidak terpengaruh; berkas tidak diubah).
+- Hak: sama dengan `pihps` (`redistribute: false`); cakupan izin BI (U13) untuk tingkat kota dipastikan `[HUMAN]`.
+
+### NASA POWER (`nasa_power`, opsional, pilot D-157)
+- 34 CSV `power_daily_pNN.csv` (satu per provinsi) + `MANIFEST.csv` (lat, lon, url, bytes, sha256, waktu ambil), diambil 2026-11-26 dengan
+  `docs/audit/20261126_pilot_cuaca_impor/scripts/fetch_power.py` dari API titik harian (`community=AG`, tanpa kunci). Titik = centroid
+  poligon terbesar provinsi dari `data/reference/indonesia_provinces.geojson` (ibu kota sering di pesisir); resolusi MERRA-2 0,5° × 0,625°.
+- Format: blok header `-BEGIN HEADER-` .. `-END HEADER-`, lalu `YEAR, DOY, PRECTOTCORR (mm/hari), T2M, T2M_MAX (°C)`, waktu lokal (LST);
+  nilai hilang = −999 (tidak ada pada unduhan ini). 3.977 hari per titik.
+- As-of: data dapat direvisi dan punya latensi beberapa hari → fitur memakai cuaca s.d. Minggu sebelum minggu origin (lag ≥ 7 hari);
+  hasil tetap pseudo-real-time (vintage tidak tersedia).
+- Hak: terbuka, wajib mencantumkan "NASA Langley Research Center (LaRC) POWER Project funded through the NASA Earth Science/Applied
+  Science Program".
 
 ### JISDOR (`jisdor`)
 - Excel BI, header di baris 5: `NO, Tanggal ("5/20/2013 12:00:00 AM"), Kurs ("9.760,00")`.

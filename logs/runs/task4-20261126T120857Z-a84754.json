@@ -1,0 +1,143 @@
+{
+ "run_id": "task4-20261126T120857Z-a84754",
+ "task_id": "task4",
+ "run_type": "execution",
+ "status": "success",
+ "started_at": "2026-11-26T12:08:57.829397+00:00",
+ "finished_at": "2026-11-26T12:17:21.941325+00:00",
+ "duration_s": 504.015,
+ "evaluation_s": 16.774,
+ "pipeline_id": null,
+ "parent_run_ids": [
+  "stage0-20261124T033552Z-ce183a"
+ ],
+ "dataset_id": "raw:c96ce7572b4c",
+ "platform": "local",
+ "python": "3.13.7",
+ "git_commit": "ca53742cff7e68118fc0d4fb8ba9c203ebd5492e",
+ "git_branch": "dev",
+ "config_sha256": {
+  "params.yaml": "43ed1daa3ac854461f6db9ca420b4668601ddf2819e237d6bab1cb4b4f1fb078",
+  "commodities.yaml": "537bb86f32a7d6ac74742c79c36f6b61f6e3fbc320373f83b84dfb19dcba0247"
+ },
+ "code_sha256": "2eaa093f05b6ada4f5196aad74e2ccf80002aa9d1d0ba49b18c3cf2a74714825",
+ "git_dirty": true,
+ "environment": {
+  "python": "3.13.7",
+  "numpy": "2.3.4",
+  "pandas": "2.3.3",
+  "scipy": "1.16.3",
+  "scikit-learn": "1.8.0"
+ },
+ "evaluator_version": "2026-11-24.d144",
+ "kind": "forecasting_regression",
+ "algorithms": [
+  "M0 tanpa perubahan",
+  "M1 ridge dasar",
+  "M2 ridge + kurs & harga dunia",
+  "M3 gradient boosting",
+  "Diebold–Mariano HAC"
+ ],
+ "params": {
+  "forecast": {
+   "horizons": [
+    4,
+    8
+   ],
+   "first_origin": "2021-01-04",
+   "origin_step_weeks": 4,
+   "large_move_pct": 80,
+   "ridge_alphas": [
+    0.1,
+    1.0,
+    10.0,
+    100.0
+   ],
+   "feature_changes_weeks": [
+    1,
+    4,
+    8
+   ],
+   "hgb": {
+    "max_iter": 300,
+    "learning_rate": 0.05,
+    "max_leaf_nodes": 31
+   },
+   "bps_release_lag_days": 45,
+   "h5_correction": "holm",
+   "run_m3": true
+  },
+  "seed": 20261121
+ },
+ "call_args": {
+  "arg0": "('C2t',)"
+ },
+ "inputs": [
+  {
+   "name": "direction_tuned_preds",
+   "path": "data/interim/direction_tuned_preds.parquet",
+   "location": "out_dir",
+   "sha256": "34a5facc7f82c3cff9c5d139997a6d84c61d3f6034a47a1cf9f9b9c3f4d7faed",
+   "bytes": 913421,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": null
+  },
+  {
+   "name": "panel_weekly",
+   "path": "data/processed/panel_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "17ef839f31171b17674a72b1f01ad806deb05174b659352b0370366ca5606130",
+   "bytes": 777791,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "drivers_weekly",
+   "path": "data/processed/drivers_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "d85f7d3188e7c61aa8bbed1f944b7e7d7c45d38b2e712251aca884e2fe682c77",
+   "bytes": 47417,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  },
+  {
+   "name": "world_prices_weekly",
+   "path": "data/processed/world_prices_weekly.parquet",
+   "location": "out_dir",
+   "sha256": "cc53e6dda096f26af7e18f2a20d51a3d0ea48d63b17f7649d9eae00f6db14edb",
+   "bytes": 35033,
+   "rows": null,
+   "columns": null,
+   "missing_cells": null,
+   "memory_mb": null,
+   "producer_run_id": "stage0-20261124T033552Z-ce183a"
+  }
+ ],
+ "outputs": [
+  {
+   "name": "direction_tuned_preds",
+   "path": "data/interim/direction_tuned_preds.parquet",
+   "location": "out_dir",
+   "sha256": "5f0deb84eb7d4d33f6a9af04229bf24b216b2da7dd7a84c9fb7f3b7aa1a70c1e",
+   "bytes": 1535624,
+   "rows": 101772,
+   "columns": 9,
+   "missing_cells": 0,
+   "memory_mb": 20.332,
+   "producer_run_id": null
+  }
+ ],
+ "peak_rss_mb": 683.7,
+ "error_type": null,
+ "note": null,
+ "schema_version": 3
+}

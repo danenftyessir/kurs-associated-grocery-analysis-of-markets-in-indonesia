@@ -38,6 +38,8 @@ aturan, data, metode ringkas, jebakan yang sudah ditemukan, dan template. Bagian
 | Pesan antar anggota (serah-terima) | `docs/handoff/*.md`, format `docs/HANDOFF.md` |
 | Log eksekusi & evaluasi (skema, matriks tahap × metrik) | `docs/TRACKING.md` + `src/tracking/` |
 | Alur eksperimen eksploratif Task 4 (CRISP-DM, kartu 8 komponen, layar DU, aturan evaluasi) | `docs/EKSPERIMEN.md` (D-153) |
+| Registri eksperimen Task 4 arah (semua varian D-145+, termasuk gagal/ditolak) | `docs/eksperimen_registry.csv` (D-156; `docs/EKSPERIMEN.md` §6) |
+| Validasi kebutuhan pengguna TPID (wawancara `[HUMAN]`, U109) | `docs/PANDUAN_WAWANCARA_TPID.md` |
 
 CLAUDE.md meringkas semua di atas agar agent bisa bekerja tanpa membuka semuanya; bila ringkasan di sini bertentangan
 dengan sumber kebenaran, ikuti sumber kebenaran lalu perbaiki CLAUDE.md.
@@ -103,7 +105,7 @@ bukan kegagalan. k = 1, asosiasi nol, rasio MAE ≈ 1 adalah hasil sah. Tabel "J
 
 ## 2. Status saat ini (perbarui setiap akhir sesi)
 
-Tanggal acuan: 2026-11-25. Papan lengkap: `docs/WORKPLAN.md`.
+Tanggal acuan: 2026-11-26. Papan lengkap: `docs/WORKPLAN.md`.
 
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-06 (13 episode), WP-08 (panel 7 wilayah),
@@ -217,6 +219,40 @@ Tanggal acuan: 2026-11-25. Papan lengkap: `docs/WORKPLAN.md`.
   daftar pantau prioritas, bukan macro F1. Laporan `docs/audit/20261125_business_understanding.md`. Masuk `results/findings.md`
   (Ringkasan butir 7, subbagian C1-tuned & daftar pantau, Keterbatasan) 2026-11-25; app daring baru menampilkannya setelah di-push,
   salinan `findings.md` di Drive tim (2026-11-23) belum diperbarui.
+- **Audit D-152–D-154 (D-155, 2026-11-25):** universe ranking S1 sah (y = 0 ikut; 4 baris dev tanpa target kini ikut; presisi tetap). V1 vs
+  V2 dibandingkan pada jumlah alarm sama; anggaran K = 1/2/3 dilaporkan, tidak dipilih; 57% alarm test pada komoditas diatur. Klaim
+  dikoreksi di `findings.md` & adendum laporan: p_up ≠ peluang kenaikan material, test 2024+ bukan validasi independen, titik akhir ≠
+  kejadian, materialitas statistik ≠ kebijakan, K1 = screening (bukan SPM), tipologi klaster deskriptif (silhouette datar), `available_at`
+  konservatif Minggu 00.00. Aturan permanen `docs/EKSPERIMEN.md` §5. Berikutnya: validasi kebutuhan TPID (`[HUMAN]`, U109; panduan
+  `docs/PANDUAN_WAWANCARA_TPID.md`), jendela revisi PIHPS (U110), commit prediksi maju.
+- **CFSv2 lewat Colab (D-161, 2026-11-26):** prakiraan operasional NOAA CFSv2 (run 00Z Jumat minggu t, hujan & suhu maks hari 1–56) diekstrak
+  di Colab: 437/465 minggu (28 HTTP 404, 3 di dev), agregat provinsi di `docs/audit/20261126_sumber_baru/hasil/` (bukan sumber terdaftar). Skill vs
+  NASA POWER nyata (hujan 1–28 r 0,42–0,55), tetapi arah nasional increment-only vs konsensus C1t ΔAUC −0,029..+0,006 (q ≥ 0,105) → gagal gerbang 5;
+  oracle cuaca terealisasi −0,013..−0,081 → mekanisme tertutup. C1-tuned tetap; U113 tinggal GDELT; aturan oracle dulu (EKSPERIMEN §3).
+  Laporan `docs/audit/20261126_sumber_baru.md` §3.
+- **Kelayakan sumber & penemuan sinyal (D-160, 2026-11-26):** GDELT & CFSv2 lolos gerbang riwayat/ketersediaan/independensi tetapi terblokir
+  skala akses (TB / BigQuery; subset NCEI rusak, 8–37 GB + eccodes) → U113; SIJAGUNG (opsional `ditjenpkh_sijagung`, 2019–2026) gagal sinyal
+  nasional (AUC −0,01..−0,21 vs konsensus C1t); SPORA export rusak; DIBI server mati saat uji → tanpa modeling, C1-tuned tetap. Laporan
+  `docs/audit/20261126_sumber_baru.md`.
+- **Audit kelayakan pasokan fisik (D-159, 2026-11-26):** SP2KP stok mingguan hanya di area admin berlogin (U112); FDP = log program
+  stabilisasi 2024+ (39 pengiriman 2026); PIBC publik 1 rekaman (Jun 2025); GPM bulanan 2024+ tanpa tanggal; KSA hanya beras (headroom ≤
+  +0,007) → tidak ada yang lolos syarat dev, tanpa modeling, C1-tuned tetap. Laporan `docs/audit/20261126_pasokan_fisik.md`.
+- **National Shock Nowcasting Task 4 arah (D-158, 2026-11-26, EKSPLORATIF, 2 iterasi):** sumber baru `pihps_city` (110 kota PIHPS harian
+  sejak 2017-03-27, opsional); Bapanas kab/kota tidak dapat diakses (U111). Iterasi 1 (breadth kota, lapisan nasional → lokal) Δ −0,008..+0,003;
+  konsensus C1t sendiri prediktor arah nasional terbaik (AUC ± 0,75). Iterasi 2: koreksi nasional increment-only +0,009 / ≤ +0,002 (gagal);
+  FR_CITY +0,024 / +0,008 lolos aturan tetapi = keluarga intraminggu (tanpa kota +0,024 / +0,004; kontribusi kota ≈ 0) → C1-tuned tetap;
+  prediksi maju base/FR_REF/FR_CITY dibekukan (`docs/audit/20261126_nasional_lokal/hasil/forward_preds_d158.csv`, perlu di-commit).
+- **Pilot cuaca sentra & impor Task 4 arah (D-157, 2026-11-26, EKSPLORATIF):** sumber baru `nasa_power` (opsional, 34 titik harian
+  2016–2026). Informasi sempurna arah nasional per komoditas × origin bernilai +0,105 (hortikultura +0,049 / +0,042). Cuaca tertimbang
+  produksi ATAP −0,003 / −0,003, + cuaca lokal +0,002 / −0,003, impor bulanan −0,006 / −0,015 (lebih buruk), koreksi logit walk-forward
+  −0,003 / −0,005 → C1-tuned tetap; test tidak dibuka. Laporan `docs/audit/20261126_pilot_cuaca_impor.md`.
+- **Audit & optimasi macro F1 Task 4 arah (D-156, 2026-11-26, EKSPLORATIF):** protokol beku sebelum run, seleksi hanya dev ≤ 2023, test
+  tidak dibuka. 27 kandidat baru (8 keluarga fitur 40 kolom: momentum, volatilitas, posisi, kualitas data, cakupan hari, lintas provinsi LOO,
+  kalender Iduladha/Natal/Ramadan, interaksi; hapus-satu; gabungan bersarang; jendela/peluruhan latih; threshold walk-forward; bobot kelas;
+  5 seed; LightGBM/XGBoost/CatBoost/ExtraTrees/logistik) → 0 lolos; Δ −0,057..+0,003, C1-tuned tetap. Galat = informasi pada perubahan kecil
+  (AUC kuintil terkecil 0,60 / 0,56) + pergeseran base rate per origin (oracle threshold global hanya +0,006). Tidak ada galat preprocessing
+  baru; bias origin hari libur = efek kalender. Registri hidup `docs/eksperimen_registry.csv` (117 baris). Laporan
+  `docs/audit/20261126_task4_master_f1.md`.
 - **Audit preprocessing Task 4 arah EKSPLORATIF (D-147, 2026-11-25):** tidak ada kesalahan preprocessing yang mengubah label/fitur
   (target dari harga teramati tanpa isi; kebocoran 76 origin × 54 kolom × perturbasi/penghapusan masa depan = 0 sel berbeda).
   Harga harian PIHPS seluruhnya kelipatan Rp50 (tick 0,32% beras); label < 1 tick 2,4–4,3% dan label tak stabil terhadap resample
@@ -461,7 +497,7 @@ datmin/
 ├── configs/
 │   ├── params.yaml           SEMUA angka analisis (dibekukan di G6)
 │   ├── commodities.yaml      10 komoditas: varian, peran, jalur eksposur, padanan Pink Sheet, HS, FAOSTAT
-│   ├── sources.yaml          26 sumber mentah (6 opsional): path relatif raw_dir, lisensi, redistribute, retrieval, availability
+│   ├── sources.yaml          29 sumber mentah (9 opsional): path relatif raw_dir, lisensi, redistribute, retrieval, availability
 │   └── runtime.yaml          folder Drive tim (ID), kredensial Drive, folder kerja Colab (bukan parameter analisis)
 ├── data/
 │   ├── raw/<sumber>/         snapshot mentah (TIDAK pernah ditimpa; salinan di Drive tim, D-101); raw/checksums.csv
@@ -652,7 +688,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `todo` · ✔ · lempar `NotImplementedYet("WP-xx ...")`.
 
 #### src/utils/artifacts.py
-(Tidak ada fungsi publik; berisi dataclass `Artifact` dan dict `ARTIFACTS` — 38 artefak; `direction_preds` (D-141), `direction_tuned_preds` (D-145) & `deep_preds` (D-142) eksploratif.)
+(Tidak ada fungsi publik; berisi dataclass `Artifact` dan dict `ARTIFACTS` — 39 artefak (`province_calibrated` D-163); `direction_preds` (D-141), `direction_tuned_preds` (D-145) & `deep_preds` (D-142) eksploratif.)
 
 ### 9.2 Lapisan data
 
@@ -662,6 +698,8 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `map_province` · ✔ · Series nama → Int64 province_id (NaN bila tak dikenal, mis. "INDONESIA").
 - `load_jisdor` · ✔ · → date, idr_per_usd (parse "9.760,00").
 - `load_pihps` · ✔ · zip 34 CSV lebar → long: date, province_id, province, level, commodity_group, item, price; grup varian dari prefiks nama (D-022).
+- `load_sijagung` · ✔ · → month, report (stok|pembelian), region, measure, value; ekspor SIJAGUNG bulanan per wilayah (opsional, audit D-160).
+- `load_pihps_city` · ✔ · → date, province_id, province, regency_id, regency, level, commodity_group, item, price; zip 110 kota PIHPS (opsional, pilot D-158).
 - `load_pihps_manifest` · ✔ · MANIFEST.csv di zip v2 atau None.
 - `load_pinksheet` · ✔ · sheet "Monthly Prices" → month, series (dinormalisasi, tanpa `**`), unit, usd_price.
 - `load_fred` · ✔ · key brent|dollar_index → date, value (hari libur dibuang).
@@ -682,6 +720,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `load_penduduk` · ✔ · → province_raw, province_id, year, population (jiwa); satuan dari nama kolom, total dijaga 200–400 juta; file opsional (U14).
 - `load_n_kota` · ✔ · → province_id, province, n_kota, kota_list, source_url (isi manual Abi; opsional, U15).
 - `load_gkg_beras` · ✔ · → year, factor, source_url, note: faktor GKG → beras (isi manual Abi; opsional, U21).
+- `load_nasa_power` · ✔ · → date, province_id, precip_mm, t2m, t2m_max dari 34 CSV harian NASA POWER (opsional, pilot D-157).
 
 #### src/data/snapshot.py
 - `sha256_file` · ✔ · hash file bertahap.
@@ -705,6 +744,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `build_national_drivers` · ✔ · log_e, de, de_pos, de_neg, log_brent, db, log_dxy, d_dxy, month, idf_rel_week, *_filled (tanpa episode).
 - `build_world_prices` · ✔ · komposit Pink Sheet per komoditas, log_w_idr = log_w_usd + rerata log JISDOR bulanan; dw; available_at.
 - `build_world_variants` · ✔ · Tier 2: komposit harga dunia alternatif untuk komoditas ≥ 2 seri (bobot sama, seri tunggal; D-012).
+- `realtime_episode_flag` · ✔ · D-162 (U108): flag episode real-time = minggu pemicu (Σ de 8 minggu s.d. t ≥ ambang) → fitur `episode` Task 4.
 - `mark_episode_weeks` · ✔ · tambah kolom `episode` (0/1) ke drivers dari tabel episodes.
 - `find_episodes` · ✔ · Σ de 8 minggu ≥ 0,03; pemicu berjarak ≤ 8 minggu digabung → episode_id, start_week, end_week, cum_dlog_e (+ peak_week, n_trigger_weeks, in_period; D-107).
 - `fx_variation_table` · ✔ · per tahun 2018.. + total: n_dep/app/zero_weeks, mean_dep/app, sd_de, max/min, n_episode_weeks.
@@ -851,8 +891,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `asymmetry_tests` · ✔ · H2: Wald (uji utama) + status konfirmatori gerbang G-power + persentil bootstrap & p plasebo selisih β⁺ − β⁻ ; ci_low/high = yang lebih lebar dari Wald & bootstrap (Wald di wald_ci_*, D-127) → artefak `asymmetry` (D-125).
 
 #### src/evaluation/calibration.py
-(konstanta `DRIVERS` = e, w; `KEY`, `COLUMNS`)
-- `national_calibrated` · ✔ · β_e & ω nasional h kunci: crit = max(z, statistik urutan |t*| plasebo setara p < α), interval ±crit·SE, p = max(p plasebo, p normal) (p < α ⇔ interval tidak memuat nol), q BH, interval praregistrasi & boot_ratio dibawa → artefak `national_calibrated` (tambahan, D-129).
+(konstanta `DRIVERS` = e, w; `KEY`, `COLUMNS`, `PROVINCE_KEY`, `PROVINCE_COLUMNS`)
+- `national_calibrated` · ✔ · β_e & ω nasional h kunci: crit = max(z, statistik urutan |t*| plasebo setara p < α), interval ±crit·SE, p = max(p plasebo, p normal) (p < α ⇔ interval tidak memuat nol), q BH, interval praregistrasi & boot_ratio dibawa → artefak `national_calibrated` (tambahan, D-129); + baris PT = baris e / γ(h), p & q sama (D-163).
+- `province_calibrated` · ✔ · D-163 (U107): deviasi provinsi δ mentah (e & w, h kunci), null |t*| dipool antarprovinsi per sel, interval ±crit·SE, p = max(plasebo, normal), q BH per sel atas provinsi, δ tersusut & boot_ratio dibawa → artefak `province_calibrated`.
 
 #### src/evaluation/regimes.py
 (konstanta `CONSUMER_INSTRUMENTS` = HET, HAP, HAP_konsumen)
@@ -1051,6 +1092,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 | `pihps` | PIHPS v2 merged, 34 prov × 31 baris (10 komoditas + 21 varian), harian | 2017-03-28..2026-11-19 | outcome | tidak |
 | `pihps_wholesale` | PIHPS pedagang besar (grosir) harian, format sama dengan `pihps` (`optional`, pilot D-150) | 2017-03..2026-11-19 | fitur eksploratif Task 4 | tidak |
 | `pihps_producer` | PIHPS harga produsen harian (`price_type_id=4`), format sama dengan `pihps` (`optional`, pilot D-151; cakupan provinsi tidak lengkap) | 2018-03..2026-11-19 | fitur eksploratif Task 4 | tidak |
+| `ditjenpkh_sijagung` | SIJAGUNG stok & pembelian jagung pabrik pakan per wilayah, bulanan (`optional`, audit D-160) | 2019-01..2026-08 | audit sinyal ayam/telur (gagal) | tidak |
+| `pihps_city` | PIHPS harian per kabupaten/kota, 110 kota (`optional`, pilot D-158) | 2017-03-27..2026-11-25 | fitur eksploratif Task 4 (breadth pasar) | tidak |
+| `nasa_power` | NASA POWER cuaca harian (hujan, suhu) di centroid 34 provinsi (`optional`, pilot D-157) | 2016-01-01..2026-11-20 | fitur eksploratif Task 4 (cuaca sentra) | ya (atribusi) |
 | `jisdor` | JISDOR harian | 2013-05-20..2026-11-18 | penggerak 1 | tidak |
 | `pinksheet` | World Bank CMO bulanan USD | 1960-01..2026-10 | penggerak 2 | ya (CC BY) |
 | `brent` | FRED DCOILBRENTEU | 2013..2026-11-11 | kontrol | ya |
@@ -1316,7 +1360,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_loaders.py` | loader semua sumber pada data asli + kolom; BPS v2 memuat bawang putih; bentuk PIHPS; grup varian dari prefiks (regresi D-022); nama provinsi terpetakan 34 |
 | `test_stats.py` | OLS & SE cluster (grup kosong dibuang), DL/REML/EB, BH (Holm di test_forecast_eval), block bootstrap, circular shift, DM |
 | `test_weekly.py` | status sel sintetis, grid, week_start, select_variants (asli & error), aggregate asli, aturan kelayakan |
-| `test_drivers.py` | grid penggerak, de & pengisian minggu libur, jendela Idulfitri, harga dunia (komposit, dw bulanan, available_at) & komposit alternatif Tier 2, episode (gabung, berdempetan, data asli) & tabel variasi kurs |
+| `test_drivers.py` | grid penggerak, de & pengisian minggu libur, jendela Idulfitri, harga dunia (komposit, dw bulanan, available_at) & komposit alternatif Tier 2, episode (gabung, berdempetan, data asli) & tabel variasi kurs; flag episode real-time = deteksi ulang s.d. t & kebocoran penggabungan pemicu (D-162) |
 | `test_panel.py` | panel 7 wilayah: indeks minggu pertama, tanpa lompatan saat komposisi berubah, hanya eligible, data asli |
 | `test_local_projection.py` | desain LP (nama kolom, within, sampel, y manual), β/β⁺/β⁻/ω sintetis dipulihkan, filter eligible, γ(h), jalur cepat national_profiles = loop build_design |
 | `test_power.py` | SE skor H0 = SE cluster bila β = 0, skala derau, SE asimetri = SE Wald selisih bila β⁺ = β⁻, gerbang G-power & H2, MDE data asli |
@@ -1326,7 +1370,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_forecast_eval.py` | n_nonoverlap, Holm, kontrak forecast_eval, rasio M1 = 1, DM mendeteksi sinyal kurs, H5 (keluarga tetap 2), panel wilayah, ablation |
 | `test_planted.py` | struktur tertanam: simpleks δ·√F, z-score, silhouette, ambang plasebo ≈ 5% lolos, kurva naik & dapat diulang, batas deteksi, EB penanaman = EB matriks fitur, regresi U105 (tanam sebelum susut) |
 | `test_asymmetry.py` | H2: Wald = spesifikasi asimetris LP, selisih tertanam terdeteksi, data simetris jarang ditolak, status konfirmatori/bootstrap/plasebo, interval laporan = Wald ∪ bootstrap |
-| `test_calibration.py` | D-129: kontrak & filter (nasional, e/w, h kunci), crit ≥ z, p < α ⇔ interval tidak memuat nol, crit = statistik urutan & p plasebo eksak, q BH, boot_ratio, tanpa plasebo → normal, `se` wajib |
+| `test_calibration.py` | D-129: kontrak & filter (nasional, e/w, h kunci), crit ≥ z, p < α ⇔ interval tidak memuat nol, crit = statistik urutan & p plasebo eksak, q BH, boot_ratio, tanpa plasebo → normal, `se` wajib; D-163: baris PT = baris e / γ (p, q, crit sama), provinsi terkalibrasi (null dipool, provinsi tertanam terdeteksi, derau ≤ 5%, q BH per sel, boot_ratio) |
 | `test_regimes.py` | E2: tanggal perubahan regulasi (filter & gabung), batas rezim, β per rezim pulih pada data sintetis, kalibrasi plasebo (crit ≥ 1,96, p plasebo, q BH, dapat diulang) |
 | `test_heterogeneity.py` | Q/τ²/I² = DL, τ² REML berdampingan, ρ̄, wajib `se`, p plasebo & BH (sintetis); permutasi n!, Kendall eksak vs brute force, E1 10 komoditas |
 | `test_reference.py` | WP-07: concordance & confidence, rasio impor FAOSTAT (jendela tahun) & bawang putih dari perdagangan, tanggal & verifikasi regulasi, fitur provinsi |
@@ -1336,7 +1380,7 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_clustering.py` | WP-19/20: matriks fitur, Ward, pilih k vs plasebo, K-Means ARI, Jaccard, pembanding partisi (k = 1 → ARI NaN) |
 | `test_task2.py` | Task 2 end-to-end pada profil provinsi sintetis dengan 3 kelompok tertanam |
 | `test_association.py` | WP-23/24: meta-regresi & interaksi FE memulihkan koefisien tertanam; p ⇔ interval laporan & q BH (U106), p bootstrap sisi = persentil |
-| `test_forecast.py` | WP-25/26: tanpa kebocoran as-of, origin, model M0–M3 & M2_nofx, checkpoint |
+| `test_forecast.py` | WP-25/26: tanpa kebocoran as-of (termasuk de sesudah t0 → flag `episode` real-time sama, D-162), origin, model M0–M3 & M2_nofx, checkpoint |
 | `test_direction.py` | D-141 (eksploratif): klasifier C2 (+ kurs) memulihkan sinyal kurs tertanam lebih baik dari C1, penjaga (satu kelas, y = 0, model tak dikenal), bentuk & resume rolling_direction, beda akurasi berpasangan, prediksi selektif |
 | `test_direction_tuned.py` | D-145 (eksploratif): fitur dinamika harga tanpa informasi sesudah origin (harga & status masa depan dirusak → fitur ≤ origin sama), D-147: penghapusan data sesudah origin di SETIAP origin h 4 & 8 → seluruh matriks fitur + target terealisasi identik, harga dunia tersembunyi sampai `available_at`, label belum terealisasi tidak mengubah prediksi, nilai fitur yang diketahui (lag, MA, musiman, deviasi spasial Σ = 0, umur carry-forward), kolom & penjaga C1t/C2t, C1t memulihkan mean-reversion tertanam lebih baik dari C1, bentuk & resume `rolling_direction_tuned` |
 | `test_neural.py` | D-142 (eksploratif): jendela latih tanpa target belum terealisasi, PatchTST/TSMixer tidak memakai data sesudah origin (ubah masa depan → ramalan sama), adapter TimesFM hanya konteks s.d. origin (forecaster palsu), baris uji = Task 4, resume |
@@ -1486,6 +1530,13 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-161 | NOAA CFSv2 lewat Colab (437 run): skill prakiraan nyata tetapi gagal gerbang 5; oracle cuaca terealisasi juga gagal → mekanisme tertutup; sumber prakiraan diuji oracle-nya dulu | FINAL · eksploratif |
+| D-160 | Kelayakan sumber & penemuan sinyal (GDELT, CFSv2, SIJAGUNG/SPORA, DIBI): tidak ada yang lolos lima gerbang; SIJAGUNG gagal sinyal nasional | FINAL · eksploratif |
+| D-159 | Audit kelayakan pasokan fisik (SP2KP, FDP, PIBC, GPM, KSA): tidak ada riwayat dev yang dapat diakses; tanpa modeling; aturan kelayakan sumber (EKSPERIMEN §3) | FINAL · eksploratif |
+| D-158 | National Shock Nowcasting (breadth 110 kota + nasional–lokal, 2 iterasi): tidak ada perbaikan di luar keluarga intraminggu; layar arah nasional vs konsensus C1t wajib | FINAL · eksploratif |
+| D-157 | Pilot cuaca sentra (NASA POWER) & impor bulanan Task 4 arah tidak membantu; sinyal nasional wajib diuji walk-forward (EKSPERIMEN §3) | FINAL · eksploratif |
+| D-156 | Audit preprocessing & optimasi macro F1 Task 4 arah: 27 kandidat (fitur, threshold, bobot, model) tidak mengungguli C1-tuned; registri `docs/eksperimen_registry.csv` | FINAL · eksploratif |
+| D-155 | Audit D-152–D-154: universe S1 valid; koreksi klaim (skor arah ≠ peluang kenaikan material, test 2024+ bukan independen, titik akhir, materialitas statistik vs kebijakan); aturan `docs/EKSPERIMEN.md` §5 | FINAL · eksploratif |
 | D-154 | Business Understanding Task 4 arah: kriteria bisnis S1–S3 (daftar pantau, kalibrasi, arah saat bergerak material) di samping macro F1; C1-tuned lolos di test | FINAL · eksploratif |
 | D-153 | Alur eksperimen Task 4 = CRISP-DM + kartu 8 komponen (`docs/EKSPERIMEN.md`); DU pola sekuensial / clustering / graf tidak lolos gerbang Modeling | FINAL · eksploratif |
 | D-152 | Validasi `IW_NAT`: kebocoran 84/84 lolos, LOO = rerata nasional, separuh keuntungan h 4 dari harga Jumat, prediksi maju beku (12 origin); daya tidak cukup untuk konfirmasi; C1-tuned tetap | FINAL · eksploratif |
@@ -1564,6 +1615,11 @@ tidak boleh dikutip sebelum dicek.
 | U106 | p meta-regresi `assoc` tidak konsisten dengan interval (11 baris) & ARI 0 saat k = 1 → diperbaiki D-132 (0/88 baris p < 0,05; ARI NaN) | 🟢 |
 | U107 | Bootstrap blok 13 minggu menarik β ke nol (rasio 0,57 / 0,35 / 0,35 pada h 4 / 8 / 12) → interval resmi terlalu konservatif; nasional diatasi tambahan D-129, provinsi & PT jadi keterbatasan | 🟡 |
 | U108 | Flag `episode` (grup fx: M2/C2) memakai informasi sesudah origin pada 1/76 origin (penggabungan episode) → perbaiki ke real-time saat pipeline fx dijalankan ulang (D-148) | 🟡 |
+| U109 | Kebutuhan TPID (kapasitas, toleransi alarm palsu, ambang kebijakan, titik akhir vs kejadian, waktu keputusan) belum divalidasi; panduan `docs/PANDUAN_WAWANCARA_TPID.md` | 🔴 `[HUMAN]` |
+| U110 | Jendela revisi harga harian PIHPS belum dipastikan → `available_at` konservatif Minggu 00.00 (D-155) | 🔴 `[HUMAN]` |
+| U111 | Panel kab/kota Bapanas tidak dapat diakses (SAPA); izin BI untuk data PIHPS per kota belum dipastikan (D-158) | 🔴 `[HUMAN]` |
+| U112 | Stok & pasokan SP2KP (mingguan, admin Kemendag) & riwayat PIBC/FDP/GPM tidak tersedia publik → permintaan resmi (D-159) | 🔴 `[HUMAN]` |
+| U113 | GDELT (BigQuery berbayar) belum dapat diuji sinyalnya (D-160); CFSv2 diuji lewat Colab 2026-11-26 dan gagal gerbang 5 (D-161) | 🔴 `[HUMAN]` |
 Selesai: U1, U2, U18, U23.
 
 ---

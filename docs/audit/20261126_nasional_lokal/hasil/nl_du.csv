@@ -1,0 +1,17 @@
+horizon,kind,measure,auc,auc_lo,auc_hi,acc,n,base_rate_up,rho,lo,hi,p
+4,arah_nasional,nat_hat,0.7235,0.6636,0.7721,0.6596,379.0,0.504,,,,
+4,arah_nasional,c1t_tersirat,0.7334,0.6766,0.7811,0.6675,379.0,0.504,,,,
+4,arah_nasional,breadth_4,0.6176,0.5502,0.6817,0.5884,379.0,0.504,,,,
+4,arah_nasional,nat_dp_4,0.5905,0.5228,0.652,0.6201,379.0,0.504,,,,
+4,arah_nasional,selisih_auc_nat_hat_vs_c1t,-0.0098,-0.047,0.0253,,,,,,,
+4,residual_baris,nat_hat,,,,,10966.0,,-0.0326,-0.1069,0.046,0.3807
+4,residual_baris,nat_hat − c1t_tersirat,,,,,10966.0,,0.0702,-0.006,0.1428,0.0745
+4,residual_baris,follow,,,,,10860.0,,-0.0445,-0.0864,-0.0073,0.0215
+8,arah_nasional,nat_hat,0.7254,0.6521,0.7924,0.6811,370.0,0.527,,,,
+8,arah_nasional,c1t_tersirat,0.7515,0.686,0.8187,0.6892,370.0,0.527,,,,
+8,arah_nasional,breadth_4,0.5635,0.478,0.6384,0.5486,370.0,0.527,,,,
+8,arah_nasional,nat_dp_4,0.5512,0.4667,0.6392,0.6,370.0,0.527,,,,
+8,arah_nasional,selisih_auc_nat_hat_vs_c1t,-0.0261,-0.0606,0.0004,,,,,,,
+8,residual_baris,nat_hat,,,,,11307.0,,-0.0551,-0.1227,0.0312,0.2296
+8,residual_baris,nat_hat − c1t_tersirat,,,,,11307.0,,0.0327,-0.0317,0.0909,0.3337
+8,residual_baris,follow,,,,,11245.0,,-0.0655,-0.1124,-0.0248,0.0035

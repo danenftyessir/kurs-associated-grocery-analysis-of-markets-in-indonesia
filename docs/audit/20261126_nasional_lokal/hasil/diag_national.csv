@@ -1,0 +1,3 @@
+horizon,C1t,mayoritas_c1t,mayoritas_benar_LOO,homogenitas_searah_mayoritas,akurasi_arah_nasional_c1t,porsi_baris_c1t_beda_dengan_mayoritas_c1t,C1t_oracle_mayoritas_bila_ragu_0.05,C1t_oracle_mayoritas_bila_ragu_0.1,C1t_oracle_mayoritas_bila_ragu_0.2
+4,0.656,0.6246,0.7557,0.7562,0.6658,0.1487,0.6832,0.7065,0.7409
+8,0.676,0.6477,0.7823,0.7839,0.7027,0.1598,0.7016,0.7196,0.7494

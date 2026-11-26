@@ -103,6 +103,10 @@ Profil 7 wilayah: spesifikasi M1.1 pada `panel_weekly_region`.
   plasebo geser-melingkar sel yang sama; crit = max($z_{0,975}$, statistik urutan |t*| yang setara p plasebo < 0,05);
   interval $\hat\beta \pm \text{crit}\cdot\widehat{se}$; p = max(p plasebo, p normal) sehingga p < 0,05 ⇔ interval tidak memuat nol;
   q BH atas 48 sel (10 komoditas × e + 6 × w, h 4/8/12).
+- Perluasan D-163 (U107, tambahan): (a) baris PT di `national_calibrated` = interval β_e terkalibrasi / γ(h) (PT = 0 ⇔ β_e = 0, jadi p & q
+  baris e; ketidakpastian γ diabaikan karena presisi tinggi); (b) artefak `province_calibrated`: deviasi provinsi mentah δ(i,r,h), e & w,
+  h kunci; null = |t*| semua provinsi × replikasi plasebo pada sel (i, driver, h) yang sama (provinsi dapat dipertukarkan di bawah null);
+  crit, interval, dan p seperti di atas; q BH per sel atas provinsi. Deskriptif; uji heterogenitas konfirmatori tetap H0-Het (M2 butir 1).
 
 ### M1.6 Penyusutan EB (WP-17)
 Per (i, driver, h): τ² DerSimonian–Laird dari δ(i,r,h) dan s²(i,r,h) (REML sebagai cek).
@@ -156,7 +160,7 @@ A8 = β⁺(8) − β⁻(8) (level komoditas).
 
 - Target: $p_{t+h} - p_t$, h ∈ {4, 8}, per seri (provinsi atau wilayah).
 - Origin: setiap 4 minggu, 2021-01-04 .. (freeze − h). Train: hanya baris dengan t + h ≤ origin. As-of join `available_at`.
-- M0: prediksi 0. M1: Ridge (lag Δp 1/4/8, bulan, Idulfitri, db 1/4). M2: M1 + {de, dw} perubahan 1/4/8 minggu + episode.
+- M0: prediksi 0. M1: Ridge (lag Δp 1/4/8, bulan, Idulfitri, db 1/4). M2: M1 + {de, dw} perubahan 1/4/8 minggu + episode (flag real-time: minggu t pemicu, Σ de 8 minggu s.d. t ≥ 0,03; D-162).
   M3: HistGradientBoostingRegressor dengan fitur M2 + identitas komoditas & wilayah.
 - Metrik: MAE, RMSE, rasio M2/M1 dan M3/M1 (semua origin; origin dengan |Δe 4 minggu| > p80 data latih).
   DM dengan HAC (lag h−1 dalam satuan origin yang tumpang tindih) + koreksi HLN. Implementasi (D-113): deret = MAE per origin

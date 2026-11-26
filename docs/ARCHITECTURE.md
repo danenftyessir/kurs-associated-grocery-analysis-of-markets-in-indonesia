@@ -162,6 +162,7 @@ Stub yang belum diimplementasikan melempar `NotImplementedYet` dengan pesan `WP-
 | `regime_profiles` | results/task3/regime_profiles.csv | task3 | WP-22 | ya | commodity, regime_id, regime_start, regime_end, driver, horizon, estimate, ci_low, ci_high, n_weeks |
 | `asymmetry` | results/task3/asymmetry.csv | task3 | WP-13 | ya | commodity, horizon, estimate, se, ci_low, ci_high, p_value, confirmatory, reject |
 | `national_calibrated` | results/task3/national_calibrated.csv | task3 | WP-13 | ya | commodity, driver, horizon, estimate, se, ci_low, ci_high, p_value, q_fdr |
+| `province_calibrated` | results/task3/province_calibrated.csv | task3 | WP-15 | ya | commodity, driver, horizon, unit, estimate, se, ci_low, ci_high, p_value, q_fdr |
 | `forecast_preds` | data/interim/forecast_preds.parquet | task4 | WP-26 | tidak | origin, horizon, model, region, commodity, y_true, y_pred, large_move |
 | `deep_preds` | data/interim/deep_preds.parquet | task4 | WP-36 | tidak | origin, horizon, model, region, commodity, y_true, y_pred, large_move (EKSPLORATIF, D-142: PTST, TSMX, TSMX_fx, TFM, TFM_fx; `task4 --deep`) |
 | `direction_tuned_preds` | data/interim/direction_tuned_preds.parquet | task4 | WP-36 | tidak | origin, horizon, model, region, commodity, y_true, p_up, large_move (EKSPLORATIF, D-145: klasifier arah tuned C1t/C2t; `task4 --direction-tuned`) |
