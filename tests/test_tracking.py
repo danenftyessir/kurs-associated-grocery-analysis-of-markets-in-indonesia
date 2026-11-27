@@ -578,6 +578,27 @@ def test_artifact_sync_and_stage_states(tcfg):
     assert st_["task1"] == "hanya dievaluasi" and st_["task4"] == "belum ada run"
 
 
+def test_sync_ignores_line_endings_only(tcfg):
+    """D-170 (regresi app daring): CSV ditulis CRLF di Windows, git checkout di Linux memberi LF → tetap sinkron & tidak
+    basi; perubahan isi yang nyata tetap terdeteksi."""
+    from kagami.utils.io import artifact_path
+
+    def crlf_producer(cfg):
+        write_artifact(cfg, "episodes", _eps())
+        p = artifact_path(cfg, "episodes")
+        p.write_bytes(p.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n"))
+
+    logger.run_tracked(tcfg, "stage0", crlf_producer)
+    logger.run_tracked(tcfg, "task1", _consumer)
+    p = artifact_path(tcfg, "episodes")
+    p.write_bytes(p.read_bytes().replace(b"\r\n", b"\n"))                    # checkout git di Linux
+    assert store.artifact_sync(tcfg).set_index("artifact").loc["episodes", "state"] == "sinkron"
+    assert not store.staleness(tcfg)["stale"].any()
+    write_artifact(tcfg, "episodes", _eps(0.5))                               # isi benar-benar berubah
+    assert store.artifact_sync(tcfg).set_index("artifact").loc["episodes", "state"] == "tidak sinkron"
+    assert store.staleness(tcfg)["stale"].any()
+
+
 def test_task4_classifier_evaluator_synthetic(tcfg):
     """D-141: bagian klasifier eksploratif — metrik arah C1/C2, beda berpasangan vs C1/M3/M1, prediksi selektif, segmen."""
     rng = np.random.default_rng(5)

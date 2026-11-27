@@ -201,7 +201,7 @@ flowchart LR
     D --> F
     LP --> ROB["Robustness<br/>Tier 1, Tier 2, validasi"]
     DM --> ROB
-    EB --> APP["Aplikasi Streamlit<br/>7 halaman"]
+    EB --> APP["Aplikasi Streamlit<br/>6 halaman hasil + 2 lampiran"]
     STB --> APP
     MR --> APP
     DM --> APP
@@ -528,18 +528,21 @@ diketahui di `tests/test_stats.py`.
 
 ## 9. Aplikasi untuk analis
 
-Aplikasi Streamlit kami punya tujuh halaman. Aplikasi ini hanya membaca artefak hasil: tidak ada login, tidak ada unggahan data
-pengguna, dan tidak ada estimasi saat dijalankan. Versi daring: https://kagami.streamlit.app (membaca artefak hasil yang ikut di repo).
+Aplikasi Streamlit kami punya enam halaman hasil dan dua halaman lampiran teknis, dikelompokkan di menu samping. Aplikasi ini
+hanya membaca artefak hasil: tidak ada login, tidak ada unggahan data pengguna, dan tidak ada estimasi saat dijalankan. Versi
+daring: https://kagami.streamlit.app (membaca artefak hasil yang ikut di repo). Titik masuk [app/Home.py](app/Home.py) hanya
+memasang menu; isi halaman ada di `app/pages/`.
 
-| Halaman                                                | Isi                                                                                                                                                   |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Ringkasan & Status Data ([app/Home.py](app/Home.py)) | Cakupan data, kelayakan seri, status artefak                                                                                                          |
-| 2. Kepekaan Harga Regional                             | Kurva respons nasional, wilayah, dan provinsi, serta peta kepekaan                                                                                    |
-| 3. Pola Respons                                        | Uji heterogenitas, klaster (atau k = 1) dengan stabilitasnya, batas deteksi                                                                           |
-| 4. Eksposur & Nilai Prediktif                          | Jalur eksposur terhadap PT(8), meta-regresi, rasio MAE Task 4                                                                                         |
-| 5. Penjelajah Skenario Bersyarat                       | $\Delta \text{harga} = \exp(PT(h)\ln(1 + x/100)) - 1$ untuk $x \in \lbrace 1, 3, 5 \rbrace$ persen (rumus yang sama dengan tabel batas Rupiah di temuan), dengan bendera ekstrapolasi dan label "skenario bersyarat, bukan ramalan" |
-| 6. Temuan Penelitian                                   | Ringkasan temuan dalam bahasa analis TPID                                                                                                             |
-| 7. Evaluasi & Riwayat Eksekusi                         | Log eksekusi dan evaluasi setiap tahap (`logs/`), perbandingan run, alur pipeline; untuk pembuktian reproduksibilitas                                  |
+| Bagian | Halaman | Isi |
+| --- | --- | --- |
+| Hasil penelitian | Beranda | Jawaban lebih dulu: kalimat pembuka dan grafik batas perubahan harga per komoditas untuk rupiah melemah 5%, lima pertanyaan penelitian beserta jawabannya (dibaca dari artefak), dasar kepercayaan, status produk |
+| | Kepekaan harga | Kurva respons nasional, wilayah, dan provinsi; perbandingan komoditas; asimetri; peta kepekaan (dengan catatan bahwa perbedaan wilayah tidak terdeteksi) |
+| | Pola regional | Keputusan k vs plasebo, batas deteksi, uji heterogenitas per komoditas |
+| | Eksposur & prediksi | Jalur eksposur terhadap PT(8), meta-regresi, respons per rezim HET/HAP, rasio MAE Task 4 dengan arah uji DM |
+| | Skenario rupiah | $\Delta \text{harga} = \exp(PT(h)\ln(1 + x/100)) - 1$ untuk $x \in \lbrace 1, 3, 5 \rbrace$ persen (rumus yang sama dengan tabel batas Rupiah di temuan), dengan bendera ekstrapolasi dan label "skenario bersyarat, bukan ramalan" |
+| | Temuan lengkap | `results/findings.md` dalam tab (ringkasan, per pertanyaan, ketahanan & batas, data, eksplorasi) + grafik robustness |
+| Lampiran teknis | Data & metode | Sumber data, kelayakan seri, daya deteksi (MDE), daftar artefak, laporan pemeriksaan data Tahap 0 |
+| | Riwayat eksekusi | Log eksekusi dan evaluasi setiap tahap (`logs/`), perbandingan run, alur pipeline; untuk pembuktian reproduksibilitas |
 
 Setiap grafik mencantumkan sumber, satuan, periode, interval 95%, dan label "asosiasi, bukan kausalitas". Jika interval sebuah
 respons memuat nol, aplikasi menampilkan lencana "tidak terdeteksi".
@@ -676,7 +679,7 @@ datmin/
 ├── results/             artefak hasil Tahap 0 dan Task 1–4, robustness, findings.md
 ├── src/                 paket kagami: utils, stats, data, features, models, evaluation, pipelines, viz, cli
 ├── notebooks/           00_stage0_data sampai 05_robustness (satu per tahap; lokal, Kaggle, Colab)
-├── app/                 aplikasi Streamlit 7 halaman
+├── app/                 aplikasi Streamlit (6 halaman hasil + 2 lampiran teknis)
 ├── tests/               tes pytest
 └── docs/                metode, dataset, arsitektur, praregistrasi, keputusan, isu terbuka, rencana kerja
 ```

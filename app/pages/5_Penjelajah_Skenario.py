@@ -7,7 +7,7 @@ from common import (CFG, LEVEL_LABELS, STRETCH, commodity_labels, fmt_interval, 
                     not_detected_badge, page_header, picker, unit_names)
 from kagami.viz import plots
 
-page_header("Penjelajah Skenario Bersyarat",
+page_header("Skenario rupiah",
             "Bila rupiah melemah x% dalam h minggu, berapa perubahan harga yang konsisten dengan pola historis?")
 
 got = need("profiles", "episodes")

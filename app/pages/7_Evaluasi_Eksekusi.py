@@ -12,9 +12,12 @@ from kagami.tracking import assessment, registry, store
 from kagami.viz import plots
 from kagami.viz.style import fmt_num
 
-page_header("Evaluasi & Riwayat Eksekusi",
+page_header("Riwayat eksekusi",
             "Tahap mana yang benar-benar dieksekusi, dari input mana, apakah artefaknya sinkron, dan apakah hasil "
             "evaluasinya lebih baik dari acuan?")
+st.caption("Lampiran teknis untuk pembuktian reproduksibilitas: setiap tahap pipeline mencatat log JSON (input, output, "
+           "sidik jari data & kode, metrik evaluasi). Hasil penelitian ada di bagian Hasil penelitian; halaman ini untuk "
+           "pemeriksaan proses.")
 
 LABELS = {k: v.label for k, v in registry.TASKS.items()}
 SHORT = {k: v.split(" · ")[0] for k, v in LABELS.items()}

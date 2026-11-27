@@ -312,6 +312,12 @@ Tanggal acuan: 2026-11-27. Papan lengkap: `docs/WORKPLAN.md`.
   di-commit `8c7677a` 10.28 WIB). Unduh PIHPS eceran = snapshot beku (0 revisi). Putaran evaluasi ≥ 2026-11-29 (Minggu, D-155), 2026-12-20, 2027-01-17;
   cek dulu `python -X utf8 docs/audit/20261127_prospective_validation/scripts/integrity_check.py` (harus keluar 0; tanpa `-X utf8` skrip
   beku ini crash cp1252 saat keluaran ke pipa/berkas, D-169).
+- **App produksi untuk juri (D-170, 2026-11-27):** app daring ditelusuri halaman per halaman. Menu kini berkelompok: "Hasil penelitian"
+  (Beranda baru: kalimat jawaban + grafik batas perubahan harga 10 komoditas untuk rupiah −5%, lima RQ dengan jawaban dari artefak) dan
+  "Lampiran teknis" (Data & metode, Riwayat eksekusi). Dari beranda dipindah: tabel 29 sumber mentah, MDE kolom mentah, status artefak dengan
+  path server, laporan Tahap 0. Label terbaca di hal. 2–4, temuan dalam tab, tema terang serif. Bug: `artifact_sync`/`staleness` menganggap
+  beda ujung baris sebagai beda isi → app daring menampilkan 21 artefak "tidak sinkron" palsu; diperbaiki (simulasi checkout LF: 0).
+  Streamlit minimum 1.57. App daring baru berubah sesudah push.
 - **Tanggapan review eksternal (D-169, 2026-11-27):** klaim reviewer diverifikasi dulu terhadap kode & artefak. App hal. 4 kini menampilkan
   arah DM (`viz.style.dm_summary`: M2/M1 1,009 / 1,013, DM −2,70 / −2,29 → M2 nyata lebih buruk, p satu sisi keunggulan M2 0,996 / 0,987);
   hal. 5 memakai rumus eksak exp(PT·ln(1 + x/100)) − 1 (`viz.plots.scenario_change`) = tabel batas Rupiah findings (linear lama menyimpang
@@ -559,7 +565,7 @@ datmin/
 ├── logs/                     log pelacakan JSON (WP-36): runs/, evaluations/, errors/, pipelines/ — tidak pernah ditimpa
 ├── notebooks/                00_stage0_data … 05_robustness (.ipynb, tanpa output)
 ├── src/                      paket kagami (§6, §9)
-├── app/                      Streamlit: Home.py (hal. 1), pages/2..7, common.py
+├── app/                      Streamlit: Home.py (router st.navigation), pages/1..8 (6 hasil + 2 lampiran), common.py
 ├── tests/                    §16
 ├── docs/                     proposal & juknis (PDF) + dokumen kerja (§0.2); docs/arsip/ = inventaris dataset xlsx (arsip)
 │   └── handoff/              satu file per serah-terima antar anggota (format docs/HANDOFF.md, dites)
@@ -1033,7 +1039,7 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 
 #### src/viz/style.py
 (konstanta palet `BLUE`/`ORANGE`/`AQUA`/`NEUTRAL`, `DIVERGING`, `SEQUENTIAL`, `STATUS_COLORS`, `MODEL_COLORS`; label `DRIVER_LABELS`,
-`LEVEL_LABELS`, `MODEL_LABELS`, `SUBSET_LABELS`, `CHECK_LABELS`; D-134. Bukan fungsi grafik → tidak diwajibkan dipanggil app/notebook.)
+`LEVEL_LABELS`, `MODEL_LABELS`, `SUBSET_LABELS`, `CHECK_LABELS`, `PATH_LABELS`, `FEATURE_LABELS` (D-170); D-134. Bukan fungsi grafik → tidak diwajibkan dipanggil app/notebook.)
 - `fmt_num` · ✔ · angka format Indonesia (desimal koma, ribuan titik, minus tipografis); NaN → "tidak tersedia".
 - `dm_summary` · ✔ · kalimat uji DM dengan arah: tanda DM, "lebih/kurang akurat", p dua sisi, p satu sisi untuk keunggulan model (app hal. 4, D-169).
 - `fmt_interval` · ✔ · "lo s.d. hi" format Indonesia atau "interval tidak tersedia".
@@ -1104,8 +1110,8 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `metrics_table` · ✔ · metrik long (run, tahap, kelompok, nama, nilai, status, alasan, konteks).
 - `compare_runs` · ✔ · metrik + delta vs run acuan, beda parameter/lingkungan, sha256 input/output per run.
 - `latest_runs` · ✔ · run terakhir per tahap.
-- `staleness` · ✔ · input run terakhir yang file-nya kini berbeda (hasil basi).
-- `artifact_sync` · ✔ · lineage OUTPUT: setiap artefak = hasil run eksekusi terakhir (sinkron) / versi lain (tidak sinkron) / hanya dievaluasi / tanpa log (D-140).
+- `staleness` · ✔ · input run terakhir yang file-nya kini berbeda (hasil basi); beda ujung baris CRLF ↔ LF saja tidak dihitung (D-170).
+- `artifact_sync` · ✔ · lineage OUTPUT: setiap artefak = hasil run eksekusi terakhir (sinkron) / versi lain (tidak sinkron) / hanya dievaluasi / tanpa log (D-140); hash teks dibandingkan juga dalam versi LF & CRLF (checkout git di Linux, D-170).
 - `stage_states` · ✔ · status tahap: dieksekusi / output tidak sinkron / hanya dievaluasi / gagal / belum ada run (D-140).
 
 #### src/tracking/assessment.py
@@ -1447,12 +1453,12 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_notebooks.py` | satu notebook per tahap, valid, sel 0–1 identik, tanpa output, sel setup jalan lokal |
 | `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis; tanpa interval → tanpa pita; format angka & lencana (regresi NaN); peta tanpa subplot geo (offline) & nilai wilayah ke provinsi; V18 hanya Tier 1/2 + komponen dekomposisi; V19 subjudul H2; geometri referensi = 34 provinsi crosswalk; D-169: skenario = transformasi log eksak (bukan PT·x) & angka app = tabel batas Rupiah findings (artefak `profiles`), kalimat DM memuat arah (p kecil + DM negatif = lebih buruk) |
 | `test_app.py` | 7 halaman Streamlit jalan tanpa exception (artefak ada/belum) |
-| `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app, artefak yang dibaca pipeline dideklarasikan REQUIRES/OPTIONAL (D-140) |
+| `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app (8 halaman, semua terdaftar di router `app/Home.py`, D-170), artefak yang dibaca pipeline dideklarasikan REQUIRES/OPTIONAL (D-140) |
 | `test_claude_md.py` | §9 dokumen ini sinkron dengan kode (fungsi publik & status stub) |
 | `test_handoff.py` | format setiap `docs/handoff/*.md`: nama file, frontmatter, bagian wajib, status vs kotak centang |
 | `test_drive.py` | sinkron Drive dengan Drive palsu di memori: path dicerminkan, timpa bukan duplikat, pull ke anggota lain, hanya tahap diminta, lokal tanpa token dilewati, push/pull data mentah bolak-balik (MD5, glob, tidak menimpa) |
 | `test_download.py` | resolusi tautan unduhan terbaru (pola Pink Sheet) & url cadangan, tanpa jaringan |
-| `test_tracking.py` | WP-36: metrik clustering/regresi = rumus numpy independen, penjaga not_applicable (k = 1, k = n, NaN, y = 0), run sukses/gagal & galat dilempar ulang, log tidak ditimpa, bertingkat & pipeline_id, run induk dari hash, hasil basi & perbandingan, evaluasi-saja, graf DAG, git, log Drive bolak-balik, cek integritas silhouette & MAE pada artefak asli, halaman app 7, grafik run dengan format waktu campuran (D-138), metrik arah = rumus confusion/AUC/AP manual + penjaga (D-139); D-143: p bootstrap ⇔ interval & penurunan penilaian yang tidak lolos BH; D-144: F1 berbobot/cakupan/akurasi termasuk nol, ringkasan Task 4 & sakelar diagnostik; D-140: interval bootstrap origin mendeteksi sinyal & AUC/AP = sklearn, tabel segmen, kesehatan fitur, aturan penilaian, perubahan sama/berubah/baru/hilang, code hash, sinkron artefak & status tahap |
+| `test_tracking.py` | WP-36: metrik clustering/regresi = rumus numpy independen, penjaga not_applicable (k = 1, k = n, NaN, y = 0), run sukses/gagal & galat dilempar ulang, log tidak ditimpa, bertingkat & pipeline_id, run induk dari hash, hasil basi & perbandingan, evaluasi-saja, graf DAG, git, log Drive bolak-balik, cek integritas silhouette & MAE pada artefak asli, halaman app 7, grafik run dengan format waktu campuran (D-138), metrik arah = rumus confusion/AUC/AP manual + penjaga (D-139); D-143: p bootstrap ⇔ interval & penurunan penilaian yang tidak lolos BH; D-144: F1 berbobot/cakupan/akurasi termasuk nol, ringkasan Task 4 & sakelar diagnostik; D-140: interval bootstrap origin mendeteksi sinyal & AUC/AP = sklearn, tabel segmen, kesehatan fitur, aturan penilaian, perubahan sama/berubah/baru/hilang, code hash, sinkron artefak & status tahap; D-170: beda ujung baris saja tetap sinkron & tidak basi, perubahan isi tetap terdeteksi |
 | `test_docs_sync.py` | dokumen hidup tidak basi: tautan & path ada, papan WP vs stub, §2 vs papan, ID D-/U- ada, kunci `params.*` ada, sumber/komoditas/notebook/subpaket/tes terdokumentasi (§3.4) |
 
 ### 16.2 Menjalankan
@@ -1490,12 +1496,18 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 
 ## 18. App Streamlit
 
-- `app/Home.py` = halaman 1 (Ringkasan & Status Data); `pages/2..7`: Kepekaan Harga Regional, Pola Respons, Eksposur &
-  Nilai Prediktif, Penjelajah Skenario Bersyarat, Temuan Penelitian, Evaluasi & Riwayat Eksekusi (WP-36: membaca `logs/`,
-  bukan artefak; ringkasan, metrik per tahap, perbandingan run, alur pipeline, riwayat). Jalankan `python -m kagami app`.
+- `app/Home.py` = router `st.navigation` (D-170): bagian "Hasil penelitian" = `pages/1_Beranda.py` (default), 2 Kepekaan harga,
+  3 Pola regional, 4 Eksposur & prediksi, 5 Skenario rupiah, 6 Temuan lengkap; bagian "Lampiran teknis" = `pages/8_Data_dan_Metode.py`
+  (sumber, kelayakan, MDE, daftar artefak tanpa path server, laporan Tahap 0) dan `pages/7_Evaluasi_Eksekusi.py` (Riwayat eksekusi,
+  WP-36: membaca `logs/`). `url_path` halaman lama dipertahankan. Halaman baru wajib didaftarkan di router (`test_wiring`). Jalankan
+  `python -m kagami app`. Tema di `.streamlit/config.toml` (kertas terang, judul serif, biru tua `#1c5cab`, toolbar minimal).
 - `common.py`: alias paket, `CFG`, `load` (cache per versi file; ketiadaan tidak di-cache, D-136), `need` (label "Menunggu hasil (WP-xx)"), `page_header`, `footer`,
   `not_detected_badge`, `commodity_labels`, `unit_names`, `load_geo`, `picker` (pilihan disimpan di URL `?key=`),
-  `reset_button`, `table` (tabel kembaran grafik di expander).
+  `reset_button`, `table` (tabel kembaran grafik di expander), `inject_style` (CSS beranda; dipanggil router), `nav_link`
+  (`st.page_link` dengan cadangan teks bila halaman dijalankan di luar router, mis. tes asap).
+- Juri (D-170): yang tampil di bagian hasil hanya jawaban dan bukti; kode internal (nama kolom mentah, `None`, ID keputusan, path
+  server, status lineage) masuk lampiran teknis atau expander. Beranda menghitung semua angkanya dari artefak (tidak ada angka hasil
+  tertulis tangan).
 - Tampilan (D-134, PLAN.md §18): warna/label/format angka dari `viz.style` (jangan hex atau kode mentah seperti `e_neg` di halaman);
   peta di sumbu kartesius, jangan `go.Choropleth`/`choropleth_map` (mengunduh topojson/tile → gagal offline). Baris provinsi
   `profiles` = deviasi δ, dua versi per sel → pakai `shrunk = True` dan labeli "deviasi".
@@ -1593,6 +1605,7 @@ interval asimetris ditulis batas bawah..batas atas. `carry_forward` = "rangkaian
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-170 | App untuk juri: navigasi berkelompok (hasil vs lampiran teknis), beranda jawaban-dulu dari artefak, isi teknis dipindah ke lampiran, label terbaca, tema terang serif; sinkron lineage mengabaikan beda ujung baris (21 artefak "tidak sinkron" palsu di app daring) | FINAL (teknis) |
 | D-169 | Tanggapan review eksternal: arah DM di app, skenario eksak = findings, carry_forward = rangkaian harga identik (FAQ PIHPS), batas Rupiah asimetris, batas deteksi & proksi dibatasi, waktu origin didokumentasikan, status PV-2b & `integrity_check` (`-X utf8`) disinkronkan; angka artefak tidak berubah | FINAL (teknis) |
 | D-168 | Temuan disajikan menurut tiga tingkat bukti; uji ukuran kalibrasi plasebo (4,4% vs ±1,96·SE 8,8%), batas atas Rupiah, buku besar periode uji 2024+ (Holm 10 perbandingan), `docs/DATASHEET.md`; angka artefak tidak berubah | FINAL (teknis) |
 | D-167 | Aturan & evaluator validasi maju K4 dibekukan pra-target (label dari panel baru, ΔAP < −0,14 = gagal; CONSISTENT bila ΔAP ≥ 0 & AP ≥ B-CLIMS); `scripts/k4_forward_eval.py` | FINAL · eksploratif |
@@ -1755,6 +1768,9 @@ Selesai: U1, U2, U18, U23.
     tampilkan tanda statistik & p satu sisi untuk hipotesis berarah (`viz.style.dm_summary`).
 29. **"±" sebagai "sekitar"** (D-169): "± Rp90" dibaca interval simetris oleh reviewer (interval asli −170..+89). Di teks juri tulis
     "sekitar" atau batas bawah..batas atas.
+31. **Hash CRLF vs checkout Linux** (D-170): artefak CSV/MD ditulis CRLF di Windows dan hash-nya dicatat begitu; git menyimpan LF, jadi di
+    Streamlit Cloud/clone Linux semua artefak teks tampak "tidak sinkron" (21 di app daring) walau isinya identik. Bandingkan hash dalam
+    varian LF & CRLF (`tracking.store`); jangan menyimpulkan lineage rusak dari hash teks lintas OS.
 30. **Dua rumus untuk angka yang sama** (D-169): app memakai PT·x, findings exp(PT·ln(1 + x)) − 1 → angka berbeda di ekor. Satu fungsi
     (`viz.plots.scenario_change`) + tes yang mencocokkan angka app dengan tabel findings.
 

@@ -165,7 +165,7 @@ def recovery_curve(planted: pd.DataFrame, threshold: float = 0.8) -> go.Figure:
     fig.add_hline(y=threshold, line_dash="dash", line_color=S.NEUTRAL, line_width=1,
                   annotation_text=f"ambang deteksi {threshold:.0%}", annotation_position="bottom right")
     fig.update_yaxes(range=[0, 1.05], tickformat=".0%")
-    return S.finish(fig, "Seberapa besar struktur regional yang pasti terdeteksi?",
+    return S.finish(fig, "Seberapa besar struktur regional yang akan terdeteksi?",
                     "Struktur dengan selisih respons ≥ δ ditanam pada derau plasebo, lalu diproses seperti data asli",
                     x="selisih respons tertanam δ (RMS per fitur)", y="porsi struktur terdeteksi")
 

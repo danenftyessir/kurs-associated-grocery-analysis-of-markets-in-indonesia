@@ -77,7 +77,10 @@ def test_every_artifact_has_producer_and_is_documented():
 
 def test_app_pages_present_and_import_common():
     pages = sorted((ROOT / "app" / "pages").glob("*.py"))
-    assert len(pages) == 6 and (ROOT / "app" / "Home.py").exists()
+    assert len(pages) == 8 and (ROOT / "app" / "Home.py").exists()
+    home = (ROOT / "app" / "Home.py").read_text(encoding="utf-8")
+    for p in pages:                     # D-170: setiap halaman terdaftar di router st.navigation (tidak ada halaman yatim)
+        assert f'"pages/{p.name}"' in home, f"{p.name} tidak terdaftar di app/Home.py"
     for p in [ROOT / "app" / "Home.py", *pages]:
         assert "from common import" in p.read_text(encoding="utf-8"), p.name
 

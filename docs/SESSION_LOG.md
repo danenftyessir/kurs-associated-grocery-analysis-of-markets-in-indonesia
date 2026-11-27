@@ -9,6 +9,15 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-27 — Danen: WP-31/34 🔶 (app produksi untuk juri, D-170)
+- App daring ditelusuri per halaman (konten iframe `/~/+/`). Masalah utama: beranda teknis tanpa jawaban, path server, kolom mentah, peta
+  wilayah tanpa catatan ketidakpastian, dokumen temuan tanpa struktur, "21 artefak tidak sinkron" di hal. 7.
+- Router `st.navigation` (Hasil penelitian / Lampiran teknis), beranda baru `pages/1_Beranda.py` (jawaban + grafik dari artefak), lampiran
+  `pages/8_Data_dan_Metode.py`, label terbaca hal. 2–4, tab di hal. 6, tema terang serif, Streamlit ≥ 1.57.
+- Bug lineage: beda ujung baris CRLF/LF dihitung beda isi → `tracking.store` membandingkan varian LF & CRLF (simulasi checkout LF: 0 tidak
+  sinkron); tes regresi baru. Detektor desain: 0 temuan.
+- Berikutnya: commit + push agar app daring berubah; cek ulang app daring sesudah deploy.
+
 ### 2026-11-27 — Danen: WP-34 🔶 (tanggapan review eksternal, D-169)
 - Klaim reviewer diverifikasi dulu ke kode/artefak; hampir semua benar. App hal. 4: arah DM (`viz.style.dm_summary`; M2 DM −2,70 / −2,29 = nyata
   lebih buruk); hal. 5: skenario eksak `viz.plots.scenario_change` = tabel findings; beranda: status prototipe riset; hal. 3: cakupan batas deteksi.

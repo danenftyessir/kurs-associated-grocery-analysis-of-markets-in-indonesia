@@ -6,7 +6,7 @@ from common import (CFG, DRIVER_LABELS, LEVEL_LABELS, STRETCH, commodity_labels,
                     load, load_geo, need, not_detected_badge, page_header, picker, reset_button, table, unit_names)
 from kagami.viz import plots
 
-page_header("Kepekaan Harga Regional", "Komoditas mana di wilayah saya yang historisnya paling peka?")
+page_header("Kepekaan harga", "Komoditas mana di wilayah saya yang historisnya paling peka?")
 
 KEYS = ["com", "level", "unit", "driver", "h", "maplv"]
 
@@ -82,7 +82,10 @@ if got:
             if flat and maplv == "province":
                 st.info("τ² = 0: penyusutan empirical Bayes mengembalikan semua provinsi ke rerata nasional. Peta satu warna "
                         "ini hasil yang sah, bukan grafik rusak.")
-            st.caption("Geometri provinsi © OpenStreetMap contributors (ODbL), via geoBoundaries. "
+            st.caption("Warna = estimasi titik tanpa ketidakpastian. Perbedaan antarwilayah tidak lolos uji plasebo untuk "
+                       "sebagian besar komoditas dan provinsi tidak membentuk kelompok (halaman Pola regional), jadi warna "
+                       "yang berbeda belum tentu perbedaan nyata. "
+                       "Geometri provinsi © OpenStreetMap contributors (ODbL), via geoBoundaries. "
                        + ("Peta wilayah mewarnai setiap provinsi dengan nilai wilayahnya. " if maplv == "region"
                           else "Nilai provinsi = deviasi dari rerata lintas provinsi (Σ = 0), tersusut empirical Bayes; "
                                "respons total = nasional + deviasi. ")
@@ -155,6 +158,8 @@ if got:
         lvls = [x for x in ("region", "province") if x in set(feats["level"])] or ["national"]
         lv = mc2.selectbox("Tingkat peta", lvls, format_func=LEVEL_LABELS.get)
         st.plotly_chart(plots.sensitivity_heatmap(feats, lv, metric, labels=labels, unit_names=names), **STRETCH)
+        st.caption("Estimasi titik per sel tanpa interval; pakai untuk orientasi, bukan untuk menyimpulkan wilayah mana yang "
+                   "lebih peka (uji heterogenitas di halaman Pola regional).")
         rank = feats[(feats["level"] == "province") & (feats["commodity"] == com)].sort_values("R8", ascending=False)
         if len(rank):
             if rank["R8"].nunique() == 1:
@@ -168,6 +173,12 @@ if got:
     ev = got["events"]
     e = ev[ev["commodity"] == com]
     if len(e):
-        table(e, "Event study per episode depresiasi (vs 499 jendela plasebo)", status=False)
+        ren = {"episode_id": "episode", "level": "tingkat", "unit": "unit", "horizon": "h (minggu)",
+               "dlog_price": "perubahan log harga", "placebo_lo": "pita plasebo bawah", "placebo_hi": "pita plasebo atas",
+               "placebo_p": "p plasebo"}
+        e = e.assign(level=e["level"].map(LEVEL_LABELS).fillna(e["level"]),
+                     unit=e["unit"].astype(str).map(lambda u: names.get(u, u)))
+        table(e[[c for c in ren if c in e]].rename(columns=ren).round(4),
+              "Event study per episode depresiasi (vs 499 jendela plasebo)", status=False)
 
 footer("PIHPS (BI), JISDOR (BI), Pink Sheet (Bank Dunia)", "Δ log harga per 1 log penggerak", "2018-2026")

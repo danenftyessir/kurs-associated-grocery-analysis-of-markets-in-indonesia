@@ -415,6 +415,31 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-170 — App Streamlit sebagai deliverable produksi untuk juri: navigasi berkelompok, beranda jawaban-dulu, isi teknis ke lampiran; lineage mengabaikan beda ujung baris · FINAL (teknis) · 2026-11-27 (WP-31, WP-34) · Danen
+Atas permintaan Danen, app daring (https://kagami.streamlit.app, versi sebelum D-169) ditelusuri halaman per halaman. Temuan: beranda
+berjudul teknis ("Ringkasan & Status Data") tanpa jawaban; tabel 29 sumber mentah (termasuk sumber pilot), MDE dengan kolom mentah dan
+`None`, status artefak dengan path server `/mount/src/…`, laporan Tahap 0 lengkap; hal. 2 peta & heatmap wilayah berwarna kuat padahal
+uji regional tidak mendeteksi struktur, event study berupa tabel mentah; hal. 3 judul "pasti terdeteksi"; hal. 4 tabel eksposur dengan
+notasi 0,0000000007 dan forest meta-regresi 33 baris berlabel kode; hal. 6 dokumen ± 440 baris tanpa struktur, diakhiri daftar artefak &
+ID keputusan; hal. 7 menampilkan "Artefak tidak sinkron 21".
+Keputusan: (1) `app/Home.py` menjadi router `st.navigation` dengan bagian "Hasil penelitian" (Beranda, Kepekaan harga, Pola regional,
+Eksposur & prediksi, Skenario rupiah, Temuan lengkap) dan "Lampiran teknis" (Data & metode, Riwayat eksekusi); `url_path` lama dipertahankan.
+(2) Beranda baru `pages/1_Beranda.py`: kalimat jawaban (batas atas kenaikan harga beras untuk rupiah −5%, h = 8, dihitung dari `profiles`
+dengan `scenario_change`), grafik batas perubahan harga 10 komoditas, lima RQ dengan jawaban yang dihitung dari artefak (cadangan netral
+bila artefak/kolom tidak ada), dasar kepercayaan, status produk. Tanpa templat "angka besar + label" dan tanpa label di atas judul.
+(3) Isi teknis beranda pindah ke `pages/8_Data_dan_Metode.py` (sumber utama vs opsional, kelayakan per komoditas, MDE nasional berlabel,
+jumlah artefak tanpa path server, laporan Tahap 0 di expander). (4) Label terbaca: jalur eksposur & fitur (`viz.style.PATH_LABELS`,
+`FEATURE_LABELS`), rasio impor dalam persen, forest meta-regresi default gabungan (per komoditas lewat toggle), penggerak E2 berlabel, kolom
+event study & uji heterogenitas berbahasa pembaca; catatan pada peta & heatmap bahwa warna = estimasi titik. (5) Temuan lengkap = isi
+`findings.md` apa adanya dalam 5 tab. (6) Tema `.streamlit/config.toml`: terang (dibaca di laptop, dipotong ke makalah/video), judul serif
+bawaan Streamlit (offline), biru tua `#1c5cab`, toolbar minimal. Streamlit minimum 1.57 (versi yang diuji: `st.navigation` bersekat,
+`set_page_config` berulang, `headingFont`).
+(7) Bug: artefak teks ditulis CRLF di Windows dan hash-nya dicatat begitu; git menyimpan LF, jadi di Streamlit Cloud hash berbeda dan 21
+artefak tampak "tidak sinkron" walau isinya identik (dibuktikan: hash lokal = log, blob git ≠ log, blob → CRLF = log). `store.artifact_sync`
+dan `staleness` kini juga membandingkan varian LF & CRLF berkas teks; simulasi checkout LF: 22 sinkron, 0 tidak sinkron. Tes regresi
+`test_sync_ignores_line_endings_only`. Ditolak: menulis ulang log atau menormalkan artefak (log tidak boleh ditimpa; artefak beku).
+Angka hasil dan artefak tidak berubah. App daring baru berubah sesudah push.
+
 ### D-169 — Tanggapan review eksternal: arah DM di app, rumus skenario eksak, makna carry_forward, klaim batas Rupiah, waktu origin, sinkron status validasi prospektif · FINAL (teknis) · 2026-11-27 (WP-34) · Danen
 Review eksternal 2026-11-27 (repo `main`) diverifikasi butir per butir terhadap kode dan artefak sebelum ada yang diubah. Angka artefak
 di `results/` tidak berubah (hanya teks `findings.md`); params, model, dan prediksi beku tidak disentuh. Bukan DEVIASI PRAREGISTRASI.

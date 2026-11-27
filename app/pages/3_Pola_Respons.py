@@ -1,12 +1,13 @@
 """Halaman 3 -- Pola Respons (WP-31; PLAN.md §18: keputusan k vs plasebo + batas deteksi sebagai isi utama)."""
 
+import pandas as pd
 import streamlit as st
 
 from common import STRETCH, commodity_labels, fmt_num, footer, load, need, page_header, table, unit_names
 from kagami.evaluation.planted import DETECTION_RATE, detection_limit
 from kagami.viz import plots
 
-page_header("Pola Respons", "Apakah ada kelompok provinsi dengan pola serupa?")
+page_header("Pola regional", "Apakah ada kelompok provinsi dengan pola serupa?")
 
 got = need("heterogeneity", "cluster_selection", "clusters", "coassign", "planted_recovery")
 if got:
@@ -37,7 +38,20 @@ if got:
                 "kelompok kecil, gradien geografis, atau perbedaan pada sebagian komoditas saja, belum diuji.")
     st.plotly_chart(plots.recovery_curve(planted, threshold=DETECTION_RATE), **STRETCH)
     table(planted, "Lihat tabel batas deteksi", status=False)
-    table(het, "Uji heterogenitas per komoditas (vs plasebo)", status=False)
+
+    st.subheader("Komoditas mana yang responsnya berbeda antarprovinsi?")
+    if {"statistic", "value", "commodity"} <= set(het.columns):
+        wide = het.pivot_table(index="commodity", columns="statistic", values="value", aggfunc="first")
+        qq = q.set_index("commodity")
+        tab = pd.DataFrame({"Komoditas": [labels.get(c, c) for c in qq.index],
+                            "Q": wide.reindex(qq.index).get("Q"), "τ² (varians antarprovinsi)": wide.reindex(qq.index).get("tau2"),
+                            "I²": wide.reindex(qq.index).get("I2"), "p plasebo": qq.get("p_placebo"),
+                            "q BH": qq.get("q_fdr"), "Melampaui plasebo": qq.get("reject")}).sort_values("q BH")
+        st.dataframe(tab.round(3), hide_index=True, **STRETCH)
+        st.caption("H0-Het pada h = 8, penggerak IDR/USD: statistik Q dibandingkan dengan 499 replikasi plasebo, lalu dikoreksi "
+                   "Benjamini–Hochberg antar 10 komoditas. τ² = 0 berarti semua provinsi disusutkan ke respons nasional.")
+    else:
+        table(het, "Uji heterogenitas per komoditas (vs plasebo)", status=False)
 
     if k_star > 1:
         cl = got["clusters"]

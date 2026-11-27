@@ -5,7 +5,7 @@ import streamlit as st
 from common import STRETCH, commodity_labels, fmt_num, footer, load, need, page_header, table, with_status
 from kagami.viz import plots, style
 
-page_header("Eksposur & Nilai Prediktif",
+page_header("Eksposur & prediksi",
             "Lewat jalur apa komoditas ini terpapar, dan apakah fitur kurs memperbaiki prediksi dalam evaluasi historis?")
 
 got = need("exposure", "response_features", "assoc", "forecast_eval", "ablation")
@@ -17,12 +17,22 @@ if got:
     if conc is not None and "confidence" in conc:
         expo = expo.merge(conc[["commodity", "confidence"]].rename(columns={"confidence": "keyakinan_konkordansi"}),
                           on="commodity", how="left")
-    st.dataframe(expo, hide_index=True, **STRETCH)
-    st.caption("`import_ratio_direct` hanya mengukur porsi impor langsung komoditas itu sendiri. Sumber dan tahun pengamatannya "
-               "berbeda per komoditas (kolom `source`); bawang putih memakai impor BPS/Comtrade dan produksi ATAP satu tahun saja, "
-               "tanpa ekspor, karena FAOSTAT tidak memuat bawang putih kering. Eksposur lewat input impor (pakan untuk daging ayam "
-               "& telur) diukur terpisah lewat `imported_input_ordinal` dan harga dunia komposit jagung–bungkil kedelai. Jadi angka "
-               "antarkomoditas tidak setara kualitas dan periodenya. `keyakinan_konkordansi` = keyakinan pemetaan "
+    labels = commodity_labels()
+    expo = expo.assign(commodity=expo["commodity"].map(lambda c: labels.get(c, c)),
+                       exposure_path=expo["exposure_path"].map(lambda p: style.PATH_LABELS.get(p, p)))
+    ren = {"commodity": "Komoditas", "exposure_path": "Jalur eksposur", "import_ratio_direct": "Rasio impor langsung",
+           "imported_input_ordinal": "Input impor (0–2)", "world_price_link": "Ada harga dunia padanan",
+           "PT8": "PT(8) nasional", "W8": "Respons harga dunia (8 mgg)", "keyakinan_konkordansi": "Keyakinan konkordansi",
+           "source": "Sumber & tahun rasio impor"}
+    st.dataframe(expo[[c for c in ren if c in expo]].rename(columns=ren), hide_index=True, **STRETCH,
+                 column_config={"Rasio impor langsung": st.column_config.NumberColumn(format="percent"),
+                                "PT(8) nasional": st.column_config.NumberColumn(format="%.2f"),
+                                "Respons harga dunia (8 mgg)": st.column_config.NumberColumn(format="%.2f")})
+    st.caption("Rasio impor langsung hanya mengukur porsi impor komoditas itu sendiri. Sumber dan tahun pengamatannya berbeda "
+               "per komoditas (kolom terakhir); bawang putih memakai impor BPS/Comtrade dan produksi ATAP satu tahun saja, tanpa "
+               "ekspor, karena FAOSTAT tidak memuat bawang putih kering. Eksposur lewat input impor (pakan untuk daging ayam & "
+               "telur) diukur terpisah di kolom Input impor dan lewat harga dunia komposit jagung–bungkil kedelai. Jadi angka "
+               "antarkomoditas tidak setara kualitas dan periodenya. Keyakinan konkordansi = keyakinan pemetaan "
                "PIHPS–HS–Pink Sheet–FAOSTAT.")
 
     assoc = got["assoc"]
@@ -40,12 +50,16 @@ if got:
         hs = sorted({int(x) for x in meta["horizon"].dropna()}) if "horizon" in meta else []
         h = st.selectbox("Horizon meta-regresi (minggu)", hs, index=0) if hs else None
         m = meta if h is None else meta[meta["horizon"] == h]
-        lab = [c for c in ("commodity", "feature") if c in m]
-        st.plotly_chart(plots.forest(m, lab, "Meta-regresi efek acak: Δ respons per 1 SD fitur"),
-                        **STRETCH)
-        cols = [c for c in ("commodity", "feature", "horizon", "estimate", "ci_low", "ci_high", "p_value", "q_fdr",
-                            "method", "jackknife_min", "jackknife_max") if c in m]
-        st.dataframe(with_status(m[cols]), hide_index=True, **STRETCH)
+        m = m.assign(fitur=m["feature"].map(lambda f: style.FEATURE_LABELS.get(f, f)) if "feature" in m else "",
+                     komoditas=m["commodity"].map(lambda c: "Gabungan 10 komoditas" if c == "ALL" else labels.get(c, c)))
+        per = st.toggle("Tampilkan per komoditas", value=False, key="meta_per")
+        mv = m if per else m[m["commodity"] == "ALL"]
+        lab = ["komoditas", "fitur"] if per else ["fitur"]
+        st.plotly_chart(plots.forest(mv, lab, "Meta-regresi efek acak: Δ respons per 1 SD fitur"
+                                     + ("" if per else " (gabungan 10 komoditas)")), **STRETCH)
+        cols = [c for c in ("komoditas", "fitur", "horizon", "estimate", "ci_low", "ci_high", "p_value", "q_fdr",
+                            "jackknife_min", "jackknife_max") if c in m]
+        table(m[cols], "Tabel meta-regresi lengkap")
         st.caption("Interval = yang lebih lebar dari CR2 dan bootstrap; p konsisten dengan interval itu; q = BH atas baris "
                    "eksploratif. H3 (ln_dist_hub, h = 4) diuji satu sisi.")
         st.caption("Fitur adalah proksi: `ln_dist_hub` = jarak garis lurus ibu kota provinsi ke hub terdekat (bukan biaya atau "
@@ -65,11 +79,13 @@ if got:
         coms = [c for c in labels if c in set(reg["commodity"])]
         c1, c2, c3 = st.columns(3)
         com = c1.selectbox("Komoditas rezim", coms, format_func=labels.get)
-        drv = c2.selectbox("Penggerak rezim", sorted(reg.loc[reg["commodity"] == com, "driver"].unique()))
+        drv = c2.selectbox("Penggerak rezim", sorted(reg.loc[reg["commodity"] == com, "driver"].unique()),
+                           format_func=lambda d: style.DRIVER_LABELS.get(d, d))
         hr = c3.selectbox("Horizon rezim", sorted(reg.loc[reg["commodity"] == com, "horizon"].unique()))
         r = reg[(reg["commodity"] == com) & (reg["driver"] == drv) & (reg["horizon"] == hr)]
         lab = [c for c in ("regime_id", "label") if c in r]
-        st.plotly_chart(plots.forest(r, lab, f"{labels.get(com, com)} · {drv} · h = {hr}"), **STRETCH)
+        st.plotly_chart(plots.forest(r, lab, f"{labels.get(com, com)} · {style.DRIVER_LABELS.get(drv, drv)} · h = {hr}"),
+                        **STRETCH)
         cols = [c for c in ("regime_id", "label", "regime_start", "regime_end", "n_weeks", "estimate", "ci_low",
                             "ci_high", "baseline_estimate", "p_placebo", "q_fdr") if c in r]
         st.dataframe(with_status(r[cols]), hide_index=True, **STRETCH)

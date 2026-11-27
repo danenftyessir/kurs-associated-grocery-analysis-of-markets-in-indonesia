@@ -38,6 +38,10 @@ CHECK_LABELS = {
     "last_observation_aggregation": "agregasi observasi terakhir",
     "bapanas_outcome": "outcome Panel Harga Bapanas",
 }
+PATH_LABELS = {"direct_import": "Impor langsung", "imported_input": "Input impor (pakan)", "export_parity": "Paritas ekspor",
+               "domestic": "Domestik"}
+FEATURE_LABELS = {"ln_dist_hub": "Jarak ke hub logistik (ln km)", "rice_sufficiency": "Kecukupan produksi beras",
+                  "n_kota": "Jumlah kota sampel PIHPS"}
 CAUSAL_NOTE = "Asosiasi historis, bukan kausalitas."
 MINUS = "−"
 
