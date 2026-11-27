@@ -1,18 +1,19 @@
 # Ringkasan — validasi prospektif & akuisisi data (2026-11-27)
 
-**STATUS: PARTIAL.** Audit integritas dan protokol selesai. Belum ada evaluasi maju karena belum ada target yang lengkap. K4 terhambat dua
-tindakan sebelum 2026-11-29.
+**STATUS: PARTIAL.** Audit integritas, protokol, dan evaluator K4 selesai. Belum ada evaluasi maju karena belum ada target yang lengkap.
+Sisa satu tindakan sebelum 2026-11-29: commit pembekuan evaluator (PV-2b). Diperbarui 2026-11-27 10.20 WIB.
 
 ## Kesimpulan eksekutif
 
 1. **D-152 (`IW_NAT`) dan D-158 (`FR_REF`, `FR_CITY`) utuh.** sha256 prediksi = manifest = commit sebelum target ada (`ca53742`,
    `ec6dd19`). Evaluator beku (`fw_eval.py`, `a_forward_eval.py`, `fw_common.py`) tidak berubah, uji mandiri label 0 beda, dan tes evaluator
    7/7 lolos.
-2. **K4 (D-164): isinya sah, bukti waktunya belum ada.**
-   - Berkas beku `eb1f10db…` dapat direkonstruksi persis dari prediksi yang dibuat sebelum target ada, dan kolom mentahnya identik dengan
-     versi di commit `3095ae0`.
-   - Masalahnya: yang ter-commit adalah keluaran mentah 18 detik sebelum pembekuan, dan manifest tidak ter-commit.
-   - Tidak ada evaluator maju K4, dan tidak ada aturan keputusan maju.
+2. **K4 (D-164): beku dan di-commit; evaluator maju siap.**
+   - Berkas beku `eb1f10db…` dapat direkonstruksi persis dari prediksi yang dibuat sebelum target ada.
+   - Danen meng-commit versi beku + manifest di `044873c` (2026-11-27 09.53 WIB), sebelum target terlihat.
+   - Aturan maju disetujui (D-167). `scripts/k4_forward_eval.py` mereproduksi label dan metrik pipeline K4 pada origin test historis
+     (24.616/24.616 label; AP/AUC/presisi@K sama).
+   - Commit evaluator ini masih menunggu (PV-2b).
 3. **Mekanisme unduh PIHPS eceran siap.** Uji pada jendela tanpa target menunjukkan 19.103 / 19.103 harga identik dengan snapshot beku dan
    0 revisi.
 4. **Risiko reproduksi:** hash beku D-152/D-158 adalah hash byte CRLF. Verifikasi hanya lolos di checkout dengan `core.autocrlf=true`.
@@ -27,7 +28,7 @@ tindakan sebelum 2026-11-29.
 |---|---|---|---|
 | D-152 intraminggu (`IW_NAT` vs C1-tuned) | **BLOCKED** (belum ada target lengkap) | 0 target siap pada snapshot 2026-11-18 | h 4: 2026-12-20; h 8: 2027-01-17 |
 | D-158 (`FR_REF`, `FR_CITY` vs C1-tuned) | **BLOCKED** (idem) | idem | idem |
-| D-164 K4-E80 | **BLOCKED** (commit + evaluator/aturan maju) | INITIAL_AUDIT §2.3, §3.3 | sesudah PV-1/PV-2; h 4 2026-12-20, h 8 2027-01-17 |
+| D-164 K4-E80 | **BLOCKED** (belum ada target lengkap; evaluator D-167 menunggu commit) | INITIAL_AUDIT §2.3, protokol §5 | h 4 2026-12-20, h 8 2027-01-17 |
 | C1-tuned | deskriptif saja (tidak ada aturan maju beku) | protokol §4 | – |
 | Akuisisi data U112 | **BLOCKED** `[HUMAN]` | akses terbatas / berlogin | – |
 | Operasional K4 / daftar pantau | **BLOCKED** (U109) | D-154, D-164 | – |
@@ -36,9 +37,10 @@ Tidak ada INTEGRITY_FAILED: tidak satu pun berkas beku yang isinya berbeda dari 
 
 ## Rekomendasi keputusan (untuk Danen)
 
-1. **Hari ini:** commit versi beku K4 + manifest apa adanya (PV-1).
-2. **Hari ini:** putuskan draf aturan maju K4 (FORWARD_VALIDATION_PROTOCOL §5): penjaga kegagalan ΔAP < −0,14; CONSISTENT bila ΔAP ≥ 0 dan
-   AP ≥ B-CLIMS. Bila setuju, evaluator ditulis, diuji, dibekukan, dan di-commit sebelum 2026-11-29.
+1. ~~Commit versi beku K4 + manifest (PV-1)~~: selesai, `044873c`.
+2. ~~Putuskan aturan maju K4~~: disetujui (D-167). **Sebelum 2026-11-29:** commit `FORWARD_VALIDATION_PROTOCOL.md`,
+   `scripts/k4_forward_eval.py`, `scripts/integrity_check.py`, dan `hasil/pv_protocol_sha256.txt` apa adanya (PV-2b). Sesudahnya
+   `integrity_check.py` harus keluar 0.
 3. **2026-11-29:** putaran E1 (1 origin per horizon, interim). E2 pada 2026-12-20, E3 pada 2027-01-17.
 4. **Makalah (submit 29 Nov):** tulis validasi maju sebagai "prediksi maju dibekukan dan di-commit sebelum target ada; evaluasi berjalan
    s.d. Januari 2027". Jangan menulis hasil maju apa pun sebagai konfirmasi.

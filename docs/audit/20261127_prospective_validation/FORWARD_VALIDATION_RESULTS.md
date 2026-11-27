@@ -9,10 +9,37 @@ Angka di sini adalah evaluasi prospektif pada origin mingguan yang tumpang tindi
 |---|---|---|---|---|
 | D-152 `IW_NAT` | base (C1-tuned) | BLOCKED: belum ada target lengkap | BLOCKED: belum ada target lengkap | 2026-11-27 |
 | D-158 `FR_REF`, `FR_CITY` | base | BLOCKED: belum ada target lengkap | BLOCKED: belum ada target lengkap | 2026-11-27 |
-| D-164 K4-E80 | B-C1t, B-CLIMS | BLOCKED: versi beku belum di-commit, evaluator maju belum ada | sama | 2026-11-27 |
+| D-164 K4-E80 | B-C1t, B-CLIMS | BLOCKED: belum ada target lengkap (prediksi di-commit `044873c`; evaluator D-167 menunggu commit) | sama | 2026-11-27 |
 | C1-tuned (`base`) | – (deskriptif, tanpa aturan beku) | – | – | – |
 
 ---
+
+## Putaran 0b — 2026-11-27 10.20 WIB (pembekuan evaluator K4; tanpa evaluasi)
+
+**STATUS:** PARTIAL (evaluator beku dan teruji; commit menunggu Danen)
+
+**SUMMARY:**
+- Versi beku K4 sudah di-commit (`044873c`, 09.53 WIB).
+- Aturan maju K4 disetujui (D-167). `scripts/k4_forward_eval.py` sudah ditulis dan diuji, lalu hash-nya dibekukan.
+
+**EVIDENCE:**
+- [`hasil/pv_protocol_sha256.txt`](hasil/pv_protocol_sha256.txt), frozen_at 2026-11-27 03.22 UTC.
+- `integrity_check.py`: D-152/D-158/D-164 lolos. Kegagalan yang tersisa hanya tiga berkas beku baru yang belum di-commit.
+
+**VERIFICATION:**
+- `--selftest` lolos.
+- `--check-test` (baca-saja, origin test historis):
+  - y panel = `fw_eval.labels`: 315.520/315.520 baris.
+  - z_e80 / z_a80 = pipeline K4: 24.616/24.616.
+  - AP/ROC-AUC/presisi@K1–3/V2-setara = `k4_test_ranking.csv` (≤ 5e-6).
+- Toleransi ujung baris: salinan CRLF diterima, salinan dengan satu digit diubah ditolak.
+- Jalan penuh pada snapshot 2026-11-18: 0 origin lengkap → ditunda.
+
+**DECISION:** Belum ada keputusan validasi.
+
+**BLOCKERS:** PV-2b (commit). Snapshot paling cepat 2026-11-29.
+
+**NEXT ACTION:** Danen commit PV-2b, lalu E1 pada 2026-11-29.
 
 ## Putaran 0 — 2026-11-27 (audit pra-target; tanpa evaluasi)
 

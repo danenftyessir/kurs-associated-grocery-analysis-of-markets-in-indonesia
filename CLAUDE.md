@@ -306,9 +306,10 @@ Tanggal acuan: 2026-11-26. Papan lengkap: `docs/WORKPLAN.md`.
   dibangun ulang (89 file) dan `dist/kagami_submission.zip` (300 file, 47,0 MB; mentah hanya 10 sumber `redistribute: true`, tanpa `pihps_daily`).
   Gladi G7 dari folder ekstrak bersih (paket didaftarkan dari `src/` zip): 7/7 halaman tanpa exception & tanpa "Menunggu hasil", tes app/package/calibration lolos.
 - **Audit validasi prospektif (2026-11-27, `docs/audit/20261127_prospective_validation/`):** D-152 & D-158 utuh (sha256 = manifest = commit pra-target;
-  hash beku = byte CRLF → verifikasi butuh `core.autocrlf=true`); evaluator beku tidak berubah. K4 BLOCKED: versi beku `eb1f10db…` sah (direkonstruksi
-  persis) tetapi belum di-commit, dan belum ada evaluator/aturan maju (draf ΔAP < −0,14 menunggu keputusan). Unduh PIHPS eceran = snapshot beku
-  (0 revisi). Putaran evaluasi ≥ 2026-11-29 (Minggu, D-155), 2026-12-20, 2027-01-17; cek dulu `scripts/integrity_check.py`.
+  hash beku = byte CRLF → verifikasi butuh `core.autocrlf=true`); evaluator beku tidak berubah. K4: versi beku `eb1f10db…` di-commit `044873c`
+  (2026-11-27 09.53 WIB); aturan & evaluator maju K4 disetujui dan dibekukan (D-167, `scripts/k4_forward_eval.py`, hash di `hasil/pv_protocol_sha256.txt`,
+  perlu di-commit sebelum E1). Unduh PIHPS eceran = snapshot beku (0 revisi). Putaran evaluasi ≥ 2026-11-29 (Minggu, D-155), 2026-12-20, 2027-01-17;
+  cek dulu `scripts/integrity_check.py` (harus keluar 0).
 - **Berikutnya — Danen (semua jalur):** commit sisa perubahan sesi 2026-11-26 lalu push lewat `feat/`; unggah `dist/kagami_code.zip` ke `MyDrive/kagami/` &
   dataset Kaggle `kagami-code` dan `results/findings.md` ke Drive tim (`[HUMAN]`); sesudah 27 Nov `results/` hanya berubah karena bug; makalah & video
   (WP-33/34). Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
@@ -1561,6 +1562,7 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-167 | Aturan & evaluator validasi maju K4 dibekukan pra-target (label dari panel baru, ΔAP < −0,14 = gagal; CONSISTENT bila ΔAP ≥ 0 & AP ≥ B-CLIMS); `scripts/k4_forward_eval.py` | FINAL · eksploratif |
 | D-166 | Validasi K4 (baca-saja): target benar; 0/6 kalibrator memperbaiki Brier (ekor h 8 = 5 origin, informasi rezim); ranking K4-E80 kalah dari C1-tuned pada ambang seragam 5%/10%; peluang h 4 hanya kategori; operasional BLOCKED | FINAL · eksploratif |
 | D-165 | Jalur A: prediksi maju diaudit & evaluator dibekukan; GDELT lolos G1–G2 tetapi gagal G5 (BigQuery sandbox, ΔAUC ≤ +0,001); layar G5 tidak meloloskan kontrol positif (MDE ± 0,023); sumber pasokan baru terblokir akses; C1-tuned tetap | FINAL · eksploratif |
 | D-164 | K4 risiko kenaikan material (target z P80 \|y\|, semua baris): ranking lebih baik dari C1-tuned & laju-dasar komoditas (h 4 terbukti dev & test), peluang h 8 gagal → PARTIAL, operasional BLOCKED (U109); pembanding laju-dasar komoditas wajib untuk klaim daftar pantau | FINAL · eksploratif |

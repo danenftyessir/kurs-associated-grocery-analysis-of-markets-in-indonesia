@@ -1,0 +1,8 @@
+# Validasi prospektif — protokol & evaluator dibekukan sebelum snapshot yang memuat target pertama (Jumat 2026-11-27) diunduh
+frozen_at: 2026-11-27T03:22:01Z
+edfa779d08a798c9ad304f146630b003ffb7ac3c2bb8125163e73f2227a7ec78 *docs/audit/20261127_prospective_validation/FORWARD_VALIDATION_PROTOCOL.md
+697eff9c9774775613e117088dbc8f324bba37d098c2f487d61d5b9fc874cc7d *docs/audit/20261127_prospective_validation/scripts/k4_forward_eval.py
+371e63ec8e83101918c55e3e06c8991fea69d06277fc5495a35dcf3072eec7bb *docs/audit/20261127_prospective_validation/scripts/integrity_check.py
+df16cc280a38bdbadb192b0a6b18c25998b7628d06f9f5e74818825cab35e8a2 *docs/audit/20261127_prospective_validation/scripts/compat_check.py
+bf10430a2dc01698f7a3208de1f4550b6965bf755e7c615a033f56cb16bd542a *docs/audit/20261127_prospective_validation/scripts/k4_refreeze_check.py
+python 3.13.7; numpy 2.3.4; pandas 2.3.3; sklearn 1.8.0

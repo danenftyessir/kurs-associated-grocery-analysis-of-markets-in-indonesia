@@ -415,6 +415,25 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-167 — Aturan & evaluator validasi maju K4 dibekukan sebelum target pertama: ΔAP(K4-E80 − C1-tuned) < −0,14 = FAILED_FORWARD · FINAL · eksploratif · 2026-11-27 (WP-36) · Danen
+Disetujui Danen 2026-11-27, sebelum snapshot apa pun yang memuat target maju (Jumat 2026-11-27) diunduh. PROTOCOL K4 §6 hanya menyatakan
+"konfirmasi hanya dari prediksi maju" tanpa ambang. `docs/audit/20261127_prospective_validation/FORWARD_VALIDATION_PROTOCOL.md` §5 menetapkannya.
+- **Label:** dari panel snapshot baru dengan `thr_e80` beku. Kolom z_* tidak dipakai (D-166). Target tak teramati → z = 0 (D-155).
+- **Penanda per horizon:**
+  - FAILED_FORWARD bila ΔAP pooled < −0,14. Ambang ini = MDE maju dari SE ΔAP test (0,0169 / 0,0235) · 2,8 · √(n_test/n_maju).
+  - CONSISTENT bila ΔAP ≥ 0 dan AP ≥ B-CLIMS.
+  - NOT_PROVEN di antaranya.
+- **Interval:** bootstrap kluster provinsi, deskriptif.
+- **Ditolak:**
+  - Uji konfirmasi, karena daya tidak cukup: 4 / 8 origin mingguan yang tumpang tindih.
+  - Ambang lebih ketat, karena bertentangan dengan MDE.
+- **Evaluator:** `scripts/k4_forward_eval.py`.
+  - Berhenti bila hash prediksi, `fw_eval.py`, `k4_eval.py`, atau `k4_common.py` berubah. Hash boleh cocok sesudah hanya ujung baris
+    dinormalkan.
+  - Uji: `--check-test` mereproduksi z_e80/z_a80 pipeline K4 24.616/24.616, dan AP/AUC/presisi@K = `k4_test_ranking.csv`.
+  - Pada snapshot 2026-11-18: 0 origin lengkap, jadi ditunda.
+- **Hash:** `hasil/pv_protocol_sha256.txt`. Belum di-commit pada saat ditulis. Operasional K4 tetap BLOCKED (U109).
+
 ### D-166 — Validasi K4: target benar, kalibrator walk-forward ditolak, ranking bergantung pada ambang relatif, peluang h 4 hanya kategori; operasional tetap BLOCKED · FINAL · eksploratif · 2026-11-27 (WP-36) · Danen
 Atas permintaan Danen (validasi & kesiapan operasional K4; laporan `docs/audit/20261127_k4_validation/SUMMARY.md`; baca-saja terhadap D-164: tidak ada
 model dilatih ulang, test 2024+ tidak dibuka untuk analisis baru; protokol `PROTOCOL_ADDENDUM.md` di-hash sebelum analisis kalibrasi). (1) Target: target

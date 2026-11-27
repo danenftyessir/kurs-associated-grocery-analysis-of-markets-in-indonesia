@@ -2,8 +2,8 @@
 
 Ditulis 2026-11-27 sebelum satu pun target maju terlihat. Dokumen ini **tidak mengubah** aturan yang sudah dibekukan
 ([D-152 §3–§4](../20261125_iw_validasi/PROTOKOL.md), [Jalur A §A](../jalur_a_macro_f1/PROTOCOL.md), [K4 §6](../20261126_k4_risiko_material/PROTOCOL.md)).
-Isinya hanya prosedur operasional di sekeliling aturan itu. Bagian §5 (K4) adalah **DRAF** yang menunggu persetujuan Danen. Tanpa persetujuan
-dan commit sebelum unduhan pertama, K4 tetap BLOCKED.
+Isinya hanya prosedur operasional di sekeliling aturan itu. Bagian §5 (K4) **disetujui Danen 2026-11-27** sebelum target pertama
+terlihat dan dibekukan bersama evaluatornya (`hasil/pv_protocol_sha256.txt`). Tanpa commit sebelum unduhan pertama, K4 tetap BLOCKED.
 
 ## 1. Jadwal
 
@@ -66,7 +66,7 @@ Urutan ini wajib: commit dulu, baru unduh. Commit yang dibuat sesudah snapshot m
      prediksi dan `fw_eval.py` sendiri.
    - Opsional, `python docs/audit/20261125_iw_validasi/scripts/fw_eval.py --pihps-zip <zip>` (D-152 saja; tambahan selisih bootstrap blok
      origin).
-   - K4: evaluator maju beku (§5) bila sudah disetujui.
+   - K4: `python docs/audit/20261127_prospective_validation/scripts/k4_forward_eval.py --pihps-zip <zip>` (§5).
 6. **Catat semuanya** di FORWARD_VALIDATION_RESULTS.md: sha256 snapshot, origin yang dinilai, metrik lengkap, penanda, kegagalan.
    Berkas keluaran evaluator (`a_forward_eval_<tanggal>_*.csv`) tidak diubah sesudah ditulis.
 7. **Tidak boleh:** membuat ulang prediksi; mengubah threshold, label, fitur, model, atau evaluator sesudah melihat hasil; memilih origin;
@@ -92,7 +92,7 @@ Sumber: `a_forward_eval.py` (dibekukan 2026-11-26 11.34 UTC). Pembanding untuk `
 - **C1-tuned (`base`) sendiri** tidak punya aturan maju beku. Macro F1 base dilaporkan **deskriptif** bersama baseline kelas mayoritas pada
   baris yang sama dan nilai test historis 0,677 / 0,680 (yang bukan pembanding statistik). Tidak ada label CONSISTENT/FAILED untuk C1-tuned.
 
-## 5. K4 (D-164) — DRAF, menunggu persetujuan Danen
+## 5. K4 (D-164) — disetujui Danen 2026-11-27, beku
 
 Disusun sebelum target terlihat. Konstruksinya meniru Jalur A: penjaga kegagalan besar, bukan konfirmasi.
 
@@ -125,10 +125,22 @@ bootstrap kluster provinsi 1.999 replikasi (seperti `fw_common.paired`).
 | CONSISTENT | ΔAP ≥ 0 **dan** AP K4-E80 ≥ AP B-CLIMS |
 | NOT_PROVEN | selain itu |
 
-**Implementasi:** skrip baru `scripts/k4_forward_eval.py` di folder ini. Skrip mengimpor `fw_eval.labels` (hash diverifikasi seperti
-`a_forward_eval.py`) dan fungsi metrik `k4_common` / `k4_eval` tanpa mengubahnya. Ia menolak berjalan bila sha256 berkas ≠ manifest. Uji
-mandiri: data sintetis, dan label z pada origin test yang sudah terealisasi harus sama dengan `z_e80` di `k4_test_preds` (baca-saja). sha256
-skrip + dokumen ini dicatat dan di-commit sebelum E1.
+**Implementasi:** [`scripts/k4_forward_eval.py`](scripts/k4_forward_eval.py).
+- Skrip ini berhenti bila salah satu input berubah: sha256 prediksi ≠ manifest K4, `fw_eval.py` ≠ manifest D-152, atau `k4_eval.py` /
+  `k4_common.py` ≠ versi beku. Ia memakai `k4_eval.ranking` / `fast_ap` / `flags_k` tanpa mengubahnya.
+- Pencocokan hash juga menerima versi yang **hanya** berbeda ujung baris (LF ↔ CRLF dari checkout `core.autocrlf`; INITIAL_AUDIT §2.2).
+  Ini dicetak bila terjadi. Satu digit saja yang berubah tetap ditolak (diuji 2026-11-27).
+- Panel dibangun dengan langkah `fw_eval.labels`. ymax = `k4_common.add_event`. Evaluasi hanya berjalan pada origin yang seluruh barisnya
+  lengkap.
+- Uji 2026-11-27 (sebelum target terlihat):
+  - `--selftest` (sintetis: y, ymax yang melewati minggu hilang, kelengkapan, z diabaikan dari kolom lama, AP = sklearn, penanda): lolos.
+  - `--check-test` (baca-saja, snapshot beku + `k4_test_preds` sesi K4):
+    - y dari panel = `fw_eval.labels`: 315.520/315.520 baris.
+    - z_e80 dan z_a80 = label pipeline K4: 24.616/24.616.
+    - AP, ROC-AUC, presisi@K1–3, dan V2-setara untuk K4-E80, C1-tuned, dan B-CLIMS = `k4_test_ranking.csv` di h 4 dan h 8 (selisih ≤ 5e-6,
+      sesuai pembulatan CSV).
+  - Jalan penuh pada snapshot beku 2026-11-18: berhenti dengan "belum ada origin dengan target lengkap" (0/0 origin), sesuai harapan.
+- sha256 skrip ini + dokumen ini ada di `hasil/pv_protocol_sha256.txt`. Keduanya di-commit sebelum E1.
 
 Status operasional K4 tetap **BLOCKED** (U109) apa pun hasil maju. K4 juga tidak dipakai untuk macro F1.
 

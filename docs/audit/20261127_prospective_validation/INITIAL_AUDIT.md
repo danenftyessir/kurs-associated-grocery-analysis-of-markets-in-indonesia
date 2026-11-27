@@ -7,6 +7,10 @@ Lanjutan [gabungan audit](../20261127_gabungan_audit.md) §16–§17, [D-152](..
 **STATUS: PARTIAL.** D-152 dan D-158 utuh dan siap dievaluasi. K4 (D-164) masih punya dua penghambat sebelum target pertama boleh dibuka
 (§2.3, §3.3).
 
+> **Adendum 2026-11-27 10.20 WIB:** kedua penghambat K4 sudah ditangani. Versi beku + manifest di-commit Danen (`044873c`, 09.53 WIB). Aturan
+> maju disetujui (D-167), dan evaluator `scripts/k4_forward_eval.py` dibekukan (`hasil/pv_protocol_sha256.txt`), tetapi belum di-commit (PV-2b).
+> Teks di bawah adalah kondisi pukul 04.00–05.00 WIB dan tidak diubah.
+
 ## 1. Peta keluarga prediksi
 
 Catatan istilah: di brief tugas, D-158 disebut "National-to-local / IW_NAT". `IW_NAT` adalah kandidat **D-152**. D-158 membekukan `FR_REF` (acuan

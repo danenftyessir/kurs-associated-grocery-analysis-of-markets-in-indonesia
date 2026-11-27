@@ -34,6 +34,8 @@ EVALUATORS = {
     A + "20261126_k4_risiko_material/scripts/k4_eval.py": (None, None),
     A + "20261126_k4_risiko_material/scripts/k4_freeze.py": (None, None),
     A + "20261126_k4_risiko_material/scripts/k4_common.py": ("sha256txt_k4", A + "20261126_k4_risiko_material/hasil/protocol_sha256.txt"),
+    A + "20261127_prospective_validation/scripts/k4_forward_eval.py": ("sha256txt", A + "20261127_prospective_validation/hasil/pv_protocol_sha256.txt"),
+    A + "20261127_prospective_validation/FORWARD_VALIDATION_PROTOCOL.md": ("sha256txt", A + "20261127_prospective_validation/hasil/pv_protocol_sha256.txt"),
 }
 
 
@@ -101,10 +103,18 @@ def main():
         else:
             frozen = None
         g = git_state(ev)
-        r = {"sha256_now": now, "sha256_frozen": frozen, "frozen_ok": (now == frozen) if frozen else None, "git": g}
+        raw = open(os.path.join(ROOT, ev), "rb").read().replace(b"\r\n", b"\n")
+        variants = {now, hashlib.sha256(raw).hexdigest(), hashlib.sha256(raw.replace(b"\n", b"\r\n")).hexdigest()}
+        r = {"sha256_now": now, "sha256_frozen": frozen, "frozen_ok": (frozen in variants) if frozen else None,
+             "frozen_byte_exact": (now == frozen) if frozen else None, "git": g}
         rep["evaluators"][ev] = r
-        if frozen and now != frozen:
+        if frozen and not r["frozen_ok"]:
             rep["failures"].append(f"{ev}: berubah sejak dibekukan")
+        if frozen and not g["clean_vs_head"]:
+            rep["failures"].append(f"{ev}: versi beku belum di-commit (bukti waktu pra-target)")
+    pv = A + "20261127_prospective_validation/hasil/pv_protocol_sha256.txt"
+    if not git_state(pv)["clean_vs_head"]:
+        rep["failures"].append(f"{pv}: berkas hash beku belum di-commit")
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, f"integrity_{datetime.now().date()}.json")
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
