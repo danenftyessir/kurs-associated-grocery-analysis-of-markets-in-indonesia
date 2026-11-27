@@ -9,6 +9,14 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-27 — Danen: WP-36 🔶 (evaluator maju K4 dibekukan, D-167)
+- Aturan maju K4 disetujui Danen sebelum target terlihat (D-167): label dari panel baru + `thr_e80` beku (bukan kolom z, D-166); ΔAP < −0,14 =
+  FAILED_FORWARD, ΔAP ≥ 0 & AP ≥ B-CLIMS = CONSISTENT.
+- `docs/audit/20261127_prospective_validation/scripts/k4_forward_eval.py`: `--selftest` lolos; `--check-test` z_e80/z_a80 24.616/24.616 = pipeline K4,
+  AP/AUC/presisi@K = `k4_test_ranking.csv`; snapshot 2026-11-18 → 0 origin lengkap. Hash cocok juga sesudah normalisasi ujung baris saja.
+- Versi beku K4 di-commit Danen (`044873c`). `integrity_check.py` kini juga menuntut evaluator beku ter-commit → gagal sampai PV-2b di-commit.
+- Berikutnya: commit PV-2b sebelum 2026-11-29; E1 2026-11-29.
+
 ### 2026-11-27 — Danen: WP-36 🔶 (validasi K4 & kesiapan operasional, D-166)
 - `docs/audit/20261127_k4_validation/` (9 dokumen + `PROTOCOL_ADDENDUM.md` di-hash sebelum kalibrasi, `scripts/v_*.py`, `hasil/`). Baca-saja terhadap
   D-164: tanpa latih ulang, test tidak dibuka untuk analisis baru, `src/`/`tests/`/prediksi beku tidak berubah.
