@@ -1,0 +1,7 @@
+part,horizon,origins,series_grid,price_at_origin,in_universe,price_but_lag_missing_total,train_dropped_no_target_last,train_rows_last,train_y0_last
+dev,4,38,340,336.97,336.84,5,334,97785,15001
+dev,8,37,340,336.97,336.84,5,337,95089,9981
+forward,4,4,340,338,338,0,334,151065,22763
+forward,8,8,340,338,338,0,337,149713,15148
+test,4,37,340,337.27,337.22,2,334,149037,22426
+test,8,36,340,337.25,337.19,2,337,146333,14820

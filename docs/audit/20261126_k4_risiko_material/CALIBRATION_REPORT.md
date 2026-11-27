@@ -69,13 +69,27 @@ Bacaan:
 
 ## 4. p_up C1-tuned bukan peluang kenaikan material
 
-Bila p_up mentah dibaca sebagai peluang z, Brier dan ECE jauh lebih buruk (lihat baris `B-C1t` di [EXPERIMENT_LOG.csv](EXPERIMENT_LOG.csv)):
-rerata p_up ± 0,5 sedangkan laju z 0,13–0,14. Ini menegaskan koreksi D-155: angka p_up tidak boleh ditampilkan sebagai "peluang naik tajam".
+Bila p_up mentah dibaca sebagai peluang z (baris `B-C1t` di [EXPERIMENT_LOG.csv](EXPERIMENT_LOG.csv), himpunan peluang): Brier 0,266 / 0,278
+(dev h 4 / h 8) dan 0,293 / 0,319 (test), ECE 0,38 / 0,38 (dev) dan 0,44 / 0,46 (test), dibandingkan Brier K4 0,075–0,113 dan ECE 0,02–0,04. Ini
+menegaskan koreksi D-155: angka p_up tidak boleh ditampilkan sebagai "peluang naik tajam".
 
-## 5. Test 2024+ (evaluasi eksploratif, dibuka sekali)
+## 5. Test 2024+ (evaluasi eksploratif, dibuka sekali; `hasil/k4_test_probability.csv`)
 
-Lihat [RESULTS.md](RESULTS.md) §5. Ringkasnya dicatat di sana karena R2 tidak lolos di dev, jadi tidak ada varian peluang yang dipilih; angka
-peluang test bersifat deskriptif.
+R2 tidak lolos di dev, jadi tidak ada varian peluang yang dipilih; angka test bersifat deskriptif.
+
+| h | Skor | Brier | Log loss | ECE | Brier skill vs B-CLIM (interval) | ΔBrier vs B-C1t-cal (interval) |
+|---|---|---|---|---|---|---|
+| 4 | K4-E80 | 0,0750 | **0,268** | **0,019** | **0,075 (0,039..0,107)** | **−0,0024 (−0,0045..−0,0005)** |
+| 4 | K4-E80-cal | **0,0749** | 0,268 | 0,020 | 0,076 (0,046..0,104) | −0,0025 (−0,0044..−0,0008) |
+| 4 | B-C1t-cal | 0,0774 | 0,279 | 0,030 | 0,046 (0,005..0,074) | – |
+| 8 | K4-E80 | 0,0795 | **0,277** | **0,024** | 0,029 (−0,053..0,107) | −0,0002 (−0,0040..+0,0025) |
+| 8 | K4-E80-cal | **0,0778** | 0,278 | 0,030 | 0,049 (−0,008..0,103) | −0,0019 (−0,0040..−0,0004) |
+| 8 | B-C1t-cal | 0,0797 | 0,287 | 0,039 | 0,026 (−0,031..0,075) | – |
+
+- Pola test sama dengan dev: h 4 K4 lebih baik dengan interval < 0; h 8 tidak terbukti untuk versi mentah (versi Platt −0,0019 dengan interval < 0,
+  tetapi varian itu tidak dipilih di dev, jadi tidak dipakai untuk klaim).
+- Laju test 0,088 / 0,089 vs rerata peluang K4 0,107 / 0,113: kalibrasi-dalam-besaran bergeser ke atas mengikuti laju latih yang lebih tinggi; ECE tetap
+  ≤ 0,03 karena peluang rendah mendominasi.
 
 ## 6. Kesimpulan kalibrasi
 

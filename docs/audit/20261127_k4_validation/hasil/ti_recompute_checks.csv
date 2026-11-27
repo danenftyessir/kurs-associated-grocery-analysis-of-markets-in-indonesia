@@ -1,0 +1,5 @@
+part,horizon,n,nan_pattern_equal,max_abs_dy,z_mismatch,thr_max_abs_diff_3_origins,no_target_end_status_missing,no_target_end_beyond_data
+dev,4,12800,True,0,0,0,2,0
+dev,8,12463,True,0,0,0,2,0
+test,4,12477,True,0,0,0,0,0
+test,8,12139,True,0,0,0,0,0

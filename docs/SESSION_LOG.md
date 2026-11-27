@@ -9,6 +9,40 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-27 — Danen: WP-36 🔶 (validasi K4 & kesiapan operasional, D-166)
+- `docs/audit/20261127_k4_validation/` (9 dokumen + `PROTOCOL_ADDENDUM.md` di-hash sebelum kalibrasi, `scripts/v_*.py`, `hasil/`). Baca-saja terhadap
+  D-164: tanpa latih ulang, test tidak dibuka untuk analisis baru, `src/`/`tests/`/prediksi beku tidak berubah.
+- Target: z = 0 untuk target tak teramati hanya di evaluasi (2 + 2 baris dev, 0 test), ΔAP ≤ 0,0004; y/z = panel persis. Kolom z prediksi maju = 0 (bukan label).
+- Kalibrasi dev: 0/6 kalibrator memperbaiki Brier; ekor h 8 = 5 origin (minyak goreng 2022-01, beras 2023-10); oracle laju origin −0,0073.
+- Galat K = 2: 25% alarm palsu h 4 naik ≤ 4 minggu sesudah titik akhir (vs 12%); bawang putih/merah presisi 0,01–0,15. Kepekaan: ambang seragam 5%/10% →
+  K4-E80 kalah dari C1-tuned (ΔAP h 8 −0,079 / −0,092). Instrumen U109 R1–R12; spesifikasi operasional 5 lapis. Registri 195 baris (+6 D-166).
+- Berikutnya: `[HUMAN]` commit prediksi maju K4 hari ini; wawancara TPID; evaluasi maju dengan label dari panel (2026-12-18 / 2027-01-15).
+
+### 2026-11-27 — Danen: WP-36 🔶 (audit validasi prospektif & akuisisi data)
+- `docs/audit/20261127_prospective_validation/` (6 dokumen + `scripts/integrity_check.py`, `compat_check.py`, `k4_refreeze_check.py`). Tanpa target
+  dibaca, tanpa prediksi dibuat ulang, `src/`/`tests/` tidak berubah.
+- D-152 & D-158 utuh (sha256 = manifest = HEAD `ca53742`/`ec6dd19`), evaluator beku tidak berubah, `fw_eval --selftest` 0 beda, tes Jalur A 7/7.
+  Hash beku keduanya = byte CRLF (blob git LF): verifikasi hanya lolos dengan `core.autocrlf=true`.
+- K4: isi `eb1f10db…` direkonstruksi persis di memori dari parquet pra-target; kolom mentah = versi HEAD `3095ae0`. Tetapi versi beku + manifest
+  belum di-commit dan `k4_eval.py` tidak punya PART maju → K4 BLOCKED; draf aturan maju (ΔAP < −0,14 = gagal) menunggu keputusan.
+- Unduh PIHPS eceran (`fetch_pihps.py --price-type 1`, 2026-09-01..11-18): 19.103/19.103 harga = snapshot beku, 0 revisi (bukti parsial U110).
+- Berikutnya: commit K4 (PV-1), putuskan aturan K4 (PV-2), putaran E1 ≥ 2026-11-29, E2 2026-12-20, E3 2027-01-17; surat U112.
+
+### 2026-11-27 — Danen: WP-33 🔶 (gabungan semua audit)
+- `docs/audit/20261127_gabungan_audit.md`: satu ringkasan terkompaksi (± 98 KB) dari 44 dokumen `docs/audit/` (D-139–D-165), dengan angka terkini
+  (koreksi D-155/D-162/D-164 diterapkan, daftar koreksi §2.4), tabel induk 28 sumber data, sintesis batas skor, aturan metode, rambu klaim,
+  pekerjaan terbuka. Bukan sumber kebenaran; laporan sumber tetap berlaku.
+- Temuan: versi beku `k4_forward_preds.csv` (sha256 `eb1f10db…`, 23.16 WIB) + `k4_forward_manifest.json` belum di-commit; commit `3095ae0`
+  memuat versi sebelumnya (`1b5c84cb…`). Target pertama lengkap Jumat 2026-11-27.
+
+### 2026-11-26 — Danen: WP-36 ✅ (K4 risiko kenaikan material, D-164)
+- BU (8 pertanyaan, V1–V8 `[HUMAN]`), DU dev (laju z 0,02–0,29 antarkomoditas, 60% positif komoditas diatur, sd mingguan 0,07–0,08), target, protokol beku
+  18.36 WIB sebelum model; folder `docs/audit/20261126_k4_risiko_material/` (10 dokumen + `scripts/` + `hasil/`, uji mandiri 6/6).
+- Run dev 21 menit, test 40 menit, maju 20 menit (lokal); C1t refit = artefak (maks |Δp| 0); perturbasi masa depan 0 beda.
+- Dev ΔAP +0,080 / +0,039, presisi@K2 0,293 / 0,272 vs 0,249 / 0,221; R2 gagal h 8 → PARTIAL, operasional BLOCKED. Test sekali: ΔAP +0,045 / +0,015.
+- Koreksi D-154: pembanding laju-dasar komoditas (h 8 C1-tuned tidak terbukti di atasnya) → aturan EKSPERIMEN §5; findings + 2 paragraf; registri 189 baris.
+- Belum: commit `hasil/k4_forward_preds.csv` + manifest (target 2026-12-18 / 2027-01-15); validasi TPID (U109).
+
 ### 2026-11-26 — Danen: WP-32 ✅ (persiapan pembekuan hasil 27 Nov)
 - 39/39 artefak ada; `checksums` cocok dengan 28 file mentah; sinkronisasi log: hanya `checksums` (beda `recorded_at`) & `findings` (tanpa log).
 - `bundle` 89 file, `package` 300 file 47,0 MB tanpa mentah berhak-terbatas; gladi G7 dari folder bersih 7/7 halaman, 19 tes lolos.

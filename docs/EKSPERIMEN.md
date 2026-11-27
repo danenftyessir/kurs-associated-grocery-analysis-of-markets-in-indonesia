@@ -91,6 +91,12 @@ untuk mengisi kartu.
   terpisah. **Titik akhir** (perubahan minggu t + h vs t) berbeda dengan **kejadian dalam jendela** (kapan pun dalam h minggu).
 - **Daftar pantau** dibandingkan pada jumlah alarm yang sama; laporkan alarm per origin, presisi, recall, alarm palsu, sebaran provinsi &
   komoditas. Anggaran pemantauan (K) tidak dipilih dari test.
+- **Pembanding laju-dasar komoditas wajib** (D-164) untuk setiap klaim daftar pantau atau risiko material: laju target per komoditas di baris
+  latih (± per bulan) sebagai skor ranking & peluang, di samping aturan tren. Target relatif per komoditas (P80 |y|) membuat laju 0,02–0,29
+  antarkomoditas, sehingga aturan "pantau komoditas yang biasanya naik" bisa menyamai model (dev h 8: 0,248 vs C1-tuned 0,221). Laporkan juga
+  persistensi alarm (porsi alarm yang sama dengan origin sebelumnya) dan jumlah komoditas yang pernah ditandai.
+- **Utilitas tanpa biaya nyata**: nilai daftar pantau dibandingkan dengan "tanpa alarm" pada beberapa rasio biaya kenaikan terlewat : alarm palsu
+  (r = 1, 2, 5, 10) dan kurva keputusan; bila presisi < 0,5, daftar pantau kalah dari "tanpa alarm" untuk r ≤ 1 (D-164).
 - **Kebocoran**: bedakan look-ahead observasional (dapat diuji dengan perturbasi/penghapusan data sesudah cutoff) dan revisi/vintage (tidak
   dapat diuji tanpa vintage PIHPS). `available_at` konservatif = Minggu 00.00 sampai jendela revisi PIHPS dipastikan (`[HUMAN]`).
 - **Terminologi metode**: sebut screening/asosiasi bila bukan algoritma yang dimaksud (mis. screening asosiasi temporal ≠ sequential
@@ -98,7 +104,8 @@ untuk mengisi kartu.
 
 ## 6. Registri eksperimen terpusat (D-156)
 
-- Semua eksperimen Task 4 arah (D-145 dan seterusnya; per 2026-11-26 s.d. D-165; Jalur A memakai ID `JA-*`), termasuk yang gagal, diblokir, dan ditolak, tercatat satu baris per varian di
+- Semua eksperimen Task 4 arah (D-145 dan seterusnya; per 2026-11-26 s.d. D-165; Jalur A memakai ID `JA-*`, K4 risiko material ID `K4-*`/`B-*` dengan log rinci
+  `docs/audit/20261126_k4_risiko_material/EXPERIMENT_LOG.csv`), termasuk yang gagal, diblokir, dan ditolak, tercatat satu baris per varian di
   [`docs/eksperimen_registry.csv`](eksperimen_registry.csv): ID, rujukan keputusan, fase, hipotesis, versi data, konfigurasi fitur /
   preprocessing / model / hyperparameter / threshold, origin, macro F1 h 4 & h 8, F1 per kelas (bila ada), Δ vs C1-tuned + interval,
   status, lokasi skrip, keputusan dan alasannya.
