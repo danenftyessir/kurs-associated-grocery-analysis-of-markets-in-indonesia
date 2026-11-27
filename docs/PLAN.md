@@ -809,9 +809,10 @@ Jangan menyamakan feature ablation dengan causal feature importance.
 
 Perubahan harga bersyarat pada horizon h:
 
-ΔP(h) = PT(h) × X
+ΔP(h) = exp(PT(h) × ln(1 + X)) − 1
 
-Dengan X adalah besarnya perubahan kurs yang dipilih.
+Dengan X adalah besarnya perubahan kurs yang dipilih (proporsi). Pendekatan orde pertama PT(h) × X dipakai app sebelum D-169;
+sejak D-169 app dan tabel batas Rupiah di findings memakai transformasi eksak yang sama (`viz.plots.scenario_change`).
 
 **Skenario awal:**
 
@@ -1411,7 +1412,7 @@ Prinsip spec v1.0 (§1.2, §9.4, §15) tepat dan sejalan dengan rambu klaim CLAU
 |---|---|---|---|
 | §11.2 skema | `ci_lower`, `ci_upper`, `commodity_id`, `region_id`, `mde`, `detection_status` di `profiles` | `profiles` (18.850 baris): `level`, `unit`, `commodity`, `driver`, `horizon`, `estimate`, `se`, `ci_low`, `ci_high`, `n_weeks`, `shrunk`, `n_obs`. Tidak ada `mde` atau status | Hapus §11.2. Status dihitung di app dari interval (`not_detected_badge`). MDE di-join dari artefak `mde` (nasional + wilayah, h 4/8/12 saja) |
 | V04 IRF, driver PT | interval bootstrap tersedia | interval PT hanya ada di level nasional; 910 baris PT wilayah tanpa interval (87,5% baris PT kosong). Provinsi tidak punya PT | Default driver = `e` (IDR/USD) level nasional, bukan PT. PT wilayah ditampilkan tanpa pita + label "interval tidak tersedia" |
-| V17 skenario | PT(h)·X dengan interval bootstrap | sama: interval hanya nasional | Pita skenario hanya untuk nasional. Wilayah: garis saja + peringatan. Jangan membuat pita dari asumsi |
+| V17 skenario | exp(PT(h)·ln(1 + X)) − 1 dengan interval bootstrap (D-169; sebelumnya PT(h)·X) | sama: interval hanya nasional | Pita skenario hanya untuk nasional. Wilayah: garis saja + peringatan. Jangan membuat pita dari asumsi |
 | V05 peta provinsi | nilai + interval per provinsi | `response_features` provinsi (337 baris) tanpa interval; interval ada di `profiles` provinsi (`shrunk` = True). W8 kosong 39% (4 komoditas tanpa harga dunia). Tidak ada file geometri di repo | Tooltip mengambil interval dari `profiles`. Sel tanpa W = abu-abu "tidak berlaku", bukan nol. Geometri: §18.3 |
 | V08 peta klaster | k dapat dipilih | `clusters`: Ward & K-Means k = 1, satu klaster | Hapus pemilih k (bertentangan dengan §6.4 spec sendiri). Tampilkan state k = 1 |
 | V09 dendrogram | linkage tersedia | tidak ada artefak linkage; menghitung Ward di app = analisis saat runtime (D-010) | Hapus. Dengan k = 1, dendrogram mengundang pembacaan kelompok yang ditolak uji plasebo |
@@ -1420,7 +1421,7 @@ Prinsip spec v1.0 (§1.2, §9.4, §15) tepat dan sejalan dengan rambu klaim CLAU
 | V12 pemulihan | P2 opsional | `planted_recovery` 10 baris; batas deteksi δ = 0,2 (D-126) | Naik ke **P0** halaman 3: inilah cara melaporkan k = 1 sebagai batas atas, bukan kegagalan |
 | V16 ablation heatmap | beberapa kelompok fitur | `ablation`: satu kelompok (fx); `delta_mae` = −(MAE M2 − MAE M1) | Heatmap satu baris = tidak informatif. Gabung ke V15 sebagai tooltip/kolom tabel |
 | V15 rasio MAE | – | `forecast_eval` 600 baris, subset all (75–76 origin), large_move (8 origin), case_study (9–10) | Label n_origins wajib di setiap panel; large_move ditandai "8 origin" agar tidak dibaca setara |
-| V01 heatmap cakupan | seri × minggu | `panel_weekly` 34 × 10 × 464 minggu = 157.760 sel | Satu komoditas per tampilan (34 × 464), dipilih lewat filter. `carry_forward` bukan warna peringatan (U22: kekakuan harga nyata) |
+| V01 heatmap cakupan | seri × minggu | `panel_weekly` 34 × 10 × 464 minggu = 157.760 sel | Satu komoditas per tampilan (34 × 464), dipilih lewat filter. `carry_forward` bukan warna peringatan (U22: rangkaian harga identik, kekakuan atau harga hari sebelumnya dari sumber; D-169) |
 | V07 event study | episode × wilayah × provinsi | `events`: 13 episode, level nasional & wilayah saja | Filter provinsi tidak ada untuk V07 |
 | Tidak ada di spec | – | artefak `asymmetry` (H2), `regime_profiles` (E2), `national_calibrated` (D-129), `robustness` (Tier 1/2) sudah tampil di app sebagai tabel | Tambah V18 forest robustness, V19 β⁺ vs β⁻ (§18.6) |
 

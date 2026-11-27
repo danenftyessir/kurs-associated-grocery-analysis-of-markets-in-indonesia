@@ -415,6 +415,67 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-170 — App Streamlit sebagai deliverable produksi untuk juri: navigasi berkelompok, beranda jawaban-dulu, isi teknis ke lampiran; lineage mengabaikan beda ujung baris · FINAL (teknis) · 2026-11-27 (WP-31, WP-34) · Danen
+Atas permintaan Danen, app daring (https://kagami.streamlit.app, versi sebelum D-169) ditelusuri halaman per halaman. Temuan: beranda
+berjudul teknis ("Ringkasan & Status Data") tanpa jawaban; tabel 29 sumber mentah (termasuk sumber pilot), MDE dengan kolom mentah dan
+`None`, status artefak dengan path server `/mount/src/…`, laporan Tahap 0 lengkap; hal. 2 peta & heatmap wilayah berwarna kuat padahal
+uji regional tidak mendeteksi struktur, event study berupa tabel mentah; hal. 3 judul "pasti terdeteksi"; hal. 4 tabel eksposur dengan
+notasi 0,0000000007 dan forest meta-regresi 33 baris berlabel kode; hal. 6 dokumen ± 440 baris tanpa struktur, diakhiri daftar artefak &
+ID keputusan; hal. 7 menampilkan "Artefak tidak sinkron 21".
+Keputusan: (1) `app/Home.py` menjadi router `st.navigation` dengan bagian "Hasil penelitian" (Beranda, Kepekaan harga, Pola regional,
+Eksposur & prediksi, Skenario rupiah, Temuan lengkap) dan "Lampiran teknis" (Data & metode, Riwayat eksekusi); `url_path` lama dipertahankan.
+(2) Beranda baru `pages/1_Beranda.py`: kalimat jawaban (batas atas kenaikan harga beras untuk rupiah −5%, h = 8, dihitung dari `profiles`
+dengan `scenario_change`), grafik batas perubahan harga 10 komoditas, lima RQ dengan jawaban yang dihitung dari artefak (cadangan netral
+bila artefak/kolom tidak ada), dasar kepercayaan, status produk. Tanpa templat "angka besar + label" dan tanpa label di atas judul.
+(3) Isi teknis beranda pindah ke `pages/8_Data_dan_Metode.py` (sumber utama vs opsional, kelayakan per komoditas, MDE nasional berlabel,
+jumlah artefak tanpa path server, laporan Tahap 0 di expander). (4) Label terbaca: jalur eksposur & fitur (`viz.style.PATH_LABELS`,
+`FEATURE_LABELS`), rasio impor dalam persen, forest meta-regresi default gabungan (per komoditas lewat toggle), penggerak E2 berlabel, kolom
+event study & uji heterogenitas berbahasa pembaca; catatan pada peta & heatmap bahwa warna = estimasi titik. (5) Temuan lengkap = isi
+`findings.md` apa adanya dalam 5 tab. (6) Tema `.streamlit/config.toml`: terang (dibaca di laptop, dipotong ke makalah/video), judul serif
+bawaan Streamlit (offline), biru tua `#1c5cab`, toolbar minimal. Streamlit minimum 1.57 (versi yang diuji: `st.navigation` bersekat,
+`set_page_config` berulang, `headingFont`).
+(7) Bug: artefak teks ditulis CRLF di Windows dan hash-nya dicatat begitu; git menyimpan LF, jadi di Streamlit Cloud hash berbeda dan 21
+artefak tampak "tidak sinkron" walau isinya identik (dibuktikan: hash lokal = log, blob git ≠ log, blob → CRLF = log). `store.artifact_sync`
+dan `staleness` kini juga membandingkan varian LF & CRLF berkas teks; simulasi checkout LF: 22 sinkron, 0 tidak sinkron. Tes regresi
+`test_sync_ignores_line_endings_only`. Ditolak: menulis ulang log atau menormalkan artefak (log tidak boleh ditimpa; artefak beku).
+Angka hasil dan artefak tidak berubah. App daring baru berubah sesudah push.
+
+### D-169 — Tanggapan review eksternal: arah DM di app, rumus skenario eksak, makna carry_forward, klaim batas Rupiah, waktu origin, sinkron status validasi prospektif · FINAL (teknis) · 2026-11-27 (WP-34) · Danen
+Review eksternal 2026-11-27 (repo `main`) diverifikasi butir per butir terhadap kode dan artefak sebelum ada yang diubah. Angka artefak
+di `results/` tidak berubah (hanya teks `findings.md`); params, model, dan prediksi beku tidak disentuh. Bukan DEVIASI PRAREGISTRASI.
+(1) **Arah DM.** `forecast_eval` M2/M1 MAE 1,009 / 1,013 dengan DM −2,70 / −2,29 (p dua sisi 0,009 / 0,025; `dm_p_one_sided` 0,996 /
+0,987): M2 nyata sedikit lebih buruk. App hal. 4 hanya menampilkan p dua sisi, jadi p kecil terbaca "lebih baik" → `viz.style.dm_summary`
+(tanda, arah, p dua sisi, p satu sisi untuk keunggulan M2); hover `forecast_ratios` memuat `dm_stat`; findings RQ5 & Ringkasan 5 menulis arah.
+(2) **Skenario.** App hal. 5 memakai PT·x, findings exp(PT·ln(1 + x/100)) − 1 → satu fungsi `viz.plots.scenario_change` untuk app dan
+`scenario_paths`; tes mencocokkan angka app dengan tabel findings (beras +0,02% (−1,04..+0,55); daging ayam −5,99% (−8,31..+0,25)). Linear
+menyimpang di ekor (cabai rawit batas bawah −20,9% vs −18,4%). Ditolak: mempertahankan PT·x dengan label "orde pertama" (angka app ≠ findings).
+(3) **carry_forward** (D-021) = minggu yang mayoritas hari teramatinya termasuk rangkaian harga identik ≥ 5 hari; bukan bukti imputasi atau
+kekakuan. FAQ PIHPS (https://www.bi.go.id/hargapangan/Informasi/FAQ, dibaca 2026-11-27): harga hari sebelumnya dipakai bila pasar tidak
+beroperasi (mis. bencana); revisi masih dapat dilakukan sampai hari berikutnya; pencacahan Senin–Jumat 09.00–11.00 WIB, terbit 13.00 WIB;
+2 pasar/kota, 2 pedagang/komoditas; 82 kota sampel IHK. Teks findings, DATASHEET, DATASETS, METHODS, README, PLAN, app (`status_share`, hal. 7)
+dan catatan evaluator diperbaiki. U22 memuat angka basi 47,9% / minyak goreng 74% (Sesi 2, sebelum D-023) → 49,2% / 87%.
+(4) **Klaim.** "± Rp90–940" (± dimaksud "sekitar", terbaca simetris) → batas atas +0,25..+4,65% (+Rp89..+Rp938), interval asimetris (beras
+−Rp170..+Rp89); "sisanya lebih mungkin faktor lain" → "perlu ditelusuri"; "komoditas lebih menentukan" → variasi deskriptif, bukan
+dekomposisi varians formal; batas deteksi δ = 0,2 hanya untuk struktur yang diuji (2–3 kelompok berukuran hampir sama, pusat simpleks,
+`planted.plant_structure`); arti proksi (`ln_dist_hub` garis lurus, `rice_sufficiency` beras saja, `n_kota` 110 kota daftar situs vs 82 di
+FAQ); rasio impor tidak setara antarkomoditas (bawang putih satu tahun tanpa ekspor; eksposur pakan tidak diukur rasio ini, app hal. 4
+kini menampilkan keyakinan konkordansi); rasio biaya K4 = analisis kepekaan, bukan nilai harapan (EKSPERIMEN §5); posisi = prototipe riset &
+analitik pendukung keputusan, bukan sistem peringatan dini (beranda app, README §2.3, findings).
+(5) **Waktu origin Task 4.** Label Senin minggu ISO t; harga eceran & kurs memakai pengamatan s.d. Jumat; waktu keputusan konsisten = Minggu
+00.00 (D-155). Harga dunia `available_at` ≤ Senin minggu t (`merge_asof` pada label) → rilis Selasa–Jumat baru terpakai minggu berikutnya:
+konservatif, bukan kebocoran. `available_at` Pink Sheet = asumsi hari kerja ke-2 (cocok dengan rilis 3 Nov 2026), nilai dari rilis 3 Nov 2026
+yang memuat revisi historis. Didokumentasikan (METHODS M0.4/M4, findings, README §6.5, DATASHEET §4); model beku tidak diubah; cutoff seragam
+hanya lewat eksperimen baru dengan protokol beku.
+(6) **Status validasi prospektif.** PV-2b sudah di-commit `8c7677a`, tetapi SUMMARY/OPEN_ISSUES/RESULTS audit dan CLAUDE.md §2 masih "menunggu"
+→ disinkronkan. `integrity_check.py` (beku, hash di `pv_protocol_sha256.txt`) keluar 1 di Windows bila stdout bukan UTF-8 (crash mencetak "→")
+walaupun semua pemeriksaan lolos; dengan `python -X utf8` keluar 0 (18.20 WIB) → instruksi diubah, skrip tidak (mengubahnya membatalkan hash beku).
+Zip juri (`package.SUBMISSION_GLOBS`: `docs/*.md` saja) tidak memuat `docs/audit/` maupun riwayat git, padahal findings merujuk ke sana → findings
+kini menyebut bahwa pemeriksaan integritas butuh clone repository git dan bahwa `docs/audit/` hanya ada di repository. Menyertakan laporan audit
+ke zip adalah keputusan terpisah (isi paket), belum diambil.
+(7) U110 mendapat bukti FAQ (revisi s.d. hari berikutnya; hari kalender atau kerja tidak disebut, tetap `[HUMAN]`); U12 mendapat catatan
+review (bukan SLR, rujukan [S] dicek full-text dulu). Tidak dikerjakan di sini: bibliografi (U12), validasi TPID (U109), penyederhanaan app
+untuk presentasi.
+
 ### D-168 — Penyajian temuan menurut tiga tingkat bukti, uji ukuran kalibrasi, batas atas Rupiah, buku besar periode uji · FINAL (teknis) · 2026-11-27 (WP-33) · Danen
 Menanggapi audit red flag juri (poin 4–7, 9, 10; `docs/audit/20261127_redflag_juri/REPORT.md`). `results/findings.md` disusun ulang tanpa
 mengubah angka artefak:

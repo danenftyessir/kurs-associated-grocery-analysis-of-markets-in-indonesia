@@ -1,4 +1,5 @@
-"""Halaman 5 -- Penjelajah Skenario Bersyarat (WP-31). PT(h)·x; pita hanya bila interval PT ada (nasional); bukan ramalan."""
+"""Halaman 5 -- Penjelajah Skenario Bersyarat (WP-31). exp(PT(h)·ln(1 + x/100)) − 1 (D-169, sama dengan findings);
+pita hanya bila interval PT ada (nasional); bukan ramalan."""
 
 import streamlit as st
 
@@ -6,7 +7,7 @@ from common import (CFG, LEVEL_LABELS, STRETCH, commodity_labels, fmt_interval, 
                     not_detected_badge, page_header, picker, unit_names)
 from kagami.viz import plots
 
-page_header("Penjelajah Skenario Bersyarat",
+page_header("Skenario rupiah",
             "Bila rupiah melemah x% dalam h minggu, berapa perubahan harga yang konsisten dengan pola historis?")
 
 got = need("profiles", "episodes")
@@ -34,9 +35,9 @@ if got:
     else:
         r = row.iloc[0]
         status = not_detected_badge(r["ci_low"], r["ci_high"])
-        st.metric(f"Perubahan harga konsisten dengan pola historis (h = {h})", fmt_num(r["estimate"] * x, 2, True, True))
-        st.markdown(f"Interval 95%: **{fmt_interval(r['ci_low'] * x, r['ci_high'] * x, 2, pct=True)}** · "
-                    f"status: **{status}**")
+        est, lo, hi = (plots.scenario_change(r[c], x) for c in ("estimate", "ci_low", "ci_high"))
+        st.metric(f"Perubahan harga konsisten dengan pola historis (h = {h})", fmt_num(est, 2, True, True))
+        st.markdown(f"Interval 95%: **{fmt_interval(lo, hi, 2, pct=True)}** · status: **{status}**")
         if status == "interval tidak tersedia":
             st.warning("Interval PT hanya tersedia di tingkat nasional (persentil bootstrap rasio). Angka wilayah ini adalah "
                        "titik estimasi tanpa ukuran ketidakpastian: jangan dibaca sebagai perubahan yang pasti.")
@@ -46,8 +47,9 @@ if got:
         if x > max_hist:
             st.error(f"Ekstrapolasi: x = {x}% melebihi depresiasi kumulatif historis terbesar ({fmt_num(max_hist, 1)}%).")
         st.plotly_chart(plots.scenario_paths(pt, shocks, x), **STRETCH)
-        st.caption("Interval PT dari persentil bootstrap blok; bootstrap ini menarik estimasi ke nol pada horizon panjang, "
-                   "sehingga interval cenderung lebar (konservatif).")
+        st.caption("Perubahan harga = exp(PT(h) · ln(1 + x/100)) − 1, rumus yang sama dengan tabel batas Rupiah di halaman "
+                   "Temuan (bukan pendekatan linear PT × x). Interval PT dari persentil bootstrap blok; bootstrap ini menarik "
+                   "estimasi ke nol pada horizon panjang, sehingga interval cenderung lebar (konservatif).")
     st.caption("Skenario bersyarat berdasarkan pola historis, bukan ramalan.")
 
 footer("Turunan PIHPS (BI), JISDOR (BI)", "% perubahan harga", "2018-2026")

@@ -2,7 +2,9 @@
 
 *Dataset turunan kami yang dibangun dari PIHPS (Bank Indonesia): harga eceran mingguan 10 komoditas di 34 provinsi,
 2018-01-01 s.d. pembekuan 2026-11-21 (337 dari 340 seri layak). Semua hasil bersifat asosiasional: KAGAMI tidak meramal
-kurs dan tidak mengamati rantai pasok. Respons yang tidak terdeteksi dibaca sebagai batas atas kepekaan, bukan kegagalan.*
+kurs dan tidak mengamati rantai pasok. Respons yang tidak terdeteksi dibaca sebagai batas atas kepekaan, bukan kegagalan.
+KAGAMI adalah prototipe riset dan analitik pendukung keputusan, bukan sistem peringatan dini: kebutuhan pengguna (TPID) belum
+divalidasi (U109).*
 
 **Cara membaca angka.** β_e(h) adalah perubahan kumulatif log harga eceran h minggu setelah kenaikan 1 log IDR/USD
 (kira-kira persen perubahan harga per 1% pelemahan rupiah), setelah mengendalikan lag perubahan harga, harga Brent,
@@ -25,25 +27,30 @@ Satu-satunya bukti out-of-sample yang bersih untuk tingkat 3 adalah validasi pro
    Asosiasi yang paling konsisten adalah harga minyak goreng dengan harga sawit dunia dalam rupiah. Menurut interval resmi:
    ω(4) = 0,16 (0,02..0,28) dan ω(12) = 0,31 (0,02..0,47); ω(8) = 0,21 (−0,01..0,36). Tandanya positif di semua pemeriksaan Tier 1.
 2. Variasi respons antarprovinsi melebihi derau hanya untuk telur ayam (q 0,04) dan daging ayam (q 0,050, tepat di
-   ambang). Tidak ada struktur regional yang terdeteksi (k = 1). Struktur dengan selisih respons RMS ≥ 0,2 per fitur
-   akan terdeteksi (recovery ≥ 0,96).
+   ambang). Tidak ada struktur regional yang terdeteksi (k = 1). Pada struktur sintetis yang diuji (2–3 kelompok provinsi
+   berukuran hampir sama), selisih respons RMS ≥ 0,2 per fitur terdeteksi pada ≥ 96% replikasi; bentuk struktur lain belum diuji.
 3. Tidak ada asimetri depresiasi–apresiasi yang terdeteksi. Uji konfirmatori H2 untuk beras dan daging sapi tidak menolak.
 4. Di antara 10 komoditas, rasio impor langsung tidak berasosiasi monoton dengan PT(8) (τ-b −0,045, p eksak 0,93), dan
    keterpencilan provinsi tidak berasosiasi dengan respons h = 4 (H3 tidak didukung).
 5. Dalam evaluasi bersyarat pseudo-real-time (76 origin 2021–2026), fitur kurs dan harga dunia tidak menurunkan MAE
-   prediksi 4 dan 8 minggu (rasio M2/M1 1,009 dan 1,013). H5 tidak didukung.
-6. **Arti hasil nol bagi TPID.** Untuk 6 dari 10 komoditas (beras, gula, daging sapi, minyak goreng, daging ayam, telur),
-   kenaikan harga eceran nasional di atas 0,3–4,7% (± Rp90–940 per kg/liter) dalam 8 minggu yang berasosiasi dengan pelemahan
-   rupiah 5% dapat dikesampingkan. Lonjakan harga yang lebih besar dari itu pada komoditas tersebut sulit dijelaskan oleh kurs.
-   Untuk cabai dan bawang, data tidak cukup presisi untuk menarik batas yang berguna.
+   prediksi 4 dan 8 minggu. MAE justru sedikit lebih buruk: rasio M2/M1 1,009 dan 1,013, statistik DM −2,70 dan −2,29
+   (p dua sisi 0,009 dan 0,025; p satu sisi untuk "M2 lebih akurat" 0,996 dan 0,987). H5 tidak didukung.
+6. **Arti hasil nol bagi TPID.** Untuk 6 dari 10 komoditas (beras, daging sapi, daging ayam, minyak goreng, telur; gula dengan
+   batas yang lebih longgar), kenaikan harga eceran nasional dalam 8 minggu yang berasosiasi dengan pelemahan rupiah 5% di atas
+   batas atas interval 95% dapat dikesampingkan. Batas atas itu +0,25% sampai +4,65%, atau +Rp89 sampai +Rp938 per kg/liter
+   tergantung komoditas. Intervalnya tidak simetris; batas bawah per komoditas ada di tabel di bawah. Lonjakan yang lebih besar
+   dari batas atas tidak konsisten dengan asosiasi kurs historis dan perlu ditelusuri ke faktor lain. Untuk cabai dan bawang,
+   data tidak cukup presisi untuk menarik batas yang berguna.
 7. Eksploratif (Lampiran A, bukan uji hipotesis): pola harga sendiri lebih informatif daripada kurs. Klasifier arah berbasis
    dinamika harga dapat menyusun daftar pantau komoditas per provinsi yang memuat kenaikan harga material sekitar dua kali
    laju-dasar. Fitur kurs tidak menambah akurasi pada model mana pun.
 
-**Jawaban sementara atas pertanyaan pemandu.** Perbedaan kepekaan lebih banyak tampak antarkomoditas daripada antarlokasi.
-Estimasi nasional berkisar dari −1,67 (daging ayam) sampai 1,37 (cabai merah) pada h = 8, sedangkan variasi antarprovinsi
-di atas derau hanya terdeteksi pada dua komoditas jalur pakan. Karena sebagian besar interval nasional memuat nol, ini
-adalah pola deskriptif, bukan peringkat kepekaan yang pasti.
+**Jawaban sementara atas pertanyaan pemandu.** Dalam sampel 10 komoditas, estimasi respons nasional memperlihatkan variasi
+deskriptif antarkomoditas, dari −1,67 (daging ayam) sampai 1,37 (cabai merah) pada h = 8, dengan sebagian besar interval memuat
+nol. Sementara itu, heterogenitas antarprovinsi yang melampaui distribusi plasebo hanya terdeteksi pada telur ayam dan daging
+ayam, dan provinsi tidak membentuk kelompok (k = 1). Ini bukan dekomposisi varians formal yang membuktikan bahwa komoditas lebih
+menentukan daripada lokasi. Yang ada adalah variasi titik estimasi antarkomoditas di satu sisi dan heterogenitas provinsi yang
+jarang terdeteksi di sisi lain, dengan daya deteksi yang berbeda.
 
 ## Makna bagi pengguna: batas atas dalam Rupiah
 
@@ -66,11 +73,12 @@ dengan interval **resmi** dan harga acuan = median antarprovinsi dari rerata har
 Skenario bersyarat berdasarkan pola historis, bukan ramalan: perubahan = exp(PT(8) · ln 1,05) − 1. Sumber: `profiles`,
 `panel_weekly`; perhitungan di `docs/audit/20261127_redflag_juri/` (termasuk h = 4).
 
-- **Cara pakai.** Bila harga beras di suatu provinsi naik Rp500/kg dalam 8 minggu setelah rupiah melemah 5%, data historis
-  menunjukkan bagian yang konsisten dengan kurs paling banyak ± Rp90. Sisanya lebih mungkin berasal dari faktor lain (pasokan,
-  musim, kebijakan). Ini mengarahkan penelusuran penyebab, bukan menyimpulkannya.
+- **Cara pakai.** Bila harga beras naik Rp500/kg dalam 8 minggu setelah rupiah melemah 5%, bagian yang konsisten dengan asosiasi
+  kurs historis paling banyak sekitar +Rp89/kg, yaitu batas atas interval 95% (interval lengkap −Rp170..+Rp89/kg, tidak simetris).
+  Bagian yang tidak dijelaskan oleh asosiasi kurs dalam model perlu ditelusuri ke faktor lain, seperti pasokan, musim, kebijakan,
+  atau faktor yang tidak teramati. Hasil nol tidak mengidentifikasi penyebab lain itu; angka ini hanya mengarahkan penelusuran.
 - **Harga dunia.** Kenaikan harga sawit dunia dalam rupiah 10% berasosiasi dengan kenaikan harga minyak goreng kemasan +1,5%
-  (+0,2..+2,7%) atau ± Rp350/liter (Rp37..620) pada h = 4 (interval resmi tidak memuat nol), dan +2,0% (−0,1..+3,5%) pada h = 8.
+  (+0,2..+2,7%) atau sekitar +Rp350/liter (+Rp37..+Rp620) pada h = 4 (interval resmi tidak memuat nol), dan +2,0% (−0,1..+3,5%) pada h = 8.
   Bagi TPID, harga sawit dunia dalam rupiah lebih relevan dipantau daripada kurs itu sendiri untuk minyak goreng.
 - **Batas.** Angka ini nasional. Untuk provinsi, variasi di atas derau hanya terdeteksi pada telur dan daging ayam.
 
@@ -130,10 +138,13 @@ H0-Het pada h = 8, penggerak IDR/USD, 34 provinsi (cabai rawit 31). Sumber: `het
   struktur regional yang terdeteksi. Perbandingan dengan zona HET, Jawa/luar Jawa, kuantil n_kota, dan 7 wilayah tidak
   berlaku karena k = 1 (`partition_compare`).
 - **Batas deteksi.** Struktur tertanam dengan selisih respons RMS 0,2 per fitur dipulihkan pada 99,5% (k = 2) dan 96,5%
-  (k = 3) replikasi; selisih 0,1 hanya 43% dan 13% (`planted_recovery`). Struktur regional dengan selisih ≥ 0,2 dapat
-  dikesampingkan.
-- **Arti bagi pengguna.** Tidak adanya kelompok provinsi berarti satu profil kepekaan nasional per komoditas cukup sebagai
-  titik awal di semua provinsi, kecuali telur dan daging ayam.
+  (k = 3) replikasi; selisih 0,1 hanya 43% dan 13% (`planted_recovery`). Struktur sintetisnya: provinsi dibagi acak ke 2–3
+  kelompok berukuran hampir sama, pusat kelompok berbentuk simpleks berorientasi acak sehingga selisihnya tersebar di semua fitur,
+  ditanam pada deviasi plasebo lalu diproses persis seperti data asli (D-112, D-126). Struktur berbentuk ini dengan selisih ≥ 0,2
+  dapat dikesampingkan. Bentuk lain (kelompok kecil atau tidak seimbang, gradien geografis, perbedaan pada sebagian komoditas saja)
+  belum diuji dan bisa lolos dari deteksi walaupun selisihnya ≥ 0,2.
+- **Arti bagi pengguna.** Tanpa kelompok provinsi yang terdeteksi, tidak ada dasar untuk peta tipologi kepekaan regional. Profil
+  nasional per komoditas adalah titik awal yang wajar di semua provinsi, kecuali telur dan daging ayam.
 
 ## RQ3 — Depresiasi vs apresiasi
 
@@ -154,12 +165,22 @@ Sumber: `asymmetry` (interval laporan = Wald ∪ persentil bootstrap).
 
 - **E1.** Di antara 10 komoditas yang diamati, τ-b Kendall antara PT(8) dan rasio impor langsung −0,045 (jackknife
   −0,65..0,56), p permutasi eksak 0,93 (`assoc`).
+- **Kualitas rasio impor.** Angkanya tidak setara antarkomoditas. Kebanyakan berasal dari FAOSTAT 2018–2023, telur dan cabai
+  dengan tahun lebih sedikit, dan bawang putih dari impor BPS/Comtrade serta produksi ATAP satu tahun (2021) tanpa ekspor, karena
+  FAOSTAT tidak memuat bawang putih kering (`exposure`, kolom `source`; U5). Rasio ini juga hanya mengukur impor langsung: daging
+  ayam dan telur hampir tanpa impor langsung, tetapi terpapar lewat pakan, yang ditangkap harga dunia komposit jagung–bungkil
+  kedelai, bukan rasio ini.
 - **H3 (keterpencilan).** Koefisien ln(1 + jarak ke hub terdekat) pada respons h = 4, gabungan 10 komoditas, 337 seri:
   0,007 (−0,022..0,033) per 1 SD jarak, p satu sisi 0,80, jadi tidak didukung. Asosiasi negatif di atas 0,022 per 1 SD dapat
   dikesampingkan. Per komoditas, tidak ada interval yang tidak memuat nol (`assoc`).
 - **Meta-regresi eksploratif.** Dari 88 koefisien dua sisi (jarak hub, kecukupan produksi beras, n_kota; 10 komoditas dan
   gabungan; h 4/8/12), tidak ada yang intervalnya tidak memuat nol; q BH minimum 1,0. Interval = yang lebih lebar dari
   SE CR2 dan bootstrap, dan p dihitung konsisten dengan interval itu.
+- **Arti proksi.** `ln_dist_hub` adalah jarak garis lurus ibu kota provinsi ke hub terdekat, bukan biaya atau waktu logistik.
+  `rice_sufficiency` hanya kecukupan produksi beras. `n_kota` adalah jumlah kota sampel PIHPS per provinsi menurut daftar kota di
+  situs PIHPS (2026-11-21, 110 kota), bukan tingkat integrasi pasar; FAQ PIHPS menyebut 82 kota sampel IHK, dan selisihnya belum
+  dikonfirmasi BI. Koefisien yang tidak terdeteksi berarti proksi ini tidak menjelaskan variasi respons dalam desain ini, bukan bahwa
+  logistik, produksi, atau cakupan pasar tidak penting.
 - **Interaksi efek tetap (3c).** Sembilan koefisien Δe × Z(r) (jarak hub, kecukupan beras, n_kota; h 4/8/12) memiliki
   interval yang memuat nol; terbesar ln_dist_hub h = 8, 0,16 (−0,00..0,33).
 
@@ -167,15 +188,17 @@ Sumber: `asymmetry` (interval laporan = Wald ∪ persentil bootstrap).
 
 | Model vs M1 | MAE h = 4 | MAE h = 8 |
 |---|---|---|
-| M0 (tanpa perubahan) | 1,017 | 1,016 |
-| M2 (+ kurs, harga dunia, episode) | 1,009 (DM p 0,009) | 1,013 (DM p 0,025) |
-| M3 (gradient boosting + identitas) | 1,037 (DM p 0,052) | 1,014 (DM p 0,53) |
+| M0 (tanpa perubahan) | 1,017 (DM −1,90; p 0,062) | 1,016 (DM −1,41; p 0,16) |
+| M2 (+ kurs, harga dunia, episode) | 1,009 (DM −2,70; p 0,009) | 1,013 (DM −2,29; p 0,025) |
+| M3 (gradient boosting + identitas) | 1,037 (DM −1,98; p 0,052) | 1,014 (DM −0,63; p 0,53) |
 
-76 origin (h 4; 75 pada h 8, 38 tidak tumpang tindih), 337 seri provinsi. Rasio > 1 = kurang akurat dari M1.
+76 origin (h 4; 75 pada h 8, 38 tidak tumpang tindih), 337 seri provinsi. Rasio > 1 = kurang akurat dari M1. DM < 0 = kurang
+akurat dari M1; p dua sisi. p kecil dengan DM negatif berarti lebih buruk secara nyata, bukan lebih baik.
 Sumber: `forecast_eval` (dijalankan ulang 2026-11-26 dengan flag `episode` real-time, D-162; sebelumnya M2 1,014 / 1,017).
 
-- Dalam evaluasi bersyarat pseudo-real-time, fitur kurs dan harga dunia tidak menurunkan MAE. Pada h = 8 rasio M2/M1
-  terburuk untuk daging sapi 1,26, gula 1,10, dan beras 1,08; untuk cabai dan bawang merah ≈ 1.
+- Dalam evaluasi bersyarat pseudo-real-time, fitur kurs dan harga dunia tidak menurunkan MAE. Pada agregat, M2 sedikit tetapi
+  nyata lebih buruk dari M1 di kedua horizon (MAE +0,9% dan +1,3%; p satu sisi untuk "M2 lebih akurat" 0,996 dan 0,987). Pada
+  h = 8 rasio M2/M1 terburuk untuk daging sapi 1,26, gula 1,10, dan beras 1,08; untuk cabai dan bawang merah ≈ 1.
 - **H5** (h = 8, origin pergerakan kurs besar): impor langsung 1,11 (p satu sisi 0,93) dan input impor 1,12 (0,86),
   Holm 1,0, jadi tidak didukung. Hanya 8 origin pergerakan besar (7 tidak tumpang tindih), sehingga daya uji rendah.
 - **Studi kasus 2026 (V2).** Rasio M2/M1 1,005 pada h = 4 (10 origin) dan 1,004 pada h = 8 (9 origin) (`robustness`).
@@ -250,10 +273,13 @@ out-of-sample yang bersih adalah memprediksi minggu yang belum terjadi. Ini yang
 | D-164 | K4 risiko kenaikan material | `044873c`, 2026-11-27 09.53 WIB |
 | D-167 | aturan & evaluator maju K4 (ambang gagal ditetapkan dari MDE) | `8c7677a`, 2026-11-27 10.28 WIB |
 
-- **Yang dapat diperiksa juri sekarang.** `python docs/audit/20261127_prospective_validation/scripts/integrity_check.py`
+- **Yang dapat diperiksa juri sekarang.** Dari clone repository git proyek (pemeriksaan ini membutuhkan riwayat commit; zip juri
+  tidak memuat riwayat git maupun folder `docs/audit/`), `python -X utf8 docs/audit/20261127_prospective_validation/scripts/integrity_check.py`
   memeriksa bahwa sha256 setiap berkas prediksi dan evaluator sama dengan manifest dan dengan commit sebelum target ada (keluar 0
-  bila utuh; hasil 2026-11-27: semua pemeriksaan wajib lolos). Hash D-152/D-158 dihitung pada berkas CRLF, sehingga verifikasi
-  byte butuh checkout dengan `core.autocrlf=true`.
+  bila utuh; hasil terakhir 2026-11-27 18.20 WIB: semua pemeriksaan wajib lolos). Opsi `-X utf8` diperlukan di Windows bila keluaran
+  tidak ke konsol UTF-8: tanpa opsi itu skrip berhenti dengan galat cetak (keluar 1) walaupun semua pemeriksaan lolos. Skripnya ikut
+  dibekukan, jadi tidak diubah. Hash D-152/D-158 dihitung pada berkas CRLF, sehingga verifikasi byte butuh checkout dengan
+  `core.autocrlf=true`.
 - **Jadwal.** Putaran interim ≥ 2026-11-29 (1 origin per horizon), lalu 2026-12-20 (h = 4 lengkap) dan 2027-01-17 (h = 8 lengkap),
   sesudah masa penjurian. Hasil interim tidak dibaca sebagai konfirmasi.
 - **Daya.** Data maju hanya dapat menandai kegagalan besar (Δ macro F1 < −0,08 / −0,04; ΔAP K4 < −0,14). Keuntungan kecil
@@ -263,7 +289,8 @@ out-of-sample yang bersih adalah memprediksi minggu yang belum terjadi. Ini yang
 ## Dataset turunan
 
 Kontribusi data proyek ini bukan sumber baru, melainkan panel turunan yang terintegrasi dan terdokumentasi: harga eceran
-mingguan 34 provinsi × 10 komoditas × 464 minggu dengan status setiap sel (teramati, carry-forward, pendek, hilang), harga dunia
+mingguan 34 provinsi × 10 komoditas × 464 minggu dengan status setiap sel (teramati, carry-forward = rangkaian harga identik,
+pendek, hilang), harga dunia
 padanan dalam rupiah dengan tanggal ketersediaan (as-of), daftar 13 episode depresiasi, serta tabel buatan tim: konkordansi
 PIHPS–HS–Pink Sheet–FAOSTAT, rasio impor per komoditas, riwayat HET/HAP bertanggal dan berstatus verifikasi, dan fitur provinsi
 (keterpencilan, kecukupan beras, jumlah kota sampel). Rincian, hak redistribusi, dan keterbatasan: `docs/DATASHEET.md`.
@@ -278,10 +305,21 @@ PIHPS–HS–Pink Sheet–FAOSTAT, rasio impor per komoditas, riwayat HET/HAP be
   dan ridge dengan dummy bulan + dummy minggu sekitar Idulfitri (M2/M1 1,005 pada h = 4 dan 1,019 pada h = 8; H5 Holm 0,56).
   Pada pemeriksaan kedua, M1 makin tertinggal dari model tanpa perubahan (M0/M1 0,95 dan 0,97), sehingga keterbatasan utama
   baseline adalah pengumpulan lintas komoditas, bukan penyandian musim.
+- **Waktu origin Task 4.** Origin diberi label Senin minggu ISO t, tetapi fitur harga eceran dan kurs memakai pengamatan sampai
+  Jumat minggu itu. Waktu keputusan yang konsisten adalah sesudah minggu t lengkap dan jendela revisi PIHPS lewat, yaitu Minggu
+  00.00 (D-155; FAQ PIHPS: revisi "sampai dengan hari berikutnya"). Harga dunia hanya dipakai bila `available_at` ≤ Senin minggu t,
+  sehingga rilis Pink Sheet pada Selasa–Jumat minggu origin baru terpakai pada minggu berikutnya. Ini lebih konservatif dari waktu
+  keputusan, bukan kebocoran. `available_at` mengasumsikan hari kerja ke-2 bulan berikutnya (cocok dengan rilis 3 Nov 2026), dan
+  nilainya berasal dari rilis 3 Nov 2026 yang memuat revisi historis, bukan nilai yang tersedia saat itu. Cutoff yang seragam hanya
+  boleh diuji lewat protokol baru yang dibekukan lebih dulu; model beku tidak diubah (D-169).
 - **Eksplorasi Task 4.** Lihat Lampiran A: periode uji 2024+ dipakai berulang, TimesFM mungkin terkontaminasi data uji, dan
   kebutuhan pengguna belum divalidasi.
-- **Harga diatur.** Banyak minggu tanpa perubahan harga untuk komoditas yang diatur (beras 92%, daging sapi 90%, gula 85%,
-  minyak goreng 87% sel carry-forward). Ini kekakuan harga nyata, bukan data hilang, dan membatasi respons yang teramati.
+- **Harga diatur dan status carry-forward.** Banyak minggu berstatus carry-forward pada komoditas yang diatur (beras 92%,
+  daging sapi 90%, gula 85%, minyak goreng 87% sel). Status ini menandai minggu yang mayoritas hari teramatinya termasuk rangkaian
+  harga identik ≥ 5 hari. Penyebabnya tidak dapat dibedakan dari data: harga memang tidak berubah, pedagang melaporkan nilai yang
+  sama, atau sumber memakai harga hari sebelumnya ketika pasar tidak beroperasi (FAQ PIHPS). Konsentrasinya pada komoditas yang
+  diatur konsisten dengan kekakuan harga, tetapi tidak membuktikannya. Status ini terpisah dari data hilang (1,0% sel tanpa
+  pengamatan) dan tidak dipakai untuk menyaring data. Minggu tanpa perubahan membatasi respons yang dapat teramati.
 - **Cakupan.** Kesimpulan berlaku untuk 10 komoditas, 34 provinsi (kerangka lama), dan periode 2018–2026.
 
 ## Lampiran A — Eksplorasi Task 4 (tingkat 3, sesudah praregistrasi)
@@ -336,7 +374,7 @@ tidak terbukti menambah akurasi: C2 − C1 +0,012 (−0,004..0,030).
 | TSMixer | 0,995 (DM p 0,77) | 0,966 (DM p 0,13) | 0,608 |
 | TSMixer + kurs & harga dunia | 1,036 (DM p 0,16) | 0,994 (DM p 0,84) | 0,601 |
 
-Rasio < 1 = lebih akurat dari M1. Baseline akurasi arah h = 8 = 0,545.
+Rasio < 1 = lebih akurat dari M1; DM p dua sisi, arahnya mengikuti rasio. Baseline akurasi arah h = 8 = 0,545.
 
 - TimesFM 3.0 tanpa pelatihan pada data kami menurunkan MAE terhadap M1 sebesar 6,5% (h = 4) dan 10,5% (h = 8); porsi variasi
   perubahan harga yang terjelaskan naik dari 0,07 menjadi 0,25 (h = 8). TimesFM 3.0 dirilis September 2026 dan dilatih pada
@@ -401,7 +439,7 @@ yang sama tahun lalu); yang terbaik di pengembangan menjadi pembanding resmi.
   (h = 4). Prioritas kebijakan TPID mungkin berbeda; materialitas kebijakan perlu ditetapkan bersama pengguna.
 - Arah pada baris material dan kalibrasi adalah ukuran bersyarat: yang pertama dihitung pada baris yang *ternyata* bergerak
   material, yang kedua mengkalibrasi peluang arah, bukan peluang kenaikan material. Kelemahan klasifier ada pada perubahan kecil
-  (F1 makro kuintil |perubahan| terkecil ± 0,57). Pada 25% prediksi paling yakin setiap minggu, akurasi arah 0,83 (h = 4) dan
+  (F1 makro kuintil |perubahan| terkecil sekitar 0,57). Pada 25% prediksi paling yakin setiap minggu, akurasi arah 0,83 (h = 4) dan
   0,81 (h = 8).
 - Di origin pengembangan kriteria yang sama lolos (selisih presisi +0,110 / +0,067), kecuali kalibrasi h = 8 yang gagal tipis
   (ECE 0,056 > 0,05). Kalibrasi ulang walk-forward menurunkan ECE di bawah 0,05 tetapi tidak memperbaiki Brier, sehingga tidak
@@ -421,9 +459,11 @@ pada ambang yang dipakai pengguna.
 
 - Periode uji 2024+ dipakai berulang (A.1); hanya validasi prospektif yang memberi bukti out-of-sample bersih.
 - Kebutuhan TPID (jumlah komoditas yang dapat dipantau, toleransi alarm palsu, ambang kenaikan yang relevan, waktu persiapan)
-  belum divalidasi dengan pengguna (U109); belum ada bukti bahwa daftar ini memperbaiki keputusan operasional. Dengan presisi di
-  bawah 0,5, daftar pantau apa pun hanya bernilai bila kenaikan yang terlewat jauh lebih mahal daripada pemeriksaan yang tidak
-  perlu (≥ ± 3–5×). Penggunaan operasional menunggu ambang kebijakan dan kapasitas pemantauan dari pengguna.
+  belum divalidasi dengan pengguna (U109); belum ada bukti bahwa daftar ini memperbaiki keputusan operasional. Analisis kepekaan
+  rasio biaya (skenario r = 1, 2, 5, 10; bukan biaya nyata dan bukan nilai harapan yang tervalidasi) menunjukkan daftar pantau
+  dengan presisi di bawah 0,5 hanya lebih bernilai daripada tanpa alarm bila kenaikan yang terlewat sekitar 3–5 kali lebih mahal
+  daripada pemeriksaan yang tidak perlu. Nilai keputusan yang sebenarnya membutuhkan biaya dan peluang yang tervalidasi, dan peluang
+  K4 pada h = 8 belum terkalibrasi. Penggunaan operasional menunggu ambang kebijakan dan kapasitas pemantauan dari pengguna.
 - Pemeriksaan kebocoran membuktikan fitur tidak membaca observasi masa depan, tetapi efek revisi data PIHPS (H+1) tidak dapat
   diuji karena data vintage tidak tersedia. "Material" relatif per komoditas dan diukur di titik akhir horizon.
 
@@ -435,4 +475,5 @@ pada ambang yang dipakai pengguna.
 `docs/audit/20261127_redflag_juri/` (membaca artefak resmi, tidak menulis ke `results/`). Lampiran A: `forecast_preds`,
 `direction_preds`, `deep_preds`, log evaluasi Task 4 di `logs/evaluations/` (app halaman 7), `direction_tuned_preds` (tidak dikirim;
 dibangun ulang dengan `python -m kagami task4 --direction-tuned`), definisi & kriteria di D-145, D-154, D-164 (`docs/DECISIONS.md`).
-Validasi prospektif: `docs/audit/20261127_prospective_validation/`. Rambu klaim: CLAUDE.md §20.
+Validasi prospektif: `docs/audit/20261127_prospective_validation/`. Rambu klaim: CLAUDE.md §20. Folder `docs/audit/` (laporan, skrip, dan
+hasil analisis tambahan) ada di repository git proyek, tidak di zip juri.

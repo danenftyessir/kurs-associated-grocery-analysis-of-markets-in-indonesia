@@ -29,7 +29,7 @@ CAUSAL_NOTE = "Asosiasi historis, bukan kausalitas. Bukan ramalan."
 DRIVER_LABELS, LEVEL_LABELS, MODEL_LABELS = S.DRIVER_LABELS, S.LEVEL_LABELS, S.MODEL_LABELS
 fmt_num, fmt_interval = S.fmt_num, S.fmt_interval
 # Lebar penuh: Streamlit baru memakai width="stretch" (use_container_width usang & akan dihapus); versi lama hanya
-# mengenal use_container_width. Dipilih dari signature agar app jalan di versi mana pun >= 1.35 (pyproject).
+# mengenal use_container_width. Dipilih dari signature agar tetap aman bila versi berubah (pyproject: >= 1.57, D-170).
 STRETCH = ({"width": "stretch"} if "width" in inspect.signature(st.plotly_chart).parameters
            else {"use_container_width": True})
 
@@ -74,6 +74,42 @@ def page_header(title: str, question: str) -> None:
     st.set_page_config(page_title=f"KAGAMI · {title}", layout="wide")
     st.title(title)
     st.caption(f"Pertanyaan pengguna: {question}")
+
+
+# Lapisan tampilan bersama (D-170): tema dasar di .streamlit/config.toml (kertas terang, judul serif, biru palet viz.style);
+# CSS ini hanya menambah yang tidak bisa diatur tema: blok pembuka beranda, warna seleksi teks, angka tabular.
+STYLE = """
+<style>
+::selection { background: rgba(42, 120, 214, .18); }
+[data-testid="stMetricValue"], [data-testid="stDataFrame"], .kg-num { font-variant-numeric: tabular-nums; }
+.kg-hero { padding: .5rem 0 .25rem; }
+.kg-hero h1.kg-title { font-size: clamp(1.8rem, 2.7vw, 2.6rem); line-height: 1.15; letter-spacing: -0.02em;
+  font-weight: 600; max-width: 32ch; margin: 0 0 1rem; padding: 0; text-wrap: balance; }
+.kg-title .kg-hl { color: #1c5cab; white-space: nowrap; }
+.kg-byline { font-size: .95rem; margin: 0 0 1.25rem; opacity: .78; }
+.kg-lead { font-size: 1.1rem; line-height: 1.62; max-width: 70ch; margin: 0 0 .25rem; }
+.kg-qual { font-size: .85rem; max-width: 75ch; opacity: .72; margin: .35rem 0 0; }
+.kg-rq { font-family: "Source Serif Pro", "Source Serif 4", Georgia, serif; font-weight: 600; font-size: 1.02rem;
+  line-height: 1.35; margin: 0; }
+.kg-code { font-size: .78rem; font-weight: 600; color: #1c5cab; margin-left: .3rem; white-space: nowrap; }
+.kg-ans { font-size: .98rem; line-height: 1.55; margin: 0; max-width: 70ch; }
+.kg-rule { border-top: 1px solid rgba(31, 35, 40, .12); margin: .9rem 0; }
+</style>
+"""
+
+
+def inject_style() -> None:
+    """Pasang CSS bersama (dipanggil router app/Home.py sekali per run; berlaku untuk semua halaman)."""
+    st.markdown(STYLE, unsafe_allow_html=True)
+
+
+def nav_link(page: str, label: str, icon: str | None = None) -> None:
+    """Tautan ke halaman lain lewat `st.page_link` (path relatif app/, mis. "pages/3_Pola_Respons.py"). Di luar router
+    `st.navigation` (tes asap menjalankan halaman sendiri-sendiri) `st.page_link` tidak bisa menemukan halaman → teks biasa."""
+    try:
+        st.page_link(page, label=label, icon=icon)
+    except Exception:  # noqa: BLE001 - hanya cadangan tampilan
+        st.caption(f"→ {label}")
 
 
 def footer(sources: str, unit: str, period: str) -> None:

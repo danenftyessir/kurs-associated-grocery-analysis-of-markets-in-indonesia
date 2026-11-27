@@ -1,3 +1,18 @@
 # App KAGAMI harus jalan offline (kriteria PLAN.md §14): tanpa telemetri pemakaian Streamlit ke server luar.
 [browser]
 gatherUsageStats = false
+
+# Tema (D-170): kertas terang untuk dibaca juri di laptop dan dipotong ke makalah/video; judul serif (Source Serif,
+# dibundel Streamlit, jadi tetap offline); warna utama = biru tua palet viz.style (kontras ≥ 4,5:1 di latar ini).
+[theme]
+base = "light"
+primaryColor = "#1c5cab"
+backgroundColor = "#fbfaf8"
+secondaryBackgroundColor = "#f1efea"
+textColor = "#1f2328"
+headingFont = "serif"
+baseRadius = "medium"
+
+# Penonton tidak perlu menu pengembang (Rerun/Settings/Deploy).
+[client]
+toolbarMode = "minimal"

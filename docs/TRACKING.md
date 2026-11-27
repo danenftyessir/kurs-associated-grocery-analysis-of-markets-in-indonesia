@@ -57,7 +57,9 @@ terakhirnya. Artinya ada perubahan di hulu setelah tahap itu dijalankan.
 **Lineage output (D-140).** `store.artifact_sync` memeriksa setiap artefak di lokasi baca: *sinkron* (file = output run eksekusi
 terakhir yang menulisnya), *tidak sinkron* (run eksekusi terakhir menulis versi lain, mis. file sekarang dari unduhan Drive atau
 run di folder lain), *hanya dievaluasi* (belum ada run eksekusi tercatat), *tanpa log*. Run paling baru tidak dianggap produsen
-resmi hanya karena paling baru. `store.stage_states` memisahkan eksekusi dari evaluasi-saja untuk dashboard: dieksekusi /
+resmi hanya karena paling baru. Hash berkas teks (CSV/MD/JSON) dibandingkan juga dalam versi ujung baris LF dan CRLF, karena artefak
+ditulis CRLF di Windows tetapi di-checkout LF di Linux (Streamlit Cloud, clone juri); tanpa ini semua artefak teks tampak *tidak
+sinkron* (D-170). `staleness` memakai aturan yang sama. `store.stage_states` memisahkan eksekusi dari evaluasi-saja untuk dashboard: dieksekusi /
 dieksekusi · output tidak sinkron / hanya dievaluasi / eksekusi gagal / belum ada run. Log versi 1 terbaca (field baru = None).
 
 ## 3. Dependensi antar-tahap (dari REQUIRES/OPTIONAL, bukan linear)

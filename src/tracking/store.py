@@ -4,6 +4,7 @@ baca dari `logs/` di setiap `cfg.read_dirs` (out_dir → artifact_dirs → root)
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -222,8 +223,23 @@ def latest_runs(cfg: Config, run_type: str | None = None) -> dict[str, RunRecord
     return out
 
 
+TEXT_SUFFIXES = (".csv", ".md", ".json", ".txt", ".yaml")
+
+
+def _hash_variants(p: Path, raw: str) -> set[str]:
+    """sha256 file + (berkas teks) sha256 versi ujung baris LF dan CRLF (D-170). Artefak CSV/MD ditulis di Windows
+    dengan CRLF dan hash-nya dicatat begitu; git menyimpannya LF, sehingga checkout di Linux (Streamlit Cloud, clone juri)
+    memberi hash lain walau isinya identik → tanpa ini semua artefak teks tampak "tidak sinkron"/"basi"."""
+    out = {raw}
+    if p.suffix.lower() in TEXT_SUFFIXES:
+        lf = p.read_bytes().replace(b"\r\n", b"\n")
+        out |= {hashlib.sha256(lf).hexdigest(), hashlib.sha256(lf.replace(b"\n", b"\r\n")).hexdigest()}
+    return out
+
+
 def staleness(cfg: Config) -> pd.DataFrame:
     """Untuk run sukses terakhir setiap tahap: input yang file-nya kini berbeda (hulu berubah setelah run itu).
+    Beda ujung baris saja (CRLF ↔ LF) tidak dihitung berubah (D-170).
 
     Kolom: task_id, run_id, artifact, recorded_sha, current_sha, stale (True = hasil tahap ini mungkin basi).
     """
@@ -236,8 +252,9 @@ def staleness(cfg: Config) -> pd.DataFrame:
         for a in r.inputs:
             p = find_artifact(cfg, a.name) if a.name in ARTIFACTS else None
             cur = sha256_file(p) if p is not None else None
+            same = cur is not None and a.sha256 in _hash_variants(p, cur)
             rows.append({"task_id": task, "run_id": r.run_id, "artifact": a.name, "recorded_sha": a.sha256[:12],
-                         "current_sha": cur[:12] if cur else None, "stale": cur is not None and cur != a.sha256})
+                         "current_sha": cur[:12] if cur else None, "stale": cur is not None and not same})
     return pd.DataFrame(rows, columns=["task_id", "run_id", "artifact", "recorded_sha", "current_sha", "stale"])
 
 
@@ -252,7 +269,8 @@ def artifact_sync(cfg: Config) -> pd.DataFrame:
     tidak sinkron (run eksekusi terakhir menulis versi lain: file sekarang berasal dari luar run itu, mis. unduhan Drive
     atau run di folder lain) | hanya dievaluasi (tidak ada run eksekusi yang menulisnya; hanya run evaluasi-saja yang
     mencatat hash-nya) | tanpa log. Kolom: artifact, stage, current_sha, state, producer_run (run eksekusi dengan output
-    = file sekarang), last_execution_run, last_execution_sha, last_execution_rows, current_rows, evaluated_by."""
+    = file sekarang), last_execution_run, last_execution_sha, last_execution_rows, current_rows, evaluated_by.
+    Beda ujung baris saja (CRLF ↔ LF, checkout git di Linux) dihitung sama (D-170)."""
     from kagami.utils.io import find_artifact
 
     runs = load_runs(cfg)
@@ -262,21 +280,22 @@ def artifact_sync(cfg: Config) -> pd.DataFrame:
         if p is None:
             continue
         cur = sha256_file(p)
+        same = _hash_variants(p, cur)
         execs = [(r, a) for r in runs if r.run_type == "execution" and r.status == "success"
                  for a in r.outputs if a.name == name]
         evals = [(r, a) for r in runs if r.run_type == "evaluation" for a in r.outputs if a.name == name]
-        producer = next((r.run_id for r, a in reversed(execs) if a.sha256 == cur), None)
+        producer = next((r.run_id for r, a in reversed(execs) if a.sha256 in same), None)
         last = execs[-1] if execs else None
-        cur_rows = next((a.rows for _, a in reversed(execs + evals) if a.sha256 == cur and a.rows is not None), None)
+        cur_rows = next((a.rows for _, a in reversed(execs + evals) if a.sha256 in same and a.rows is not None), None)
         if last is not None:
-            state = "sinkron" if last[1].sha256 == cur else "tidak sinkron"
+            state = "sinkron" if last[1].sha256 in same else "tidak sinkron"
         else:
-            state = "hanya dievaluasi" if any(a.sha256 == cur for _, a in evals) else "tanpa log"
+            state = "hanya dievaluasi" if any(a.sha256 in same for _, a in evals) else "tanpa log"
         rows.append({"artifact": name, "stage": art.stage, "current_sha": cur[:12], "state": state,
                      "producer_run": producer, "last_execution_run": last[0].run_id if last else None,
                      "last_execution_sha": last[1].sha256[:12] if last else None,
                      "last_execution_rows": last[1].rows if last else None, "current_rows": cur_rows,
-                     "evaluated_by": next((r.run_id for r, a in reversed(evals) if a.sha256 == cur), None)})
+                     "evaluated_by": next((r.run_id for r, a in reversed(evals) if a.sha256 in same), None)})
     return pd.DataFrame(rows, columns=["artifact", "stage", "current_sha", "state", "producer_run",
                                        "last_execution_run", "last_execution_sha", "last_execution_rows",
                                        "current_rows", "evaluated_by"])

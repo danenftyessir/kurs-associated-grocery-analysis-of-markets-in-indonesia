@@ -12,9 +12,12 @@ from kagami.tracking import assessment, registry, store
 from kagami.viz import plots
 from kagami.viz.style import fmt_num
 
-page_header("Evaluasi & Riwayat Eksekusi",
+page_header("Riwayat eksekusi",
             "Tahap mana yang benar-benar dieksekusi, dari input mana, apakah artefaknya sinkron, dan apakah hasil "
             "evaluasinya lebih baik dari acuan?")
+st.caption("Lampiran teknis untuk pembuktian reproduksibilitas: setiap tahap pipeline mencatat log JSON (input, output, "
+           "sidik jari data & kode, metrik evaluasi). Hasil penelitian ada di bagian Hasil penelitian; halaman ini untuk "
+           "pemeriksaan proses.")
 
 LABELS = {k: v.label for k, v in registry.TASKS.items()}
 SHORT = {k: v.split(" · ")[0] for k, v in LABELS.items()}
@@ -366,7 +369,7 @@ if section == "Evaluasi per tahap":
             st.subheader("Arah & galat per segmen")
             st.caption("Agregat semua komoditas bisa menutupi kegagalan per komoditas. Baseline = arah terbanyak di "
                        "segmen itu; interval selisih dari bootstrap blok origin. Segmen 'kaku' = porsi sel carry_forward "
-                       "≥ 50% (kekakuan harga, U22). MAE / M1 > 1 = lebih buruk dari ridge dasar.")
+                       "(rangkaian harga identik) ≥ 50%, U22. MAE / M1 > 1 = lebih buruk dari ridge dasar.")
             hs = list(seg["name"])
             s1, s2, s3 = st.columns(3)
             hname = s1.selectbox("Horizon", hs, index=len(hs) - 1, key=f"seg_h_{task}",

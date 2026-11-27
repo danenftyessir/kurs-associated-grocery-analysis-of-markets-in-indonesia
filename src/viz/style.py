@@ -38,6 +38,10 @@ CHECK_LABELS = {
     "last_observation_aggregation": "agregasi observasi terakhir",
     "bapanas_outcome": "outcome Panel Harga Bapanas",
 }
+PATH_LABELS = {"direct_import": "Impor langsung", "imported_input": "Input impor (pakan)", "export_parity": "Paritas ekspor",
+               "domestic": "Domestik"}
+FEATURE_LABELS = {"ln_dist_hub": "Jarak ke hub logistik (ln km)", "rice_sufficiency": "Kecukupan produksi beras",
+                  "n_kota": "Jumlah kota sampel PIHPS"}
 CAUSAL_NOTE = "Asosiasi historis, bukan kausalitas."
 MINUS = "−"
 
@@ -63,6 +67,22 @@ def detection_status(lo: float, hi: float) -> str:
     if any(v is None or (isinstance(v, float) and math.isnan(v)) for v in (lo, hi)):
         return "interval tidak tersedia"
     return "tidak terdeteksi" if lo <= 0 <= hi else "terdeteksi"
+
+
+def dm_summary(stat: float, p_two: float, p_one: float | None = None, model: str = "M2", ref: str = "M1",
+               alpha: float = 0.05) -> str:
+    """Uji Diebold–Mariano dengan ARAH, bukan hanya p (D-169). Konvensi `stats.regression.diebold_mariano` & artefak
+    `forecast_eval`: DM > 0 = `model` lebih akurat dari `ref`, DM < 0 = kurang akurat. p dua sisi menguji "berbeda"; p satu
+    sisi menguji "`model` lebih akurat" (arah RQ5/H5). Bila p satu sisi tidak diberikan, diturunkan dari p dua sisi dan tanda
+    DM (distribusi simetris, sama dengan `evaluation.forecast_eval`). NaN → 'uji DM tidak tersedia'."""
+    if any(v is None or (isinstance(v, float) and math.isnan(v)) for v in (stat, p_two)):
+        return "uji DM tidak tersedia"
+    if p_one is None or (isinstance(p_one, float) and math.isnan(p_one)):
+        p_one = p_two / 2 if stat > 0 else 1 - p_two / 2
+    word = "lebih akurat dari" if stat > 0 else ("kurang akurat dari" if stat < 0 else "setara dengan")
+    verdict = f"{model} {word} {ref}" if p_two < alpha else f"arah {model} {word} {ref}, tidak nyata"
+    return (f"DM = {fmt_num(stat, 2, sign=True)} · {verdict} (p dua sisi {fmt_num(p_two, 3)}) · "
+            f"p satu sisi untuk keunggulan {model}: {fmt_num(p_one, 3)}")
 
 
 def rgba(hex_color: str, alpha: float) -> str:

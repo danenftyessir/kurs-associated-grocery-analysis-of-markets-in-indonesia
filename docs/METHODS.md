@@ -10,7 +10,9 @@ Notasi: komoditas *i*, provinsi *r*, minggu ISO *t*, horizon *h* = 0..12.
 - `price(i,r,t)` = rerata harga hari kerja **teramati** dalam minggu ISO *t*; `p = log(price)`.
 - Status sel: `missing` (0 hari teramati), `short` (≤ `params.weekly.short_week_days`), `carry_forward`
   (mayoritas hari teramati adalah bagian rangkaian nilai identik ≥ `params.weekly.carry_forward_run_days` hari kerja),
-  selain itu `observed`. Status tidak menghapus nilai; dipakai untuk robustness & filter.
+  selain itu `observed`. Status tidak menghapus nilai; dipakai untuk robustness & filter. `carry_forward` menandai rangkaian
+  harga identik, bukan imputasi: harga yang tidak berubah dan harga hari sebelumnya yang dipakai sumber saat pasar tidak beroperasi
+  (FAQ PIHPS) tidak dapat dibedakan (U22, D-169).
 
 ### M0.2 Kelayakan (WP-04)
 Seri layak bila: porsi minggu `missing` ≤ 0,20; tidak ada celah > 8 minggu berturut-turut; setiap tahun kalender
@@ -28,7 +30,9 @@ dalam periode terisi ≥ 70% minggu.
 - Task 1–3 (deskriptif, selaras periode observasi): `log_w_idr(i,t) = log_w_usd(i, bulan(t)) + log_e_bulan(bulan(t))`,
   dengan `log_e_bulan` rerata log JISDOR bulan tersebut. `dw = Δ log_w_idr` mingguan → nol di dalam bulan, berubah pada
   minggu pertama bulan baru (bulan = bulan hari Senin). Akibatnya `de` (mingguan) dan `dw` (bulanan) tidak kolinear sempurna (D-025).
-- Task 4 (as-of): nilai bulan *m* baru boleh dipakai sejak `available_at` = hari kerja ke-2 bulan *m+1*.
+- Task 4 (as-of): nilai bulan *m* baru boleh dipakai sejak `available_at` = hari kerja ke-2 bulan *m+1* (asumsi jadwal rilis,
+  cocok dengan rilis 3 Nov 2026; tanggal rilis aktual per bulan tidak dipakai). Nilainya dari rilis 3 Nov 2026 yang memuat revisi
+  historis (bukan vintage real-time).
 - Komoditas tanpa padanan (bawang putih, bawang merah, cabai merah, cabai rawit) → tanpa `w`; model hanya penggerak kurs.
 
 ### M0.5 Episode (WP-06)
@@ -160,10 +164,16 @@ A8 = β⁺(8) − β⁻(8) (level komoditas).
 
 - Target: $p_{t+h} - p_t$, h ∈ {4, 8}, per seri (provinsi atau wilayah).
 - Origin: setiap 4 minggu, 2021-01-04 .. (freeze − h). Train: hanya baris dengan t + h ≤ origin. As-of join `available_at`.
+- Waktu keputusan (D-169, didokumentasikan; model tidak berubah): origin t = label Senin minggu ISO t, tetapi harga eceran (rerata
+  hari kerja teramati) dan kurs/Brent (rerata harian) memakai pengamatan s.d. Jumat minggu t. Prediksi secara konseptual dibuat
+  sesudah minggu t lengkap dan jendela revisi PIHPS H+1 lewat = Minggu 00.00 (D-155). Harga dunia memakai `available_at` ≤ Senin
+  minggu t (`merge_asof` pada label minggu), jadi rilis Selasa–Jumat minggu t baru terpakai minggu berikutnya: lebih konservatif
+  dari waktu keputusan, bukan kebocoran. Cutoff yang seragam hanya lewat eksperimen baru dengan protokol beku.
 - M0: prediksi 0. M1: Ridge (lag Δp 1/4/8, bulan, Idulfitri, db 1/4). M2: M1 + {de, dw} perubahan 1/4/8 minggu + episode (flag real-time: minggu t pemicu, Σ de 8 minggu s.d. t ≥ 0,03; D-162).
   M3: HistGradientBoostingRegressor dengan fitur M2 + identitas komoditas & wilayah.
 - Metrik: MAE, RMSE, rasio M2/M1 dan M3/M1 (semua origin; origin dengan |Δe 4 minggu| > p80 data latih).
-  DM dengan HAC (lag h−1 dalam satuan origin yang tumpang tindih) + koreksi HLN. Implementasi (D-113): deret = MAE per origin
+  DM dengan HAC (lag h−1 dalam satuan origin yang tumpang tindih) + koreksi HLN; DM > 0 = kandidat lebih akurat dari M1, DM < 0 =
+  kurang akurat, sehingga setiap p DM dilaporkan bersama tanda/arahnya (D-169). Implementasi (D-113): deret = MAE per origin
   (rerata lintas seri dalam sel), h dalam satuan origin = ceil(h/4) → HAC lag 0 (h = 4) dan 1 (h = 8).
   H5: model M2, h = 8, origin large_move, sel jalur = komoditas fokus direct_import {bawang putih, gula, daging sapi} dan
   imported_input {daging ayam, telur}; p DM satu sisi (M2 lebih akurat); Holm atas 2 jalur (p tak terdefinisi = 1), α 0,05.

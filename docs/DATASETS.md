@@ -77,14 +77,23 @@ Menghapus permanen file lama adalah keputusan Danen (inventaris tim: "Hapus file
 - Cakupan mingguan 2018-01..2026-11 (porsi minggu dengan ≥ 1 hari teramati, rerata provinsi): varian representatif 0,998,
   kecuali Cabai Rawit Merah 0,944 (absen di Sumbar; Aceh & Kepri ~90% kosong, U23). Minyak Goreng Curah 0,957
   (absen di Babel; Maluku & Papua Barat berhenti 2023/2021) → diganti Kemasan Bermerk 1 (D-023).
-- Harga sangat kaku untuk komoditas yang diatur: ≥ 85% minggu beras, daging sapi, gula berisi rangkaian nilai identik ≥ 5 hari (U22).
+- Rangkaian nilai identik ≥ 5 hari mendominasi komoditas yang diatur: 85–92% minggu beras, daging sapi, gula, minyak goreng (U22).
+  Penyebabnya tidak dapat dibedakan dari data: harga tidak berubah, pedagang melaporkan nilai sama, atau harga hari sebelumnya
+  dipakai saat pasar tidak beroperasi (FAQ PIHPS, di bawah). Status `carry_forward` = penanda, bukan bukti imputasi atau kekakuan (D-169).
 - Kejanggalan diketahui: spasi di akhir `Cabai Merah Keriting ` (ditangani `norm_name`); lonjakan satu hari
   (Papua, Beras level 1, 2017-07-03: 15.800/29.750 lalu 9.500) → QA WP-10; tanggal 2026-11-19 sebagian kosong.
 - Minggu 2022-05-02 (Idulfitri 2022): tidak ada provinsi teramati di Sumatra, Jawa, Bali–NT, Sulawesi, Maluku → sel wilayah
   NaN di `panel_weekly_region` (WP-08).
 - Snapshot pra-merge (`pihps_pasar_tradisional_harian_2017-2026_retrieved_2026-11-18.zip`) dipensiunkan ke
   `data/raw/_superseded/bi_pihps/` (D-102): inventaris tim menandainya rusak; tidak dipakai, tidak diunggah ke Drive.
-- Harga provinsi = rerata kota sampel (82 kota, 2 pasar/kota, 2 pedagang/komoditas) → derau berbeda antarprovinsi.
+- Harga provinsi = gabungan kota sampel (2 pasar tradisional per kota, 2 pedagang per komoditas per pasar) → derau berbeda
+  antarprovinsi. Jumlah kota: daftar kota pasar tradisional di situs PIHPS (`GetRefRegency`, 2026-11-21) dan unduhan per kota
+  (`pihps_city`) memuat 110 kota; FAQ PIHPS menyebut 82 kota/kabupaten sampel IHK. Selisihnya belum dikonfirmasi BI; KAGAMI memakai
+  110 (daftar yang benar-benar menyediakan data) untuk `n_kota` (D-169).
+- FAQ PIHPS (https://www.bi.go.id/hargapangan/Informasi/FAQ, dibaca 2026-11-27): pencacahan setiap hari kerja (Senin–Jumat)
+  09.00–11.00 WIB; data diharapkan terbit 13.00 WIB; dalam kondisi tertentu revisi masih dapat dilakukan sampai hari berikutnya
+  (U110: tidak disebut hari kalender atau hari kerja); bila pasar tidak beroperasi (mis. bencana), harga hari itu diambil dari hari
+  sebelumnya (relevan untuk status `carry_forward`, U22).
 
 ### PIHPS pedagang besar (`pihps_wholesale`, opsional, pilot D-150)
 - Zip 34 CSV `pihps_provNN_<Nama>.csv` + `MANIFEST.csv` + `ERRORS.json`, **format sama dengan `pihps`** (lebar: `province_id,

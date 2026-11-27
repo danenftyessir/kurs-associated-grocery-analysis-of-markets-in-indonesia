@@ -71,6 +71,11 @@ Tidak dapat dijawab: biaya pengadaan importir, market power, mata uang invoice, 
 | "Tidak ada pengaruh kurs" | "Pengaruh di atas X dapat dikesampingkan pada horizon 8 minggu" |
 | "Kerentanan provinsi" | "Kepekaan harga eceran terhadap kurs" |
 | "Dataset kami" (untuk PIHPS mentah) | "Dataset turunan kami yang dibangun dari PIHPS (Bank Indonesia)" |
+| "Komoditas lebih menentukan daripada lokasi" | "Dalam sampel 10 komoditas, estimasi respons bervariasi antarkomoditas, sedangkan heterogenitas provinsi di atas plasebo hanya terdeteksi pada telur & daging ayam" (bukan dekomposisi varians formal) |
+| "Sisanya berasal dari faktor lain" (dari hasil nol) | "Bagian yang tidak dijelaskan asosiasi kurs dalam model perlu ditelusuri ke faktor lain (pasokan, musim, kebijakan, faktor tak teramati)" |
+| "DM p = 0,009" tanpa arah | "DM = −2,70: M2 kurang akurat dari M1 (p dua sisi 0,009; p satu sisi untuk keunggulan M2 0,996)" |
+| "Sistem peringatan dini" / "nilai ekonomi daftar pantau" | "Prototipe riset & analitik pendukung keputusan"; tabel rasio biaya = "analisis kepekaan, bukan nilai harapan tervalidasi" |
+| "Tinjauan pustaka sistematis" (tanpa protokol PRISMA) | "Kajian pustaka tematik"; rujukan yang hanya dari cuplikan pencarian dicek full-text dulu (U12) |
 
 ## 7. Kriteria keberhasilan (proposal §6.1) & penilaian juri
 
@@ -88,5 +93,7 @@ Konten wajib orisinal dan tidak melanggar hak cipta → alasan kebijakan data tu
 ## 8. Produk
 - Paket juri: kode, `configs/`, `data/reference/` (CC BY 4.0), `data/processed/` turunan, `results/`, app, README dengan
   tiga tingkat reproduksi (ARCHITECTURE §5) dan catatan hak data.
-- Streamlit 6 halaman: (1) Ringkasan & Status Data, (2) Kepekaan Harga Regional, (3) Pola Respons,
-  (4) Eksposur & Nilai Prediktif, (5) Penjelajah Skenario Bersyarat, (6) Temuan Penelitian.
+- Streamlit 6 halaman proposal: (1) Ringkasan & Status Data, (2) Kepekaan Harga Regional, (3) Pola Respons,
+  (4) Eksposur & Nilai Prediktif, (5) Penjelajah Skenario Bersyarat, (6) Temuan Penelitian; ditambah (7) Evaluasi & Riwayat
+  Eksekusi (WP-36, D-137) untuk pembuktian reproduksibilitas. Sejak D-170 app dikelompokkan menjadi Hasil penelitian (Beranda,
+  Kepekaan harga, Pola regional, Eksposur & prediksi, Skenario rupiah, Temuan lengkap) dan Lampiran teknis (Data & metode, Riwayat eksekusi).

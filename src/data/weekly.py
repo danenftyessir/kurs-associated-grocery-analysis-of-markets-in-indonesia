@@ -58,7 +58,9 @@ def aggregate_weekly(cfg: Config, daily: pd.DataFrame) -> pd.DataFrame:
             > short (n_days <= weekly.short_week_days) > observed.
     Grid lengkap: 34 provinsi x 10 komoditas x minggu dari period.start s.d. minggu period.freeze.
     Hari carry-forward = bagian dari rangkaian nilai identik >= weekly.carry_forward_run_days hari kerja
-    berturut-turut dalam satu seri (diduga pasar tutup / pedagang tidak berganti nilai). Rangkaian dihitung
+    berturut-turut dalam satu seri. Penyebabnya tidak dapat dibedakan dari data: harga memang tidak berubah, pedagang
+    melaporkan nilai yang sama, atau sumber memakai harga hari sebelumnya saat pasar tidak beroperasi (FAQ PIHPS,
+    dibaca 2026-11-27; U22, D-169). Status ini penanda, bukan bukti imputasi atau kekakuan. Rangkaian dihitung
     pada seluruh riwayat sebelum dipotong ke periode, sehingga rangkaian yang melintasi period.start terhitung.
     """
     wp = cfg.params["weekly"]

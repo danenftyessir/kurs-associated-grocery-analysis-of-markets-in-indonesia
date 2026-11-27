@@ -9,9 +9,11 @@ format, dan keanehannya ada di [DATASETS.md](DATASETS.md). Kontrak kolom setiap 
 - **Tujuan.** Menyediakan panel harga pangan eceran per provinsi yang dapat dihubungkan, minggu demi minggu dan tanpa kebocoran
   waktu, dengan kurs IDR/USD, harga dunia padanan dalam rupiah, kebijakan harga acuan, eksposur impor, dan karakteristik provinsi.
 - **Celah yang diisi.** Sumber publik tersedia terpisah, dengan frekuensi, ejaan provinsi, satuan, dan kode komoditas yang
-  berbeda. PIHPS harian tidak menandai minggu tanpa perubahan harga, tidak memisahkan data hilang dari harga kaku, dan memuat
-  urutan baris yang tidak dapat diandalkan (D-022). Kurs dan harga dunia tidak memiliki tanggal ketersediaan. Riwayat HET/HAP
-  tersebar di peraturan dengan tanggal yang tidak selalu terverifikasi.
+  berbeda. PIHPS harian tidak menandai minggu yang harganya identik berhari-hari, tidak memisahkan data hilang dari rangkaian harga
+  identik, dan memuat urutan baris yang tidak dapat diandalkan (D-022). Kurs dan harga dunia tidak memiliki tanggal ketersediaan.
+  Riwayat HET/HAP tersebar di peraturan dengan tanggal yang tidak selalu terverifikasi.
+- **Kebaruan.** Kebaruannya ada pada integrasi dan pengayaan dataset turunan (status sel, tanggal ketersediaan, tabel tim yang
+  bersumber), bukan pada sumber data mentah baru.
 - **Pembuat.** Tim KAGAMI (INDONERIS 2026). Dataset turunan kami dibangun dari PIHPS (Bank Indonesia) dan sumber publik lain.
 
 ## 2. Komposisi
@@ -27,7 +29,7 @@ format, dan keanehannya ada di [DATASETS.md](DATASETS.md). Kontrak kolom setiap 
 | `concordance` | PIHPS ↔ HS ↔ Pink Sheet ↔ FAOSTAT per komoditas, dengan tingkat keyakinan | 10 baris | ya |
 | `exposure` | rasio impor langsung, jalur eksposur, ordinal input impor, sumber setiap angka | 10 baris | ya |
 | `regulation` | riwayat HET/HAP/HPP per komoditas × instrumen × zona × periode, dengan **status verifikasi tanggal**; tanggal yang tidak dapat diverifikasi ditandai `unverified`, tidak ditebak | 72 baris | ya |
-| `province_features` | jarak ke hub logistik terdekat, kecukupan produksi beras 2025, jumlah kota sampel PIHPS | 34 baris | ya |
+| `province_features` | jarak garis lurus ibu kota ke hub logistik terdekat, kecukupan produksi beras 2025, jumlah kota sampel PIHPS (daftar situs PIHPS 2026-11-21: 110 kota; FAQ PIHPS menyebut 82 kota sampel IHK) | 34 baris | ya |
 | `region_crosswalk`, `province_aliases` | kerangka 34 provinsi, 7 wilayah, zona HET beras, alias ejaan BPS/Bapanas, pemekaran Papua | 34 / 13 baris | ya |
 
 Semua tabel memakai kunci yang sama: `week` (Senin ISO, D-020), `province_id` (1–34, urutan PIHPS), `commodity` (id internal).
@@ -43,18 +45,21 @@ Semua tabel memakai kunci yang sama: `week` (Senin ISO, D-020), `province_id` (1
 
 ## 4. Praproses
 
-- **Mingguan.** Harga mingguan = rerata hari teramati. Hari tanpa laporan tidak diisi. Status sel membedakan harga yang tidak
-  berubah (carry-forward, kekakuan nyata untuk komoditas diatur: beras 92%) dari data hilang (1,0%).
+- **Mingguan.** Harga mingguan = rerata hari teramati. Hari tanpa laporan tidak diisi. Status sel membedakan rangkaian harga
+  identik ≥ 5 hari teramati (carry-forward; beras 92%) dari data hilang (1,0%). Rangkaian identik bisa berupa kekakuan harga atau
+  harga hari sebelumnya yang dipakai sumber saat pasar tidak beroperasi (FAQ PIHPS); keduanya tidak dapat dibedakan (U22, D-169).
 - **Varian.** Satu varian representatif per komoditas, dipilih dari prefiks nama, bukan urutan baris. Varian dibekukan di G6.
 - **As-of.** Harga dunia dan impor bulanan diberi tanggal ketersediaan, sehingga fitur prediksi pada minggu t hanya memakai
-  informasi yang sudah terbit pada t. Kebocoran diuji pada setiap origin (D-147, D-152).
+  informasi yang sudah terbit pada t. Kebocoran diuji pada setiap origin (D-147, D-152). Label minggu = Senin, tetapi harga dan kurs
+  minggu t baru lengkap sesudah Jumat dan jendela revisi PIHPS H+1; waktu keputusan Task 4 = Minggu 00.00 sesudah minggu t (D-155).
+  Harga dunia memakai `available_at` ≤ Senin minggu t (lebih konservatif dari waktu keputusan, D-169).
 - Seluruh praproses dapat diulang: `python -m kagami stage0` (± 27 detik lokal).
 
 ## 5. Penggunaan
 
 - **Dipakai untuk.** Analisis asosiasional kepekaan harga terhadap kurs (Task 1–3) dan evaluasi prediksi rolling-origin (Task 4).
-- **Cocok untuk.** Studi lain tentang transmisi harga dunia, kebijakan HET/HAP, atau kekakuan harga per provinsi, karena status
-  sel dan tanggal regulasi sudah tersedia.
+- **Cocok untuk.** Studi lain tentang transmisi harga dunia, kebijakan HET/HAP, atau frekuensi perubahan harga per provinsi,
+  karena status sel dan tanggal regulasi sudah tersedia (status carry-forward tidak membedakan kekakuan dari pengisian sumber).
 - **Tidak cocok untuk.** Klaim kausal tanpa desain tambahan; analisis di bawah tingkat provinsi (panel kota tidak dikirim, U111);
   nowcasting real-time yang bergantung pada revisi data (vintage PIHPS tidak tersedia, U110).
 

@@ -37,9 +37,10 @@ Angka di sini adalah evaluasi prospektif pada origin mingguan yang tumpang tindi
 
 **DECISION:** Belum ada keputusan validasi.
 
-**BLOCKERS:** PV-2b (commit). Snapshot paling cepat 2026-11-29.
+**BLOCKERS:** tidak ada dari sisi pembekuan: PV-2b di-commit `8c7677a` (2026-11-27 10.28 WIB), `integrity_check.py` keluar 0
+(18.20 WIB, dijalankan dengan `python -X utf8`). Snapshot paling cepat 2026-11-29.
 
-**NEXT ACTION:** Danen commit PV-2b, lalu E1 pada 2026-11-29.
+**NEXT ACTION:** E1 pada 2026-11-29.
 
 ## Putaran 0 — 2026-11-27 (audit pra-target; tanpa evaluasi)
 

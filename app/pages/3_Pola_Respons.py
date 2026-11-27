@@ -1,12 +1,13 @@
 """Halaman 3 -- Pola Respons (WP-31; PLAN.md §18: keputusan k vs plasebo + batas deteksi sebagai isi utama)."""
 
+import pandas as pd
 import streamlit as st
 
 from common import STRETCH, commodity_labels, fmt_num, footer, load, need, page_header, table, unit_names
 from kagami.evaluation.planted import DETECTION_RATE, detection_limit
 from kagami.viz import plots
 
-page_header("Pola Respons", "Apakah ada kelompok provinsi dengan pola serupa?")
+page_header("Pola regional", "Apakah ada kelompok provinsi dengan pola serupa?")
 
 got = need("heterogeneity", "cluster_selection", "clusters", "coassign", "planted_recovery")
 if got:
@@ -21,7 +22,8 @@ if got:
     c1.metric("Jumlah kelompok provinsi", f"k = {k_star}",
               help="k > 1 hanya diterima bila silhouette maksimum melewati persentil 95 plasebo.")
     c2.metric("Batas deteksi struktur", f"δ = {fmt_num(det.max(), 1)}" if len(det) else "tidak tercapai",
-              help="Selisih respons terkecil (RMS per fitur) yang terdeteksi ≥ 80% bila ditanam pada derau plasebo.")
+              help="Selisih respons terkecil (RMS per fitur) yang terdeteksi ≥ 80% bila ditanam pada derau plasebo, untuk "
+                   "struktur sintetis 2–3 kelompok berukuran hampir sama dengan pusat berbentuk simpleks.")
     c3.metric("Komoditas dengan heterogenitas provinsi", f"{len(rej)} dari {q['commodity'].nunique()}",
               help="H0-Het ditolak (Q vs plasebo, q BH ≤ 0,05) pada h = 8.")
     if len(rej):
@@ -31,10 +33,25 @@ if got:
     st.plotly_chart(plots.silhouette_threshold(sel), **STRETCH)
     if k_star == 1:
         st.info("k = 1: tidak ada struktur regional yang terdeteksi. Ini batas atas, bukan bukti bahwa provinsi seragam: "
-                "struktur dengan selisih respons di bawah batas deteksi di bawah masih mungkin ada.")
+                "struktur dengan selisih respons di bawah batas deteksi di bawah masih mungkin ada. Batas deteksi hanya berlaku "
+                "untuk bentuk struktur yang diuji (2–3 kelompok berukuran hampir sama, pusat simpleks); bentuk lain, seperti "
+                "kelompok kecil, gradien geografis, atau perbedaan pada sebagian komoditas saja, belum diuji.")
     st.plotly_chart(plots.recovery_curve(planted, threshold=DETECTION_RATE), **STRETCH)
     table(planted, "Lihat tabel batas deteksi", status=False)
-    table(het, "Uji heterogenitas per komoditas (vs plasebo)", status=False)
+
+    st.subheader("Komoditas mana yang responsnya berbeda antarprovinsi?")
+    if {"statistic", "value", "commodity"} <= set(het.columns):
+        wide = het.pivot_table(index="commodity", columns="statistic", values="value", aggfunc="first")
+        qq = q.set_index("commodity")
+        tab = pd.DataFrame({"Komoditas": [labels.get(c, c) for c in qq.index],
+                            "Q": wide.reindex(qq.index).get("Q"), "τ² (varians antarprovinsi)": wide.reindex(qq.index).get("tau2"),
+                            "I²": wide.reindex(qq.index).get("I2"), "p plasebo": qq.get("p_placebo"),
+                            "q BH": qq.get("q_fdr"), "Melampaui plasebo": qq.get("reject")}).sort_values("q BH")
+        st.dataframe(tab.round(3), hide_index=True, **STRETCH)
+        st.caption("H0-Het pada h = 8, penggerak IDR/USD: statistik Q dibandingkan dengan 499 replikasi plasebo, lalu dikoreksi "
+                   "Benjamini–Hochberg antar 10 komoditas. τ² = 0 berarti semua provinsi disusutkan ke respons nasional.")
+    else:
+        table(het, "Uji heterogenitas per komoditas (vs plasebo)", status=False)
 
     if k_star > 1:
         cl = got["clusters"]
