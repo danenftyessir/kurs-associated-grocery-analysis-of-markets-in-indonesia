@@ -1,0 +1,4 @@
+metode,fp_per_sel_null_rerata,fp_per_sel_null_maks,null_rerata_sel_p_lt_alpha_dari_48,null_porsi_rep_ada_temuan_BH,null_rerata_temuan_BH,asli_sel_tidak_memuat_nol_dari_48,asli_temuan_BH_q_lt_alpha
+"±1,96·SE cluster minggu",0.0879,0.1759,4.0050,0.1709,0.2714,9,5.0000
+terkalibrasi plasebo (D-129),0.0441,0.0481,1.9950,0.0050,0.0101,7,4.0000
+resmi praregistrasi (SE ∪ bootstrap),,,,,,3,

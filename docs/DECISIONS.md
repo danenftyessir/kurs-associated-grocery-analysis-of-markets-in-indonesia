@@ -415,6 +415,23 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-168 — Penyajian temuan menurut tiga tingkat bukti, uji ukuran kalibrasi, batas atas Rupiah, buku besar periode uji · FINAL (teknis) · 2026-11-27 (WP-33) · Danen
+Menanggapi audit red flag juri (poin 4–7, 9, 10; `docs/audit/20261127_redflag_juri/REPORT.md`). `results/findings.md` disusun ulang tanpa
+mengubah angka artefak:
+- **Tiga tingkat bukti:** praregistrasi, kepekaan inferensi (kalibrasi plasebo), dan eksploratif. Eksplorasi Task 4 dipindah ke Lampiran A.
+  Ringkasan mengutip interval resmi lebih dulu.
+- **Kalibrasi (D-129/D-163):** ukurannya diuji leave-one-out di bawah null. Positif palsu per sel 4,4% (±1,96·SE 8,8%); replikasi null
+  dengan ≥ 1 temuan BH 0,5% (17,1%).
+- **Batas atas Rupiah:** untuk pelemahan rupiah 5% (PT resmi) dan sawit dunia +10%.
+- **Buku besar pembukaan test 2024+:** Holm atas 10 perbandingan. Lolos: C1-tuned > TimesFM, daftar pantau > aturan naif, dan K4 h 4.
+- **Bagian baru:** "Validasi prospektif" dan "Dataset turunan" (+ `docs/DATASHEET.md`).
+
+Ditolak:
+- Menghapus eksplorasi Task 4 dari findings, karena jejaknya perlu terlihat agar pembukaan test dapat diaudit.
+- Menulis artefak baru di `results/`, karena results dibekukan 27 Nov.
+
+Bukan DEVIASI PRAREGISTRASI: hipotesis, parameter, dan interval resmi tidak berubah.
+
 ### D-167 — Aturan & evaluator validasi maju K4 dibekukan sebelum target pertama: ΔAP(K4-E80 − C1-tuned) < −0,14 = FAILED_FORWARD · FINAL · eksploratif · 2026-11-27 (WP-36) · Danen
 Disetujui Danen 2026-11-27, sebelum snapshot apa pun yang memuat target maju (Jumat 2026-11-27) diunduh. PROTOCOL K4 §6 hanya menyatakan
 "konfirmasi hanya dari prediksi maju" tanpa ambang. `docs/audit/20261127_prospective_validation/FORWARD_VALIDATION_PROTOCOL.md` §5 menetapkannya.
