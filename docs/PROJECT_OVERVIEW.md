@@ -95,5 +95,6 @@ Konten wajib orisinal dan tidak melanggar hak cipta → alasan kebijakan data tu
   tiga tingkat reproduksi (ARCHITECTURE §5) dan catatan hak data.
 - Streamlit 6 halaman proposal: (1) Ringkasan & Status Data, (2) Kepekaan Harga Regional, (3) Pola Respons,
   (4) Eksposur & Nilai Prediktif, (5) Penjelajah Skenario Bersyarat, (6) Temuan Penelitian; ditambah (7) Evaluasi & Riwayat
-  Eksekusi (WP-36, D-137) untuk pembuktian reproduksibilitas. Sejak D-170 app dikelompokkan menjadi Hasil penelitian (Beranda,
-  Kepekaan harga, Pola regional, Eksposur & prediksi, Skenario rupiah, Temuan lengkap) dan Lampiran teknis (Data & metode, Riwayat eksekusi).
+  Eksekusi (WP-36, D-137) untuk pembuktian reproduksibilitas. Sejak D-170/D-171 app dikelompokkan menjadi Hasil penelitian (Ringkasan,
+  Respons harga, Perbedaan antarprovinsi, Faktor penjelas, Prediksi, Simulasi rupiah; satu pertanyaan per halaman, bahasa pembaca) dan
+  Lampiran teknis (Laporan lengkap, Data & metode dengan daftar istilah, Riwayat eksekusi).

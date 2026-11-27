@@ -386,6 +386,9 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - 2026-11-27 (Danen, D-170): app sebagai deliverable produksi untuk juri: router `st.navigation` (Hasil penelitian / Lampiran teknis),
   beranda jawaban-dulu `pages/1_Beranda.py`, lampiran `pages/8_Data_dan_Metode.py`, label terbaca, temuan dalam tab, tema terang serif;
   perbaikan lineage beda ujung baris (21 artefak "tidak sinkron" palsu di app daring).
+- 2026-11-27 (Danen, D-171): teks & UX untuk juri dan TPID: jawaban dulu di setiap halaman hasil, kosakata pembaca (% per 1% pelemahan
+  rupiah, Rupiah per kg dari harga acuan findings), kode internal & notasi ke lampiran/expander, Daftar istilah; Respons harga 3 pemilih +
+  tab; Eksposur dipecah jadi Faktor penjelas + Prediksi (`pages/9_Prediksi.py`); Temuan lengkap → Lampiran "Laporan lengkap".
 - File: `app/`. Selesai bila: [x] 6 halaman menampilkan artefak nyata; [x] setiap grafik: sumber, satuan, periode, interval, label "asosiasi, bukan kausalitas"; [x] lencana "tidak terdeteksi"; [x] halaman 3 menangani k=1; [x] halaman 5 bendera ekstrapolasi; [x] tanpa login/input data/estimasi runtime.
 - 2026-11-23 (Danen, D-130): hal. 2 + `national_calibrated` & H2 `asymmetry`; hal. 4 Kendall sebagai metrik, forest meta-regresi per horizon (bukan campuran skala), E2 `regime_profiles`; hal. 5 status & catatan interval PT; hal. 6 ringkasan robustness; `with_status` (lencana + 3 desimal) dan `STRETCH` (lebar penuh lintas versi Streamlit; `use_container_width` usang). Tes `test_app_data` memuat artefak sintetis baru.
 - 2026-11-23 (Danen, D-134, PLAN.md §18): `viz/style.py` (palet tervalidasi, label bahasa pengguna, format angka Indonesia); hal. 2

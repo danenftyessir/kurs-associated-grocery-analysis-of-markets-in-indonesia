@@ -29,28 +29,30 @@ def response_curve(profiles: pd.DataFrame, commodity: str, level: str, unit: str
     if has_ci:
         traces += [go.Scatter(x=d["horizon"], y=d["ci_high"], mode="lines", line=dict(width=0), showlegend=False, hoverinfo="skip"),
                    go.Scatter(x=d["horizon"], y=d["ci_low"], fill="tonexty", fillcolor=S.rgba(S.BLUE, 0.18),
-                              mode="lines", line=dict(width=0), name="interval 95%", hoverinfo="skip")]
+                              mode="lines", line=dict(width=0), name="rentang 95%", hoverinfo="skip")]
     traces.append(go.Scatter(
-        x=d["horizon"], y=d["estimate"], mode="lines+markers", name="respons kumulatif",
+        x=d["horizon"], y=d["estimate"], mode="lines+markers", name="respons",
         line=dict(color=S.BLUE, width=2), marker=dict(size=7, color=S.BLUE),
         customdata=np.c_[d["ci_low"], d["ci_high"]],
-        hovertemplate="h = %{x} minggu<br><b>%{y:.3f}</b><br>interval %{customdata[0]:.3f} s.d. %{customdata[1]:.3f}"
+        hovertemplate="minggu ke-%{x}<br><b>%{y:.2f}</b><br>rentang 95%: %{customdata[0]:.2f} s.d. %{customdata[1]:.2f}"
                       "<extra></extra>"))
     fig = go.Figure(traces)
     fig.add_hline(y=0, line_color=S.NEUTRAL, line_width=1)
-    where = S.LEVEL_LABELS.get(level, level) + ("" if level == "national" else f" · {unit_name or unit}")
+    where = "nasional" if level == "national" else (unit_name or str(unit))
     dev = level == "province"                       # baris provinsi `profiles` = deviasi δ dari rerata (Σ_r δ = 0)
-    sub = (f"{where} · {'deviasi dari rerata lintas provinsi' if dev else 'Δ log harga per 1 log penggerak'} · "
-           f"{CAUSAL_NOTE}")
-    if not has_ci:
-        sub += " Interval tidak tersedia untuk pilihan ini."
-    what = "Deviasi respons" if dev else "Respons harga"
-    return S.finish(fig, f"{what} {name or commodity} terhadap {S.DRIVER_LABELS.get(driver, driver)}", sub,
-                    x="minggu setelah perubahan penggerak", y="deviasi kumulatif" if dev else "respons kumulatif")
+    drv = S.DRIVER_LABELS.get(driver, driver).lower()
+    unit_txt = "Selisih dari rata-rata semua provinsi" if dev else S.UNIT_LABELS.get(driver, "respons kumulatif")
+    sub = f"{unit_txt}. " + ("Pita biru: rentang 95%. " if has_ci else "Rentang 95% tidak tersedia untuk pilihan ini. ")
+    sub += CAUSAL_NOTE
+    title = (f"{unit_name or unit}: selisih respons harga {name or commodity} terhadap {drv}" if dev else
+             f"{name or commodity}: respons harga {where} terhadap {drv}")
+    return S.finish(fig, title, sub, x="minggu setelah perubahan",
+                    y="selisih dari rata-rata" if dev else S.AXIS_LABELS.get(driver, "respons kumulatif"))
 
 
 def sensitivity_heatmap(features: pd.DataFrame, level: str, metric: str = "R8",
-                        labels: dict | None = None, unit_names: dict | None = None) -> go.Figure:
+                        labels: dict | None = None, unit_names: dict | None = None,
+                        metric_label: str | None = None) -> go.Figure:
     """Peta kepekaan: respons kumulatif `metric` (R4/R8/R12/W8/PT8) per komoditas x unit pada satu level
     (artefak `response_features`; provinsi/wilayah). Diverging dengan nol netral; sel kosong = tidak tersedia."""
     m = features[features["level"] == level].pivot(index="commodity", columns="unit", values=metric)
@@ -60,10 +62,11 @@ def sensitivity_heatmap(features: pd.DataFrame, level: str, metric: str = "R8",
         m.columns = [unit_names.get(str(u), u) for u in m.columns]
     lim = float(np.nanmax(np.abs(m.to_numpy()))) if m.size and np.isfinite(m.to_numpy()).any() else 1.0
     fig = px.imshow(m, color_continuous_scale=S.DIVERGING, zmin=-lim, zmax=lim, aspect="auto",
-                    labels=dict(color=metric, x="", y=""))
-    fig.update_traces(hovertemplate="%{y} · %{x}<br><b>%{z:.3f}</b><extra></extra>")
-    return S.finish(fig, f"{metric} per komoditas dan {S.LEVEL_LABELS.get(level, level).lower()}",
-                    f"Merah = harga naik bersama depresiasi, biru = turun, abu-abu = sekitar nol · {CAUSAL_NOTE}")
+                    labels=dict(color="respons", x="", y=""))
+    fig.update_traces(hovertemplate="%{y}, %{x}<br><b>%{z:.2f}</b><extra></extra>")
+    return S.finish(fig, f"{metric_label or metric} per komoditas dan {S.LEVEL_LABELS.get(level, level).lower()}",
+                    "Merah: harga naik saat rupiah melemah. Biru: harga turun. Abu-abu: sekitar nol. Estimasi titik "
+                    f"tanpa rentang. {CAUSAL_NOTE}")
 
 
 def region_map(geo: dict, values: pd.DataFrame, level: str, title: str, subtitle: str = "") -> go.Figure:
@@ -104,9 +107,9 @@ def region_map(geo: dict, values: pd.DataFrame, level: str, title: str, subtitle
                     line=dict(color="rgba(255,255,255,0.9)", width=1.2),
                     colorbar=dict(title="respons", thickness=12, len=0.7)),
         customdata=np.c_[d["province_id"], d["province"], d["region"], d["ci_low"], d["ci_high"], status],
-        hovertemplate=("%{customdata[1]} (%{customdata[2]})<br><b>%{marker.color:.3f}</b><br>interval "
-                       "%{customdata[3]:.3f} s.d. %{customdata[4]:.3f}<br>%{customdata[5]}<extra></extra>")))
-    fig = S.finish(fig, title, f"{subtitle} · {CAUSAL_NOTE}" if subtitle else CAUSAL_NOTE, height=430)
+        hovertemplate=("%{customdata[1]} (%{customdata[2]})<br><b>%{marker.color:.2f}</b><br>rentang 95%: "
+                       "%{customdata[3]:.2f} s.d. %{customdata[4]:.2f}<br>%{customdata[5]}<extra></extra>")))
+    fig = S.finish(fig, title, f"{subtitle} {CAUSAL_NOTE}" if subtitle else CAUSAL_NOTE, height=430)
     fig.update_xaxes(visible=False, fixedrange=True, showgrid=False)
     fig.update_yaxes(visible=False, fixedrange=True, showgrid=False, scaleanchor="x", scaleratio=1)
     fig.update_layout(margin={"t": 80, "l": 0, "r": 0, "b": 0}, plot_bgcolor="rgba(0,0,0,0)",
@@ -159,15 +162,16 @@ def recovery_curve(planted: pd.DataFrame, threshold: float = 0.8) -> go.Figure:
     (pemanggil meneruskan `evaluation.planted.DETECTION_RATE`)."""
     fig = go.Figure()
     for color, (k, d) in zip(S.SERIES, planted.sort_values("delta").groupby("k_true")):
-        fig.add_trace(go.Scatter(x=d["delta"], y=d["recovery_rate"], mode="lines+markers", name=f"{k} kelompok tertanam",
+        fig.add_trace(go.Scatter(x=d["delta"], y=d["recovery_rate"], mode="lines+markers", name=f"{k} kelompok buatan",
                                  line=dict(color=color, width=2), marker=dict(size=8, color=color),
-                                 hovertemplate="δ = %{x:.1f}<br><b>%{y:.0%}</b> terdeteksi<extra></extra>"))
+                                 hovertemplate="selisih %{x:.1f}<br><b>%{y:.0%}</b> percobaan menemukannya<extra></extra>"))
     fig.add_hline(y=threshold, line_dash="dash", line_color=S.NEUTRAL, line_width=1,
-                  annotation_text=f"ambang deteksi {threshold:.0%}", annotation_position="bottom right")
+                  annotation_text=f"batas {threshold:.0%}", annotation_position="bottom right")
     fig.update_yaxes(range=[0, 1.05], tickformat=".0%")
-    return S.finish(fig, "Seberapa besar struktur regional yang akan terdeteksi?",
-                    "Struktur dengan selisih respons ≥ δ ditanam pada derau plasebo, lalu diproses seperti data asli",
-                    x="selisih respons tertanam δ (RMS per fitur)", y="porsi struktur terdeteksi")
+    return S.finish(fig, "Perbedaan antarkelompok yang akan tertangkap",
+                    "Kami menanam 2 atau 3 kelompok provinsi buatan pada data dengan kurs diacak, lalu menjalankan metode "
+                    "yang sama seperti pada data asli.",
+                    x="selisih respons antarkelompok yang ditanam (% per 1% kurs)", y="percobaan yang menemukan kelompoknya")
 
 
 def silhouette_threshold(selection: pd.DataFrame) -> go.Figure:
@@ -180,15 +184,15 @@ def silhouette_threshold(selection: pd.DataFrame) -> go.Figure:
         x=d["k"], y=d["silhouette"], mode="markers+text", text=[S.fmt_num(v, 3) for v in d["silhouette"]],
         textposition="top center", name="data asli",
         marker=dict(size=12, color=np.where(above, S.ORANGE, S.BLUE)),
-        hovertemplate="k = %{x}<br>silhouette <b>%{y:.3f}</b><extra></extra>"))
+        hovertemplate="%{x} kelompok<br>silhouette <b>%{y:.3f}</b><extra></extra>"))
     if np.isfinite(thr):
         fig.add_hline(y=thr, line_dash="dash", line_color=S.NEUTRAL, line_width=1,
-                      annotation_text=f"p95 plasebo {S.fmt_num(thr, 3)}", annotation_position="top left")
-    title = ("Tidak ada k yang melewati ambang plasebo → k = 1" if not above.any()
-             else "Struktur regional melewati ambang plasebo")
+                      annotation_text=f"batas data acak {S.fmt_num(thr, 3)}", annotation_position="top left")
+    title = ("Tidak ada jumlah kelompok yang melewati batas data acak" if not above.any()
+             else "Pengelompokan provinsi melewati batas data acak")
     fig.update_xaxes(dtick=1)
-    return S.finish(fig, title, "Silhouette maksimum Ward per k vs persentil 95 silhouette maksimum pada data plasebo",
-                    x="jumlah klaster k", y="silhouette")
+    return S.finish(fig, title, "Titik: skor silhouette terbaik (Ward) untuk 2 sampai 6 kelompok. Garis putus: persentil 95 "
+                    "skor yang sama pada data dengan kurs diacak.", x="jumlah kelompok", y="skor silhouette")
 
 
 def forecast_ratios(forecast_eval: pd.DataFrame, subset: str = "all", labels: dict | None = None) -> go.Figure:
@@ -204,19 +208,21 @@ def forecast_ratios(forecast_eval: pd.DataFrame, subset: str = "all", labels: di
                      color_discrete_map={S.MODEL_LABELS[m]: S.MODEL_COLORS[m] for m in ("M0", "M2", "M3")})
     fig.update_traces(marker=dict(size=10))
     fig.add_vline(x=1, line_color=S.NEUTRAL, line_width=1)
-    fig.for_each_annotation(lambda a: a.update(text=a.text.replace("horizon=", "h = ") + " minggu"))
+    fig.for_each_annotation(lambda a: a.update(text=a.text.replace("horizon=", "prediksi ") + " minggu"))
     n = d["n_origins"].dropna() if "n_origins" in d else pd.Series(dtype=float)
     n_txt = (f"{int(n.min())}" if n.min() == n.max() else f"{int(n.min())}–{int(n.max())}") if len(n) else "?"
-    return S.finish(fig, f"Rasio MAE terhadap M1 · {S.SUBSET_LABELS.get(subset, subset)}",
-                    f"Kiri dari 1 = lebih akurat dari M1 · {n_txt} origin · evaluasi bersyarat, pseudo-real-time",
-                    x="rasio MAE vs M1", y="", height=max(320, 34 * d["komoditas"].nunique() + 140))
+    return S.finish(fig, f"Galat relatif terhadap model dasar, {S.SUBSET_LABELS.get(subset, subset)}",
+                    f"Kiri dari garis 1 berarti lebih akurat dari model dasar. {n_txt} titik prediksi, evaluasi "
+                    "pseudo-real-time.", x="rasio MAE terhadap model dasar", y="",
+                    height=max(320, 34 * d["komoditas"].nunique() + 140))
 
 
 def forest(df: pd.DataFrame, label_cols: list[str], title: str, x_title: str | None = None,
-           subtitle: str | None = None) -> go.Figure:
+           subtitle: str | None = None, x_range: tuple[float, float] | None = None) -> go.Figure:
     """Forest plot estimasi + interval (artefak `assoc`, `robustness`, `profiles`, `regime_profiles`). Titik penuh =
-    interval tidak memuat nol, titik kosong = memuat nol (pengkodean kedua selain posisi)."""
-    d = df.assign(label=df[label_cols].astype(str).agg(" · ".join, axis=1))
+    interval tidak memuat nol, titik kosong = memuat nol (pengkodean kedua selain posisi). `x_range` memotong sumbu agar
+    interval sempit tetap terbaca; interval yang melewati batas diberi segitiga di tepi grafik (nilainya di hover)."""
+    d = df.assign(label=df[label_cols].astype(str).agg(", ".join, axis=1))
     excl = (d["ci_low"] > 0) | (d["ci_high"] < 0)
     fig = go.Figure(go.Scatter(
         x=d["estimate"], y=d["label"], mode="markers", showlegend=False,
@@ -225,10 +231,21 @@ def forest(df: pd.DataFrame, label_cols: list[str], title: str, x_title: str | N
         error_x=dict(type="data", symmetric=False, array=d["ci_high"] - d["estimate"],
                      arrayminus=d["estimate"] - d["ci_low"], color=S.BLUE, thickness=1.5, width=0),
         customdata=np.c_[d["ci_low"], d["ci_high"]],
-        hovertemplate="%{y}<br><b>%{x:.3f}</b><br>interval %{customdata[0]:.3f} s.d. %{customdata[1]:.3f}<extra></extra>"))
+        hovertemplate="%{y}<br><b>%{x:.2f}</b><br>rentang 95%: %{customdata[0]:.2f} s.d. %{customdata[1]:.2f}<extra></extra>"))
     fig.add_vline(x=0, line_color=S.NEUTRAL, line_width=1)
-    sub = subtitle or "Titik penuh = interval 95% tidak memuat nol; titik kosong = memuat nol"
-    return S.finish(fig, title, f"{sub} · {CAUSAL_NOTE}", x=x_title, height=max(300, 30 * len(d) + 120))
+    if x_range is not None:
+        lo, hi = x_range
+        fig.update_xaxes(range=[lo, hi])
+        for side, edge, sym in ((d["ci_high"] > hi, hi, "triangle-right"), (d["ci_low"] < lo, lo, "triangle-left")):
+            g = d[side]
+            if len(g):
+                fig.add_trace(go.Scatter(
+                    x=[edge] * len(g), y=g["label"], mode="markers", showlegend=False, cliponaxis=False,
+                    marker=dict(size=9, color=S.BLUE, symbol=sym), customdata=np.c_[g["ci_low"], g["ci_high"]],
+                    hovertemplate="%{y}<br>rentang melewati batas grafik: %{customdata[0]:.2f} s.d. %{customdata[1]:.2f}"
+                                  "<extra></extra>"))
+    sub = subtitle or "Titik penuh: rentang 95% tidak memuat nol. Titik kosong: memuat nol."
+    return S.finish(fig, title, f"{sub} {CAUSAL_NOTE}", x=x_title, height=max(300, 30 * len(d) + 120))
 
 
 def robustness_forest(robustness: pd.DataFrame, commodity: str, driver: str, horizon: int,
@@ -262,7 +279,7 @@ def robustness_forest(robustness: pd.DataFrame, commodity: str, driver: str, hor
             error_x=dict(type="data", symmetric=False, array=(g["ci_high"] - g["estimate"]).fillna(0),
                          arrayminus=(g["estimate"] - g["ci_low"]).fillna(0), color=color, thickness=1.5, width=0),
             customdata=np.c_[g["ci_low"], g["ci_high"], g["note"].fillna("")],
-            hovertemplate="%{y}<br><b>%{x:.3f}</b><br>interval %{customdata[0]:.3f} s.d. %{customdata[1]:.3f}"
+            hovertemplate="%{y}<br><b>%{x:.2f}</b><br>rentang 95%: %{customdata[0]:.2f} s.d. %{customdata[1]:.2f}"
                           "<br>%{customdata[2]}<extra></extra>"))
     base = d.loc[d["driver"] == driver, "baseline_estimate"].dropna()
     if len(base):
@@ -270,10 +287,10 @@ def robustness_forest(robustness: pd.DataFrame, commodity: str, driver: str, hor
                       annotation_text=f"estimasi utama {S.fmt_num(float(base.iloc[0]), 3)}",
                       annotation_position="top")
     fig.add_vline(x=0, line_color=S.NEUTRAL, line_width=1)
-    return S.finish(fig, f"Apakah respons {name or commodity} bertahan di setiap cek? ({S.DRIVER_LABELS.get(driver, driver)}, "
-                         f"h = {horizon})",
-                    f"Titik kosong = interval memuat nol · garis putus = estimasi utama · {CAUSAL_NOTE}",
-                    x="respons kumulatif", height=max(320, 26 * len(d) + 160))
+    return S.finish(fig, f"{name or commodity}: respons terhadap {S.DRIVER_LABELS.get(driver, driver).lower()} pada setiap "
+                         f"cek ketahanan ({horizon} minggu)",
+                    f"Titik kosong: rentang 95% memuat nol. Garis putus: estimasi utama. {CAUSAL_NOTE}",
+                    x=S.AXIS_LABELS.get(driver, "respons kumulatif"), height=max(320, 26 * len(d) + 160))
 
 
 def asymmetry_plot(profiles: pd.DataFrame, asymmetry: pd.DataFrame, commodity: str,
@@ -293,19 +310,20 @@ def asymmetry_plot(profiles: pd.DataFrame, asymmetry: pd.DataFrame, commodity: s
             error_y=dict(type="data", symmetric=False, array=g["ci_high"] - g["estimate"],
                          arrayminus=g["estimate"] - g["ci_low"], color=color, thickness=1.5, width=0),
             customdata=np.c_[g["horizon"], g["ci_low"], g["ci_high"]],
-            hovertemplate="h = %{customdata[0]}<br><b>%{y:.3f}</b><br>interval %{customdata[1]:.3f} s.d. "
-                          "%{customdata[2]:.3f}<extra></extra>"))
+            hovertemplate="minggu ke-%{customdata[0]}<br><b>%{y:.2f}</b><br>rentang 95%: %{customdata[1]:.2f} s.d. "
+                          "%{customdata[2]:.2f}<extra></extra>"))
     fig.add_hline(y=0, line_color=S.NEUTRAL, line_width=1)
-    fig.update_xaxes(tickvals=list(range(len(hs))), ticktext=[f"h = {h}" for h in hs], range=[-0.6, len(hs) - 0.4])
+    fig.update_xaxes(tickvals=list(range(len(hs))), ticktext=[f"{h} minggu" for h in hs], range=[-0.6, len(hs) - 0.4])
     a = asymmetry[(asymmetry["commodity"] == commodity) & (asymmetry["horizon"] == 8)]
     sub = CAUSAL_NOTE
     if len(a):
         r = a.iloc[0]
-        kind = "uji konfirmatori" if bool(r.get("confirmatory", False)) else "deskriptif"
-        sub = (f"h = 8: β⁺ − β⁻ = {S.fmt_num(r['estimate'], 2)} (interval {S.fmt_interval(r['ci_low'], r['ci_high'])}), "
-               f"{S.detection_status(r['ci_low'], r['ci_high'])} · {kind} · {CAUSAL_NOTE}")
-    return S.finish(fig, f"Apakah {name or commodity} bereaksi berbeda saat rupiah melemah vs menguat?", sub,
-                    x="minggu setelah perubahan kurs", y="respons kumulatif")
+        kind = "uji konfirmatori praregistrasi" if bool(r.get("confirmatory", False)) else "deskriptif"
+        sub = (f"Selisih 8 minggu (melemah dikurangi menguat): {S.fmt_num(r['estimate'], 2)}, rentang 95% "
+               f"{S.fmt_interval(r['ci_low'], r['ci_high'])}, {S.detection_status(r['ci_low'], r['ci_high'])} ({kind}). "
+               f"{CAUSAL_NOTE}")
+    return S.finish(fig, f"{name or commodity}: respons saat rupiah melemah dan saat menguat", sub,
+                    x="", y=S.AXIS_LABELS["e_pos"])
 
 
 def scenario_change(pt, shock_pct: float):
@@ -320,7 +338,7 @@ def scenario_change(pt, shock_pct: float):
     return 100.0 * np.expm1(np.asarray(pt, dtype=float) * c)
 
 
-def scenario_paths(pt: pd.DataFrame, shocks: list[float], selected: float) -> go.Figure:
+def scenario_paths(pt: pd.DataFrame, shocks: list[float], selected: float, title: str | None = None) -> go.Figure:
     """Skenario bersyarat untuk setiap pelemahan x (%): perubahan harga = `scenario_change` (exp(PT(h)·ln(1 + x/100)) − 1;
     baris `profiles` driver PT satu komoditas & unit). Pita hanya untuk x terpilih dan hanya bila interval PT ada; bukan ramalan."""
     d = pt.sort_values("horizon")
@@ -330,17 +348,18 @@ def scenario_paths(pt: pd.DataFrame, shocks: list[float], selected: float) -> go
         fig.add_trace(go.Scatter(x=d["horizon"], y=np.maximum(lo, hi), mode="lines", line=dict(width=0), showlegend=False,
                                  hoverinfo="skip"))
         fig.add_trace(go.Scatter(x=d["horizon"], y=np.minimum(lo, hi), fill="tonexty",
-                                 fillcolor=S.rgba(S.BLUE, 0.15), mode="lines", line=dict(width=0), name=f"interval ({selected}%)",
+                                 fillcolor=S.rgba(S.BLUE, 0.15), mode="lines", line=dict(width=0), name=f"rentang 95% ({selected}%)",
                                  hoverinfo="skip"))
     ramp = S.BLUE_RAMP[-len(shocks):] if len(shocks) <= len(S.BLUE_RAMP) else S.BLUE_RAMP
     for color, x in zip(ramp, sorted(shocks)):
         fig.add_trace(go.Scatter(x=d["horizon"], y=scenario_change(d["estimate"], x), mode="lines", name=f"pelemahan {x}%",
                                  line=dict(color=color, width=3 if x == selected else 1.5),
-                                 hovertemplate=f"x = {x}%<br>h = %{{x}}<br><b>%{{y:.2f}}%</b><extra></extra>"))
+                                 hovertemplate=f"rupiah melemah {x}%<br>minggu ke-%{{x}}<br><b>%{{y:.2f}}%</b><extra></extra>"))
     fig.add_hline(y=0, line_color=S.NEUTRAL, line_width=1)
-    return S.finish(fig, "Perubahan harga yang konsisten dengan pola historis",
-                    # tanpa " · " di dalam rumus: S.finish memecah subjudul pada pemisah itu
-                    "SKENARIO BERSYARAT, BUKAN RAMALAN · perubahan = exp(PT(h)×ln(1 + x/100)) − 1",
+    has_band = d[["ci_low", "ci_high"]].notna().all(axis=1).any()
+    return S.finish(fig, title or "Perubahan harga setelah rupiah melemah",
+                    "Skenario bersyarat dari pola historis, bukan ramalan. "
+                    + (f"Pita: rentang 95% untuk pelemahan {selected}%." if has_band else "Rentang 95% tidak tersedia."),
                     x="minggu setelah pelemahan", y="perubahan harga (%)")
 
 

@@ -1,108 +1,112 @@
-"""Halaman 1 -- Beranda (D-170): jawaban lebih dulu. Kalimat pembuka + grafik batas perubahan harga per komoditas,
-lima pertanyaan penelitian beserta jawabannya, dan dasar kepercayaan. Semua angka dibaca dari artefak saat halaman
-dimuat; tidak ada angka hasil yang ditulis tangan di halaman ini."""
+"""Halaman 1 -- Ringkasan (D-170, D-171): jawaban lebih dulu. Kalimat pembuka dalam Rupiah + grafik batas perubahan harga
+per komoditas, lima pertanyaan penelitian beserta jawabannya, dan cara menguji. Semua angka dibaca dari artefak saat
+halaman dimuat (harga acuan Rupiah dari tabel batas Rupiah `findings`); tidak ada angka hasil yang ditulis tangan."""
 
 import pandas as pd
 import streamlit as st
 
-from common import CFG, STRETCH, commodity_labels, fmt_interval, fmt_num, footer, load, nav_link, need
+from common import (CFG, PAGE, STRETCH, commodity_labels, fmt_interval, fmt_num, fmt_rp, footer, load, names_list,
+                    nav_link, need, note, reference_prices)
 from kagami.viz import plots
 
-st.set_page_config(page_title="KAGAMI · Beranda", layout="wide")
+st.set_page_config(page_title="KAGAMI · Ringkasan", layout="wide")
 
-X, H = 5, 8          # skenario utama tabel batas Rupiah di findings: rupiah melemah 5%, horizon 8 minggu
-PAGE = {"kepekaan": "pages/2_Kepekaan_Harga_Regional.py", "regional": "pages/3_Pola_Respons.py",
-        "eksposur": "pages/4_Eksposur_dan_Nilai_Prediktif.py", "skenario": "pages/5_Penjelajah_Skenario.py",
-        "temuan": "pages/6_Temuan_Penelitian.py", "data": "pages/8_Data_dan_Metode.py"}
+X, H = 5, 8          # skenario utama tabel batas Rupiah di findings: rupiah melemah 5%, 8 minggu
+WORDS = {1: "satu", 2: "dua", 3: "tiga", 4: "empat", 5: "lima"}
 
 
 def _excludes_zero(lo: pd.Series, hi: pd.Series) -> pd.Series:
     return (lo > 0) | (hi < 0)
 
 
-def _names(coms, labels) -> str:
-    items = [labels.get(c, c).lower() for c in coms]
-    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " dan " + items[-1] if items else "tidak ada komoditas"
-
-
-def _rq1(nat: pd.DataFrame, labels: dict) -> str:
+def _rq1(nat: pd.DataFrame) -> str:
     e8 = nat[(nat["driver"] == "e") & (nat["horizon"] == H)].dropna(subset=["ci_low", "ci_high"])
-    n_det = int(_excludes_zero(e8["ci_low"], e8["ci_high"]).sum())
-    a = f"Respons nasional terhadap IDR/USD terdeteksi pada {n_det} dari {len(e8)} komoditas (h = {H}, interval resmi). "
+    det = e8.loc[_excludes_zero(e8["ci_low"], e8["ci_high"]), "commodity"]
+    a = (f"Belum terlihat. Dalam {H} minggu, respons harga terhadap kurs rupiah belum bisa dibedakan dari nol untuk "
+         f"ke-{len(e8)} komoditas." if det.empty else
+         f"Dalam {H} minggu, respons harga terhadap kurs rupiah terlihat pada {names_list(det)} ({len(det)} dari "
+         f"{len(e8)} komoditas).")
     mg = nat[(nat["driver"] == "w") & (nat["commodity"] == "minyak_goreng") & (nat["horizon"] == 4)]
-    if len(mg):
+    if len(mg) and _excludes_zero(mg["ci_low"], mg["ci_high"]).iloc[0]:
         r = mg.iloc[0]
-        a += (f"Yang paling konsisten: minyak goreng dengan harga sawit dunia dalam rupiah, ω(4) = "
-              f"{fmt_num(r['estimate'], 2)} ({fmt_interval(r['ci_low'], r['ci_high'], 2)}).")
+        a += (" Hubungan yang paling konsisten ada di minyak goreng: kenaikan harga sawit dunia 1% (dalam rupiah) "
+              f"berasosiasi dengan kenaikan harga minyak goreng {fmt_num(r['estimate'], 2)}% dalam 4 minggu "
+              f"(rentang {fmt_interval(r['ci_low'], r['ci_high'], 2, pct=True)}).")
     return a
 
 
-def _rq2(nat: pd.DataFrame, labels: dict) -> str:
+def _rq2(nat: pd.DataFrame) -> str:
     het, sel = load("heterogeneity"), load("cluster_selection")
     q = het[het["statistic"] == "Q"]
     rej = q.loc[q["reject"].fillna(False).astype(bool), "commodity"].tolist()
     k = int(sel.loc[sel["accepted"], "k"].max()) if sel["accepted"].any() else 1
-    return (f"Variasi antarprovinsi melampaui plasebo hanya untuk {_names(rej, labels)}. "
-            + ("Provinsi tidak membentuk kelompok (k = 1), jadi profil nasional per komoditas adalah titik awal yang wajar."
-               if k == 1 else f"Provinsi membentuk {k} kelompok yang lolos uji plasebo."))
+    a = (f"Hanya sedikit. Perbedaan antarprovinsi yang lebih besar dari hasil kurs acak muncul pada {names_list(rej)}."
+         if rej else "Tidak terlihat. Tidak ada komoditas yang responsnya berbeda antarprovinsi melebihi hasil kurs acak.")
+    return a + (" Provinsi tidak membentuk kelompok dengan pola yang sama, jadi angka nasional per komoditas adalah titik "
+                "awal yang wajar." if k == 1 else f" Provinsi membentuk {k} kelompok yang lolos uji data acak.")
 
 
-def _rq3(nat: pd.DataFrame, labels: dict) -> str:
+def _rq3(nat: pd.DataFrame) -> str:
     asym = load("asymmetry")
     c = asym[asym["confirmatory"].fillna(False).astype(bool) & (asym["horizon"] == H)]
     rej = c["reject"].fillna(False).astype(bool)
     if rej.any():
-        return f"Asimetri terdeteksi pada uji konfirmatori untuk {_names(c.loc[rej, 'commodity'], labels)}."
+        return f"Berbeda untuk {names_list(c.loc[rej, 'commodity'])}."
     ps = " dan ".join(fmt_num(p, 2) for p in c["p_value"])
-    return (f"Tidak ada asimetri depresiasi–apresiasi yang terdeteksi. Uji konfirmatori untuk "
-            f"{_names(c['commodity'], labels)} tidak menolak (p Wald {ps}).")
+    n = WORDS.get(len(c), str(len(c)))
+    return (f"Tidak terlihat beda. Untuk {names_list(c['commodity'])}, {n} komoditas yang datanya cukup presisi untuk diuji "
+            f"formal, respons saat rupiah melemah dan saat menguat tidak berbeda nyata (p {ps}).")
 
 
-def _rq4(nat: pd.DataFrame, labels: dict) -> str:
+def _rq4(nat: pd.DataFrame) -> str:
     assoc = load("assoc")
     ken = assoc[assoc["method"].astype(str).str.startswith("kendall")].iloc[0]
-    a = (f"Di antara 10 komoditas, rasio impor langsung tidak berasosiasi monoton dengan pass-through "
-         f"(τ-b {fmt_num(ken['estimate'], 3)}, p eksak {fmt_num(ken['p_value'], 2)}).")
+    a = (f"Tidak terbukti. Di antara 10 komoditas, urutan porsi impor tidak sejalan dengan urutan kepekaan (korelasi "
+         f"peringkat Kendall {fmt_num(ken['estimate'], 2)}, p {fmt_num(ken['p_value'], 2)}).")
     h3 = assoc[(assoc["method"].astype(str) == "meta_regression_re_one_sided") & (assoc["commodity"] == "ALL")
                & (assoc["feature"] == "ln_dist_hub") & (assoc["horizon"] == 4)]
     if len(h3):
-        a += f" Keterpencilan provinsi juga tidak (H3, p satu sisi {fmt_num(h3['p_value'].iloc[0], 2)})."
+        a += (" Jarak provinsi ke pusat distribusi juga tidak berhubungan dengan respons 4 minggu (p satu sisi "
+              f"{fmt_num(h3['p_value'].iloc[0], 2)}).")
     return a
 
 
-def _rq5(nat: pd.DataFrame, labels: dict) -> str:
+def _rq5(nat: pd.DataFrame) -> str:
     fe = load("forecast_eval")
     m2 = fe[(fe["model"] == "M2") & (fe["subset"] == "all") & (fe["commodity"] == "ALL")]
     if "level" in m2:
         m2 = m2[m2["level"] == "all"]
     m2 = m2.sort_values("horizon")
-    ratios = " dan ".join(fmt_num(v, 3) for v in m2["mae_ratio_vs_m1"])
     if not len(m2):
         raise KeyError("M2")
-    if (m2["mae_ratio_vs_m1"] > 1).all():
-        dms = " dan ".join(fmt_num(v, 2, sign=True) for v in m2["dm_stat"])
-        return ("Menambahkan kurs dan harga dunia tidak memperbaiki prediksi 4 dan 8 minggu: MAE justru sedikit lebih "
-                f"buruk (rasio {ratios}; statistik DM {dms}).")
-    return f"Rasio MAE model dengan kurs & harga dunia terhadap model dasar: {ratios} (lihat uji DM di halaman evaluasi)."
+    chg = " dan ".join(fmt_num(100 * (v - 1), 1, sign=True) + "%" for v in m2["mae_ratio_vs_m1"])
+    hs = " dan ".join(str(int(h)) for h in m2["horizon"])
+    worse = (m2["mae_ratio_vs_m1"] > 1).all()
+    sig = (m2["dm_p"] < 0.05).all() if "dm_p" in m2 else False
+    if worse:
+        up = " dan ".join(fmt_num(100 * (v - 1), 1) + "%" for v in m2["mae_ratio_vs_m1"])
+        return (f"Tidak. Menambahkan kurs dan harga dunia membuat galat prediksi {hs} minggu naik {up}"
+                + (", dan uji Diebold–Mariano menyatakan selisih itu nyata." if sig else ", selisih yang tidak nyata."))
+    return f"Menambahkan kurs dan harga dunia mengubah galat prediksi {hs} minggu sebesar {chg}."
 
 
-RQS = [("RQ1", "Seberapa besar dan secepat apa harga merespons kurs?", _rq1, "kepekaan", "Kurva respons"),
-       ("RQ2", "Lebih ditentukan komoditas atau lokasi?", _rq2, "regional", "Pola regional"),
-       ("RQ3", "Apakah depresiasi dan apresiasi berbeda dampaknya?", _rq3, "kepekaan", "Asimetri"),
-       ("RQ4", "Karakteristik apa yang berasosiasi dengan kepekaan?", _rq4, "eksposur", "Eksposur"),
-       ("RQ5", "Apakah memantau kurs membantu memprediksi harga?", _rq5, "eksposur", "Prediksi")]
+RQS = [("Seberapa besar harga pangan bergerak saat kurs rupiah berubah?", _rq1, "respons", "Kurva respons per komoditas"),
+       ("Apakah kepekaan itu berbeda antarprovinsi?", _rq2, "wilayah", "Uji perbedaan antarprovinsi"),
+       ("Apakah dampak rupiah melemah sama dengan saat menguat?", _rq3, "respons", "Respons saat melemah dan menguat"),
+       ("Apakah porsi impor dan letak provinsi menjelaskan kepekaan?", _rq4, "faktor", "Jalur impor dan karakteristik provinsi"),
+       ("Apakah memantau kurs membantu memprediksi harga?", _rq5, "prediksi", "Evaluasi prediksi")]
 
 
-def _answers(nat: pd.DataFrame, labels: dict) -> list[tuple[str, str, str, str, str]]:
-    """(kode, pertanyaan, jawaban, halaman, label tautan) per RQ. Jawaban dihitung dari artefak; artefak atau kolom yang
-    belum ada (deploy sebagian, data uji sintetis) → kalimat netral, halaman tetap tampil."""
+def _answers(nat: pd.DataFrame) -> list[tuple[str, str, str, str]]:
+    """(pertanyaan, jawaban, halaman, label tautan) per pertanyaan penelitian. Jawaban dihitung dari artefak; artefak atau
+    kolom yang belum ada (deploy sebagian, data uji sintetis) → kalimat netral, halaman tetap tampil."""
     out = []
-    for code, question, fn, page, link in RQS:
+    for question, fn, page, link in RQS:
         try:
-            answer = fn(nat, labels)
+            answer = fn(nat)
         except (AttributeError, IndexError, KeyError, TypeError, ValueError):
-            answer = "Hasilnya belum tersedia di artefak yang dimuat; lihat halaman terkait."
-        out.append((code, question, answer, PAGE[page], link))
+            answer = "Hasilnya belum tersedia di artefak yang dimuat."
+        out.append((question, answer, PAGE[page], link))
     return out
 
 
@@ -115,66 +119,70 @@ if got:
     for c in ("estimate", "ci_low", "ci_high"):
         pt[c] = plots.scenario_change(pt[c], X)
     pt["komoditas"] = pt["commodity"].map(lambda c: labels.get(c, c))
-    tight = pt[pt["ci_high"] <= X]
-    loose = pt[pt["ci_high"] > X]
+    small, mid, loose = pt[pt["ci_high"] <= 2], pt[(pt["ci_high"] > 2) & (pt["ci_high"] <= X)], pt[pt["ci_high"] > X]
+    prices = reference_prices()
     beras = pt[pt["commodity"] == "beras"]
-    period = CFG.params["period"]
-    years = f"{str(period['start'])[:4]}–{str(period['freeze'])[:4]}"
 
-    title = ("Seberapa peka harga pangan eceran terhadap pelemahan rupiah?" if beras.empty else
-             f"Saat rupiah melemah {X}%, pola historis menempatkan kenaikan harga beras paling banyak "
-             f'<span class="kg-hl">{fmt_num(beras["ci_high"].iloc[0], 2, pct=True)}</span> dalam {H} minggu.')
-    lead = (f"KAGAMI memetakan seberapa besar harga eceran 10 komoditas pangan di 34 provinsi bergerak bersama kurs IDR/USD "
-            f"dan harga dunia dalam rupiah, {years}. Untuk {len(tight)} dari {len(pt)} komoditas, batas atas kenaikan harga "
-            f"yang konsisten dengan pelemahan rupiah {X}% berada di bawah {X}%. Untuk {_names(loose['commodity'], labels)}, "
-            "harganya terlalu bergejolak untuk memberi batas yang berguna. Asosiasi yang paling konsisten justru antara "
-            "minyak goreng dan harga sawit dunia dalam rupiah.")
-
+    if beras.empty:
+        title = "Seberapa peka harga pangan eceran terhadap pelemahan rupiah?"
+    else:
+        hi = float(beras["ci_high"].iloc[0])
+        price, per = prices.get("beras", (None, "kg"))
+        amount = (f"{fmt_rp(price * hi / 100, sign=False)} per {'kilogram' if per == 'kg' else per}" if price
+                  else fmt_num(hi, 2, pct=True))
+        title = (f"Pelemahan rupiah {X}% berasosiasi dengan kenaikan harga beras paling tinggi "
+                 f'<span class="kg-hl">{amount}</span> dalam {H} minggu.')
     st.markdown(
         f'<div class="kg-hero"><h1 class="kg-title">{title}</h1>'
-        '<p class="kg-byline"><b>KAGAMI</b> · Kurs-Associated Grocery Analysis of Markets in Indonesia · '
-        '<i>kagami</i> = cermin</p></div>', unsafe_allow_html=True)
+        '<p class="kg-byline"><b>KAGAMI</b>, Kurs-Associated Grocery Analysis of Markets in Indonesia. Dalam bahasa Jepang, '
+        '<i>kagami</i> berarti cermin.</p></div>', unsafe_allow_html=True)
+
     left, right = st.columns([5, 6], gap="large")
     with left:
-        st.markdown(
-            f'<p class="kg-lead">{lead}</p>'
-            '<p class="kg-qual">Batas atas = ujung atas interval 95% resmi dari rasio pass-through nasional; perubahan = '
-            f'exp(PT({H}) × ln 1,05) − 1. Skenario bersyarat dari pola historis, bukan ramalan; asosiasi, bukan kausalitas.</p>',
-            unsafe_allow_html=True)
-        nav_link(PAGE["skenario"], "Coba skenario sendiri", ":material/tune:")
-        nav_link(PAGE["temuan"], "Baca temuan lengkap", ":material/article:")
+        period = CFG.params["period"]
+        text = (f"Kami mengukur seberapa jauh harga eceran 10 komoditas pangan di 34 provinsi bergerak bersama kurs rupiah, "
+                f"dari {str(period['start'])[:4]} sampai {str(period['freeze'])[:4]}.")
+        if len(small):
+            text += f" Untuk {names_list(small['commodity'], labels)}, batas kenaikan harganya di bawah 2%."
+        if len(mid):
+            text += f" Batas {names_list(mid['commodity'], labels)} di bawah {X}%."
+        if len(loose):
+            text += (f" Rentang untuk {names_list(loose['commodity'], labels)} melebar sampai "
+                     f"{fmt_num(loose['ci_high'].max(), 0)}%, terlalu lebar untuk dipakai sebagai batas.")
+        st.markdown(f'<p class="kg-lead">{text}</p>', unsafe_allow_html=True)
+        note("Batas kenaikan adalah ujung atas rentang 95% dari pola historis tingkat nasional. Harga acuan Rupiah adalah "
+             "median antarprovinsi selama 8 minggu sampai 16 November 2026.")
+        nav_link(PAGE["simulasi"], "Coba simulasi pelemahan rupiah", ":material/tune:")
+        nav_link(PAGE["respons"], "Lihat respons tiap komoditas", ":material/show_chart:")
     with right:
         if len(pt):
             d = pt.assign(width=pt["ci_high"] - pt["ci_low"]).sort_values("width", ascending=False)
             st.plotly_chart(plots.forest(
-                d, ["komoditas"], f"Rupiah melemah {X}%: perubahan harga {H} minggu",
-                x_title="perubahan harga eceran nasional (%)",
-                subtitle="Titik = estimasi · garis = interval 95% resmi · paling presisi di atas"), **STRETCH)
+                d, ["komoditas"], f"Perubahan harga {H} minggu setelah rupiah melemah {X}%",
+                x_title="perubahan harga eceran nasional (%)", x_range=(-10, 10),
+                subtitle="Titik: perkiraan. Garis: rentang 95%. Segitiga: rentang melewati batas grafik."), **STRETCH)
 
-    st.markdown("## Lima pertanyaan, lima jawaban")
-    for code, question, answer, page, link in _answers(nat, labels):
+    st.markdown("## Jawaban atas lima pertanyaan penelitian")
+    for question, answer, page, link in _answers(nat):
         st.markdown('<div class="kg-rule"></div>', unsafe_allow_html=True)
-        q, a, go = st.columns([3, 6, 1.6], gap="medium")
-        q.markdown(f'<p class="kg-rq">{question} <span class="kg-code">{code}</span></p>', unsafe_allow_html=True)
-        a.markdown(f'<p class="kg-ans">{answer}</p>', unsafe_allow_html=True)
-        with go:
+        q, a = st.columns([2, 5], gap="large")
+        q.markdown(f'<p class="kg-rq">{question}</p>', unsafe_allow_html=True)
+        with a:
+            st.markdown(f'<p class="kg-ans">{answer}</p>', unsafe_allow_html=True)
             nav_link(page, link, ":material/arrow_forward:")
     st.markdown('<div class="kg-rule"></div>', unsafe_allow_html=True)
 
-    st.markdown("## Mengapa angka ini bisa dipegang")
+    st.markdown("## Cara kami menguji")
     el = load("eligibility")
-    n_el = f"{int(el['eligible'].sum())} dari {len(el)}" if el is not None else "–"
+    n_el = f"{int(el['eligible'].sum())} dari {len(el)}" if el is not None else "sebagian besar"
     st.markdown(
-        f"Panel mingguan dibangun dari harga harian PIHPS (Bank Indonesia); **{n_el} seri** provinsi × komoditas layak "
-        "dianalisis. Hipotesis, parameter, dan aturan keputusan **dibekukan 20 November 2026 sebelum estimasi dilihat**. "
-        f"Setiap uji dibandingkan dengan **{CFG.params['inference']['placebo_R']} replikasi plasebo** yang memutus kaitan "
-        "waktu antara kurs dan harga, sehingga hasil nol pun punya ukuran: selisih terkecil yang akan terdeteksi bila ada. "
-        "Aplikasi ini hanya membaca hasil yang sudah dihitung.")
-    nav_link(PAGE["data"], "Data, metode & reproduksi", ":material/dataset:")
-    st.info("**Status produk.** KAGAMI adalah prototipe riset dan analitik pendukung keputusan: aplikasi ini menyajikan pola "
-            "historis beserta ketidakpastiannya. KAGAMI bukan sistem peringatan dini dan bukan rekomendasi operasi pasar, "
-            "karena kebutuhan pengguna (ambang kenaikan, kapasitas pemantauan, toleransi alarm palsu) belum divalidasi "
-            "dengan TPID (U109).")
+        f"Kami meringkas harga harian Bank Indonesia (PIHPS) menjadi harga mingguan; {n_el} seri provinsi dan komoditas "
+        "cukup lengkap untuk dianalisis. Hipotesis dan aturan uji kami bekukan pada 20 November 2026, sebelum hasil "
+        f"estimasi dilihat. Setiap hasil kami bandingkan dengan {CFG.params['inference']['placebo_R']} versi data yang urutan "
+        "waktu kursnya digeser acak. Dengan cara itu hasil nol pun punya ukuran, yaitu efek terkecil yang akan tertangkap "
+        "bila efek itu ada.")
+    nav_link(PAGE["data"], "Data, metode, dan daftar istilah", ":material/dataset:")
+    note("KAGAMI masih prototipe riset. Kami belum menguji bersama TPID ambang kenaikan harga yang perlu ditindaklanjuti, "
+         "sehingga aplikasi ini belum siap dipakai sebagai peringatan dini.")
 
-footer("Turunan PIHPS & JISDOR (BI), Pink Sheet (Bank Dunia)", "% perubahan harga eceran nasional",
-       "2018-01 s.d. pembekuan 2026-11-21")
+footer("PIHPS dan JISDOR (Bank Indonesia), Pink Sheet (Bank Dunia)")

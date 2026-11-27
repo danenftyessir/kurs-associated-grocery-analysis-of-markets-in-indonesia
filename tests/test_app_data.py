@@ -138,5 +138,28 @@ def test_load_does_not_cache_missing(tmp_path, monkeypatch):
     st.cache_data.clear()
 
 
+def test_reference_prices_match_findings_rupiah_table(monkeypatch, cfg):
+    """D-171: harga acuan Rupiah app = tabel batas Rupiah `results/findings.md` (satu sumber); beras +Rp89 pada PT(8) resmi."""
+    from kagami.utils.io import exists
+    if not exists(cfg, "findings") or not exists(cfg, "profiles"):
+        pytest.skip("findings/profiles belum ada")
+    monkeypatch.syspath_prepend(str(APP))
+    sys.modules.pop("common", None)
+    st.cache_data.clear()
+    import common
+    from kagami.utils.io import read_artifact
+    from kagami.viz import plots
+    prices = common.reference_prices()
+    assert set(prices) == set(cfg.commodities) and prices["beras"] == (16392.0, "kg") and prices["minyak_goreng"][1] == "liter"
+    prof = read_artifact(cfg, "profiles")
+    r = prof[(prof["level"] == "national") & (prof["unit"].astype(str) == "ALL") & (prof["driver"] == "PT")
+             & (prof["commodity"] == "beras") & (prof["horizon"] == 8)].iloc[0]
+    assert common.fmt_rp(prices["beras"][0] * plots.scenario_change(r["ci_high"], 5) / 100) == "+Rp89"
+    assert common.fmt_rp(-1170.4) == "−Rp1.170" and common.fmt_rp(float("nan")) == "tidak tersedia"
+    assert common.names_list(["beras"]) == "beras" and common.names_list(["beras", "gula_pasir", "telur_ayam"]) ==         "beras, gula pasir, dan telur ayam"
+    sys.modules.pop("common", None)
+    st.cache_data.clear()
+
+
 def test_every_artifact_in_registry():
     assert {"profiles", "clusters", "assoc"} <= set(ARTIFACTS)
