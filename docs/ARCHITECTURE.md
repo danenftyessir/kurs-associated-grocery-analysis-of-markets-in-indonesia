@@ -61,7 +61,7 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
                     evaluators (per tahap) · assessment (penilaian vs acuan, D-140) · registry (spesifikasi tahap, graf
                     dependensi) · store (JSON, sinkron artefak, status tahap) · logger
                     (`@tracked` di setiap pipelines.<tahap>.run, `pipeline`, `evaluate_existing`)
-app/                Home.py (router st.navigation, D-170) + pages/1..8 + common.py (hasil: 1 Beranda … 6 Temuan; lampiran: 8 Data & metode, 7 Riwayat eksekusi membaca logs/)
+app/                Home.py (router st.navigation, D-170/D-171) + pages/1..9 + common.py (hasil: 1 Ringkasan, 2 Respons harga, 3 Perbedaan antarprovinsi, 4 Faktor penjelas, 9 Prediksi, 5 Simulasi rupiah; lampiran: 6 Laporan lengkap, 8 Data & metode + daftar istilah, 7 Riwayat eksekusi membaca logs/)
 tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download · tracking · direction · direction_tuned · neural
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)

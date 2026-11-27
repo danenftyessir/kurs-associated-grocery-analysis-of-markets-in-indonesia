@@ -39,7 +39,7 @@ def test_curve_without_interval_has_no_band():
                          "estimate": h * 0.01, "ci_low": np.nan, "ci_high": np.nan})
     fig = plots.response_curve(prof, "beras", "region", "Jawa", "PT")
     assert not any(getattr(t, "fill", None) == "tonexty" for t in fig.data)
-    assert "Interval tidak tersedia" in fig.layout.title.subtitle.text
+    assert "Rentang 95% tidak tersedia" in fig.layout.title.subtitle.text
     assert not any(getattr(t, "fill", None) == "tonexty" for t in plots.scenario_paths(prof, [1, 3, 5], 3).data)
 
 
@@ -59,7 +59,7 @@ def test_scenario_change_is_exact_log_transform():
     assert np.allclose(lines["pelemahan 5%"], 100 * (1.05 ** (h * 0.1) - 1))
     band = [np.asarray(t.y, float) for t in fig.data if getattr(t, "fill", None) == "tonexty"]
     assert len(band) == 1 and np.allclose(band[0], 100 * (1.05 ** (h * 0.1 - 0.5) - 1))
-    assert "exp(PT(h)×ln(1 + x/100)) − 1" in fig.layout.title.subtitle.text.replace("<br>", " ")   # rumus utuh di subjudul
+    assert "bukan ramalan" in fig.layout.title.subtitle.text.replace("<br>", " ")   # label skenario bersyarat (§18)
 
 
 def test_scenario_matches_findings_rupiah_table(cfg):
@@ -78,11 +78,13 @@ def test_scenario_matches_findings_rupiah_table(cfg):
 def test_dm_summary_reports_direction():
     """D-169: p kecil dengan DM negatif = M2 nyata LEBIH BURUK dari M1; app tidak boleh hanya menampilkan p."""
     s = style.dm_summary(-2.7012888, 0.0085354, 0.9957323)              # forecast_eval M2 h = 4
-    assert "DM = −2,70" in s and "M2 kurang akurat dari M1" in s and "tidak nyata" not in s
-    assert "p dua sisi 0,009" in s and "keunggulan M2: 0,996" in s
+    assert "DM −2,70" in s and "M2 kurang akurat dari M1" in s and "tidak nyata" not in s
+    assert "p dua sisi 0,009" in s and "“M2 lebih akurat”: 0,996" in s
     s = style.dm_summary(1.0, 0.1)                                      # p satu sisi diturunkan dari p dua sisi
-    assert "arah M2 lebih akurat dari M1, tidak nyata" in s and "keunggulan M2: 0,050" in s
-    assert "keunggulan M2: 0,950" in style.dm_summary(-1.0, 0.1)
+    assert "M2 lebih akurat dari M1, tetapi tidak nyata" in s and "“M2 lebih akurat”: 0,050" in s
+    assert "“M2 lebih akurat”: 0,950" in style.dm_summary(-1.0, 0.1)
+    assert "model dengan kurs kurang akurat dari model dasar" in style.dm_summary(-2.7, 0.009, model="model dengan kurs",
+                                                                                 ref="model dasar")
     assert style.dm_summary(float("nan"), 0.5) == "uji DM tidak tersedia"
 
 

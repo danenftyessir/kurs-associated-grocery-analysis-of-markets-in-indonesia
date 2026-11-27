@@ -504,7 +504,7 @@ Validasi V2 berupa studi kasus episode depresiasi 2026.
 | Event study + jendela plasebo                   | Cek per episode tanpa model        | `kagami.models.event_study`                                   | Tidak memakai asumsi linear LP                                                       |
 | Moving-block bootstrap, plasebo geser-melingkar | Interval dan distribusi null       | `kagami.evaluation.inference`, `kagami.stats.resampling`    | Menjaga korelasi waktu dan lintas seri                                               |
 | DerSimonian–Laird, REML, empirical Bayes       | Heterogenitas dan penyusutan       | `kagami.stats.meta`, `kagami.features.response`             | Memisahkan variasi nyata dari noise estimasi                                         |
-| Ward, K-Means, silhouette, ARI, Jaccard         | Pola regional                      | `kagami.models.clustering`, `kagami.evaluation.stability`   | Kami menilai klaster terhadap plasebo dan stabilitasnya                              |
+| Ward, K-Means, silhouette, ARI, Jaccard         | Perbedaan antarprovinsi            | `kagami.models.clustering`, `kagami.evaluation.stability`   | Kami menilai klaster terhadap plasebo dan stabilitasnya                              |
 | Kendall τ-b permutasi eksak                    | Asosiasi level komoditas (N = 10)  | `kagami.models.association`                                   | Cocok untuk sampel sangat kecil dan bebas asumsi distribusi                          |
 | Meta-regresi efek acak                          | Karakteristik provinsi             | `kagami.models.association`                                   | Memperhitungkan ketidakpastian tiap deviasi                                          |
 | Ridge, HistGradientBoosting                     | Prediksi Task 4                    | `kagami.models.forecasting` (scikit-learn)                    | Membandingkan model linear yang kuat dengan model nonlinear                          |
@@ -528,24 +528,26 @@ diketahui di `tests/test_stats.py`.
 
 ## 9. Aplikasi untuk analis
 
-Aplikasi Streamlit kami punya enam halaman hasil dan dua halaman lampiran teknis, dikelompokkan di menu samping. Aplikasi ini
-hanya membaca artefak hasil: tidak ada login, tidak ada unggahan data pengguna, dan tidak ada estimasi saat dijalankan. Versi
-daring: https://kagami.streamlit.app (membaca artefak hasil yang ikut di repo). Titik masuk [app/Home.py](app/Home.py) hanya
-memasang menu; isi halaman ada di `app/pages/`.
+Aplikasi Streamlit kami punya enam halaman hasil dan tiga halaman lampiran teknis, dikelompokkan di menu samping. Setiap halaman
+hasil menjawab satu pertanyaan dan dibuka dengan jawabannya dalam bahasa pembaca; notasi statistik dan kode internal hanya ada di
+lampiran dan di expander teknis (D-171). Aplikasi ini hanya membaca artefak hasil: tidak ada login, tidak ada unggahan data pengguna,
+dan tidak ada estimasi saat dijalankan. Versi daring: https://kagami.streamlit.app (membaca artefak hasil yang ikut di repo). Titik
+masuk [app/Home.py](app/Home.py) hanya memasang menu; isi halaman ada di `app/pages/`.
 
 | Bagian | Halaman | Isi |
 | --- | --- | --- |
-| Hasil penelitian | Beranda | Jawaban lebih dulu: kalimat pembuka dan grafik batas perubahan harga per komoditas untuk rupiah melemah 5%, lima pertanyaan penelitian beserta jawabannya (dibaca dari artefak), dasar kepercayaan, status produk |
-| | Kepekaan harga | Kurva respons nasional, wilayah, dan provinsi; perbandingan komoditas; asimetri; peta kepekaan (dengan catatan bahwa perbedaan wilayah tidak terdeteksi) |
-| | Pola regional | Keputusan k vs plasebo, batas deteksi, uji heterogenitas per komoditas |
-| | Eksposur & prediksi | Jalur eksposur terhadap PT(8), meta-regresi, respons per rezim HET/HAP, rasio MAE Task 4 dengan arah uji DM |
-| | Skenario rupiah | $\Delta \text{harga} = \exp(PT(h)\ln(1 + x/100)) - 1$ untuk $x \in \lbrace 1, 3, 5 \rbrace$ persen (rumus yang sama dengan tabel batas Rupiah di temuan), dengan bendera ekstrapolasi dan label "skenario bersyarat, bukan ramalan" |
-| | Temuan lengkap | `results/findings.md` dalam tab (ringkasan, per pertanyaan, ketahanan & batas, data, eksplorasi) + grafik robustness |
-| Lampiran teknis | Data & metode | Sumber data, kelayakan seri, daya deteksi (MDE), daftar artefak, laporan pemeriksaan data Tahap 0 |
+| Hasil penelitian | Ringkasan | Kalimat pembuka dalam Rupiah per kg (batas atas kenaikan harga beras untuk rupiah melemah 5%), grafik batas perubahan harga 10 komoditas, lima pertanyaan penelitian beserta jawabannya (dihitung dari artefak), cara menguji, status prototipe |
+| | Respons harga | Satu kurva respons (nasional atau 7 wilayah, terhadap kurs atau harga dunia) dalam % per 1% dengan kalimat cara membaca; tab semua komoditas, saat melemah vs menguat, peta provinsi, episode pelemahan |
+| | Perbedaan antarprovinsi | Komoditas dengan respons berbeda antarprovinsi (vs data acak), pengelompokan provinsi vs batas data acak, batas deteksi |
+| | Faktor penjelas | Jalur impor dan korelasi peringkat dengan penerusan kurs, karakteristik provinsi (meta-regresi), respons per periode HET/HAP |
+| | Prediksi | Perubahan galat prediksi 4 dan 8 minggu setelah kurs ditambahkan, uji Diebold–Mariano dengan arah, komoditas impor saat kurs bergerak besar |
+| | Simulasi rupiah | $\Delta \text{harga} = \exp(PT(h)\ln(1 + x/100)) - 1$ untuk $x \in \lbrace 1, 3, 5 \rbrace$ persen, dalam persen dan Rupiah per kg (rumus dan harga acuan sama dengan tabel batas Rupiah di temuan), label "skenario bersyarat, bukan ramalan" |
+| Lampiran teknis | Laporan lengkap | `results/findings.md` dalam tab (ringkasan, per pertanyaan, ketahanan & batas, data, eksplorasi) + grafik ketahanan |
+| | Data & metode | Sumber data, kelengkapan seri, efek terkecil yang dapat dideteksi (MDE), daftar istilah, reproduksi, laporan pemeriksaan data Tahap 0 |
 | | Riwayat eksekusi | Log eksekusi dan evaluasi setiap tahap (`logs/`), perbandingan run, alur pipeline; untuk pembuktian reproduksibilitas |
 
-Setiap grafik mencantumkan sumber, satuan, periode, interval 95%, dan label "asosiasi, bukan kausalitas". Jika interval sebuah
-respons memuat nol, aplikasi menampilkan lencana "tidak terdeteksi".
+Setiap grafik mencantumkan sumber, satuan, periode, rentang 95%, dan label "asosiasi historis, bukan sebab-akibat". Jika rentang
+sebuah respons memuat nol, aplikasi menyebutnya "tidak terdeteksi".
 
 ## 10. Cara menjalankan (untuk juri)
 
@@ -679,7 +681,7 @@ datmin/
 ├── results/             artefak hasil Tahap 0 dan Task 1–4, robustness, findings.md
 ├── src/                 paket kagami: utils, stats, data, features, models, evaluation, pipelines, viz, cli
 ├── notebooks/           00_stage0_data sampai 05_robustness (satu per tahap; lokal, Kaggle, Colab)
-├── app/                 aplikasi Streamlit (6 halaman hasil + 2 lampiran teknis)
+├── app/                 aplikasi Streamlit (6 halaman hasil + 3 lampiran teknis)
 ├── tests/               tes pytest
 └── docs/                metode, dataset, arsitektur, praregistrasi, keputusan, isu terbuka, rencana kerja
 ```

@@ -13,11 +13,9 @@ from kagami.viz import plots
 from kagami.viz.style import fmt_num
 
 page_header("Riwayat eksekusi",
-            "Tahap mana yang benar-benar dieksekusi, dari input mana, apakah artefaknya sinkron, dan apakah hasil "
-            "evaluasinya lebih baik dari acuan?")
-st.caption("Lampiran teknis untuk pembuktian reproduksibilitas: setiap tahap pipeline mencatat log JSON (input, output, "
-           "sidik jari data & kode, metrik evaluasi). Hasil penelitian ada di bagian Hasil penelitian; halaman ini untuk "
-           "pemeriksaan proses.")
+            "Setiap tahap analisis mencatat log: data yang dibaca, hasil yang ditulis, sidik jari kode, dan metrik "
+            "evaluasi. Halaman ini membaca log itu untuk memeriksa apakah hasil yang tampil di aplikasi berasal dari "
+            "eksekusi yang tercatat.")
 
 LABELS = {k: v.label for k, v in registry.TASKS.items()}
 SHORT = {k: v.split(" · ")[0] for k, v in LABELS.items()}

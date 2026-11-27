@@ -1,13 +1,15 @@
-"""Halaman 3 -- Pola Respons (WP-31; PLAN.md §18: keputusan k vs plasebo + batas deteksi sebagai isi utama)."""
+"""Halaman 3 -- Perbedaan antarprovinsi (WP-31; D-171). Kalimat jawaban → komoditas dengan perbedaan antarprovinsi (vs data
+acak) → apakah provinsi membentuk kelompok (silhouette vs batas data acak) → batas deteksi struktur tertanam."""
 
 import pandas as pd
 import streamlit as st
 
-from common import STRETCH, commodity_labels, fmt_num, footer, load, need, page_header, table, unit_names
+from common import (STRETCH, commodity_labels, fmt_num, footer, lead, load, names_list, need, note, page_header, table,
+                    unit_names)
 from kagami.evaluation.planted import DETECTION_RATE, detection_limit
 from kagami.viz import plots
 
-page_header("Pola regional", "Apakah ada kelompok provinsi dengan pola serupa?")
+page_header("Perbedaan antarprovinsi")
 
 got = need("heterogeneity", "cluster_selection", "clusters", "coassign", "planted_recovery")
 if got:
@@ -17,55 +19,71 @@ if got:
     det = detection_limit(planted)["delta_min"].dropna()
     q = het[(het["statistic"] == "Q")] if "statistic" in het else het
     rej = q[q["reject"].fillna(False).astype(bool)] if "reject" in q else q.iloc[0:0]
+    lead((("Provinsi tidak membentuk kelompok dengan pola respons yang sama. " if k_star == 1 else
+           f"Provinsi membentuk {k_star} kelompok yang lolos uji data acak. ")
+          + (f"Perbedaan antarprovinsi yang lebih besar dari hasil kurs acak hanya muncul pada {names_list(rej['commodity'], labels)}."
+             if len(rej) else "Tidak ada komoditas yang responsnya berbeda antarprovinsi melebihi hasil kurs acak.")))
 
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Jumlah kelompok provinsi", f"k = {k_star}",
-              help="k > 1 hanya diterima bila silhouette maksimum melewati persentil 95 plasebo.")
-    c2.metric("Batas deteksi struktur", f"δ = {fmt_num(det.max(), 1)}" if len(det) else "tidak tercapai",
-              help="Selisih respons terkecil (RMS per fitur) yang terdeteksi ≥ 80% bila ditanam pada derau plasebo, untuk "
-                   "struktur sintetis 2–3 kelompok berukuran hampir sama dengan pusat berbentuk simpleks.")
-    c3.metric("Komoditas dengan heterogenitas provinsi", f"{len(rej)} dari {q['commodity'].nunique()}",
-              help="H0-Het ditolak (Q vs plasebo, q BH ≤ 0,05) pada h = 8.")
-    if len(rej):
-        st.caption("Heterogenitas terdeteksi: " + ", ".join(labels.get(c, c) for c in rej["commodity"]) +
-                   ". Variasi antarprovinsi ada untuk komoditas ini, tetapi tidak membentuk kelompok provinsi bersama.")
-
-    st.plotly_chart(plots.silhouette_threshold(sel), **STRETCH)
-    if k_star == 1:
-        st.info("k = 1: tidak ada struktur regional yang terdeteksi. Ini batas atas, bukan bukti bahwa provinsi seragam: "
-                "struktur dengan selisih respons di bawah batas deteksi di bawah masih mungkin ada. Batas deteksi hanya berlaku "
-                "untuk bentuk struktur yang diuji (2–3 kelompok berukuran hampir sama, pusat simpleks); bentuk lain, seperti "
-                "kelompok kecil, gradien geografis, atau perbedaan pada sebagian komoditas saja, belum diuji.")
-    st.plotly_chart(plots.recovery_curve(planted, threshold=DETECTION_RATE), **STRETCH)
-    table(planted, "Lihat tabel batas deteksi", status=False)
-
-    st.subheader("Komoditas mana yang responsnya berbeda antarprovinsi?")
-    if {"statistic", "value", "commodity"} <= set(het.columns):
-        wide = het.pivot_table(index="commodity", columns="statistic", values="value", aggfunc="first")
-        qq = q.set_index("commodity")
+    st.subheader("Komoditas dengan respons berbeda antarprovinsi")
+    if {"statistic", "value", "commodity"} <= set(het.columns) and {"p_placebo", "q_fdr", "reject"} <= set(q.columns):
+        qq = q.set_index("commodity").sort_values("q_fdr")
         tab = pd.DataFrame({"Komoditas": [labels.get(c, c) for c in qq.index],
-                            "Q": wide.reindex(qq.index).get("Q"), "τ² (varians antarprovinsi)": wide.reindex(qq.index).get("tau2"),
-                            "I²": wide.reindex(qq.index).get("I2"), "p plasebo": qq.get("p_placebo"),
-                            "q BH": qq.get("q_fdr"), "Melampaui plasebo": qq.get("reject")}).sort_values("q BH")
-        st.dataframe(tab.round(3), hide_index=True, **STRETCH)
-        st.caption("H0-Het pada h = 8, penggerak IDR/USD: statistik Q dibandingkan dengan 499 replikasi plasebo, lalu dikoreksi "
-                   "Benjamini–Hochberg antar 10 komoditas. τ² = 0 berarti semua provinsi disusutkan ke respons nasional.")
+                            "p uji acak": qq["p_placebo"].round(3).to_numpy(),
+                            "Setelah koreksi 10 uji (q)": qq["q_fdr"].round(3).to_numpy(),
+                            "Hasil": ["berbeda antarprovinsi" if r else "tidak terlihat"
+                                      for r in qq["reject"].fillna(False).astype(bool)]})
+        st.dataframe(tab, hide_index=True, **STRETCH)
+        note("Untuk setiap komoditas kami mengukur keragaman respons 8 minggu antarprovinsi, lalu membandingkannya dengan "
+             "499 versi data yang urutan waktu kursnya digeser acak. p adalah porsi data acak yang keragamannya sama besar "
+             "atau lebih besar. q mengoreksi p karena 10 komoditas diuji sekaligus (Benjamini–Hochberg); hasil dianggap "
+             "berbeda bila q paling tinggi 0,05.")
+        wide = het.pivot_table(index="commodity", columns="statistic", values="value", aggfunc="first").reindex(qq.index)
+        with st.expander("Statistik uji lengkap"):
+            st.dataframe(pd.DataFrame({"Komoditas": [labels.get(c, c) for c in qq.index],
+                                       "Q (Cochran)": wide.get("Q"), "τ² (varians antarprovinsi)": wide.get("tau2"),
+                                       "I²": wide.get("I2")}).round(3), hide_index=True, **STRETCH)
+            note("τ² = 0 berarti data tidak cukup untuk membedakan provinsi, sehingga semua provinsi ditampilkan sama "
+                 "dengan rata-rata nasional.")
     else:
-        table(het, "Uji heterogenitas per komoditas (vs plasebo)", status=False)
+        table(het, "Uji perbedaan antarprovinsi per komoditas", status=False)
+
+    st.subheader("Pengelompokan provinsi")
+    st.markdown("Kami mencoba mengelompokkan 34 provinsi menjadi 2 sampai 6 kelompok berdasarkan pola responsnya. Hasil "
+                "pengelompokan hanya diterima bila kualitasnya melewati hasil terbaik dari data acak."
+                + (" Tidak ada yang melewati batas itu." if k_star == 1 else ""))
+    st.plotly_chart(plots.silhouette_threshold(sel), **STRETCH)
+
+    st.subheader("Seberapa besar perbedaan yang akan tertangkap")
+    if len(planted):
+        p = planted.set_index(["delta", "k_true"])["recovery_rate"]
+        lim = fmt_num(det.max(), 1) if len(det) else None
+        low = [f"{fmt_num(100 * v, 0)}%" for (dl, _), v in p.items() if round(dl, 2) == 0.1]
+        txt = ("Metode ini menemukan kelompok bila selisih responsnya cukup besar. Bila provinsi terbagi menjadi 2 atau 3 "
+               "kelompok berukuran mirip yang "
+               f"responsnya berselisih minimal {lim}% per 1% pelemahan rupiah, metode ini menemukannya pada sedikitnya "
+               f"{fmt_num(100 * DETECTION_RATE, 0)}% percobaan." if lim else "")
+        if low:
+            txt += f" Selisih 0,1% hanya tertangkap pada {' dan '.join(low)} percobaan."
+        st.markdown(txt)
+    st.plotly_chart(plots.recovery_curve(planted, threshold=DETECTION_RATE), **STRETCH)
+    note("Batas ini hanya berlaku untuk bentuk yang kami uji: 2 atau 3 kelompok berukuran hampir sama. Kelompok kecil, gradien "
+         "geografis, atau perbedaan yang hanya muncul pada sebagian komoditas belum diuji.")
+    table(planted.rename(columns={"delta": "selisih", "k_true": "jumlah kelompok buatan",
+                                  "recovery_rate": "porsi percobaan yang menemukan"}), "Lihat tabel", status=False)
 
     if k_star > 1:
         cl = got["clusters"]
-        st.subheader("Klaster provinsi")
+        st.subheader("Kelompok provinsi")
         st.plotly_chart(plots.cluster_sizes(cl), **STRETCH)
         if cl.loc[cl["method"] == "ward", "weak"].any():
-            st.warning("Ada klaster dengan stabilitas rendah (pola lemah): jangan ditafsirkan sebagai tipe kepekaan.")
+            st.warning("Ada kelompok dengan stabilitas rendah. Kelompok itu belum layak dibaca sebagai tipe kepekaan.")
         names = unit_names()
         ward = cl[cl["method"] == "ward"].assign(provinsi=lambda d: d["province_id"].astype(str).map(names))
         table(ward[["cluster", "provinsi", "jaccard", "weak"]].sort_values(["cluster", "provinsi"]),
-              "Anggota klaster", status=False)
+              "Anggota kelompok", status=False)
         st.plotly_chart(plots.coassign_heatmap(got["coassign"]), **STRETCH)
         pc = load("partition_compare")
         if pc is not None:
-            table(pc, "Kesesuaian klaster dengan pembagian lain (ARI; 0 = tak berhubungan, 1 = identik)", status=False)
+            table(pc, "Kesesuaian dengan pembagian wilayah lain (ARI: 0 tidak berhubungan, 1 identik)", status=False)
 
-footer("Turunan PIHPS (BI)", "fitur respons terstandardisasi", "2018-2026")
+footer("PIHPS (Bank Indonesia) dan JISDOR (Bank Indonesia)")

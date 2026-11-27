@@ -21,12 +21,19 @@ STATUS_COLORS = {"observed": "#104281", "carry_forward": "#6da7ec", "short": "#b
 MODEL_COLORS = {"M0": NEUTRAL, "M1": NEUTRAL, "M2": BLUE, "M3": ORANGE, "M2_nofx": NEUTRAL}
 SERIES = [BLUE, ORANGE, AQUA]
 
-DRIVER_LABELS = {"e": "IDR/USD", "w": "Harga dunia (Rp)", "e_pos": "Depresiasi rupiah", "e_neg": "Apresiasi rupiah",
-                 "PT": "Rasio pass-through"}
+# Kosakata pembaca (D-171): juri & analis TPID, bukan notasi model. Notasi (β, ω, PT, M1/M2, h) dijelaskan di Daftar
+# istilah halaman Data & metode; halaman hasil memakai label di bawah ini.
+DRIVER_LABELS = {"e": "Kurs rupiah", "w": "Harga dunia (rupiah)", "e_pos": "Saat rupiah melemah",
+                 "e_neg": "Saat rupiah menguat", "PT": "Penerusan kurs"}
+UNIT_LABELS = {"e": "% perubahan harga per 1% pelemahan rupiah", "w": "% perubahan harga per 1% kenaikan harga dunia",
+               "e_pos": "% perubahan harga per 1% perubahan kurs", "e_neg": "% perubahan harga per 1% perubahan kurs",
+               "PT": "porsi pelemahan rupiah yang muncul di harga"}
+AXIS_LABELS = {"e": "% per 1% pelemahan rupiah", "w": "% per 1% kenaikan harga dunia", "e_pos": "% per 1% perubahan kurs",
+               "e_neg": "% per 1% perubahan kurs", "PT": "penerusan kurs"}
 LEVEL_LABELS = {"national": "Nasional", "region": "Wilayah", "province": "Provinsi"}
-MODEL_LABELS = {"M0": "M0 tanpa perubahan", "M1": "M1 ridge dasar", "M2": "M2 + kurs & harga dunia",
-                "M3": "M3 boosting", "M2_nofx": "M2 tanpa fitur kurs"}
-SUBSET_LABELS = {"all": "semua origin", "large_move": "origin pergerakan kurs besar", "case_study": "studi kasus 2026"}
+MODEL_LABELS = {"M0": "Tanpa perubahan", "M1": "Model dasar", "M2": "Dasar + kurs & harga dunia",
+                "M3": "Boosting + identitas seri", "M2_nofx": "Dasar (pembanding ablation)"}
+SUBSET_LABELS = {"all": "semua titik prediksi", "large_move": "saat kurs bergerak besar", "case_study": "studi kasus 2026"}
 CHECK_LABELS = {
     "exclude_covid_and_extreme_brent": "tanpa Mar–Jun 2020 & bulan Brent ekstrem",
     "fx_decomposition_global_dollar_vs_idr_specific": "dekomposisi kurs",
@@ -42,7 +49,7 @@ PATH_LABELS = {"direct_import": "Impor langsung", "imported_input": "Input impor
                "domestic": "Domestik"}
 FEATURE_LABELS = {"ln_dist_hub": "Jarak ke hub logistik (ln km)", "rice_sufficiency": "Kecukupan produksi beras",
                   "n_kota": "Jumlah kota sampel PIHPS"}
-CAUSAL_NOTE = "Asosiasi historis, bukan kausalitas."
+CAUSAL_NOTE = "Asosiasi historis, bukan sebab-akibat."
 MINUS = "−"
 
 
@@ -80,9 +87,9 @@ def dm_summary(stat: float, p_two: float, p_one: float | None = None, model: str
     if p_one is None or (isinstance(p_one, float) and math.isnan(p_one)):
         p_one = p_two / 2 if stat > 0 else 1 - p_two / 2
     word = "lebih akurat dari" if stat > 0 else ("kurang akurat dari" if stat < 0 else "setara dengan")
-    verdict = f"{model} {word} {ref}" if p_two < alpha else f"arah {model} {word} {ref}, tidak nyata"
-    return (f"DM = {fmt_num(stat, 2, sign=True)} · {verdict} (p dua sisi {fmt_num(p_two, 3)}) · "
-            f"p satu sisi untuk keunggulan {model}: {fmt_num(p_one, 3)}")
+    verdict = f"{model} {word} {ref}" if p_two < alpha else f"{model} {word} {ref}, tetapi tidak nyata"
+    return (f"DM {fmt_num(stat, 2, sign=True)}: {verdict} (p dua sisi {fmt_num(p_two, 3)}). "
+            f"p satu sisi untuk “{model} lebih akurat”: {fmt_num(p_one, 3)}.")
 
 
 def rgba(hex_color: str, alpha: float) -> str:
@@ -97,15 +104,16 @@ def finish(fig: go.Figure, title: str, subtitle: str | None = None, x: str | Non
     t = {"text": title, "x": 0, "xanchor": "left"}
     lines = 0
     if subtitle:
-        parts = subtitle.split(" · ")                  # Plotly tidak membungkus teks: pecah per ± 60 karakter
-        rows, cur = [], ""
-        for p in parts:
-            if cur and len(cur) + len(p) > 60:
-                rows.append(cur)
-                cur = p
-            else:
-                cur = f"{cur} · {p}" if cur else p
-        rows.append(cur)
+        rows = []                                      # Plotly tidak membungkus teks: bungkus per kata (± 72 karakter)
+        for para in subtitle.split("\n"):
+            cur = ""
+            for w in para.split():
+                if cur and len(cur) + 1 + len(w) > 72:
+                    rows.append(cur)
+                    cur = w
+                else:
+                    cur = f"{cur} {w}" if cur else w
+            rows.append(cur)
         lines = len(rows)
         t["subtitle"] = {"text": "<br>".join(rows)}
     fig.update_layout(title=t, separators=",.", hovermode="closest",

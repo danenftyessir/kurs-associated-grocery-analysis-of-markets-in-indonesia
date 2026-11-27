@@ -1,14 +1,17 @@
-"""Halaman 6 -- Temuan lengkap (WP-31/WP-33). Isi = results/findings.md apa adanya, dipecah per bagian `## ` ke dalam tab
-(D-170) agar ringkasan terbaca lebih dulu; ditambah grafik robustness di tab ketahanan."""
+"""Halaman 6 -- Laporan lengkap (lampiran teknis sejak D-171; WP-31/WP-33). Isi = results/findings.md apa adanya, dipecah
+per bagian `## ` ke dalam tab (D-170) agar ringkasan terbaca lebih dulu; ditambah grafik ketahanan di tab ketahanan."""
 
 import re
 
 import streamlit as st
 
-from common import DRIVER_LABELS, STRETCH, commodity_labels, footer, need, page_header, picker
+from common import DRIVER_LABELS, PAGE, STRETCH, commodity_labels, footer, nav_link, need, note, page_header, picker
 from kagami.viz import plots
 
-page_header("Temuan lengkap", "Apa kesimpulannya, dan seberapa kuat buktinya?")
+page_header("Laporan temuan lengkap",
+            "Teks lengkap temuan yang ikut dalam paket juri, dengan angka, tingkat bukti, dan keterbatasannya. Dokumen ini "
+            "memakai notasi statistik; artinya ada di Daftar istilah.")
+nav_link(PAGE["data"], "Daftar istilah di halaman Data & metode", ":material/menu_book:")
 
 # (judul tab, awalan judul bagian findings.md yang masuk ke tab itu)
 GROUPS = [("Ringkasan", ("Ringkasan", "Makna bagi pengguna")),
@@ -35,7 +38,7 @@ def robustness_section() -> None:
     if not got:
         return
     rb = got["robustness"]
-    st.markdown("### Apakah temuan bertahan di setiap cek robustness?")
+    st.markdown("### Ketahanan temuan terhadap pilihan analisis")
     labels = commodity_labels()
     coms = [c for c in labels if c in set(rb["commodity"])]
     if coms and {"driver", "estimate", "ci_low", "ci_high"} <= set(rb.columns):
@@ -47,8 +50,9 @@ def robustness_section() -> None:
             hs = sorted(int(h) for h in rb.loc[(rb["commodity"] == com) & (rb["driver"] == drv), "horizon"].dropna().unique())
             h = picker("Horizon (minggu)", hs, "h", default=8, container=c3)
             st.plotly_chart(plots.robustness_forest(rb, com, drv, h, name=labels.get(com, com)), **STRETCH)
-            st.caption("Tier 1 = cek wajib praregistrasi; Tier 2 = cek opsional (varian, agregasi, outcome alternatif). "
-                       "Dekomposisi kurs memisahkan komponen dolar global dan komponen spesifik rupiah.")
+            note("Tier 1 adalah cek wajib yang kami daftarkan sebelum analisis. Tier 2 adalah cek tambahan: varian harga, "
+                 "cara agregasi, dan sumber harga lain. Dekomposisi kurs memisahkan komponen dolar global dari komponen "
+                 "khusus rupiah.")
     if {"check_id", "tier", "estimate", "ci_low", "ci_high", "baseline_estimate"} <= set(rb.columns):
         ok = rb[["ci_low", "ci_high", "baseline_estimate"]].notna().all(axis=1)
         d = rb[ok].assign(in_ci=lambda x: ((x["baseline_estimate"] >= x["ci_low"])
@@ -58,11 +62,11 @@ def robustness_section() -> None:
             s = d.groupby(["tier", "check_id"], as_index=False).agg(
                 sel=("in_ci", "size"), baseline_di_dalam_interval=("in_ci", "sum"), interval_tanpa_nol=("excl0", "sum"))
             s["porsi"] = (s["baseline_di_dalam_interval"] / s["sel"]).round(3)
-            with st.expander("Ringkasan per cek robustness & validasi"):
+            with st.expander("Ringkasan per cek ketahanan dan validasi"):
                 st.dataframe(s, hide_index=True, **STRETCH)
                 st.caption("Porsi = sel yang estimasi utamanya berada di dalam interval cek. V4 (LP vs event study) lemah sebagai "
                            "validasi karena hampir semua interval event memuat nol.")
-    with st.expander("Tabel robustness lengkap"):
+    with st.expander("Tabel ketahanan lengkap"):
         st.dataframe(rb, hide_index=True, **STRETCH)
 
 
@@ -91,4 +95,4 @@ if fd:
 else:
     robustness_section()
 
-footer("KAGAMI (turunan PIHPS, JISDOR, Pink Sheet, FRED, FAOSTAT, BPS, Bapanas)", "lihat tiap temuan", "2018-2026")
+footer("data turunan dari PIHPS, JISDOR, Pink Sheet, FRED, FAOSTAT, BPS, dan Bapanas")

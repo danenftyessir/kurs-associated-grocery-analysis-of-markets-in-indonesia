@@ -1,125 +1,134 @@
-"""Halaman 4 -- Eksposur & Nilai Prediktif (WP-31)."""
+"""Halaman 4 -- Faktor yang berkaitan dengan kepekaan (WP-31; D-171). Jalur impor (rasio impor, Kendall), karakteristik
+provinsi (meta-regresi; H3), dan respons per periode regulasi HET/HAP (E2). Evaluasi prediksi pindah ke halaman Prediksi
+(`pages/9_Prediksi.py`); url_path halaman ini tetap `Eksposur_dan_Nilai_Prediktif`."""
+
+import re
 
 import streamlit as st
 
-from common import STRETCH, commodity_labels, fmt_num, footer, load, need, page_header, table, with_status
+from common import (PAGE, STRETCH, commodity_labels, fmt_interval, fmt_num, footer, frame, intervals, lead, load,
+                    nav_link, need, note, page_header)
 from kagami.viz import plots, style
 
-page_header("Eksposur & prediksi",
-            "Lewat jalur apa komoditas ini terpapar, dan apakah fitur kurs memperbaiki prediksi dalam evaluasi historis?")
+page_header("Faktor yang berkaitan dengan kepekaan")
+CONF = {"high": "tinggi", "medium": "sedang", "low": "rendah"}
 
-got = need("exposure", "response_features", "assoc", "forecast_eval", "ablation")
+got = need("exposure", "response_features", "assoc")
 if got:
-    st.subheader("Tiga jalur eksposur vs respons nasional")
+    labels = commodity_labels()
+    assoc = got["assoc"]
+    method = (assoc["method"] if "method" in assoc else assoc.get("level")).astype(str)
+    ken = assoc[method.str.startswith("kendall")]
+    meta = assoc[method.str.startswith("meta_regression")]
+    h3 = meta[(meta["commodity"] == "ALL") & (meta["feature"] == "ln_dist_hub") & (meta["horizon"] == 4)] \
+        if {"commodity", "feature", "horizon"} <= set(meta.columns) else meta.iloc[0:0]
+    prof = load("profiles")
+    mg = (prof[(prof["level"] == "national") & (prof["unit"].astype(str) == "ALL") & (prof["driver"] == "w")
+               & (prof["commodity"] == "minyak_goreng") & (prof["horizon"] == 4)] if prof is not None else None)
+    no_import = len(ken) and ken["p_value"].iloc[0] >= 0.05
+    no_dist = len(h3) and h3["p_value"].iloc[0] >= 0.05
+    txt = ("Porsi impor dan jarak provinsi ke pusat distribusi tidak menjelaskan perbedaan respons. "
+           if no_import and no_dist else "")
+    if mg is not None and len(mg) and ((mg["ci_low"] > 0) | (mg["ci_high"] < 0)).iloc[0]:
+        txt += ("Hubungan yang konsisten terlihat pada minyak goreng, yang harganya bergerak bersama harga sawit dunia "
+                "dalam rupiah.")
+    if txt:
+        lead(txt)
+
+    st.subheader("Jalur impor dan respons nasional")
     nat = got["response_features"].query("level == 'national'")[["commodity", "PT8", "W8"]]
     expo = got["exposure"].merge(nat, on="commodity", how="left")
     conc = load("concordance")
     if conc is not None and "confidence" in conc:
-        expo = expo.merge(conc[["commodity", "confidence"]].rename(columns={"confidence": "keyakinan_konkordansi"}),
-                          on="commodity", how="left")
-    labels = commodity_labels()
+        expo = expo.merge(conc[["commodity", "confidence"]], on="commodity", how="left")
+        expo["confidence"] = expo["confidence"].map(lambda c: CONF.get(c, c))
     expo = expo.assign(commodity=expo["commodity"].map(lambda c: labels.get(c, c)),
-                       exposure_path=expo["exposure_path"].map(lambda p: style.PATH_LABELS.get(p, p)))
-    ren = {"commodity": "Komoditas", "exposure_path": "Jalur eksposur", "import_ratio_direct": "Rasio impor langsung",
-           "imported_input_ordinal": "Input impor (0–2)", "world_price_link": "Ada harga dunia padanan",
-           "PT8": "PT(8) nasional", "W8": "Respons harga dunia (8 mgg)", "keyakinan_konkordansi": "Keyakinan konkordansi",
-           "source": "Sumber & tahun rasio impor"}
+                       exposure_path=expo["exposure_path"].map(lambda p: style.PATH_LABELS.get(p, p)),
+                       source=expo["source"].astype(str).map(lambda s: re.sub(r"\s*\(U\d+\)", "", s)))
+    ren = {"commodity": "Komoditas", "exposure_path": "Jalur", "import_ratio_direct": "Porsi impor",
+           "imported_input_ordinal": "Input impor (0–2)", "PT8": "Penerusan kurs", "W8": "Respons harga dunia",
+           "confidence": "Keyakinan kode", "source": "Sumber porsi impor"}
     st.dataframe(expo[[c for c in ren if c in expo]].rename(columns=ren), hide_index=True, **STRETCH,
-                 column_config={"Rasio impor langsung": st.column_config.NumberColumn(format="percent"),
-                                "PT(8) nasional": st.column_config.NumberColumn(format="%.2f"),
-                                "Respons harga dunia (8 mgg)": st.column_config.NumberColumn(format="%.2f")})
-    st.caption("Rasio impor langsung hanya mengukur porsi impor komoditas itu sendiri. Sumber dan tahun pengamatannya berbeda "
-               "per komoditas (kolom terakhir); bawang putih memakai impor BPS/Comtrade dan produksi ATAP satu tahun saja, tanpa "
-               "ekspor, karena FAOSTAT tidak memuat bawang putih kering. Eksposur lewat input impor (pakan untuk daging ayam & "
-               "telur) diukur terpisah di kolom Input impor dan lewat harga dunia komposit jagung–bungkil kedelai. Jadi angka "
-               "antarkomoditas tidak setara kualitas dan periodenya. Keyakinan konkordansi = keyakinan pemetaan "
-               "PIHPS–HS–Pink Sheet–FAOSTAT.")
-
-    assoc = got["assoc"]
-    method = assoc["method"] if "method" in assoc else assoc.get("level")
-    ken = assoc[method.astype(str).str.startswith("kendall")]
+                 column_config={"Porsi impor": st.column_config.NumberColumn(format="percent"),
+                                "Penerusan kurs": st.column_config.NumberColumn(format="%.2f"),
+                                "Respons harga dunia": st.column_config.NumberColumn(format="%.2f")})
     if len(ken):
         k = ken.iloc[0]
-        st.metric("E1 · Kendall τ-b PT(8) vs rasio impor langsung (N = 10)", f"{k['estimate']:+.3f}",
-                  help=f"interval jackknife {k['ci_low']:+.2f} s.d. {k['ci_high']:+.2f}; p permutasi eksak {k['p_value']:.2f}")
-    st.caption("N = 10 komoditas: kesimpulan berlaku 'di antara 10 komoditas yang diamati'.")
+        st.markdown(f"Urutan 10 komoditas menurut porsi impor {'tidak ' if k['p_value'] >= 0.05 else ''}sejalan dengan "
+                    f"urutan penerusan kursnya: korelasi peringkat Kendall {fmt_num(k['estimate'], 2)} (rentang "
+                    f"{fmt_interval(k['ci_low'], k['ci_high'], 2)}), p uji permutasi eksak {fmt_num(k['p_value'], 2)}.")
+    note("Penerusan kurs dan respons harga dunia diukur pada 8 minggu, tingkat nasional. Keyakinan kode menilai pemetaan "
+         "komoditas PIHPS ke kode impor dan seri harga dunia. "
+         "Porsi impor langsung diukur dari sumber dan tahun yang berbeda per komoditas (kolom terakhir), jadi mutunya tidak "
+         "setara. Bawang putih memakai impor BPS/Comtrade dan produksi ATAP karena FAOSTAT tidak memuat bawang putih "
+         "kering. Ketergantungan pada pakan impor untuk daging ayam dan telur dicatat di kolom input impor.")
 
-    st.subheader("Karakteristik provinsi (Task 3)")
-    meta = assoc[method.astype(str).str.startswith("meta_regression")]
+    st.subheader("Karakteristik provinsi")
+    if len(h3):
+        st.markdown("Kami menguji apakah provinsi yang lebih jauh dari pusat distribusi (Jakarta, Surabaya, Makassar) "
+                    "merespons lebih lambat dalam 4 minggu. Hasilnya "
+                    + ("tidak mendukung" if h3["p_value"].iloc[0] >= 0.05 else "mendukung")
+                    + f" (p satu sisi {fmt_num(h3['p_value'].iloc[0], 2)}).")
     if len(meta):
         hs = sorted({int(x) for x in meta["horizon"].dropna()}) if "horizon" in meta else []
-        h = st.selectbox("Horizon meta-regresi (minggu)", hs, index=0) if hs else None
+        c1, c2 = st.columns([1, 2])
+        h = c1.selectbox("Minggu ke-", hs, index=0) if hs else None
+        per = c2.toggle("Tampilkan per komoditas", value=False, key="meta_per")
         m = meta if h is None else meta[meta["horizon"] == h]
         m = m.assign(fitur=m["feature"].map(lambda f: style.FEATURE_LABELS.get(f, f)) if "feature" in m else "",
                      komoditas=m["commodity"].map(lambda c: "Gabungan 10 komoditas" if c == "ALL" else labels.get(c, c)))
-        per = st.toggle("Tampilkan per komoditas", value=False, key="meta_per")
         mv = m if per else m[m["commodity"] == "ALL"]
-        lab = ["komoditas", "fitur"] if per else ["fitur"]
-        st.plotly_chart(plots.forest(mv, lab, "Meta-regresi efek acak: Δ respons per 1 SD fitur"
-                                     + ("" if per else " (gabungan 10 komoditas)")), **STRETCH)
-        cols = [c for c in ("komoditas", "fitur", "horizon", "estimate", "ci_low", "ci_high", "p_value", "q_fdr",
-                            "jackknife_min", "jackknife_max") if c in m]
-        table(m[cols], "Tabel meta-regresi lengkap")
-        st.caption("Interval = yang lebih lebar dari CR2 dan bootstrap; p konsisten dengan interval itu; q = BH atas baris "
-                   "eksploratif. H3 (ln_dist_hub, h = 4) diuji satu sisi.")
-        st.caption("Fitur adalah proksi: `ln_dist_hub` = jarak garis lurus ibu kota provinsi ke hub terdekat (bukan biaya atau "
-                   "waktu logistik), `rice_sufficiency` = kecukupan produksi beras saja (bukan pangan lain), `n_kota` = jumlah kota "
-                   "sampel PIHPS (bukan tingkat integrasi pasar). Koefisien yang tidak terdeteksi berarti proksi ini tidak "
-                   "menjelaskan variasi respons dalam desain ini, bukan bahwa logistik atau produksi tidak penting.")
-    fe = assoc[method.astype(str) == "fe_interaction"]
+        st.plotly_chart(plots.forest(mv, ["komoditas", "fitur"] if per else ["fitur"],
+                                     f"Karakteristik provinsi dan respons {h} minggu"
+                                     + ("" if per else ", gabungan 10 komoditas"),
+                                     x_title="selisih respons per 1 simpangan baku karakteristik"), **STRETCH)
+        with st.expander("Lihat tabel"):
+            st.dataframe(frame(m, {
+                "Komoditas": lambda d: d["komoditas"], "Karakteristik": lambda d: d["fitur"],
+                "Minggu ke-": lambda d: d["horizon"].astype(int), "Estimasi": lambda d: d["estimate"].round(3),
+                "Rentang 95%": lambda d: intervals(d["ci_low"], d["ci_high"], 3), "p": lambda d: d["p_value"].round(3),
+                "q": lambda d: d["q_fdr"].round(3)}), hide_index=True, **STRETCH)
+        note("Ketiga karakteristik adalah proksi. Jarak diukur garis lurus dari ibu kota provinsi ke pusat terdekat; "
+             "kecukupan produksi hanya mencakup beras; jumlah kota sampel PIHPS tidak sama dengan tingkat integrasi pasar. "
+             "Proksi yang tidak berhubungan dengan respons belum berarti logistik atau produksi tidak penting.")
+    fe = assoc[method == "fe_interaction"]
     if len(fe):
-        with st.expander("Interaksi efek tetap komoditas×minggu (pemeriksaan kepekaan 3c)"):
-            cols = [c for c in ("feature", "horizon", "estimate", "ci_low", "ci_high", "p_value", "n") if c in fe]
-            st.dataframe(with_status(fe[cols]), hide_index=True, **STRETCH)
+        with st.expander("Pemeriksaan tambahan: model efek tetap komoditas × minggu"):
+            st.dataframe(frame(fe, {
+                "Karakteristik": lambda d: d["feature"].map(lambda f: style.FEATURE_LABELS.get(f, f)),
+                "Minggu ke-": lambda d: d["horizon"].astype(int), "Estimasi": lambda d: d["estimate"].round(3),
+                "Rentang 95%": lambda d: intervals(d["ci_low"], d["ci_high"], 3), "p": lambda d: d["p_value"].round(3)}),
+                hide_index=True, **STRETCH)
 
     reg = load("regime_profiles")
     if reg is not None and not reg.empty:
-        st.subheader("Respons per rezim HET/HAP (E2, eksploratif)")
-        labels = commodity_labels()
+        st.subheader("Sekitar perubahan HET dan HAP")
+        qmin = reg["q_fdr"].min() if "q_fdr" in reg else float("nan")
+        st.markdown("Kami membagi periode setiap komoditas menurut tanggal pemerintah menetapkan atau mengubah harga eceran "
+                    "tertinggi (HET) atau harga acuan (HAP), lalu mengukur respons di setiap periode."
+                    + (f" Setelah koreksi untuk {len(reg)} perbandingan, tidak ada periode yang responsnya berbeda "
+                       f"(q terkecil {fmt_num(qmin, 2)})." if qmin >= 0.05 else ""))
         coms = [c for c in labels if c in set(reg["commodity"])]
         c1, c2, c3 = st.columns(3)
-        com = c1.selectbox("Komoditas rezim", coms, format_func=labels.get)
-        drv = c2.selectbox("Penggerak rezim", sorted(reg.loc[reg["commodity"] == com, "driver"].unique()),
-                           format_func=lambda d: style.DRIVER_LABELS.get(d, d))
-        hr = c3.selectbox("Horizon rezim", sorted(reg.loc[reg["commodity"] == com, "horizon"].unique()))
+        com = c1.selectbox("Komoditas", coms, format_func=labels.get, key="reg_com")
+        drv = c2.selectbox("Dibandingkan dengan", sorted(reg.loc[reg["commodity"] == com, "driver"].unique()),
+                           format_func=lambda d: style.DRIVER_LABELS.get(d, d), key="reg_drv")
+        hr = c3.selectbox("Minggu ke-", sorted(reg.loc[reg["commodity"] == com, "horizon"].unique()), key="reg_h")
         r = reg[(reg["commodity"] == com) & (reg["driver"] == drv) & (reg["horizon"] == hr)]
-        lab = [c for c in ("regime_id", "label") if c in r]
-        st.plotly_chart(plots.forest(r, lab, f"{labels.get(com, com)} · {style.DRIVER_LABELS.get(drv, drv)} · h = {hr}"),
-                        **STRETCH)
-        cols = [c for c in ("regime_id", "label", "regime_start", "regime_end", "n_weeks", "estimate", "ci_low",
-                            "ci_high", "baseline_estimate", "p_placebo", "q_fdr") if c in r]
-        st.dataframe(with_status(r[cols]), hide_index=True, **STRETCH)
-        if "q_fdr" in reg:
-            st.caption(f"Interval dikalibrasi plasebo geser-melingkar; q BH minimum seluruh tabel "
-                       f"{reg['q_fdr'].min():.3f}. Rezim pendek → interval lebar; bukan bukti efek regulasi.")
+        st.plotly_chart(plots.forest(r, ["label"] if "label" in r else ["regime_id"],
+                                     f"{labels.get(com, com)}: respons per periode regulasi, {hr} minggu",
+                                     x_title=style.AXIS_LABELS.get(drv, "respons")), **STRETCH)
+        with st.expander("Lihat tabel"):
+            st.dataframe(frame(r, {
+                "Periode": lambda d: d["label"], "Mulai": lambda d: d["regime_start"], "Selesai": lambda d: d["regime_end"],
+                "Jumlah minggu": lambda d: d["n_weeks"], "Respons": lambda d: d["estimate"].round(2),
+                "Rentang 95%": lambda d: intervals(d["ci_low"], d["ci_high"]),
+                "Respons seluruh periode": lambda d: d["baseline_estimate"].round(2),
+                "p uji acak": lambda d: d["p_placebo"].round(3), "q": lambda d: d["q_fdr"].round(3)}),
+                hide_index=True, **STRETCH)
+        note("Periode pendek memberi rentang lebar. Rentang ini dikalibrasi dengan data acak karena galat baku biasa terlalu "
+             "sempit pada periode pendek. Perbedaan antarperiode, bila ada, tidak membuktikan efek regulasi.")
 
-    st.subheader("Evaluasi bersyarat rolling-origin (Task 4)")
-    fe4 = got["forecast_eval"]
-    labels = commodity_labels()
-    tot = fe4[(fe4["subset"] == "all") & (fe4["model"] == "M2")]
-    if "level" in tot:
-        tot = tot[tot["level"] == "all"]
-    if len(tot):
-        cols = st.columns(len(tot))
-        for col, r in zip(cols, tot.sort_values("horizon").itertuples()):
-            col.metric(f"Rasio MAE M2/M1, h = {r.horizon} minggu", fmt_num(r.mae_ratio_vs_m1, 3),
-                       help="< 1 = fitur kurs & harga dunia memperbaiki akurasi; > 1 = memperburuk.")
-            dm = style.dm_summary(getattr(r, "dm_stat", float("nan")), r.dm_p, getattr(r, "dm_p_one_sided", None))
-            col.caption(f"{dm} · {int(r.n_origins)} origin")
-        st.caption("Tanda DM menunjukkan arah (D-169): DM > 0 = M2 lebih akurat dari M1, DM < 0 = kurang akurat. p dua sisi yang "
-                   "kecil dengan DM negatif berarti M2 nyata lebih buruk, bukan lebih baik. RQ5/H5 menanyakan perbaikan "
-                   "(M2 lebih akurat), sehingga p satu sisi itulah yang relevan untuk klaim perbaikan.")
-    for subset in ("all", "large_move"):
-        if (fe4["subset"] == subset).any():
-            st.plotly_chart(plots.forecast_ratios(fe4, subset, labels=labels), **STRETCH)
-    if "h5_p_holm" in fe4:
-        table(fe4[fe4["h5_p_holm"].notna()], "H5: grup fokus per jalur eksposur (h = 8, koreksi Holm)", status=False)
-    with st.expander("Tabel lengkap evaluasi dan ablation"):
-        st.dataframe(fe4, hide_index=True, **STRETCH)
-        st.dataframe(got["ablation"], hide_index=True, **STRETCH)
-        st.caption("Ablation = MAE M2 tanpa fitur kurs & harga dunia − MAE M2; karena M2 = M1 + fitur itu, nilainya sama "
-                   "dengan −(MAE M2 − MAE M1).")
-    st.caption("Rasio MAE vs M1 < 1 = lebih akurat dari M1. Evaluasi bersyarat atas pola historis (pseudo-real-time; "
-               "vintage revisi tidak tersedia), bukan sistem peramalan.")
+    nav_link(PAGE["prediksi"], "Lanjut: apakah kurs membantu prediksi harga?", ":material/arrow_forward:")
 
-footer("Turunan PIHPS, FAOSTAT, BPS, Pink Sheet", "τ-b / Δ respons per SD / rasio MAE", "2018-2026 (Task 4: 2021-2026)")
+footer("PIHPS (Bank Indonesia), FAOSTAT, BPS, UN Comtrade, Pink Sheet (Bank Dunia), Bapanas")

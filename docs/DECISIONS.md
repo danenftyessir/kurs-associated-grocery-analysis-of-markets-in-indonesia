@@ -415,6 +415,32 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-171 — Teks & UX app untuk juri dan TPID: kosakata pembaca, tanpa kode internal, satu pertanyaan per halaman, angka dalam % per 1% dan Rupiah · FINAL (teknis) · 2026-11-27 (WP-31, WP-34) · Danen
+Danen menilai app D-170 masih kurang nyaman dan teksnya berpola tulisan AI. Pola yang dibedah di semua halaman: (1) label tebal +
+penjelasan ("**Status produk.** KAGAMI adalah ..."); (2) pasangan negasi defensif ("bukan sistem peringatan dini dan bukan rekomendasi",
+"hasil yang sah, bukan grafik rusak", "asosiasi, bukan kausalitas" diulang di keterangan, subjudul, dan footer); (3) daftar tiga dalam
+kurung; (4) kode internal di halaman hasil (U109, D-169, H2, E1, RQ1, Tier 1, G-power, M1/M2, PT(8), β, ω, τ², k, q BH, "origin");
+(5) notasi di kalimat untuk awam (exp(PT(8) × ln 1,05) − 1, Σ = 0, ±1,96·SE, "Δ log harga per 1 log penggerak"); (6) rantai pemisah
+"·" di byline, subjudul, dan footer; (7) judul berupa klaim pembelaan ("Mengapa angka ini bisa dipegang") dan slogan paralel ("Lima
+pertanyaan, lima jawaban"); (8) tebal acak di prosa; (9) caption "Pertanyaan pengguna: ..." di bawah setiap judul; (10) kalimat pasif
+tanpa pelaku. UX: halaman Kepekaan punya 6 pemilih sekaligus (komoditas, tingkat, unit, penggerak, horizon, peta) dan 12 blok berurutan;
+halaman Eksposur mencampur RQ4 dan RQ5; angka respons dalam log tanpa satuan yang dipahami pengguna; bagian utama tanpa batas lebar baca.
+Keputusan: (a) setiap halaman hasil dibuka dengan jawabannya dalam satu atau dua kalimat yang dihitung dari artefak (`common.lead`);
+(b) kosakata tunggal di `viz.style` (`DRIVER_LABELS` "Kurs rupiah", `UNIT_LABELS`/`AXIS_LABELS` "% per 1% pelemahan rupiah",
+`MODEL_LABELS` "Model dasar", "rentang 95%", "data acak" untuk plasebo, "minggu ke-h"), kode & notasi hanya di expander teknis dan
+lampiran; (c) Daftar istilah di halaman Data & metode (21 istilah); (d) Rupiah per kg/liter dari harga acuan tabel batas Rupiah
+`results/findings.md` (`common.reference_prices`, satu sumber; beranda: "paling tinggi Rp89 per kilogram"), dites sama dengan
+findings; (e) Kepekaan → "Respons harga": tiga pemilih (komoditas, wilayah nasional/7 wilayah, kurs/harga dunia), satu kurva + kalimat
+cara membaca, lalu tab (semua komoditas, melemah vs menguat, peta provinsi, episode); provinsi hanya di peta (baris provinsi = selisih
+dari rata-rata), klik peta memilih wilayah; (f) Eksposur dipecah: "Faktor penjelas" (hal. 4, url lama) dan "Prediksi" (hal. 9 baru,
+`url_path` Prediksi); (g) "Temuan lengkap" pindah ke Lampiran teknis sebagai "Laporan lengkap" (findings.md bernotasi statistik, isi
+tidak diubah); (h) subjudul grafik dibungkus per kata (`style.finish`), tanpa "·"; label "asosiasi historis, bukan sebab-akibat" satu
+kali per grafik dan di footer; (i) forest beranda memotong sumbu ±10% dengan segitiga tepi (`plots.forest(x_range=...)`) agar rentang
+sempit beras/daging sapi terbaca; (j) `dm_summary` berkalimat ("DM −2,70: model dengan kurs kurang akurat dari model dasar ...") dan
+tidak menyebut p sebagai peluang hipotesis; (k) prosa aktif dengan pelaku "kami", tanpa label tebal, status prototipe sebagai kalimat
+biasa. Ditolak: kartu angka besar di beranda (templat), menulis ulang findings.md sesudah pembekuan, menyembunyikan label asosiasi.
+Angka artefak tidak berubah; klaim tetap mengikuti §20 (asosiasional, batas atas, interval di setiap angka).
+
 ### D-170 — App Streamlit sebagai deliverable produksi untuk juri: navigasi berkelompok, beranda jawaban-dulu, isi teknis ke lampiran; lineage mengabaikan beda ujung baris · FINAL (teknis) · 2026-11-27 (WP-31, WP-34) · Danen
 Atas permintaan Danen, app daring (https://kagami.streamlit.app, versi sebelum D-169) ditelusuri halaman per halaman. Temuan: beranda
 berjudul teknis ("Ringkasan & Status Data") tanpa jawaban; tabel 29 sumber mentah (termasuk sumber pilot), MDE dengan kolom mentah dan

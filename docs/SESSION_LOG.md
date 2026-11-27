@@ -9,6 +9,16 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-27 — Danen: WP-31/34 🔶 (teks & UX app untuk juri dan TPID, D-171)
+- Permintaan: UX D-170 kurang nyaman, teks berpola tulisan AI. Pola dibedah (label tebal + penjelasan, negasi defensif, kode U109/H2/β/M2,
+  notasi di kalimat awam, rantai "·", caption "Pertanyaan pengguna") → D-171.
+- Semua halaman hasil ditulis ulang: jawaban dulu (`common.lead`, dihitung dari artefak), % per 1% & Rupiah per kg (`reference_prices` dari
+  tabel batas Rupiah findings; beranda beras "paling tinggi Rp89 per kilogram"), Respons harga 3 pemilih + tab, klik peta → wilayah.
+- Halaman baru `app/pages/9_Prediksi.py` (dipecah dari Eksposur); Temuan lengkap → Lampiran "Laporan lengkap"; Daftar istilah 21 istilah di
+  Data & metode. `viz.style`: `UNIT_LABELS`, `AXIS_LABELS`, label pembaca, `dm_summary` berkalimat, `finish` bungkus per kata;
+  `viz.plots.forest(x_range)`. Tes: `test_wiring` 9 halaman, `test_app_data` harga acuan = findings, `test_viz` string baru.
+- Angka artefak & findings.md tidak berubah. Belum di-commit/push → app daring masih versi lama.
+
 ### 2026-11-27 — Danen: WP-31/34 🔶 (app produksi untuk juri, D-170)
 - App daring ditelusuri per halaman (konten iframe `/~/+/`). Masalah utama: beranda teknis tanpa jawaban, path server, kolom mentah, peta
   wilayah tanpa catatan ketidakpastian, dokumen temuan tanpa struktur, "21 artefak tidak sinkron" di hal. 7.
