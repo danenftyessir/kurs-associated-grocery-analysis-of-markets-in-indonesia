@@ -29,6 +29,7 @@ aturan, data, metode ringkas, jebakan yang sudah ditemukan, dan template. Bagian
 | Status & urutan pekerjaan | `docs/WORKPLAN.md` (papan status) |
 | Kontrak artefak (path, kolom wajib, ship) | `src/utils/artifacts.py` (tabel di `docs/ARCHITECTURE.md` §5 adalah salinannya) |
 | Data mentah (format, cakupan, keanehan) | `docs/DATASETS.md` + `configs/sources.yaml` |
+| Dataset turunan (isi, praproses, hak, keterbatasan; datasheet) | `docs/DATASHEET.md` (D-168) |
 | Keputusan yang sudah diambil | `docs/DECISIONS.md` |
 | Masalah terbuka & risiko | `docs/OPEN_ISSUES.md` |
 | Langkah Kaggle/Colab | `docs/NOTEBOOKS.md` |
@@ -310,6 +311,11 @@ Tanggal acuan: 2026-11-26. Papan lengkap: `docs/WORKPLAN.md`.
   (2026-11-27 09.53 WIB); aturan & evaluator maju K4 disetujui dan dibekukan (D-167, `scripts/k4_forward_eval.py`, hash di `hasil/pv_protocol_sha256.txt`,
   perlu di-commit sebelum E1). Unduh PIHPS eceran = snapshot beku (0 revisi). Putaran evaluasi ≥ 2026-11-29 (Minggu, D-155), 2026-12-20, 2027-01-17;
   cek dulu `scripts/integrity_check.py` (harus keluar 0).
+- **Perbaikan red flag juri (D-168, 2026-11-27):** `results/findings.md` disusun menurut tiga tingkat bukti (praregistrasi / kepekaan
+  inferensi / eksploratif): eksplorasi Task 4 di Lampiran A, dan bagian baru Makna bagi pengguna (batas atas Rupiah), Kalibrasi inferensi,
+  Validasi prospektif, Dataset turunan. Ukuran kalibrasi D-129 di bawah null (leave-one-out, 48 sel): 4,4% per sel vs ±1,96·SE 8,8%;
+  ≥ 1 temuan BH palsu 0,5% vs 17,1%. Holm atas 10 perbandingan test 2024+: lolos C1-tuned > TimesFM, daftar pantau > aturan naif, K4 h 4.
+  Baru `docs/DATASHEET.md`. Angka artefak tidak berubah; `docs/audit/20261127_redflag_juri/`.
 - **Berikutnya — Danen (semua jalur):** commit sisa perubahan sesi 2026-11-26 lalu push lewat `feat/`; unggah `dist/kagami_code.zip` ke `MyDrive/kagami/` &
   dataset Kaggle `kagami-code` dan `results/findings.md` ke Drive tim (`[HUMAN]`); sesudah 27 Nov `results/` hanya berubah karena bug; makalah & video
   (WP-33/34). Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
@@ -1562,6 +1568,7 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-168 | Temuan disajikan menurut tiga tingkat bukti; uji ukuran kalibrasi plasebo (4,4% vs ±1,96·SE 8,8%), batas atas Rupiah, buku besar periode uji 2024+ (Holm 10 perbandingan), `docs/DATASHEET.md`; angka artefak tidak berubah | FINAL (teknis) |
 | D-167 | Aturan & evaluator validasi maju K4 dibekukan pra-target (label dari panel baru, ΔAP < −0,14 = gagal; CONSISTENT bila ΔAP ≥ 0 & AP ≥ B-CLIMS); `scripts/k4_forward_eval.py` | FINAL · eksploratif |
 | D-166 | Validasi K4 (baca-saja): target benar; 0/6 kalibrator memperbaiki Brier (ekor h 8 = 5 origin, informasi rezim); ranking K4-E80 kalah dari C1-tuned pada ambang seragam 5%/10%; peluang h 4 hanya kategori; operasional BLOCKED | FINAL · eksploratif |
 | D-165 | Jalur A: prediksi maju diaudit & evaluator dibekukan; GDELT lolos G1–G2 tetapi gagal G5 (BigQuery sandbox, ΔAUC ≤ +0,001); layar G5 tidak meloloskan kontrol positif (MDE ± 0,023); sumber pasokan baru terblokir akses; C1-tuned tetap | FINAL · eksploratif |

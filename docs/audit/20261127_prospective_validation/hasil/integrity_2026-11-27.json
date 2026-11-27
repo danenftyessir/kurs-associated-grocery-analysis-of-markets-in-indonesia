@@ -1,5 +1,5 @@
 {
- "checked_at": "2026-11-27T10:23:47+07:00",
+ "checked_at": "2026-11-27T10:37:35+07:00",
  "families": {
   "D-152": {
    "sha256_manifest": "28651b2b402c5b4429134b660c1e73587689dd81da7f43c088c4721ec9ad7928",
@@ -165,12 +165,12 @@
    "frozen_ok": true,
    "frozen_byte_exact": true,
    "git": {
-    "tracked": false,
-    "clean_vs_head": false,
-    "head_sha256": null,
-    "head_sha256_as_crlf": null,
-    "eol": null,
-    "last_commit": null
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "697eff9c9774775613e117088dbc8f324bba37d098c2f487d61d5b9fc874cc7d",
+    "head_sha256_as_crlf": "56109fab1623b4a374ad1666df45bcb75aabeab6c2f03ab21fedd61469931755",
+    "eol": "i/lf w/lf",
+    "last_commit": "8c7677a 2026-11-27 10:28:47 +0700"
    }
   },
   "docs/audit/20261127_prospective_validation/FORWARD_VALIDATION_PROTOCOL.md": {
@@ -180,19 +180,15 @@
    "frozen_byte_exact": true,
    "git": {
     "tracked": true,
-    "clean_vs_head": false,
-    "head_sha256": "5e0f92160ffbf62e2ef48a256e66968c19927cf2cbefa0b5f4fe5e4e61718188",
-    "head_sha256_as_crlf": "9c15f3e5566633856933e766814f548c48cb300b6a95c109d2e427b877070e04",
+    "clean_vs_head": true,
+    "head_sha256": "edfa779d08a798c9ad304f146630b003ffb7ac3c2bb8125163e73f2227a7ec78",
+    "head_sha256_as_crlf": "85100c823a28d36b743df490db2742f7197f7ef6a96db4ad1c1080d370f22b2e",
     "eol": "i/lf w/lf",
-    "last_commit": "044873c 2026-11-27 09:53:57 +0700"
+    "last_commit": "8c7677a 2026-11-27 10:28:47 +0700"
    }
   }
  },
- "failures": [
-  "docs/audit/20261127_prospective_validation/scripts/k4_forward_eval.py: versi beku belum di-commit (bukti waktu pra-target)",
-  "docs/audit/20261127_prospective_validation/FORWARD_VALIDATION_PROTOCOL.md: versi beku belum di-commit (bukti waktu pra-target)",
-  "docs/audit/20261127_prospective_validation/hasil/pv_protocol_sha256.txt: berkas hash beku belum di-commit"
- ],
+ "failures": [],
  "warnings": [
   "D-152: sha256 beku = berkas CRLF; blob git LF → verifikasi byte hanya cocok pada checkout dengan core.autocrlf=true",
   "D-158: sha256 beku = berkas CRLF; blob git LF → verifikasi byte hanya cocok pada checkout dengan core.autocrlf=true"

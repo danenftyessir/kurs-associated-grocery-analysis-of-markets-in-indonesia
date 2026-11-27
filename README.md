@@ -158,6 +158,8 @@ Panel provinsi mingguan berisi 34 provinsi × 10 komoditas × 464 minggu ISO (20
 Dari 340 seri, 337 lolos kriteria kelayakan; tiga seri cabai rawit gagal. Kami juga membentuk panel 7 wilayah (Sumatra, Jawa,
 Bali–Nusa Tenggara, Kalimantan, Sulawesi, Maluku, Papua) dalam bentuk indeks log relatif terhadap minggu pertama. Dari data kurs,
 kami mengidentifikasi 13 episode depresiasi antara 2018 dan 2026, dengan episode terbesar pada Maret–Mei 2020.
+Isi, praproses, hak, dan keterbatasan dataset turunan ini dirangkum dalam format *datasheet* di
+[docs/DATASHEET.md](docs/DATASHEET.md).
 
 ## 5. Alur sistem
 
@@ -716,6 +718,7 @@ Pink Sheet (Bank Dunia) dan FAOSTAT berlisensi CC BY 4.0, dan data FRED mengikut
 | [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | Ringkasan desain penelitian                        |
 | [docs/METHODS.md](docs/METHODS.md)                   | Spesifikasi metode dan rumus lengkap               |
 | [docs/DATASETS.md](docs/DATASETS.md)                 | Sumber data, format, keanehan, hak data            |
+| [docs/DATASHEET.md](docs/DATASHEET.md)               | Datasheet dataset turunan (isi, praproses, hak)    |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)         | Arsitektur kode, kontrak artefak, cara menjalankan |
 | [docs/NOTEBOOKS.md](docs/NOTEBOOKS.md)               | Menjalankan tahap berat di Kaggle atau Colab       |
 | [docs/PREREGISTRATION.md](docs/PREREGISTRATION.md)   | Hipotesis dan aturan keputusan yang dibekukan      |

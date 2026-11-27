@@ -9,6 +9,14 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-27 — Danen: WP-33 🔶 (perbaikan red flag juri, D-168)
+- `results/findings.md` disusun ulang menurut tiga tingkat bukti: RQ di badan utama, eksplorasi Task 4 di Lampiran A, dan bagian baru:
+  Makna bagi pengguna (batas atas Rupiah), Kalibrasi inferensi, Validasi prospektif, Dataset turunan. Angka artefak tidak berubah.
+- `docs/audit/20261127_redflag_juri/` (skrip baca-saja + `hasil/`): ukuran kalibrasi di bawah null 4,4% per sel (±1,96·SE 8,8%), ≥ 1 temuan
+  BH palsu 0,5% (17,1%); batas Rupiah (beras ≤ Rp89/kg, h 8, rupiah −5%); Holm atas 10 perbandingan test 2024+.
+- Baru `docs/DATASHEET.md`. Galat skrip sendiri (sel NaN dihitung tidak menolak) diperbaiki sebelum dilaporkan.
+- Berikutnya: salinan `findings.md` di Drive tim & app daring perlu push; makalah memakai struktur tiga tingkat ini.
+
 ### 2026-11-27 — Danen: WP-36 🔶 (evaluator maju K4 dibekukan, D-167)
 - Aturan maju K4 disetujui Danen sebelum target terlihat (D-167): label dari panel baru + `thr_e80` beku (bukan kolom z, D-166); ΔAP < −0,14 =
   FAILED_FORWARD, ΔAP ≥ 0 & AP ≥ B-CLIMS = CONSISTENT.

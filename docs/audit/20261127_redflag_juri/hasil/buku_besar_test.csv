@@ -1,0 +1,11 @@
+keputusan,perbandingan,selisih,p,sumber_p,p_holm_semua_pembukaan,lolos_holm
+D-145,"C1-tuned − TimesFM, macro F1 h 4",0.059000,0.001000,q,0.008000,True
+D-145,"C1-tuned − TimesFM, macro F1 h 8",0.053000,0.001000,q,0.008000,True
+D-147,"iw_gap − C1-tuned, macro F1 h 4",0.004000,0.350000,q,1.000000,False
+D-147,"iw_gap − C1-tuned, macro F1 h 8",0.005000,0.089000,q,0.445000,False
+D-151,"IW_NAT − C1-tuned, macro F1 h 4",0.008500,0.280000,q,1.000000,False
+D-151,"IW_NAT − C1-tuned, macro F1 h 8",0.003300,0.300000,q,1.000000,False
+D-154,presisi daftar pantau C1-tuned − aturan naif h 4,0.094000,0.000002,ci,0.000017,True
+D-154,presisi daftar pantau C1-tuned − aturan naif h 8,0.072000,0.000493,ci,0.004440,True
+D-164,AP K4-E80 − C1-tuned h 4,0.045000,0.007525,ci,0.045149,True
+D-164,AP K4-E80 − C1-tuned h 8,0.015000,0.500000,ci memuat 0,1.000000,False
