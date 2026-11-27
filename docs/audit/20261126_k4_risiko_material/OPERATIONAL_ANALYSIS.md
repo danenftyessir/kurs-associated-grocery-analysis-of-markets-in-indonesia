@@ -120,6 +120,22 @@ sebanding persis.)
 K4 memusatkan 58% / 56% alarm pada komoditas diatur (C1-tuned 46% / 40%): sebagian keunggulan presisinya berasal dari komposisi target P80 |y|
 (DU B1). Kepekaan K4-S90 (komposisi seimbang) menguji apakah keunggulan bertahan tanpa efek itu: [RESULTS.md](RESULTS.md) §6.
 
-## 6. Test 2024+
+## 6. Test 2024+ (evaluasi eksploratif, dibuka sekali; `hasil/k4_test_ops_*.csv`, `k4_test_utility_*.csv`, `k4_test_errors.csv`)
 
-Lihat [RESULTS.md](RESULTS.md) §5 (tabel operasional test di `hasil/k4_test_ops_*.csv`).
+| h | Skor | K = 1 presisi / recall | K = 2 presisi / recall (benar / origin) | K = 3 presisi / recall | Porsi alarm diatur K = 2 | Berulang K = 2 |
+|---|---|---|---|---|---|---|
+| 4 | **K4-E80** | **0,252** / 0,288 | **0,202** / 0,460 (13,7) | **0,176** / 0,603 | 0,52 | 0,46 |
+| 4 | B-C1t | 0,208 / 0,237 | 0,179 / 0,408 (12,2) | 0,158 / 0,542 | 0,58 | 0,46 |
+| 4 | B-CLIM | 0,107 / 0,122 | 0,097 / 0,220 (6,6) | 0,107 / 0,367 | 1,00 | 0,99 |
+| 8 | **K4-E80** | **0,191** / 0,216 | **0,174** / 0,392 (11,8) | **0,165** / 0,560 | 0,61 | 0,53 |
+| 8 | B-C1t | 0,181 / 0,205 | 0,161 / 0,365 (11,0) | 0,147 / 0,498 | 0,56 | 0,51 |
+| 8 | B-CLIM | 0,158 / 0,179 | 0,143 / 0,322 (9,7) | 0,115 / 0,390 | 1,00 | 0,92 |
+
+- Di test, laju-dasar komoditas lemah di h 4 (0,097; komoditas diatur lebih jarang naik sesudah 2024) dan tetap kompetitif di h 8 (0,143 vs C1-tuned
+  0,161). K4 tertinggi di setiap K dan horizon.
+- Ambang peluang τ (test): K4 τ 0,3 → 19,6 / 27,2 alarm per minggu, presisi 0,32 / 0,24; C1-tuned terkalibrasi τ 0,3 → 11,7 / 12,1 alarm, presisi
+  0,27 / 0,30. Presisi τ lebih rendah dari dev karena peluang K4 terlalu tinggi di test (laju turun).
+- Biaya (test): r = 1–2 tanpa alarm termurah (29,8 / 59,6 per origin h 4); r = 5 K4 K = 1 termurah (131,5 vs C1-tuned 140,6 vs tanpa alarm 148,9); r = 10 K4
+  K = 3 termurah (202,1 vs 222,4). Titik impas bergeser ke r lebih tinggi daripada dev karena laju lebih rendah.
+- Galat test serupa dev: alarm palsu 53–58% kenaikan di bawah ambang, 29–34% penurunan; risiko terlewat 13–15% dari harga datar; origin berlaju rendah
+  (± 3%) presisi 0,04–0,08 untuk semua skor.

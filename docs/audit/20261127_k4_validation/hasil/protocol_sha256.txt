@@ -1,0 +1,9 @@
+2026-11-27T04:24:56+07:00
+027b6acef8c2ca49e0ca6d84994cfdb57828ad7a49de7649ba32acdd351817ec *PROTOCOL_ADDENDUM.md
+e6a60319329c85ebf139fdc1d2466fb78ffbe7aac473cbccb2ddc9c9a76c9d4a *scripts/v_common.py
+17a562325b88eb174af153a060bfcbae54878ca67c55087108aab4300a51632c *scripts/v_calib.py
+20c98b3a9b60106cb063a82038715eb60849ef3471feb0374fd589d73f39cafa *scripts/v_target.py
+# ditulis sesudah pembekuan sebagai implementasi PROTOCOL_ADDENDUM §4-§5 (deskriptif, tanpa aturan seleksi):
+2026-11-27T04:30:03+07:00
+f55796b10d2675a93f62239f381717c7a2b3ad7d49e4b037170f0c6839bf8375 *scripts/v_errors.py
+d98e81975dd4a0c617d2cb458b514031dc96bb2febe5240e666893ea1ba89aae *scripts/v_sensitivity.py

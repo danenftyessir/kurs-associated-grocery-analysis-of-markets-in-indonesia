@@ -1,0 +1,164 @@
+{
+ "checked_at": "2026-11-27T04:27:27+07:00",
+ "families": {
+  "D-152": {
+   "sha256_manifest": "28651b2b402c5b4429134b660c1e73587689dd81da7f43c088c4721ec9ad7928",
+   "sha256_now": "28651b2b402c5b4429134b660c1e73587689dd81da7f43c088c4721ec9ad7928",
+   "sha256_ok": true,
+   "n_rows_manifest": 8112,
+   "preds_git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "c6b34105b951600537dd87e1d56192fd27c5332b40df8785a613c61ec85935f7",
+    "head_sha256_as_crlf": "28651b2b402c5b4429134b660c1e73587689dd81da7f43c088c4721ec9ad7928",
+    "eol": "i/lf w/crlf",
+    "last_commit": "ca53742 2026-11-25 21:41:35 +0700"
+   },
+   "manifest_git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "6ddced166438bd3cd66b409e3a641e8c90666388ec10bdf7d3d3bea2be53ed8b",
+    "head_sha256_as_crlf": "2d3cc5abb89117c093376c2b0359a8cb0b46c83f43b11c7f3e6b1770e273c7cb",
+    "eol": "i/lf w/lf",
+    "last_commit": "ca53742 2026-11-25 21:41:35 +0700"
+   },
+   "head_equals_frozen": true,
+   "frozen_bytes_are_crlf": true
+  },
+  "D-158": {
+   "sha256_manifest": "7586eaedad341e3e2899ef5c2588b83b232e0bfe32f504f2aa04cc397686d13d",
+   "sha256_now": "7586eaedad341e3e2899ef5c2588b83b232e0bfe32f504f2aa04cc397686d13d",
+   "sha256_ok": true,
+   "n_rows_manifest": 12168,
+   "preds_git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "c8debe1826a5021985c32ce29e2b663190726d90dfb94fb6d68bbe1940b4163d",
+    "head_sha256_as_crlf": "7586eaedad341e3e2899ef5c2588b83b232e0bfe32f504f2aa04cc397686d13d",
+    "eol": "i/lf w/crlf",
+    "last_commit": "ec6dd19 2026-11-26 20:45:13 +0700"
+   },
+   "manifest_git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "4cdfd2f7f22c5a0abf93e6f8056ec67952c5c34494cd62ab072e42dc4da9d30a",
+    "head_sha256_as_crlf": "f84a860e3bd861eca1476145a532128b2f4f268850f7858f689c59e8a21dd046",
+    "eol": "i/lf w/lf",
+    "last_commit": "ec6dd19 2026-11-26 20:45:13 +0700"
+   },
+   "head_equals_frozen": true,
+   "frozen_bytes_are_crlf": true
+  },
+  "D-164": {
+   "sha256_manifest": "eb1f10db5f583a5d4a0137b09471cc6cf352fd772fde822181c88487a22c7199",
+   "sha256_now": "eb1f10db5f583a5d4a0137b09471cc6cf352fd772fde822181c88487a22c7199",
+   "sha256_ok": true,
+   "n_rows_manifest": 4056,
+   "preds_git": {
+    "tracked": true,
+    "clean_vs_head": false,
+    "head_sha256": "1b5c84cb2b22d9212b0eb599f95f9cf0d7ea5035eccc1e92e5a553a6db386c12",
+    "head_sha256_as_crlf": "cb0e89688a3a7aa8d1fa3c825bb6953b249a4c8ee11e69dc577e6800ee03f94a",
+    "eol": "i/lf w/lf",
+    "last_commit": "3095ae0 2026-11-26 23:15:49 +0700"
+   },
+   "manifest_git": {
+    "tracked": false,
+    "clean_vs_head": false,
+    "head_sha256": null,
+    "head_sha256_as_crlf": null,
+    "eol": null,
+    "last_commit": null
+   },
+   "head_equals_frozen": false,
+   "frozen_bytes_are_crlf": false
+  }
+ },
+ "evaluators": {
+  "docs/audit/20261125_iw_validasi/scripts/fw_eval.py": {
+   "sha256_now": "1949795cd5c69948be99a0b8168b45d5039914a0f0f8559e95cf1f515bdafb56",
+   "sha256_frozen": "1949795cd5c69948be99a0b8168b45d5039914a0f0f8559e95cf1f515bdafb56",
+   "frozen_ok": true,
+   "git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "1949795cd5c69948be99a0b8168b45d5039914a0f0f8559e95cf1f515bdafb56",
+    "head_sha256_as_crlf": "8c337cef17744c05f3c39bf29b0550699204b4848eb1a1e8bef76b271f6b01d0",
+    "eol": "i/lf w/lf",
+    "last_commit": "ca53742 2026-11-25 21:41:35 +0700"
+   }
+  },
+  "docs/audit/jalur_a_macro_f1/scripts/a_forward_eval.py": {
+   "sha256_now": "e7e69221bcd79bd9c74273ba331af29fa47c1b05c2a4929a692b03ef07d1c20e",
+   "sha256_frozen": "e7e69221bcd79bd9c74273ba331af29fa47c1b05c2a4929a692b03ef07d1c20e",
+   "frozen_ok": true,
+   "git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "e7e69221bcd79bd9c74273ba331af29fa47c1b05c2a4929a692b03ef07d1c20e",
+    "head_sha256_as_crlf": "36aa1be02cf7115f864a88a51f681fea68ce4d57b42c22419631e010b9b8da5c",
+    "eol": "i/lf w/lf",
+    "last_commit": "ec6dd19 2026-11-26 20:45:13 +0700"
+   }
+  },
+  "docs/audit/jalur_a_macro_f1/scripts/fw_common.py": {
+   "sha256_now": "46c72d834492b99f6d42d6dc9db5471a43dbb4f4c793cd79b26c9800258edbbf",
+   "sha256_frozen": "46c72d834492b99f6d42d6dc9db5471a43dbb4f4c793cd79b26c9800258edbbf",
+   "frozen_ok": true,
+   "git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "46c72d834492b99f6d42d6dc9db5471a43dbb4f4c793cd79b26c9800258edbbf",
+    "head_sha256_as_crlf": "d05b8b12086fd8a15c6d0eb53d4366b33b1e4bf8bcbd690f8194a8e287779aa0",
+    "eol": "i/lf w/lf",
+    "last_commit": "ec6dd19 2026-11-26 20:45:13 +0700"
+   }
+  },
+  "docs/audit/20261126_k4_risiko_material/scripts/k4_eval.py": {
+   "sha256_now": "34560839639899bfef96faa561a0632383b53b240073e4c71ae2d15d720bf91c",
+   "sha256_frozen": null,
+   "frozen_ok": null,
+   "git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "34560839639899bfef96faa561a0632383b53b240073e4c71ae2d15d720bf91c",
+    "head_sha256_as_crlf": "e997c35387477cbc4d9aebb607a625745848be243e1cec5801615a9bbe7a3068",
+    "eol": "i/lf w/lf",
+    "last_commit": "3095ae0 2026-11-26 23:15:49 +0700"
+   }
+  },
+  "docs/audit/20261126_k4_risiko_material/scripts/k4_freeze.py": {
+   "sha256_now": "8ff50787197dd6f44cfc5c88dd17e500a0472e67d068e34b2eed7e375f970d5d",
+   "sha256_frozen": null,
+   "frozen_ok": null,
+   "git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "8ff50787197dd6f44cfc5c88dd17e500a0472e67d068e34b2eed7e375f970d5d",
+    "head_sha256_as_crlf": "56c4a05645017040cf1519a2ef8e6c7e6fb28c8045a7441eb1e887d675d4cc67",
+    "eol": "i/lf w/lf",
+    "last_commit": "ec6dd19 2026-11-26 20:45:13 +0700"
+   }
+  },
+  "docs/audit/20261126_k4_risiko_material/scripts/k4_common.py": {
+   "sha256_now": "d9a1852bdf80f01aa3240b3332071e53d5386e9449d9a7020c535cd8f1b21489",
+   "sha256_frozen": "d9a1852bdf80f01aa3240b3332071e53d5386e9449d9a7020c535cd8f1b21489",
+   "frozen_ok": true,
+   "git": {
+    "tracked": true,
+    "clean_vs_head": true,
+    "head_sha256": "d9a1852bdf80f01aa3240b3332071e53d5386e9449d9a7020c535cd8f1b21489",
+    "head_sha256_as_crlf": "bb4299953e53c542b1e2cea3d3beffc04f1b7133be362973f2df1d5b6b36b236",
+    "eol": "i/lf w/lf",
+    "last_commit": "ec6dd19 2026-11-26 20:45:13 +0700"
+   }
+  }
+ },
+ "failures": [
+  "D-164: versi beku (prediksi + manifest) belum di-commit apa adanya"
+ ],
+ "warnings": [
+  "D-152: sha256 beku = berkas CRLF; blob git LF → verifikasi byte hanya cocok pada checkout dengan core.autocrlf=true",
+  "D-158: sha256 beku = berkas CRLF; blob git LF → verifikasi byte hanya cocok pada checkout dengan core.autocrlf=true"
+ ]
+}

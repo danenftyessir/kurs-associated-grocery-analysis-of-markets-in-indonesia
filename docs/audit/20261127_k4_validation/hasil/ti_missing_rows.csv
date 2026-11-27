@@ -1,0 +1,5 @@
+origin,horizon,province_id,commodity,y,ymax,z_e80,z_a80,k4_e80,c1t,part
+2022-01-31,4,7,minyak_goreng,,-0.34156,0,0,0.026027,0.27225,dev
+2022-01-31,4,32,minyak_goreng,,0,0,0,0.013963,0.20688,dev
+2022-01-03,8,7,minyak_goreng,,0.012258,0,0,0.85141,0.75547,dev
+2022-01-03,8,32,minyak_goreng,,-0.0060423,0,0,0.10968,0.3136,dev

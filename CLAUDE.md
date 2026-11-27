@@ -232,6 +232,17 @@ Tanggal acuan: 2026-11-26. Papan lengkap: `docs/WORKPLAN.md`.
   (3/30 sel tidak memuat nol, resmi 1) & artefak baru `province_calibrated` (1.623 baris; resmi 0–2,4% sel tidak memuat nol vs terkalibrasi
   5–12%; BH global: 7 deviasi). Kalibrasi skor daftar pantau (D-163a, protokol beku): ECE turun tetapi Brier tidak → ditolak, test tidak dibuka.
   13/33 fitur clustering konstan terbukti inert. Laporan `docs/audit/20261126_kelemahan_tercatat.md`, `docs/audit/20261126_kalibrasi_pantau.md`.
+- **K4 risiko kenaikan material (D-164, 2026-11-26, EKSPLORATIF):** HGB C1-tuned beku dilatih langsung pada z = 1[y_h ≥ P80 |y_h| latih komoditas]
+  (semua baris, termasuk y = 0; materialitas statistik, bukan kebijakan). Dev: AP 0,326 / 0,290 vs C1-tuned 0,246 / 0,250 (ΔAP h 4 +0,080, 0,046..0,103),
+  presisi daftar pantau 2/provinsi 0,293 / 0,272 vs 0,249 / 0,221; peluang h 4 terkalibrasi (ECE 0,023, Brier < C1-tuned terkalibrasi), h 8 tidak terbukti
+  → **PARTIAL**, operasional **BLOCKED** (U109). Test sekali: ΔAP +0,045 (0,017..0,083) / +0,015 (memuat 0). Koreksi D-154: pembanding laju-dasar
+  komoditas wajib (h 8 C1-tuned tidak terbukti di atasnya; EKSPERIMEN §5). Prediksi maju beku `docs/audit/20261126_k4_risiko_material/hasil/k4_forward_preds.csv`
+  (perlu di-commit sebelum target 2026-12-18 / 2027-01-15). `src/` tidak berubah. Laporan `docs/audit/20261126_k4_risiko_material/RESULTS.md`.
+- **Validasi K4 (D-166, 2026-11-27, EKSPLORATIF, baca-saja):** target benar (target tak teramati z = 0 hanya di evaluasi, 4 baris dev, ΔAP ≤ 0,0004; kolom z
+  prediksi maju = 0, **bukan label**: evaluasi maju menghitung label dari panel baru dengan `thr_*` beku). 0/6 kalibrator walk-forward memperbaiki Brier; ekor h 8
+  = 5 origin (rezim kebijakan & salah alokasi komoditas). Pada ambang seragam 5% / 10% skor K4-E80 kalah dari C1-tuned (ΔAP h 8 −0,079 / −0,092) → ambang TPID
+  menentukan apakah K4-E80 dipakai. Peluang h 4 hanya kategori relatif, h 8 tanpa angka; instrumen U109 R1–R12. Operasional tetap BLOCKED. Laporan
+  `docs/audit/20261127_k4_validation/SUMMARY.md`.
 - **CFSv2 lewat Colab (D-161, 2026-11-26):** prakiraan operasional NOAA CFSv2 (run 00Z Jumat minggu t, hujan & suhu maks hari 1–56) diekstrak
   di Colab: 437/465 minggu (28 HTTP 404, 3 di dev), agregat provinsi di `docs/audit/20261126_sumber_baru/hasil/` (bukan sumber terdaftar). Skill vs
   NASA POWER nyata (hujan 1–28 r 0,42–0,55), tetapi arah nasional increment-only vs konsensus C1t ΔAUC −0,029..+0,006 (q ≥ 0,105) → gagal gerbang 5;
@@ -294,6 +305,10 @@ Tanggal acuan: 2026-11-26. Papan lengkap: `docs/WORKPLAN.md`.
   eksploratif opsional sengaja di luar lineage stage0); log: task1 hanya dievaluasi (dari Kaggle), tahap lain dieksekusi & sinkron. `dist/kagami_code.zip`
   dibangun ulang (89 file) dan `dist/kagami_submission.zip` (300 file, 47,0 MB; mentah hanya 10 sumber `redistribute: true`, tanpa `pihps_daily`).
   Gladi G7 dari folder ekstrak bersih (paket didaftarkan dari `src/` zip): 7/7 halaman tanpa exception & tanpa "Menunggu hasil", tes app/package/calibration lolos.
+- **Audit validasi prospektif (2026-11-27, `docs/audit/20261127_prospective_validation/`):** D-152 & D-158 utuh (sha256 = manifest = commit pra-target;
+  hash beku = byte CRLF → verifikasi butuh `core.autocrlf=true`); evaluator beku tidak berubah. K4 BLOCKED: versi beku `eb1f10db…` sah (direkonstruksi
+  persis) tetapi belum di-commit, dan belum ada evaluator/aturan maju (draf ΔAP < −0,14 menunggu keputusan). Unduh PIHPS eceran = snapshot beku
+  (0 revisi). Putaran evaluasi ≥ 2026-11-29 (Minggu, D-155), 2026-12-20, 2027-01-17; cek dulu `scripts/integrity_check.py`.
 - **Berikutnya — Danen (semua jalur):** commit sisa perubahan sesi 2026-11-26 lalu push lewat `feat/`; unggah `dist/kagami_code.zip` ke `MyDrive/kagami/` &
   dataset Kaggle `kagami-code` dan `results/findings.md` ke Drive tim (`[HUMAN]`); sesudah 27 Nov `results/` hanya berubah karena bug; makalah & video
   (WP-33/34). Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
@@ -1546,7 +1561,9 @@ tidak boleh dikutip sebelum dicek.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-166 | Validasi K4 (baca-saja): target benar; 0/6 kalibrator memperbaiki Brier (ekor h 8 = 5 origin, informasi rezim); ranking K4-E80 kalah dari C1-tuned pada ambang seragam 5%/10%; peluang h 4 hanya kategori; operasional BLOCKED | FINAL · eksploratif |
 | D-165 | Jalur A: prediksi maju diaudit & evaluator dibekukan; GDELT lolos G1–G2 tetapi gagal G5 (BigQuery sandbox, ΔAUC ≤ +0,001); layar G5 tidak meloloskan kontrol positif (MDE ± 0,023); sumber pasokan baru terblokir akses; C1-tuned tetap | FINAL · eksploratif |
+| D-164 | K4 risiko kenaikan material (target z P80 \|y\|, semua baris): ranking lebih baik dari C1-tuned & laju-dasar komoditas (h 4 terbukti dev & test), peluang h 8 gagal → PARTIAL, operasional BLOCKED (U109); pembanding laju-dasar komoditas wajib untuk klaim daftar pantau | FINAL · eksploratif |
 | D-163 | Kelemahan tercatat: PT & provinsi terkalibrasi plasebo (`province_calibrated`, U107); kalibrasi skor daftar pantau ditolak (D-163a); fitur clustering konstan inert | FINAL · tambahan pasca-G6 / eksploratif |
 | D-162 | U108: flag `episode` Task 4 real-time; M2/M3/C2/C2t & robustness V2 dijalankan ulang, kesimpulan H5 tetap | FINAL (teknis) |
 | D-161 | NOAA CFSv2 lewat Colab (437 run): skill prakiraan nyata tetapi gagal gerbang 5; oracle cuaca terealisasi juga gagal → mekanisme tertutup; sumber prakiraan diuji oracle-nya dulu | FINAL · eksploratif |
@@ -1634,7 +1651,7 @@ tidak boleh dikutip sebelum dicek.
 | U106 | p meta-regresi `assoc` tidak konsisten dengan interval (11 baris) & ARI 0 saat k = 1 → diperbaiki D-132 (0/88 baris p < 0,05; ARI NaN) | 🟢 |
 | U107 | Bootstrap blok 13 minggu menarik β ke nol (rasio 0,57 / 0,35 / 0,35 pada h 4 / 8 / 12) → interval resmi terlalu konservatif; nasional diatasi D-129, PT & provinsi D-163 (`province_calibrated`); sisa sisi bootstrap H2 & `se_boot` meta-regresi (keterbatasan) | 🟡 |
 | U108 | Flag `episode` (grup fx: M2/M3/C2/C2t) memakai informasi sesudah origin → diperbaiki real-time & Task 4 fx dijalankan ulang 2026-11-26 (D-162) | 🟢 |
-| U109 | Kebutuhan TPID (kapasitas, toleransi alarm palsu, ambang kebijakan, titik akhir vs kejadian, waktu keputusan) belum divalidasi; panduan `docs/PANDUAN_WAWANCARA_TPID.md` | 🔴 `[HUMAN]` |
+| U109 | Kebutuhan TPID (kapasitas, toleransi alarm palsu, ambang kebijakan, titik akhir vs kejadian, waktu keputusan) belum divalidasi; panduan `docs/PANDUAN_WAWANCARA_TPID.md`; K4 dijalankan dengan proxy statistik (D-164), penggunaan operasional BLOCKED sampai isu ini selesai; instrumen R1–R12 + matriks status (D-166) | 🔴 `[HUMAN]` |
 | U110 | Jendela revisi harga harian PIHPS belum dipastikan → `available_at` konservatif Minggu 00.00 (D-155) | 🔴 `[HUMAN]` |
 | U111 | Panel kab/kota Bapanas tidak dapat diakses (SAPA); izin BI untuk data PIHPS per kota belum dipastikan (D-158) | 🔴 `[HUMAN]` |
 | U112 | Stok & pasokan SP2KP (mingguan, admin Kemendag) & riwayat PIBC/FDP/GPM tidak tersedia publik → permintaan resmi (D-159); + Proyeksi Neraca Pangan Bapanas & luas tanam/EWS Kementan (D-165) | 🔴 `[HUMAN]` |

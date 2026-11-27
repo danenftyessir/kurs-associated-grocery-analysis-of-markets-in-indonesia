@@ -415,6 +415,20 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-166 — Validasi K4: target benar, kalibrator walk-forward ditolak, ranking bergantung pada ambang relatif, peluang h 4 hanya kategori; operasional tetap BLOCKED · FINAL · eksploratif · 2026-11-27 (WP-36) · Danen
+Atas permintaan Danen (validasi & kesiapan operasional K4; laporan `docs/audit/20261127_k4_validation/SUMMARY.md`; baca-saja terhadap D-164: tidak ada
+model dilatih ulang, test 2024+ tidak dibuka untuk analisis baru; protokol `PROTOCOL_ADDENDUM.md` di-hash sebelum analisis kalibrasi). (1) Target: target
+tak teramati memang diberi z = 0, tetapi hanya di evaluasi (latih wajib target terealisasi) dan hanya 2 + 2 baris dev, 0 test; dikeluarkan → ΔAP ≤ 0,0004;
+y_h & z identik dengan hitung ulang dari `panel_weekly`; negatif y = 0 = dua ujung carry-forward (98%). Kolom z di prediksi maju beku bernilai 0 dan bukan
+label. (2) Kalibrasi (dev): 0/6 kalibrator walk-forward (Platt, isotonik, per komoditas, intersep, 13 origin terakhir, campuran laju-dasar) menurunkan
+Brier; ekor h 8 p 0,8–0,9 = 57 baris dari 5 origin (41 dari 2: minyak goreng 2022-01, beras 2023-10); oracle laju per origin ex-post −0,0073 → yang hilang
+adalah informasi rezim, bukan bentuk kalibrasi. Rekomendasi D-164 #5a (kalibrator ekor per kelompok) dicabut. (3) Galat (dev, K = 2): 25% alarm palsu h 4
+naik material ≤ 4 minggu sesudah titik akhir (seri tanpa alarm 12%); separuh kenaikan terlewat di peringkat K+1..K+2; bawang putih/merah 14–17% alarm
+dengan presisi 0,01–0,15. (4) Kepekaan: satu model P80 mengurutkan P70–P90/bertanda/kejadian sama baiknya dengan model khusus, tetapi pada ambang seragam
+5% / 10% skor K4-E80 kalah dari C1-tuned (ΔAP h 8 −0,079 / −0,092, interval < 0) → ambang kebijakan TPID dapat membatalkan K4-E80. (5) Instrumen
+U109 R1–R12 + matriks status; spesifikasi operasional lima lapis (peluang h 4 hanya kategori relatif terhadap laju komoditas, h 8 tanpa angka). Hasil D-164,
+`src/`, C1-tuned, macro F1, H5 tidak berubah. Kriteria adopsi/penolakan di `FINAL_RECOMMENDATIONS.md`.
+
 ### D-165 — Jalur A macro F1 & intelijen eksternal: prediksi maju diaudit & evaluator dibekukan, GDELT lolos G1–G2 tetapi G5 terblokir BigQuery, sumber pasokan baru terblokir akses; C1-tuned tetap · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
 Atas permintaan Danen (empat workstream; laporan `docs/audit/jalur_a_macro_f1/`; nomor dikoordinasikan dengan sesi paralel D-162–D-164).
 (A) Prediksi maju D-152 (C1t, IW_NAT) & D-158 (C1t, FR_REF, FR_CITY): sha256 = manifest, base identik, 338 seri, 0 NaN; kode yang berubah sejak beku
@@ -437,6 +451,24 @@ Ditolak: DOC API berulang (blokir menetap), unduh arsip GKG lengkap (± 1,5 TB),
 313,83 GB, biaya 0, 15.722 baris harian 2018-12-22..2023-12-31 (`hasil/gdelt_daily_counts.csv` + manifest). Layar G5 satu kali (skrip & protokol =
 versi beku): ΔAUC arah nasional di atas konsensus C1t −0,005..+0,001 (h 4) dan −0,008..−0,000 (h 8) untuk set V/D/P/S/ALL, q ≥ 0,46 → **GDELT
 REJECTED**, tanpa modeling provinsi; U113 ditutup. Titik estimasi ≤ 0 dan jauh di bawah kontrol positif → kegagalan bukan karena daya layar.
+
+### D-164 — K4 risiko kenaikan harga material: klasifier pada target z mengungguli skor arah untuk ranking (h 4 terbukti), peluang h 8 tidak; PARTIAL, operasional BLOCKED · FINAL · eksploratif · 2026-11-26 (WP-36) · Danen
+Atas permintaan Danen (kartu K4 adendum D-155; laporan `docs/audit/20261126_k4_risiko_material/RESULTS.md`; jalur terpisah dari macro F1, nomor
+dikoordinasikan dengan sesi D-162/D-163/D-165). Target materialitas statistik (proxy; materialitas kebijakan belum ada, U109): z = 1[y_h ≥ P80 |y_h|
+baris latih komoditas, walk-forward], semua baris (y = 0 dan target hilang = 0). DU dev: laju z 0,120 / 0,132, per komoditas 0,02–0,29, 60% / 64% positif
+pada 4 komoditas diatur (ambang 1,2–3,9%), laju per minggu sd 0,07–0,08 (musim Jun–Agu 0,05–0,09 vs Nov–Apr 0,15–0,19), antarprovinsi sd 0,015.
+Protokol dibekukan sebelum model (sha256 `7625c391…`): K4-E80 = HGB `TUNED_HGB` pada kolom C1-tuned dengan label z; pembanding C1-tuned (refit =
+artefak, maks |Δp| 0), C1-tuned + Platt walk-forward, laju-dasar komoditas (± bulan), 4 aturan naif D-154. Kebocoran: perturbasi sesudah origin 0 beda
+(6 origin × h). Dev: ΔAP vs C1-tuned +0,080 (0,046..0,103, q 0,002) / +0,039 (−0,008..0,101); Δpresisi daftar pantau 2/provinsi +0,044 (0,019..0,067) /
++0,050 (−0,005..0,112); di atas laju-dasar komoditas (naif terbaik) → R1, R1b lolos. Brier h 4 −0,0063 (interval < 0), ECE 0,023; h 8 ΔBrier & Brier skill
+memuat 0 dan ekor atas terlalu yakin (p 0,8–0,9 → 28%) → R2 gagal → **PARTIAL**. Test 2024+ dibuka sekali (bukan independen): ΔAP +0,045 (0,017..0,083) /
++0,015 (−0,028..0,064), presisi 0,202 vs 0,179 / 0,174 vs 0,161, Brier h 4 −0,0024 (interval < 0). Kepekaan: keunggulan h 4 bertahan pada target berkomposisi
+seimbang (P90 y bertanda); target kejadian kapan pun (laju 0,137 / 0,168; 12% / 21% lonjakan berbalik) diurutkan K4-E80 hampir sama baiknya dengan model
+khususnya di dev. Biaya skenario: daftar pantau apa pun kalah dari "tanpa alarm" bila biaya kenaikan terlewat ≤ 2× alarm palsu. **Koreksi D-154**: daftar
+pantau C1-tuned tidak pernah dibandingkan dengan laju-dasar komoditas; di h 8 keunggulannya atas pembanding itu tidak terbukti (dev −0,026, test +0,019,
+interval memuat 0) → aturan baru `docs/EKSPERIMEN.md` §5. Prediksi maju beku 4.056 baris (12 origin 2026-09-28..11-16, sha256 `eb1f10db…`). C1-tuned, label
+arah, macro F1, H5, dan `src/` tidak berubah; K4 tidak dipromosikan sebelum U109 & validasi prospektif. Ditolak: tuning ulang untuk z, fitur baru,
+ensemble (protokol), memilih K/τ/ambang dari test.
 
 ### D-163 — Kelemahan tercatat: interval PT & provinsi terkalibrasi plasebo (U107), kalibrasi skor daftar pantau ditolak, fitur clustering konstan inert · FINAL · tambahan pasca-G6 / eksploratif · 2026-11-26 (WP-36) · Danen
 Atas permintaan Danen menutup kelemahan yang tercatat. (1) U107: `evaluation.calibration` diperluas — baris PT di `national_calibrated` =

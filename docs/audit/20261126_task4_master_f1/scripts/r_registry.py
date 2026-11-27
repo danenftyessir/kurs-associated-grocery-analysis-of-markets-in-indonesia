@@ -295,6 +295,50 @@ for mod_, art in (("C2", "direction_preds"), ("C2t", "direction_tuned_preds")):
         decision="menggantikan prediksi lama di artefak", rationale="kesimpulan fitur kurs tetap; test 2024+ " +
         f"{r['f1_test_h4_old']:.3f}/{r['f1_test_h8_old']:.3f} -> {r['f1_test_h4_new']:.3f}/{r['f1_test_h8_new']:.3f} (informasi, bukan seleksi)",
         repro="python -m kagami task4 --direction / --direction-tuned C2t; docs/audit/20261126_kelemahan_tercatat/scripts/banding_u108.py")
+# ---------------- D-164 (K4 risiko kenaikan material; target z terpisah, BUKAN macro F1) — dari docs/audit/20261126_k4_risiko_material/
+_K4 = os.path.join(AUD, "20261126_k4_risiko_material")
+if os.path.exists(os.path.join(_K4, "EXPERIMENT_LOG.csv")):
+    _L = pd.read_csv(os.path.join(_K4, "EXPERIMENT_LOG.csv"))
+    _L = _L[(_L["level"] == "ALL") & (_L["part"] == "dev")]
+    _P = pd.read_csv(os.path.join(_K4, "hasil", "k4_paired.csv"))
+    _TGT = {"K4-E80": "z_e80", "K4-A80": "z_a80", "K4-E70": "z_e70", "K4-E90": "z_e90", "K4-S90": "z_s90"}
+    for eid, z in _TGT.items():
+        a, b = (_L[(_L["experiment_id"] == eid) & (_L["horizon"].astype(str) == str(h))].iloc[0] for h in (4, 8))
+        pr = {h: _P[(_P["a"] == f"k4_{z[2:]}") & (_P["b"] == "c1t") & (_P["metric"] == "ap") & (_P["target"] == z) & (_P["horizon"] == h)].iloc[0]
+              for h in (4, 8)}
+        main = eid == "K4-E80"
+        add(eid, "D-164", "K4 risiko kenaikan material (target terpisah)",
+            "klasifier yang dilatih langsung pada z mengurutkan & memberi peluang risiko kenaikan material lebih baik dari p_up C1-tuned",
+            "tuned_columns('C1t', h) (tanpa fitur baru)", "resmi; label " + a["target_definition"] + " (" + a["threshold"] + "); semua baris termasuk y = 0",
+            "HGB TUNED_HGB, label z (bukan arah)", "- (ranking & peluang)",
+            ci4=f"AP {a['pr_auc']:.3f} vs C1t {pr[4]['value_b']:.3f}: Δ {pr[4]['diff']:+.3f} ({pr[4]['lo']:+.3f}..{pr[4]['hi']:+.3f}); presisi@K2 {a['precision_k2']:.3f}; Brier {a['brier']:.4f}, ECE {a['ece']:.3f}",
+            ci8=f"AP {b['pr_auc']:.3f} vs C1t {pr[8]['value_b']:.3f}: Δ {pr[8]['diff']:+.3f} ({pr[8]['lo']:+.3f}..{pr[8]['hi']:+.3f}); presisi@K2 {b['precision_k2']:.3f}; Brier {b['brier']:.4f}, ECE {b['ece']:.3f}",
+            status="COMPLETE",
+            decision=("PARTIAL: ranking diterima eksploratif (R1, R1b), peluang h 8 ditolak (R2); operasional BLOCKED (U109)" if main
+                      else "deskriptif (kepekaan / target alternatif), bukan kandidat"),
+            rationale=("dev ΔAP h 4 interval > 0 (q 0,002), h 8 memuat 0; test sekali searah (h 4 +0,045, 0,017..0,083); macro F1 tidak berlaku" if main
+                       else "tidak dipakai memilih; lihat RESULTS.md §5.4–§5.5"),
+            repro="docs/audit/20261126_k4_risiko_material/scripts (k4_run.py, k4_eval.py; PROTOCOL.md sha256 7625c391…)",
+            origins="dev: origin + h ≤ 2023-12-31 (38 / 37 origin); semua baris universe (12.800 / 12.463)")
+# ---------------- D-166 (validasi K4: kalibrator walk-forward peluang K4-E80; dev saja, BUKAN macro F1) — dari docs/audit/20261127_k4_validation/
+_KV = os.path.join(AUD, "20261127_k4_validation", "hasil")
+if os.path.exists(os.path.join(_KV, "cal_candidates.csv")):
+    _M = pd.read_csv(os.path.join(_KV, "cal_metrics.csv")).set_index(["horizon", "calibrator"])
+    _PV = pd.read_csv(os.path.join(_KV, "cal_paired_vs_raw.csv")).set_index(["horizon", "a"])
+    _NAME = {"C1": "Platt global", "C2": "isotonik global", "C3": "Platt per komoditas (≥ 30 pos & neg lampau)", "C4": "geser intersep",
+             "C5": "Platt 13 origin terakhir", "C6": "campuran p & laju-dasar komoditas (bobot walk-forward)"}
+    for _, r in pd.read_csv(os.path.join(_KV, "cal_candidates.csv")).iterrows():
+        c = r["calibrator"]
+        txt = {h: f"Brier {_M.loc[(h, c), 'brier']:.4f} vs mentah {_M.loc[(h, 'C0'), 'brier']:.4f}: Δ {_PV.loc[(h, c), 'dbrier']:+.4f} "
+                  f"({_PV.loc[(h, c), 'lo']:+.4f}..{_PV.loc[(h, c), 'hi']:+.4f}); ECE {_M.loc[(h, c), 'ece']:.3f}" for h in (4, 8)}
+        add(f"D166-{c}", "D-166", "K4 kalibrasi peluang (validasi)",
+            "kalibrator walk-forward memperbaiki Brier peluang K4-E80, terutama ekor atas h 8",
+            "skor K4-E80 beku (D-164)", "resmi; label z P80 |y|; himpunan peluang D-164", _NAME[c] + " walk-forward (o' + h ≤ o, ≥ 6 origin)",
+            "- (peluang)", ci4=txt[4], ci8=txt[8], status="COMPLETE" if r["candidate"] else "REJECTED",
+            decision="kandidat prospektif" if r["candidate"] else "ditolak: Brier tidak turun (aturan PROTOCOL_ADDENDUM §3)",
+            rationale="ECE turun ≠ Brier turun (D-163a); ekor h 8 = 5 origin, oracle laju per origin −0,0073; test tidak dibuka",
+            repro="docs/audit/20261127_k4_validation/scripts/v_calib.py (PROTOCOL_ADDENDUM.md, hasil/protocol_sha256.txt)",
+            origins="dev: himpunan peluang 32 / 30 origin (10.778 / 10.104 baris)")
 R = pd.DataFrame(rows)
 for c in ("macro_f1_h4", "macro_f1_h8", "delta_vs_c1t_h4", "delta_vs_c1t_h8"):
     R[c] = R[c].astype(float).round(4)

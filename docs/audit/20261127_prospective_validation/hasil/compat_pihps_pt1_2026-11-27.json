@@ -1,0 +1,21 @@
+{
+ "purpose": "Uji kecocokan mekanisme unduh PIHPS eceran (fetch_pihps.py --price-type 1) dengan snapshot beku `pihps`, tanpa membuka target maju (jendela berakhir 2026-11-18 = tanggal terakhir snapshot beku)",
+ "retrieved_at_utc": "2026-11-26T21:25:04+00:00",
+ "command": "python docs/audit/20261125_pilot_grosir/scripts/fetch_pihps.py --price-type 1 --start 2026-09-01 --end 2026-11-18 --out <scratchpad>/dl_compat/pihps_pt1_2026-09-01_2026-11-18.zip --cache <scratchpad>/dl_cache",
+ "fetch_script_sha256": "d60aec5d24edf8b491b1b808ed18921912a4f6796324e07e1c94e14c31475ee8",
+ "fetched_zip_sha256": "cbc59e29af1d9df07693f69878975028fe59eaccc8f0f6f23597f986418c8b05",
+ "fetched_zip_kept": "scratchpad sesi (tidak disimpan di repo; PIHPS mentah tidak boleh didistribusikan)",
+ "n_requests": 102,
+ "n_errors": 0,
+ "frozen_snapshot": "data/raw/bi_pihps/pihps_pasar_tradisional_harian_2017-2026_v2_merged_retrieved_2026-11-18.zip",
+ "frozen_snapshot_sha256": "bfc7f343c0fb34e12556f479f9dcb32a6cdddec93c1dd59b820c39dfd62a9605",
+ "comparison": "load_pihps + select_variants resmi pada kedua zip, kunci (date, province_id, commodity), 2026-09-01..2026-11-18",
+ "rows_both": 19103,
+ "rows_only_frozen": 0,
+ "rows_only_fetched": 0,
+ "price_equal": 19103,
+ "price_different": 0,
+ "last_date_both": "2026-11-18",
+ "script": "docs/audit/20261127_prospective_validation/scripts/compat_check.py",
+ "conclusion": "Mekanisme unduh menghasilkan varian representatif dan harga identik dengan snapshot beku; tidak ada revisi pada 79 hari terakhir (termasuk 2026-11-18) setelah 9 hari. Bukti parsial untuk U110, bukan pengamatan jendela revisi H+1."
+}

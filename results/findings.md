@@ -243,6 +243,20 @@ terbaik di pengembangan menjadi pembanding resmi.
   (ECE 0,056 > 0,05). Kalibrasi ulang walk-forward (Platt atau isotonik dari prediksi origin lampau) menurunkan ECE di bawah 0,05
   tetapi tidak memperbaiki Brier, sehingga tidak dipakai (D-163); salah kalibrasi yang tersisa adalah pergeseran porsi kenaikan
   antarperiode.
+- Pembanding yang belum ada di atas adalah aturan "pantau komoditas yang paling sering naik material di masa lalu" (laju-dasar
+  komoditas). Pada h = 4 daftar C1-tuned lebih presisi (origin ≥ 2024: 0,18 vs 0,10; selisih +0,082, 0,050..0,120). Pada h = 8 keunggulannya
+  tidak terbukti (origin ≥ 2024 +0,019, −0,027..0,081; pengembangan −0,026). Aturan itu hampir selalu menandai beras, gula, minyak goreng, atau
+  daging sapi yang sama setiap minggu (D-164).
+
+**Risiko kenaikan material sebagai target tersendiri (D-164, eksploratif).** Skor arah C1-tuned bukan peluang kenaikan material. Klasifier
+yang sama (fitur & hyperparameter C1-tuned) dilatih langsung pada target "kenaikan material" (definisi statistik di atas, semua minggu termasuk
+yang harganya tidak berubah). Kriteria ditetapkan sebelum pengukuran. Pada origin ≥ 2024 klasifier ini mengurutkan risiko lebih baik daripada
+skor arah pada h = 4: average precision 0,24 vs 0,19 (selisih +0,045, 0,017..0,083) dan presisi daftar pantau 2 komoditas per provinsi 0,20 vs
+0,18 (+0,023, 0,003..0,047). Peluangnya terkalibrasi (ECE 0,02) dan lebih baik dari skor arah yang dikalibrasi. Pada h = 8 arahnya sama
+(+0,015 dan +0,012), tetapi interval memuat nol, dan peluang tinggi terlalu yakin. Keputusan: PARTIAL (urutan dipakai secara eksploratif,
+angka peluang h = 8 tidak). Penggunaan operasional menunggu ambang kebijakan dan kapasitas pemantauan dari pengguna. Dengan presisi di
+bawah 0,5, daftar pantau apa pun hanya bernilai bila kenaikan yang terlewat jauh lebih mahal daripada pemeriksaan yang tidak perlu (≥ ± 3–5×).
+Prediksi maju dibekukan untuk dinilai setelah Desember 2026–Januari 2027.
 
 ## Eksplorasi E2 — Respons per rezim HET/HAP
 

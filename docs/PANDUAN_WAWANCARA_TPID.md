@@ -12,6 +12,8 @@ Memeriksa apakah asumsi D-154/D-155 tentang kebutuhan TPID benar, sebelum:
 - menjalankan kartu K4 (target "risiko kenaikan material" dengan peluang terkalibrasi);
 - menyajikan daftar pantau di app atau makalah.
 
+Sisipan pertanyaan K4 (12 kebutuhan R1–R12, matriks status, peta jawaban → keputusan model): `docs/audit/20261127_k4_validation/BUSINESS_REQUIREMENTS_VALIDATION.md` (D-166).
+
 Wawancara ini bukan penjualan produk dan bukan uji kegunaan final. Tujuannya mendengar cara kerja pengguna, bukan meyakinkan mereka.
 
 ## 2. Asumsi yang diuji
