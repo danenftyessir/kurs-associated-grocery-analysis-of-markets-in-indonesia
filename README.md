@@ -90,12 +90,13 @@ Bank Indonesia. Proyek ini mendukung ketahanan harga pangan (SDG 2, Zero Hunger)
 | Komoditas mana yang historisnya paling peka terhadap rupiah?                                    | Kurva respons 0–12 minggu per komoditas dengan interval 95%                                                |
 | Apakah wilayah saya berbeda dari rata-rata nasional?                                            | Profil 7 wilayah dan deviasi provinsi yang sudah disusutkan, beserta uji apakah perbedaannya melebihi noise |
 | Kapan responsnya muncul?                                                                        | Horizon setengah-respons $t_{1/2}$ dan profil per minggu                                                  |
-| Jika rupiah melemah 1%, 3%, atau 5%, berapa pergerakan harga yang sejalan dengan pola historis? | Penjelajah skenario bersyarat $PT(h)\cdot x$, berlabel "bukan ramalan"                                    |
+| Jika rupiah melemah 1%, 3%, atau 5%, berapa pergerakan harga yang sejalan dengan pola historis? | Penjelajah skenario bersyarat $\exp(PT(h)\ln(1 + x/100)) - 1$, berlabel "bukan ramalan"                   |
 | Apakah memantau kurs membantu memperkirakan harga?                                              | Galat prediksi dengan dan tanpa fitur kurs dalam evaluasi pseudo-real-time                                  |
 
-Misalnya, TPID bisa memusatkan pemantauan dan operasi pasar pada komoditas yang responsnya terdeteksi di wilayahnya, lalu
-mengatur waktunya sesuai horizon puncak respons. Untuk komoditas yang responsnya tidak terdeteksi, TPID dapat mengalihkan sumber
-daya ke risiko lain.
+KAGAMI adalah prototipe riset dan analitik pendukung keputusan. KAGAMI bukan sistem peringatan dini dan bukan rekomendasi operasi
+pasar: kebutuhan pengguna (ambang kenaikan yang penting, jumlah komoditas yang dapat dipantau, toleransi alarm palsu) belum
+divalidasi dengan TPID (U109). Contoh pemakaian yang kami bayangkan: analis memakai profil respons untuk menilai seberapa besar
+kenaikan harga yang konsisten dengan pelemahan rupiah, lalu menelusuri faktor lain untuk bagian yang tidak konsisten dengannya.
 
 ## 3. Pertanyaan penelitian dan hipotesis
 
@@ -200,7 +201,7 @@ flowchart LR
     D --> F
     LP --> ROB["Robustness<br/>Tier 1, Tier 2, validasi"]
     DM --> ROB
-    EB --> APP["Aplikasi Streamlit<br/>6 halaman"]
+    EB --> APP["Aplikasi Streamlit<br/>7 halaman"]
     STB --> APP
     MR --> APP
     DM --> APP
@@ -455,6 +456,11 @@ kami melatih model hanya dengan baris yang memenuhi $t + h \le o$, artinya outco
 menggabungkan harga dunia secara as-of: nilai bulan $m$ baru boleh dipakai mulai hari kerja kedua bulan $m+1$, dan data impor
 BPS memakai jeda 45 hari. Kami tidak membagi data secara acak per baris.
 
+Origin diberi label Senin minggu ISO, tetapi harga eceran dan kurs minggu itu memakai pengamatan sampai Jumat. Karena itu
+prediksi secara konseptual dibuat sesudah minggu origin lengkap dan jendela revisi PIHPS (H+1) lewat, yaitu Minggu 00.00. Harga
+dunia hanya dipakai bila tanggal ketersediaannya paling lambat Senin minggu origin, sehingga lebih konservatif daripada waktu
+keputusan itu (bukan kebocoran).
+
 | Model   | Isi                                                                                    |
 | ------- | -------------------------------------------------------------------------------------- |
 | M0      | Prediksi nol (tanpa perubahan)                                                         |
@@ -474,8 +480,9 @@ $$
 DM = \frac{\bar d}{\sqrt{\widehat{LRV}_{HAC}(d)/n}}\cdot\sqrt{\frac{n + 1 - 2h + h(h-1)/n}{n}}
 $$
 
-Untuk H5, kami mengoreksi p-value dua jalur dengan metode Holm. Kami selalu melaporkan jumlah origin dan jumlah origin yang
-tidak tumpang tindih.
+$DM > 0$ berarti M2 lebih akurat dari M1 dan $DM < 0$ berarti kurang akurat, jadi kami selalu melaporkan p-value bersama tanda
+statistiknya: p dua sisi yang kecil dengan $DM < 0$ berarti M2 nyata lebih buruk. Untuk H5, kami mengoreksi p-value dua jalur
+dengan metode Holm. Kami selalu melaporkan jumlah origin dan jumlah origin yang tidak tumpang tindih.
 
 ### 6.6 Robustness dan validasi
 
@@ -521,7 +528,7 @@ diketahui di `tests/test_stats.py`.
 
 ## 9. Aplikasi untuk analis
 
-Aplikasi Streamlit kami punya enam halaman. Aplikasi ini hanya membaca artefak hasil: tidak ada login, tidak ada unggahan data
+Aplikasi Streamlit kami punya tujuh halaman. Aplikasi ini hanya membaca artefak hasil: tidak ada login, tidak ada unggahan data
 pengguna, dan tidak ada estimasi saat dijalankan. Versi daring: https://kagami.streamlit.app (membaca artefak hasil yang ikut di repo).
 
 | Halaman                                                | Isi                                                                                                                                                   |
@@ -530,8 +537,9 @@ pengguna, dan tidak ada estimasi saat dijalankan. Versi daring: https://kagami.s
 | 2. Kepekaan Harga Regional                             | Kurva respons nasional, wilayah, dan provinsi, serta peta kepekaan                                                                                    |
 | 3. Pola Respons                                        | Uji heterogenitas, klaster (atau k = 1) dengan stabilitasnya, batas deteksi                                                                           |
 | 4. Eksposur & Nilai Prediktif                          | Jalur eksposur terhadap PT(8), meta-regresi, rasio MAE Task 4                                                                                         |
-| 5. Penjelajah Skenario Bersyarat                       | $\Delta \text{harga} \approx PT(h)\cdot x$ untuk $x \in \lbrace 1, 3, 5 \rbrace$ persen, dengan bendera ekstrapolasi dan label "skenario bersyarat, bukan ramalan" |
+| 5. Penjelajah Skenario Bersyarat                       | $\Delta \text{harga} = \exp(PT(h)\ln(1 + x/100)) - 1$ untuk $x \in \lbrace 1, 3, 5 \rbrace$ persen (rumus yang sama dengan tabel batas Rupiah di temuan), dengan bendera ekstrapolasi dan label "skenario bersyarat, bukan ramalan" |
 | 6. Temuan Penelitian                                   | Ringkasan temuan dalam bahasa analis TPID                                                                                                             |
+| 7. Evaluasi & Riwayat Eksekusi                         | Log eksekusi dan evaluasi setiap tahap (`logs/`), perbandingan run, alur pipeline; untuk pembuktian reproduksibilitas                                  |
 
 Setiap grafik mencantumkan sumber, satuan, periode, interval 95%, dan label "asosiasi, bukan kausalitas". Jika interval sebuah
 respons memuat nol, aplikasi menampilkan lencana "tidak terdeteksi".
@@ -668,7 +676,7 @@ datmin/
 ├── results/             artefak hasil Tahap 0 dan Task 1–4, robustness, findings.md
 ├── src/                 paket kagami: utils, stats, data, features, models, evaluation, pipelines, viz, cli
 ├── notebooks/           00_stage0_data sampai 05_robustness (satu per tahap; lokal, Kaggle, Colab)
-├── app/                 aplikasi Streamlit 6 halaman
+├── app/                 aplikasi Streamlit 7 halaman
 ├── tests/               tes pytest
 └── docs/                metode, dataset, arsitektur, praregistrasi, keputusan, isu terbuka, rencana kerja
 ```
@@ -682,9 +690,12 @@ Beberapa batasan data dan desain perlu Anda ketahui saat membaca hasil kami:
 
 - Kurs bersifat nasional dan hanya berubah antarminggu, sehingga informasi kurs berasal dari sekitar 460 minggu. Ratusan ribu
   baris panel tidak menambah informasi itu, dan karena itu kami melakukan inferensi per minggu.
-- Harga komoditas yang diatur pemerintah jarang berubah, sehingga banyak sel berstatus `carry_forward`. Kami membaca ini sebagai
-  kekakuan harga yang nyata dan tidak memakainya untuk menyaring data.
+- Banyak sel komoditas yang diatur pemerintah berstatus `carry_forward`, yaitu rangkaian harga teramati yang identik. Ini bisa
+  berarti harga memang kaku, atau sumber memakai harga hari sebelumnya ketika pasar tidak beroperasi (FAQ PIHPS); keduanya tidak
+  dapat dibedakan dari data. Kami tidak memakai status ini untuk menyaring data.
 - Evaluasi Task 4 bersifat pseudo-real-time karena kami tidak punya vintage revisi data.
+- Batas deteksi struktur regional hanya berlaku untuk bentuk struktur sintetis yang kami uji (2–3 kelompok provinsi berukuran
+  hampir sama).
 - Uji level komoditas hanya punya 10 pengamatan, jadi kami memperlakukan E1 sebagai deskriptif.
 
 Kami menulis hasil di makalah, aplikasi, dan temuan dengan aturan berikut:

@@ -366,7 +366,7 @@ if section == "Evaluasi per tahap":
             st.subheader("Arah & galat per segmen")
             st.caption("Agregat semua komoditas bisa menutupi kegagalan per komoditas. Baseline = arah terbanyak di "
                        "segmen itu; interval selisih dari bootstrap blok origin. Segmen 'kaku' = porsi sel carry_forward "
-                       "≥ 50% (kekakuan harga, U22). MAE / M1 > 1 = lebih buruk dari ridge dasar.")
+                       "(rangkaian harga identik) ≥ 50%, U22. MAE / M1 > 1 = lebih buruk dari ridge dasar.")
             hs = list(seg["name"])
             s1, s2, s3 = st.columns(3)
             hname = s1.selectbox("Horizon", hs, index=len(hs) - 1, key=f"seg_h_{task}",

@@ -3,7 +3,7 @@
 import streamlit as st
 
 from common import STRETCH, commodity_labels, fmt_num, footer, load, need, page_header, table, with_status
-from kagami.viz import plots
+from kagami.viz import plots, style
 
 page_header("Eksposur & Nilai Prediktif",
             "Lewat jalur apa komoditas ini terpapar, dan apakah fitur kurs memperbaiki prediksi dalam evaluasi historis?")
@@ -12,7 +12,18 @@ got = need("exposure", "response_features", "assoc", "forecast_eval", "ablation"
 if got:
     st.subheader("Tiga jalur eksposur vs respons nasional")
     nat = got["response_features"].query("level == 'national'")[["commodity", "PT8", "W8"]]
-    st.dataframe(got["exposure"].merge(nat, on="commodity", how="left"), hide_index=True, **STRETCH)
+    expo = got["exposure"].merge(nat, on="commodity", how="left")
+    conc = load("concordance")
+    if conc is not None and "confidence" in conc:
+        expo = expo.merge(conc[["commodity", "confidence"]].rename(columns={"confidence": "keyakinan_konkordansi"}),
+                          on="commodity", how="left")
+    st.dataframe(expo, hide_index=True, **STRETCH)
+    st.caption("`import_ratio_direct` hanya mengukur porsi impor langsung komoditas itu sendiri. Sumber dan tahun pengamatannya "
+               "berbeda per komoditas (kolom `source`); bawang putih memakai impor BPS/Comtrade dan produksi ATAP satu tahun saja, "
+               "tanpa ekspor, karena FAOSTAT tidak memuat bawang putih kering. Eksposur lewat input impor (pakan untuk daging ayam "
+               "& telur) diukur terpisah lewat `imported_input_ordinal` dan harga dunia komposit jagung–bungkil kedelai. Jadi angka "
+               "antarkomoditas tidak setara kualitas dan periodenya. `keyakinan_konkordansi` = keyakinan pemetaan "
+               "PIHPS–HS–Pink Sheet–FAOSTAT.")
 
     assoc = got["assoc"]
     method = assoc["method"] if "method" in assoc else assoc.get("level")
@@ -37,6 +48,10 @@ if got:
         st.dataframe(with_status(m[cols]), hide_index=True, **STRETCH)
         st.caption("Interval = yang lebih lebar dari CR2 dan bootstrap; p konsisten dengan interval itu; q = BH atas baris "
                    "eksploratif. H3 (ln_dist_hub, h = 4) diuji satu sisi.")
+        st.caption("Fitur adalah proksi: `ln_dist_hub` = jarak garis lurus ibu kota provinsi ke hub terdekat (bukan biaya atau "
+                   "waktu logistik), `rice_sufficiency` = kecukupan produksi beras saja (bukan pangan lain), `n_kota` = jumlah kota "
+                   "sampel PIHPS (bukan tingkat integrasi pasar). Koefisien yang tidak terdeteksi berarti proksi ini tidak "
+                   "menjelaskan variasi respons dalam desain ini, bukan bahwa logistik atau produksi tidak penting.")
     fe = assoc[method.astype(str) == "fe_interaction"]
     if len(fe):
         with st.expander("Interaksi efek tetap komoditas×minggu (pemeriksaan kepekaan 3c)"):
@@ -73,7 +88,11 @@ if got:
         for col, r in zip(cols, tot.sort_values("horizon").itertuples()):
             col.metric(f"Rasio MAE M2/M1, h = {r.horizon} minggu", fmt_num(r.mae_ratio_vs_m1, 3),
                        help="< 1 = fitur kurs & harga dunia memperbaiki akurasi; > 1 = memperburuk.")
-            col.caption(f"DM p = {fmt_num(r.dm_p, 3)} · {int(r.n_origins)} origin")
+            dm = style.dm_summary(getattr(r, "dm_stat", float("nan")), r.dm_p, getattr(r, "dm_p_one_sided", None))
+            col.caption(f"{dm} · {int(r.n_origins)} origin")
+        st.caption("Tanda DM menunjukkan arah (D-169): DM > 0 = M2 lebih akurat dari M1, DM < 0 = kurang akurat. p dua sisi yang "
+                   "kecil dengan DM negatif berarti M2 nyata lebih buruk, bukan lebih baik. RQ5/H5 menanyakan perbaikan "
+                   "(M2 lebih akurat), sehingga p satu sisi itulah yang relevan untuk klaim perbaikan.")
     for subset in ("all", "large_move"):
         if (fe4["subset"] == subset).any():
             st.plotly_chart(plots.forecast_ratios(fe4, subset, labels=labels), **STRETCH)

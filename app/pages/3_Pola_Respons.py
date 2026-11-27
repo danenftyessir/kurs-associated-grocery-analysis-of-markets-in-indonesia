@@ -21,7 +21,8 @@ if got:
     c1.metric("Jumlah kelompok provinsi", f"k = {k_star}",
               help="k > 1 hanya diterima bila silhouette maksimum melewati persentil 95 plasebo.")
     c2.metric("Batas deteksi struktur", f"δ = {fmt_num(det.max(), 1)}" if len(det) else "tidak tercapai",
-              help="Selisih respons terkecil (RMS per fitur) yang terdeteksi ≥ 80% bila ditanam pada derau plasebo.")
+              help="Selisih respons terkecil (RMS per fitur) yang terdeteksi ≥ 80% bila ditanam pada derau plasebo, untuk "
+                   "struktur sintetis 2–3 kelompok berukuran hampir sama dengan pusat berbentuk simpleks.")
     c3.metric("Komoditas dengan heterogenitas provinsi", f"{len(rej)} dari {q['commodity'].nunique()}",
               help="H0-Het ditolak (Q vs plasebo, q BH ≤ 0,05) pada h = 8.")
     if len(rej):
@@ -31,7 +32,9 @@ if got:
     st.plotly_chart(plots.silhouette_threshold(sel), **STRETCH)
     if k_star == 1:
         st.info("k = 1: tidak ada struktur regional yang terdeteksi. Ini batas atas, bukan bukti bahwa provinsi seragam: "
-                "struktur dengan selisih respons di bawah batas deteksi di bawah masih mungkin ada.")
+                "struktur dengan selisih respons di bawah batas deteksi di bawah masih mungkin ada. Batas deteksi hanya berlaku "
+                "untuk bentuk struktur yang diuji (2–3 kelompok berukuran hampir sama, pusat simpleks); bentuk lain, seperti "
+                "kelompok kecil, gradien geografis, atau perbedaan pada sebagian komoditas saja, belum diuji.")
     st.plotly_chart(plots.recovery_curve(planted, threshold=DETECTION_RATE), **STRETCH)
     table(planted, "Lihat tabel batas deteksi", status=False)
     table(het, "Uji heterogenitas per komoditas (vs plasebo)", status=False)

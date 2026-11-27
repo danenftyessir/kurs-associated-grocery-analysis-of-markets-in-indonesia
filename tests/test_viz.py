@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import pytest
 
 from kagami.viz import plots, style
 
@@ -40,6 +41,49 @@ def test_curve_without_interval_has_no_band():
     assert not any(getattr(t, "fill", None) == "tonexty" for t in fig.data)
     assert "Interval tidak tersedia" in fig.layout.title.subtitle.text
     assert not any(getattr(t, "fill", None) == "tonexty" for t in plots.scenario_paths(prof, [1, 3, 5], 3).data)
+
+
+def test_scenario_change_is_exact_log_transform():
+    """D-169: skenario = 100·(exp(PT·ln(1 + x/100)) − 1), rumus tabel batas Rupiah findings; bukan pendekatan linear PT·x."""
+    assert plots.scenario_change(1.0, 5) == pytest.approx(5.0)
+    assert plots.scenario_change(0.0, 3) == 0.0
+    assert plots.scenario_change(0.5, 5) == pytest.approx(100 * (1.05 ** 0.5 - 1))
+    assert plots.scenario_change(-4.18, 5) == pytest.approx(-18.44, abs=0.01)      # linear: −20,9
+    assert np.isnan(plots.scenario_change(float("nan"), 5))
+    arr = plots.scenario_change(pd.Series([-1.0, 0.0, 2.0]), 3)
+    assert isinstance(arr, np.ndarray) and np.all(np.diff(arr) > 0)                 # naik monoton dalam PT (x > 0)
+    h = np.arange(13)
+    pt = pd.DataFrame({"horizon": h, "estimate": h * 0.1, "ci_low": h * 0.1 - 0.5, "ci_high": h * 0.1 + 0.5})
+    fig = plots.scenario_paths(pt, [1, 3, 5], 5)
+    lines = {t.name: np.asarray(t.y, float) for t in fig.data if (t.name or "").startswith("pelemahan")}
+    assert np.allclose(lines["pelemahan 5%"], 100 * (1.05 ** (h * 0.1) - 1))
+    band = [np.asarray(t.y, float) for t in fig.data if getattr(t, "fill", None) == "tonexty"]
+    assert len(band) == 1 and np.allclose(band[0], 100 * (1.05 ** (h * 0.1 - 0.5) - 1))
+    assert "exp(PT(h)×ln(1 + x/100)) − 1" in fig.layout.title.subtitle.text.replace("<br>", " ")   # rumus utuh di subjudul
+
+
+def test_scenario_matches_findings_rupiah_table(cfg):
+    """App hal. 5 = tabel batas Rupiah `results/findings.md` (PT(8) nasional resmi, rupiah melemah 5%)."""
+    from kagami.utils.io import exists, read_artifact
+    if not exists(cfg, "profiles"):
+        pytest.skip("artefak profiles belum ada")
+    prof = read_artifact(cfg, "profiles")
+    row = prof[(prof["driver"] == "PT") & (prof["level"] == "national") & (prof["horizon"] == 8)].set_index("commodity")
+    want = {"beras": (0.02, -1.04, 0.55), "daging_ayam": (-5.99, -8.31, 0.25), "cabai_rawit": (2.84, -18.44, 16.09)}
+    for com, vals in want.items():
+        got = [plots.scenario_change(row.loc[com, c], 5) for c in ("estimate", "ci_low", "ci_high")]
+        assert got == pytest.approx(list(vals), abs=0.006), com
+
+
+def test_dm_summary_reports_direction():
+    """D-169: p kecil dengan DM negatif = M2 nyata LEBIH BURUK dari M1; app tidak boleh hanya menampilkan p."""
+    s = style.dm_summary(-2.7012888, 0.0085354, 0.9957323)              # forecast_eval M2 h = 4
+    assert "DM = −2,70" in s and "M2 kurang akurat dari M1" in s and "tidak nyata" not in s
+    assert "p dua sisi 0,009" in s and "keunggulan M2: 0,996" in s
+    s = style.dm_summary(1.0, 0.1)                                      # p satu sisi diturunkan dari p dua sisi
+    assert "arah M2 lebih akurat dari M1, tidak nyata" in s and "keunggulan M2: 0,050" in s
+    assert "keunggulan M2: 0,950" in style.dm_summary(-1.0, 0.1)
+    assert style.dm_summary(float("nan"), 0.5) == "uji DM tidak tersedia"
 
 
 def test_style_format_and_status():

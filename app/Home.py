@@ -23,6 +23,9 @@ dari komoditas atau dari lokasi.
 | RQ5 | Apakah fitur kurs memperbaiki prediksi 4 & 8 minggu (out-of-sample) |
 """
 )
+st.info("**Status produk.** KAGAMI adalah prototipe riset dan analitik pendukung keputusan: aplikasi ini menyajikan pola "
+        "historis beserta ketidakpastiannya. KAGAMI bukan sistem peringatan dini dan bukan rekomendasi operasi pasar, karena "
+        "kebutuhan pengguna (ambang kenaikan, kapasitas pemantauan, toleransi alarm palsu) belum divalidasi dengan TPID (U109).")
 
 st.subheader("Kesegaran sumber")
 src = pd.DataFrame([{"sumber": k, "peran": v["role"], "cakupan": v["coverage"], "lisensi": v["license"]}

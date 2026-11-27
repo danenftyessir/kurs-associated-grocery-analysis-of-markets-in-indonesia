@@ -96,7 +96,9 @@ untuk mengisi kartu.
   antarkomoditas, sehingga aturan "pantau komoditas yang biasanya naik" bisa menyamai model (dev h 8: 0,248 vs C1-tuned 0,221). Laporkan juga
   persistensi alarm (porsi alarm yang sama dengan origin sebelumnya) dan jumlah komoditas yang pernah ditandai.
 - **Utilitas tanpa biaya nyata**: nilai daftar pantau dibandingkan dengan "tanpa alarm" pada beberapa rasio biaya kenaikan terlewat : alarm palsu
-  (r = 1, 2, 5, 10) dan kurva keputusan; bila presisi < 0,5, daftar pantau kalah dari "tanpa alarm" untuk r ≤ 1 (D-164).
+  (r = 1, 2, 5, 10) dan kurva keputusan; bila presisi < 0,5, daftar pantau kalah dari "tanpa alarm" untuk r ≤ 1 (D-164). Tabel ini
+  ditulis sebagai **analisis kepekaan**, bukan nilai harapan atau nilai ekonomi yang tervalidasi: rasio biaya adalah skenario dan
+  peluang (terutama K4 h 8) belum terkalibrasi (D-169).
 - **Kebocoran**: bedakan look-ahead observasional (dapat diuji dengan perturbasi/penghapusan data sesudah cutoff) dan revisi/vintage (tidak
   dapat diuji tanpa vintage PIHPS). `available_at` konservatif = Minggu 00.00 sampai jendela revisi PIHPS dipastikan (`[HUMAN]`).
 - **Terminologi metode**: sebut screening/asosiasi bila bukan algoritma yang dimaksud (mis. screening asosiasi temporal ≠ sequential

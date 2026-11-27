@@ -136,13 +136,14 @@ def fx_drivers(drivers: pd.DataFrame, episodes: pd.DataFrame | None = None) -> g
 
 
 def status_share(panel_weekly: pd.DataFrame) -> go.Figure:
-    """Porsi status sel mingguan per komoditas (artefak `panel_weekly`). carry_forward = kekakuan harga, bukan
-    peringatan (U22) → biru muda, bukan warna status."""
+    """Porsi status sel mingguan per komoditas (artefak `panel_weekly`). carry_forward = rangkaian harga teramati identik
+    (kekakuan harga atau harga hari sebelumnya dari sumber; tidak dapat dibedakan, U22), bukan peringatan → biru muda."""
     share = (panel_weekly.groupby("commodity")["status"].value_counts(normalize=True)
              .rename("share").reset_index())
     fig = px.bar(share, x="commodity", y="share", color="status", category_orders={"status": STATUS_ORDER},
                  color_discrete_map=S.STATUS_COLORS)
-    return S.finish(fig, "Status sel mingguan per komoditas", "carry_forward = harga tidak berubah (penanda, bukan filter)",
+    return S.finish(fig, "Status sel mingguan per komoditas",
+                    "carry_forward = rangkaian harga identik ≥ 5 hari teramati (penanda, bukan filter)",
                     x="", y="porsi sel")
 
 
@@ -199,7 +200,7 @@ def forecast_ratios(forecast_eval: pd.DataFrame, subset: str = "all", labels: di
     d["komoditas"] = d["commodity"].map(lambda c: (labels or {}).get(c, c))
     d["model_label"] = d["model"].map(S.MODEL_LABELS)
     fig = px.scatter(d, x="mae_ratio_vs_m1", y="komoditas", color="model_label", symbol="model_label",
-                     facet_col="horizon", hover_data=[c for c in ("n_origins", "dm_p") if c in d],
+                     facet_col="horizon", hover_data=[c for c in ("n_origins", "dm_stat", "dm_p") if c in d],
                      color_discrete_map={S.MODEL_LABELS[m]: S.MODEL_COLORS[m] for m in ("M0", "M2", "M3")})
     fig.update_traces(marker=dict(size=10))
     fig.add_vline(x=1, line_color=S.NEUTRAL, line_width=1)
@@ -307,25 +308,39 @@ def asymmetry_plot(profiles: pd.DataFrame, asymmetry: pd.DataFrame, commodity: s
                     x="minggu setelah perubahan kurs", y="respons kumulatif")
 
 
+def scenario_change(pt, shock_pct: float):
+    """Perubahan harga (%) yang konsisten dengan PT(h) untuk pelemahan rupiah x% (D-169): 100·(exp(PT·ln(1 + x/100)) − 1).
+    PT = Δlog harga per 1 Δlog kurs, jadi pelemahan x% = Δlog kurs ln(1 + x/100), lalu hasilnya dikembalikan ke persen. Rumus
+    yang sama dipakai tabel batas Rupiah di `results/findings.md` (`docs/audit/20261127_redflag_juri/`). Pendekatan linear PT·x
+    (app sebelum D-169) menyimpang di ekor, mis. PT −4,18 dan x = 5: −20,9% vs −18,4%. Skalar → float; array/Series → ndarray;
+    NaN tetap NaN. Untuk x > 0 fungsi ini naik monoton dalam PT, jadi batas interval PT dipetakan langsung."""
+    c = np.log1p(shock_pct / 100.0)
+    if np.ndim(pt) == 0:
+        return float(100.0 * np.expm1(float(pt) * c))
+    return 100.0 * np.expm1(np.asarray(pt, dtype=float) * c)
+
+
 def scenario_paths(pt: pd.DataFrame, shocks: list[float], selected: float) -> go.Figure:
-    """Skenario bersyarat PT(h)·x untuk setiap pelemahan x (%) (baris `profiles` driver PT satu komoditas & unit).
-    Pita hanya untuk x terpilih dan hanya bila interval PT ada; bukan ramalan."""
+    """Skenario bersyarat untuk setiap pelemahan x (%): perubahan harga = `scenario_change` (exp(PT(h)·ln(1 + x/100)) − 1;
+    baris `profiles` driver PT satu komoditas & unit). Pita hanya untuk x terpilih dan hanya bila interval PT ada; bukan ramalan."""
     d = pt.sort_values("horizon")
     fig = go.Figure()
     if d[["ci_low", "ci_high"]].notna().all(axis=1).any():
-        fig.add_trace(go.Scatter(x=d["horizon"], y=d["ci_high"] * selected, mode="lines", line=dict(width=0), showlegend=False,
+        lo, hi = scenario_change(d["ci_low"], selected), scenario_change(d["ci_high"], selected)
+        fig.add_trace(go.Scatter(x=d["horizon"], y=np.maximum(lo, hi), mode="lines", line=dict(width=0), showlegend=False,
                                  hoverinfo="skip"))
-        fig.add_trace(go.Scatter(x=d["horizon"], y=d["ci_low"] * selected, fill="tonexty",
+        fig.add_trace(go.Scatter(x=d["horizon"], y=np.minimum(lo, hi), fill="tonexty",
                                  fillcolor=S.rgba(S.BLUE, 0.15), mode="lines", line=dict(width=0), name=f"interval ({selected}%)",
                                  hoverinfo="skip"))
     ramp = S.BLUE_RAMP[-len(shocks):] if len(shocks) <= len(S.BLUE_RAMP) else S.BLUE_RAMP
     for color, x in zip(ramp, sorted(shocks)):
-        fig.add_trace(go.Scatter(x=d["horizon"], y=d["estimate"] * x, mode="lines", name=f"pelemahan {x}%",
+        fig.add_trace(go.Scatter(x=d["horizon"], y=scenario_change(d["estimate"], x), mode="lines", name=f"pelemahan {x}%",
                                  line=dict(color=color, width=3 if x == selected else 1.5),
                                  hovertemplate=f"x = {x}%<br>h = %{{x}}<br><b>%{{y:.2f}}%</b><extra></extra>"))
     fig.add_hline(y=0, line_color=S.NEUTRAL, line_width=1)
     return S.finish(fig, "Perubahan harga yang konsisten dengan pola historis",
-                    "SKENARIO BERSYARAT, BUKAN RAMALAN · PT(h) × pelemahan rupiah",
+                    # tanpa " · " di dalam rumus: S.finish memecah subjudul pada pemisah itu
+                    "SKENARIO BERSYARAT, BUKAN RAMALAN · perubahan = exp(PT(h)×ln(1 + x/100)) − 1",
                     x="minggu setelah pelemahan", y="perubahan harga (%)")
 
 

@@ -420,6 +420,7 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 
 ### WP-34 — Audit klaim (G8) 🔶
 - 2026-11-23: findings.md, teks app, dan README dipindai terhadap tabel §20 (frasa kausal/prediktif, "pertama", "rentan", "dataset kami", "tervalidasi"); satu pertanyaan halaman 4 dirumuskan ulang. Makalah menunggu.
+- 2026-11-27 (D-169, review eksternal): arah DM di app hal. 4, rumus skenario app = findings (eksak), carry_forward = rangkaian harga identik, batas Rupiah asimetris, batas deteksi & proksi dibatasi, waktu origin, rasio biaya K4 = analisis kepekaan, status prototipe riset; tabel §20 + 5 baris (PROJECT_OVERVIEW §6). Sisa: makalah, bibliografi (U12).
 - Selesai bila: [ ] setiap kalimat temuan di findings.md, makalah, app lolos tabel "Jangan tulis/Tulis" (PROJECT_OVERVIEW §6); [ ] setiap angka punya interval; [ ] hasil nol ditulis sebagai batas atas.
 
 ### WP-35 — Tugas manusia `[HUMAN]`

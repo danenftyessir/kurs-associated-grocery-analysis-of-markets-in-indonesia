@@ -154,8 +154,9 @@ def evaluate_stage0(cfg: Config) -> list[Metric]:
                  "median_series_max_streak_weeks": float(streak.loc[c].median())}
                 for c in sorted(d["commodity"].unique())]
         res.append(ok("carry_forward_by_commodity", rows, g, artifact="panel_weekly",
-                      note="kekakuan harga (U22): carry_forward = harga sama dengan minggu sebelumnya; bukan data jelek, "
-                           "tetapi mengurangi variasi untuk mendeteksi respons kurs"))
+                      note="U22: carry_forward = mayoritas hari teramati dalam rangkaian harga identik >= 5 hari "
+                           "(kekakuan harga atau harga hari sebelumnya dari sumber, tidak dapat dibedakan); bukan data "
+                           "hilang, tetapi mengurangi variasi untuk mendeteksi respons kurs"))
         res.append(ok("n_rigid_commodities", int(sum(r["carry_forward_share"] >= RIGID_CF_SHARE for r in rows)), g,
                       artifact="panel_weekly", threshold=RIGID_CF_SHARE,
                       commodities=[r["commodity"] for r in rows if r["carry_forward_share"] >= RIGID_CF_SHARE]))

@@ -13,6 +13,10 @@ berubah. Tidak ada estimasi baru di `results/`; angka baru dihitung dari artefak
 | 9 | Kebaruan dataset lemah | `docs/DATASHEET.md` (datasheet for datasets) + bagian "Dataset turunan" di findings: kontribusi = panel terintegrasi dengan status sel, as-of, regulasi bertanggal & berstatus verifikasi | `docs/DATASHEET.md` |
 | 10 | Validasi prospektif tak terlihat juri | Bagian "Validasi prospektif" di findings (app hal. 6): tabel prediksi beku + commit + jam, perintah pemeriksaan integritas, jadwal, batas daya | findings; `docs/audit/20261127_prospective_validation/` |
 
+> **Koreksi 2026-11-27 (D-169, review eksternal).** "± Rp90–940" pada poin 7 berarti "sekitar", bukan interval simetris. Yang benar:
+> batas atas kenaikan +0,25% s.d. +4,65% (+Rp89 s.d. +Rp938) untuk 6 komoditas; interval tidak simetris (beras −Rp170..+Rp89).
+> `findings.md` sudah memakai bentuk ini; teks di atas tidak diubah.
+
 ## Catatan metode
 
 - **Batas Rupiah.** Harga acuan = median antarprovinsi dari rerata harga teramati 8 minggu s.d. 2026-11-16 (seri layak).

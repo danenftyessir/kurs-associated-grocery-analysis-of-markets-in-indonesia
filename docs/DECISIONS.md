@@ -415,6 +415,42 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-169 — Tanggapan review eksternal: arah DM di app, rumus skenario eksak, makna carry_forward, klaim batas Rupiah, waktu origin, sinkron status validasi prospektif · FINAL (teknis) · 2026-11-27 (WP-34) · Danen
+Review eksternal 2026-11-27 (repo `main`) diverifikasi butir per butir terhadap kode dan artefak sebelum ada yang diubah. Angka artefak
+di `results/` tidak berubah (hanya teks `findings.md`); params, model, dan prediksi beku tidak disentuh. Bukan DEVIASI PRAREGISTRASI.
+(1) **Arah DM.** `forecast_eval` M2/M1 MAE 1,009 / 1,013 dengan DM −2,70 / −2,29 (p dua sisi 0,009 / 0,025; `dm_p_one_sided` 0,996 /
+0,987): M2 nyata sedikit lebih buruk. App hal. 4 hanya menampilkan p dua sisi, jadi p kecil terbaca "lebih baik" → `viz.style.dm_summary`
+(tanda, arah, p dua sisi, p satu sisi untuk keunggulan M2); hover `forecast_ratios` memuat `dm_stat`; findings RQ5 & Ringkasan 5 menulis arah.
+(2) **Skenario.** App hal. 5 memakai PT·x, findings exp(PT·ln(1 + x/100)) − 1 → satu fungsi `viz.plots.scenario_change` untuk app dan
+`scenario_paths`; tes mencocokkan angka app dengan tabel findings (beras +0,02% (−1,04..+0,55); daging ayam −5,99% (−8,31..+0,25)). Linear
+menyimpang di ekor (cabai rawit batas bawah −20,9% vs −18,4%). Ditolak: mempertahankan PT·x dengan label "orde pertama" (angka app ≠ findings).
+(3) **carry_forward** (D-021) = minggu yang mayoritas hari teramatinya termasuk rangkaian harga identik ≥ 5 hari; bukan bukti imputasi atau
+kekakuan. FAQ PIHPS (https://www.bi.go.id/hargapangan/Informasi/FAQ, dibaca 2026-11-27): harga hari sebelumnya dipakai bila pasar tidak
+beroperasi (mis. bencana); revisi masih dapat dilakukan sampai hari berikutnya; pencacahan Senin–Jumat 09.00–11.00 WIB, terbit 13.00 WIB;
+2 pasar/kota, 2 pedagang/komoditas; 82 kota sampel IHK. Teks findings, DATASHEET, DATASETS, METHODS, README, PLAN, app (`status_share`, hal. 7)
+dan catatan evaluator diperbaiki. U22 memuat angka basi 47,9% / minyak goreng 74% (Sesi 2, sebelum D-023) → 49,2% / 87%.
+(4) **Klaim.** "± Rp90–940" (± dimaksud "sekitar", terbaca simetris) → batas atas +0,25..+4,65% (+Rp89..+Rp938), interval asimetris (beras
+−Rp170..+Rp89); "sisanya lebih mungkin faktor lain" → "perlu ditelusuri"; "komoditas lebih menentukan" → variasi deskriptif, bukan
+dekomposisi varians formal; batas deteksi δ = 0,2 hanya untuk struktur yang diuji (2–3 kelompok berukuran hampir sama, pusat simpleks,
+`planted.plant_structure`); arti proksi (`ln_dist_hub` garis lurus, `rice_sufficiency` beras saja, `n_kota` 110 kota daftar situs vs 82 di
+FAQ); rasio impor tidak setara antarkomoditas (bawang putih satu tahun tanpa ekspor; eksposur pakan tidak diukur rasio ini, app hal. 4
+kini menampilkan keyakinan konkordansi); rasio biaya K4 = analisis kepekaan, bukan nilai harapan (EKSPERIMEN §5); posisi = prototipe riset &
+analitik pendukung keputusan, bukan sistem peringatan dini (beranda app, README §2.3, findings).
+(5) **Waktu origin Task 4.** Label Senin minggu ISO t; harga eceran & kurs memakai pengamatan s.d. Jumat; waktu keputusan konsisten = Minggu
+00.00 (D-155). Harga dunia `available_at` ≤ Senin minggu t (`merge_asof` pada label) → rilis Selasa–Jumat baru terpakai minggu berikutnya:
+konservatif, bukan kebocoran. `available_at` Pink Sheet = asumsi hari kerja ke-2 (cocok dengan rilis 3 Nov 2026), nilai dari rilis 3 Nov 2026
+yang memuat revisi historis. Didokumentasikan (METHODS M0.4/M4, findings, README §6.5, DATASHEET §4); model beku tidak diubah; cutoff seragam
+hanya lewat eksperimen baru dengan protokol beku.
+(6) **Status validasi prospektif.** PV-2b sudah di-commit `8c7677a`, tetapi SUMMARY/OPEN_ISSUES/RESULTS audit dan CLAUDE.md §2 masih "menunggu"
+→ disinkronkan. `integrity_check.py` (beku, hash di `pv_protocol_sha256.txt`) keluar 1 di Windows bila stdout bukan UTF-8 (crash mencetak "→")
+walaupun semua pemeriksaan lolos; dengan `python -X utf8` keluar 0 (18.20 WIB) → instruksi diubah, skrip tidak (mengubahnya membatalkan hash beku).
+Zip juri (`package.SUBMISSION_GLOBS`: `docs/*.md` saja) tidak memuat `docs/audit/` maupun riwayat git, padahal findings merujuk ke sana → findings
+kini menyebut bahwa pemeriksaan integritas butuh clone repository git dan bahwa `docs/audit/` hanya ada di repository. Menyertakan laporan audit
+ke zip adalah keputusan terpisah (isi paket), belum diambil.
+(7) U110 mendapat bukti FAQ (revisi s.d. hari berikutnya; hari kalender atau kerja tidak disebut, tetap `[HUMAN]`); U12 mendapat catatan
+review (bukan SLR, rujukan [S] dicek full-text dulu). Tidak dikerjakan di sini: bibliografi (U12), validasi TPID (U109), penyederhanaan app
+untuk presentasi.
+
 ### D-168 — Penyajian temuan menurut tiga tingkat bukti, uji ukuran kalibrasi, batas atas Rupiah, buku besar periode uji · FINAL (teknis) · 2026-11-27 (WP-33) · Danen
 Menanggapi audit red flag juri (poin 4–7, 9, 10; `docs/audit/20261127_redflag_juri/REPORT.md`). `results/findings.md` disusun ulang tanpa
 mengubah angka artefak:
