@@ -9,6 +9,8 @@ Makalah lomba (juknis INDONERIS 2026 §2c) dalam LaTeX. Berkas yang dikumpulkan:
 | `figures/*.pdf` | gambar; dibuat ulang dari artefak, tidak digambar tangan |
 | `scripts/make_figures.py` | Gambar 1, 3–6, 8 dari artefak resmi (`results/`, `data/processed/`, hasil analisis red flag) |
 | `scripts/capture_app.py` | Gambar 7: tangkapan layar app yang sedang berjalan (Chrome + Playwright) |
+| `scripts/make_figures_bab45.py` | PNG Bab 4–5 versi Google Doc (`figures/bab45/`, indeks di `figures/bab45/README.md`); opsi `--junit` untuk matriks pengujian |
+| `scripts/capture_app_bab45.py` | PNG tangkapan layar app untuk Bab 4 (`figures/bab45/b4_08_app_*.png`) |
 | `RUJUKAN.md` | verifikasi 55 rujukan (Crossref, arXiv, halaman resmi, teks lengkap) dan rujukan proposal yang tidak dikutip |
 | `NASKAH_VIDEO.md` | naskah video demo (tugas `[HUMAN]`) |
 
