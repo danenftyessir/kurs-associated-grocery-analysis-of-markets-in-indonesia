@@ -415,6 +415,70 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-180 — Audit kata ambigu di teks app (beranda, Cerita data, halaman terkait) · FINAL (teknis) · 2026-11-28 (WP-31, WP-34) · Danen
+Atas permintaan Danen, semua teks yang tampil di beranda dan Cerita data (dirender dari artefak asli, termasuk judul, subjudul, legenda,
+dan keterangan grafik) dibaca ulang untuk mencari kata yang ambigu. Lima jenis masalah: (1) istilah tanpa penjelasan: "hasil kurs acak"
+(9 kemunculan, 4 halaman), "koreksi semua sel", "disusutkan"/"berderau", "rentang 95%", "model dasar", "galat 0,9% dan 1,3%" tanpa
+horizon; (2) kalimat bermakna ganda: "kenaikan harga beras paling tinggi Rp89" (terbaca "tertinggi di antara komoditas"), "Harga acuan
+Rupiah" (terdengar seperti kurs acuan), "kurs naik 20,3%" (yang naik dolar), "Merah: respons lebih tinggi" saat respons nasional negatif;
+(3) rujukan kabur: "angka nasional bisa dipakai" (harga atau kepekaan?), "batasnya bisa dipakai" (untuk apa?), "pusat distribusi" (yang
+mana?); (4) tanda membingungkan: "berubah −1,67%"; (5) angka tanpa makna: "14 keluar rentang, kebetulan 6,0" tanpa arti, "3 dari 12" tanpa
+satuan. Perbaikan: "kebetulan" sebagai istilah tunggal untuk pembanding plasebo (didefinisikan di Cara kami menguji: 499 versi data
+dengan urutan kurs digeser acak), "rupiah melemah x%" untuk kurs +x% (konsisten dengan skenario), "paling banyak" untuk batas atas,
+"kepekaan" didefinisikan sekali (perubahan harga % dalam 8 minggu per 1% pelemahan), perubahan ditulis "naik/turun x%", "koreksi banyak
+perbandingan", "ditarik ke arah angka nasional", hub disebut (Jakarta, Surabaya, Makassar), model dasar dijelaskan (riwayat harga, musim,
+minyak mentah dunia), kesalahan prediksi per horizon, makna jumlah di luar rentang normal ditulis (lebih banyak dari kebetulan tetapi
+lebih banyak yang turun), kepala kolom "di luar rentang". Dua klaim yang masih berlebihan ikut dikoreksi: jawaban 3 ("merespons dengan
+besar yang sama" → "tidak ada beda", karena tidak menolak ≠ terbukti sama) dan kolom Kesimpulan Profil provinsi ("sama dengan nasional" →
+"tidak berbeda nyata"). Halaman 2, 3, 5, 10, 11 diseragamkan. Penjaga baru `test_app_data.test_app_text_avoids_ambiguous_terms`
+(literal string app & `viz/plots.py`). Tumpang tindih teks 0 di 1280/1024/375 px (beranda, Cerita data). Angka tidak berubah.
+
+### D-179 — Jawaban beranda dibuka dengan hal yang bisa dipakai, hasil nol sebagai batas · FINAL · 2026-11-28 (WP-31, WP-34) · Danen
+Danen menilai kelima jawaban pertanyaan penelitian di beranda ("Belum terlihat", "Hanya sedikit", "Tidak terlihat beda", "Tidak
+terbukti", "Tidak") sebagai kegagalan produk: pembaca mencari jawaban, dan vonis negatif berturut-turut membuat semua visualisasi
+terbaca sebagai omong kosong. Diagnosis: isinya benar, tetapi setiap jawaban dibuka dengan vonis atas hipotesis, bukan dengan
+jawaban atas pertanyaan pembaca. Hasil nol tidak diubah menjadi klaim positif (§1.6, §20); setiap jawaban kini dibuka dengan hal
+yang bisa dipakai dan menulis hasil nol sebagai batas atau pegangan: (1) batas Rupiah kenaikan harga 8 minggu untuk rupiah melemah
+5% bagi lima komoditas yang batasnya sempit (beras Rp89/kg, minyak goreng Rp328/liter, daging ayam Rp95/kg, telur ayam Rp537/kg,
+daging sapi Rp938/kg; sama dengan tabel batas Rupiah findings) + kenaikan di atasnya dicari di luar kurs + minyak goreng mengikuti
+sawit dunia; (2) angka nasional bisa dipakai di semua provinsi untuk 8 dari 10 komoditas, pengecualian daging ayam & telur ayam
+(Maluku & Kepulauan Riau paling jelas), tidak ada dasar membagi pemantauan per wilayah; (3) sejauh yang bisa dideteksi data,
+pelemahan & penguatan bisa diperlakukan sama (beras, daging sapi); (4) pilih komoditas pantauan dari respons terukur, bukan porsi
+impor; (5) riwayat harga lebih berguna daripada kurs untuk prediksi, kurs lebih tepat untuk memeriksa kenaikan yang sudah terjadi.
+Frasa yang sempat mengklaim lebih dari bukti dikoreksi sebelum rilis ("perlakukan keduanya sama" → "sejauh yang bisa dideteksi
+data", "tidak perlu dibagi" → "tidak menemukan dasar", "lebih lambat" → "lebih kecil", sesuai H3). Angka tetap dihitung dari
+artefak. Tes `test_app_data.test_home_answers_lead_with_usable_finding`. Rambu §20 CLAUDE.md ditambah satu baris.
+
+### D-178 — Halaman Cerita data: peta petak heksagon & matriks episode × komoditas · FINAL (teknis) · 2026-11-28 (WP-31) · Danen
+Danen meminta halaman visualisasi bergaya grafik editorial. Dari tujuh jenis yang dibandingkan, yang cocok dengan data hanya peta
+petak heksagon (setiap provinsi satu heksagon berukuran sama, jadi DKI Jakarta dan DIY sama terlihatnya dengan Papua) dan lini masa
+episode. Ditolak: treemap Voronoi/melingkar (butuh data komposisi; satu-satunya kandidat, "porsi variasi komoditas vs provinsi",
+dilarang §20 karena bukan dekomposisi varians formal), Sankey kuantitatif (peringkat PT antar horizon berubah dalam interval yang
+tumpang tindih), dan graf jaringan (menyiratkan aliran rantai pasok yang tidak diamati).
+Dibangun `app/pages/12_Cerita_Data.py` (menu kedua, `url_path` `Cerita_Data`): (1) untuk satu komoditas, peta harga eceran terkini
+(harga teramati terakhir dalam 8 minggu terakhir `panel_weekly`, skala satu warna dalam Rupiah, label langsung termahal & termurah) di
+atas peta selisih respons kurs h 8 dari nasional (deviasi tersusut `profiles`, skala divergen % per 1% pelemahan rupiah, sama untuk
+semua komoditas); (2) peta kecil 10 komoditas (5 × 2); (3) matriks episode × komoditas: batang kenaikan kurs per episode di atas
+satu titik per komoditas (merah = naik melewati rentang 95% jendela tanpa episode, biru = turun melewatinya, abu-abu = di dalam,
+lingkaran kosong = belum teramati), jumlah di luar rentang per komoditas di kanan; harapan dari kebetulan 5% ditulis di subjudul.
+Refleksi desain versi pertama (permintaan Danen) mengganti: palet divergen yang sama di peta harga dan peta respons (merah = mahal vs
+merah = lebih peka), judul "kepekaan jauh lebih seragam" (membandingkan dua besaran berbeda satuan; kini "respons jarang berbeda",
+yang teruji), kode ISO di heksagon (kini singkatan Indonesia, kolom `label`), peta tanpa nama pulau dan label langsung, peta kecil 2 ×
+5 setinggi 1.100 px, lini masa gelembung (tinggi dan luas menyandikan hal yang sama, episode 2018 bertumpuk, angka mencampur naik dan
+turun, komoditas tidak terlihat), dan angka pembuka dari satu provinsi ekstrem (cabai rawit 275%; kini beras termahal vs termurah).
+Aturan kejujuran: komoditas yang H0-Het-nya tidak ditolak (`heterogeneity`, 8 dari 10) digambar abu-abu seluruhnya walau deviasi
+tersusutnya bervariasi (bawang merah dan cabai merah sekitar 1, tidak lebih besar dari plasebo); garis tebal hanya untuk deviasi yang
+lolos BH global atas semua sel `province_calibrated` (sama dengan findings & Profil provinsi: 2 sel pada e h 8, daging ayam di Maluku
+dan Kepulauan Riau); respons nasional selalu ditulis dengan rentang 95%; episode yang harga 8 minggu sesudahnya belum teramati
+digambar terpisah, bukan dihitung "di dalam rentang". Tata letak = tabel tim `data/reference/province_hex.csv` (kode ISO 3166-2,
+singkatan, kolom, baris offset; barat → timur). Viz `hex_tile_map`, `hex_tile_grid`, `episode_matrix`; `common.load_hex`,
+`common.global_deviations` (dipakai juga Profil provinsi), `common.het_detected`. Beranda: peta heksagon daging ayam (kode dua huruf,
+kolom sempit) di bawah jawaban pertanyaan 2 + tautan; subjudul grafik batas beranda dipecah baris karena melewati bingkai di 1024 px
+(masalah lama). Teknis: `add_shape` per heksagon membuat grid 19 dtk → shape dipasang sekaligus (0,4 dtk); label langsung diletakkan di
+petak kosong terdekat (koordinat data); di ponsel tanpa nama pulau & label langsung (bertabrakan), sumbu episode hanya tahun (tegak).
+Pemeriksa tumpang tindih teks SVG: 0 di 1280/1024/375 px untuk Cerita data dan beranda. Angka artefak tidak berubah; tidak ada
+estimasi baru.
+
 ### D-177 — Makalah lomba, verifikasi bibliografi (U12), naskah video · FINAL · 2026-11-28 (WP-33, WP-34) · Danen
 Analisis kekurangan per 2026-11-28 menemukan makalah PDF (wajib juknis §2e, bobot kelengkapan laporan 15%) belum ada sama sekali dan
 bibliografi belum diverifikasi (U12 🔴). Atas permintaan Danen dibuat `docs/paper/kagami_makalah.tex` → `kagami_makalah.pdf` (21 halaman)

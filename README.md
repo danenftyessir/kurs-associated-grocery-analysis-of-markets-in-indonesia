@@ -528,7 +528,7 @@ diketahui di `tests/test_stats.py`.
 
 ## 9. Aplikasi untuk analis
 
-Aplikasi Streamlit kami punya enam halaman hasil dan tiga halaman lampiran teknis, dikelompokkan di menu samping. Setiap halaman
+Aplikasi Streamlit kami punya sembilan halaman hasil dan dua halaman lampiran, dikelompokkan di menu samping. Setiap halaman
 hasil menjawab satu pertanyaan dan dibuka dengan jawabannya dalam bahasa pembaca; notasi statistik dan kode internal hanya ada di
 lampiran dan di expander teknis (D-171). Aplikasi ini hanya membaca artefak hasil: tidak ada login, tidak ada unggahan data pengguna,
 dan tidak ada estimasi saat dijalankan. Versi daring: https://kagami.streamlit.app (membaca artefak hasil yang ikut di repo). Titik
@@ -537,6 +537,7 @@ masuk [app/Home.py](app/Home.py) hanya memasang menu; isi halaman ada di `app/pa
 | Bagian | Halaman | Isi |
 | --- | --- | --- |
 | Hasil penelitian | Ringkasan | Kalimat pembuka dalam Rupiah per kg (batas atas kenaikan harga beras untuk rupiah melemah 5%), grafik batas perubahan harga 10 komoditas, lima pertanyaan penelitian beserta jawabannya (dihitung dari artefak), cara menguji, status prototipe |
+| | Cerita data | Peta petak heksagon 34 provinsi (satu heksagon per provinsi, ukuran sama): harga terkini vs selisih respons terhadap rupiah per komoditas, peta kecil 10 komoditas (abu-abu bila perbedaan antarprovinsi tidak terdeteksi), matriks 13 episode pelemahan rupiah × 10 komoditas (harga naik atau turun melewati rentang normal) |
 | | Rupiah dari waktu ke waktu | Lini masa kurs JISDOR 2018–2026 dengan 13 episode pelemahan, kipas episode per komoditas (perubahan harga setelah tiap episode di atas pita 499 jendela tanpa episode), kipas semua komoditas |
 | | Respons harga | Satu kurva respons (nasional atau 7 wilayah, terhadap kurs atau harga dunia) dalam % per 1% dengan kalimat cara membaca; tab semua komoditas, saat melemah vs menguat, peta provinsi, episode pelemahan |
 | | Profil provinsi | Label harga 10 komoditas per provinsi (harga terkini, perubahan setahun, rentang Rupiah untuk rupiah melemah 1/3/5%), tren harga dibanding median 34 provinsi, kelengkapan data, deviasi provinsi yang lolos koreksi |
@@ -731,7 +732,7 @@ Panel mingguan per provinsi adalah dataset turunan kami yang dibangun dari PIHPS
 Bank Indonesia, yang mencakup redistribusi data turunan.
 
 Pink Sheet (Bank Dunia) dan FAOSTAT berlisensi CC BY 4.0, dan data FRED mengikuti ketentuan FRED. Tabel buatan tim di
-`data/reference/` kami rilis dengan lisensi CC BY 4.0, kecuali geometri peta `data/reference/indonesia_provinces.geojson`:
+`data/reference/` (termasuk tata letak heksagon `province_hex.csv`) kami rilis dengan lisensi CC BY 4.0, kecuali geometri peta `data/reference/indonesia_provinces.geojson`:
 © OpenStreetMap contributors, ODbL 1.0, via geoBoundaries (disederhanakan tim). Rincian per sumber ada di
 [docs/DATASETS.md](docs/DATASETS.md).
 

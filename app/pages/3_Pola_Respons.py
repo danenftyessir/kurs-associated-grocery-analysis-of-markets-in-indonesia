@@ -21,8 +21,8 @@ if got:
     rej = q[q["reject"].fillna(False).astype(bool)] if "reject" in q else q.iloc[0:0]
     lead((("Provinsi tidak membentuk kelompok dengan pola respons yang sama. " if k_star == 1 else
            f"Provinsi membentuk {k_star} kelompok yang lolos uji data acak. ")
-          + (f"Perbedaan antarprovinsi yang lebih besar dari hasil kurs acak hanya muncul pada {names_list(rej['commodity'], labels)}."
-             if len(rej) else "Tidak ada komoditas yang responsnya berbeda antarprovinsi melebihi hasil kurs acak.")))
+          + (f"Perbedaan antarprovinsi yang lebih besar dari kebetulan hanya muncul pada {names_list(rej['commodity'], labels)}."
+             if len(rej) else "Tidak ada komoditas yang responsnya berbeda antarprovinsi melebihi kebetulan.")))
 
     st.subheader("Komoditas dengan respons berbeda antarprovinsi")
     if {"statistic", "value", "commodity"} <= set(het.columns) and {"p_placebo", "q_fdr", "reject"} <= set(q.columns):

@@ -9,6 +9,30 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-28 — Danen: WP-31 🔶 (audit kata ambigu, D-180)
+- Teks render beranda & Cerita data dibaca ulang: 5 jenis ambiguitas (istilah tanpa penjelasan, makna ganda, rujukan kabur, tanda,
+  angka tanpa makna) → istilah tunggal "kebetulan", "rupiah melemah", "paling banyak", kepekaan didefinisikan, "naik/turun x%". Klaim
+  berlebihan dikoreksi (jawaban 3, kolom Kesimpulan Profil provinsi). Halaman 2, 3, 5, 10, 11 diseragamkan; penjaga istilah di
+  `test_app_data`. Tumpang tindih 0 di 1280/1024/375 px. Angka tidak berubah.
+
+### 2026-11-28 — Danen: WP-31 🔶 (jawaban beranda, D-179)
+- Danen: lima jawaban beranda berupa vonis negatif berturut-turut = kegagalan produk. Ditulis ulang di `app/pages/1_Beranda.py`: setiap
+  jawaban dibuka dengan hal yang bisa dipakai (batas Rupiah lima komoditas, angka nasional berlaku 8/10 komoditas, pegangan pelemahan =
+  penguatan, pilih pantauan dari respons terukur, riwayat harga > kurs untuk prediksi); hasil nol sebagai batas; tiga frasa yang
+  mengklaim berlebihan dikoreksi. Tes baru di `test_app_data`; rambu §20. Angka dari artefak, tidak berubah.
+
+### 2026-11-28 — Danen: WP-31 🔶 (halaman Cerita data, D-178)
+- Permintaan: tiru gaya grafik editorial untuk beranda atau halaman baru, lalu refleksikan desainnya. Dari 7 jenis yang cocok: peta
+  petak heksagon dan lini masa episode (treemap, Sankey kuantitatif, graf jaringan ditolak, D-178).
+- `app/pages/12_Cerita_Data.py`: peta harga terkini (skala Rupiah, label termahal/termurah) dan selisih respons kurs h 8 (divergen, garis
+  tebal BH global, 2 sel), peta kecil 10 komoditas 5 × 2 (8 abu-abu: H0-Het tidak ditolak), matriks episode × komoditas (6 naik & 8 turun
+  melewati rentang dari 120 titik vs 6,0 kebetulan; 1 episode belum teramati). Beranda: peta heksagon daging ayam. Tabel tim
+  `data/reference/province_hex.csv` (+ singkatan); `common.load_hex`, `global_deviations`, `het_detected`. Tes `test_viz`, `test_app_data`.
+- Refleksi versi pertama: palet ganda, judul berlebihan, kode ISO, gelembung redundan & bertumpuk, angka pembuka dari satu provinsi
+  ekstrem → diganti. Teknis: grid 19 dtk → 0,4 dtk; ponsel tanpa nama pulau, sumbu tahun tegak; subjudul grafik batas beranda melewati
+  bingkai di 1024 px (masalah lama) dipecah. Tumpang tindih teks 0 di 1280/1024/375 px. Angka artefak tidak berubah.
+- Berikutnya: commit/push agar app daring memuat halaman; WP-35 `[HUMAN]`.
+
 ### 2026-11-28 — Danen: WP-33 ✅, WP-34 ✅ (analisis kekurangan, makalah PDF, bibliografi, D-176, D-177)
 - Permintaan: analisis kekurangan teknis & substansi lalu selesaikan. Baseline pytest 421 lolos. Kekurangan: makalah PDF belum ada, U12 🔴,
   naskah video belum ada; halaman 10/11 membaca `drivers_weekly`/`panel_weekly` yang di-ignore git (app daring akan "Menunggu hasil");

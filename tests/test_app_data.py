@@ -179,6 +179,28 @@ def test_reference_prices_match_findings_rupiah_table(monkeypatch, cfg):
     st.cache_data.clear()
 
 
+def test_home_answers_lead_with_usable_finding(monkeypatch, cfg):
+    """D-179: kelima jawaban beranda dibuka dengan hal yang bisa dipakai, bukan vonis atas hipotesis ("Tidak terbukti",
+    "Belum terlihat"); jawaban pertama memuat batas Rupiah beras dari tabel findings (+Rp89 → "Rp89 per kg")."""
+    from kagami.utils.io import exists
+    if not all(exists(cfg, n) for n in ("findings", "profiles", "heterogeneity", "asymmetry", "assoc", "forecast_eval")):
+        pytest.skip("artefak hasil belum ada")
+    from streamlit.testing.v1 import AppTest
+    monkeypatch.syspath_prepend(str(APP))
+    sys.modules.pop("common", None)
+    st.cache_data.clear()
+    at = AppTest.from_file(str(APP / "pages" / "1_Beranda.py"), default_timeout=120).run()
+    assert not at.exception
+    answers = [m.value for m in at.markdown if 'class="kg-ans"' in m.value]
+    assert len(answers) == 5
+    first = [a.split(">", 1)[1].split(".")[0] for a in answers]
+    bad = ("Tidak", "Belum", "Hanya sedikit")
+    assert not [f for f in first if f.startswith(bad)], first
+    assert "Rp89 per kg untuk beras" in answers[0]
+    sys.modules.pop("common", None)
+    st.cache_data.clear()
+
+
 def _common(monkeypatch):
     monkeypatch.syspath_prepend(str(APP))
     sys.modules.pop("common", None)
@@ -234,6 +256,20 @@ def test_math_text_renders_notation_and_plain_names(monkeypatch):
     assert c.plain_names("Sumber: `profiles`, `panel_weekly`; `ca53742`") == "Sumber: profil respons, panel harga mingguan; `ca53742`"
 
 
+def test_het_detected_and_global_deviations(monkeypatch):
+    """D-178: komoditas terdeteksi dari `reject` (atau q BH ≤ fdr_q bila kolom tak ada); q_global = BH atas semua sel."""
+    c = _common(monkeypatch)
+    het = pd.DataFrame({"commodity": ["a", "b", "c", "a"], "statistic": ["Q", "Q", "Q", "tau2"],
+                        "q_fdr": [.01, .2, .04, .01]})
+    assert c.het_detected(het) == {"a", "c"}
+    assert c.het_detected(het.assign(reject=[False, True, False, True])) == {"b"}
+    assert c.het_detected(None) == set()
+    pc = pd.DataFrame({"commodity": "x", "driver": "e", "horizon": 8, "unit": ["1", "2", "3"], "estimate": [1., 0, 0],
+                       "p_value": [1e-4, .5, .9]})
+    q = c.global_deviations(pc)["q_global"]
+    assert q.iloc[0] < 0.05 <= q.iloc[1] and c.global_deviations(None).empty
+
+
 def test_app_text_has_no_internal_codes_or_semicolons():
     """D-172: teks yang ditulis di halaman app (literal string di luar docstring/komentar) tanpa kode D-/U-/WP- dan tanpa
     titik koma. Teks dari berkas (findings.md, laporan Tahap 0) dibersihkan saat tampil lewat `common.readable`."""
@@ -250,6 +286,31 @@ def test_app_text_has_no_internal_codes_or_semicolons():
             if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docs                     and n.value.strip() != ";":            # pemisah untuk split/replace, bukan teks tampilan
                 if code.search(n.value) or "; " in n.value:
                     bad.append(f"{path.name}:{n.lineno}: {n.value[:70]}")
+    assert not bad, "\n".join(bad)
+
+
+def test_app_text_avoids_ambiguous_terms():
+    """D-180: istilah yang terbukti ambigu bagi pembaca tidak dipakai di teks halaman app atau grafik: "hasil kurs acak"
+    (→ "kebetulan", dijelaskan di Cara kami menguji), "kurs naik" (→ "rupiah melemah"), "koreksi semua sel" (→ "koreksi
+    banyak perbandingan"), "disusutkan"/"berderau" (→ "ditarik ke arah angka nasional"), "Harga acuan Rupiah" (terdengar
+    seperti kurs acuan), "paling tinggi Rp" (terbaca "tertinggi di antara komoditas"; → "paling banyak")."""
+    import ast
+    terms = ("hasil kurs acak", "kurs naik", "koreksi semua sel", "disusutkan", "berderau", "Harga acuan Rupiah",
+             "paling tinggi Rp")
+    bad = []
+    files = sorted((APP / "pages").glob("*.py")) + [APP / "Home.py", APP.parent / "src" / "viz" / "plots.py"]
+    for path in files:
+        if path.name.startswith("7_"):                      # alat pengembang (KAGAMI_DEV), bukan halaman pembaca
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        docs = {id(n.body[0].value) for n in ast.walk(tree)
+                if isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef)) and n.body
+                and isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant)}
+        for n in ast.walk(tree):
+            if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docs:
+                hit = [t for t in terms if t in n.value]
+                if hit:
+                    bad.append(f"{path.name}:{n.lineno}: {hit} {n.value[:60]}")
     assert not bad, "\n".join(bad)
 
 

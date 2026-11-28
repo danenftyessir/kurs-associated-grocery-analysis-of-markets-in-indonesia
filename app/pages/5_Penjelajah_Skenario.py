@@ -64,7 +64,7 @@ if got:
                         "yaitu respons harga dibagi respons kurs terhadap dirinya sendiri. Rumus ini sama dengan tabel batas "
                         "Rupiah di laporan lengkap. Rentang $PT$ berasal dari bootstrap blok 13 minggu, yang menarik estimasi "
                         "ke arah nol pada horizon panjang, sehingga rentangnya cenderung lebar.")
-            note("Harga acuan Rupiah adalah median antarprovinsi dari rata-rata harga teramati 8 minggu sampai 16 November "
-                 "2026. Angka Rupiah hanya tersedia untuk tingkat nasional.")
+            note("Angka Rupiah dihitung dari median harga 34 provinsi, memakai rata-rata harga teramati 8 minggu sampai "
+                 "16 November 2026. Angka Rupiah hanya tersedia untuk tingkat nasional.")
 
 footer("PIHPS dan JISDOR (Bank Indonesia)")

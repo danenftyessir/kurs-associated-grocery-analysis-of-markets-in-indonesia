@@ -399,6 +399,13 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
   koma, kode); angka diverifikasi sama dengan versi lama; tab app hal. 6 memetakan "Pertanyaan" dan "Ketahanan".
 - 2026-11-28 (Danen, D-175): halaman Rupiah dari waktu ke waktu (`pages/10_Lini_Masa_Rupiah.py`) dan Profil provinsi
   (`pages/11_Profil_Provinsi.py`); kipas episode di tab Respons harga; viz `episode_fan`, `episode_fan_grid`, `price_trend`.
+- 2026-11-28 (Danen, D-180): audit kata ambigu di teks app; istilah tunggal "kebetulan", "rupiah melemah", "paling banyak";
+  penjaga istilah di `test_app_data`.
+- 2026-11-28 (Danen, D-179): lima jawaban beranda dibuka dengan hal yang bisa dipakai (batas Rupiah, angka nasional yang berlaku,
+  pegangan); hasil nol sebagai batas, bukan vonis "tidak terbukti".
+- 2026-11-28 (Danen, D-178): halaman Cerita data (`pages/12_Cerita_Data.py`): peta petak heksagon harga vs respons kurs per komoditas,
+  peta kecil 10 komoditas (8 abu-abu, H0-Het tidak ditolak), matriks episode × komoditas; peta heksagon di beranda; viz
+  `hex_tile_map`, `hex_tile_grid`, `episode_matrix`; tabel tim `data/reference/province_hex.csv`.
 - File: `app/`. Selesai bila: [x] 6 halaman menampilkan artefak nyata; [x] setiap grafik: sumber, satuan, periode, interval, label "asosiasi, bukan kausalitas"; [x] lencana "tidak terdeteksi"; [x] halaman 3 menangani k=1; [x] halaman 5 bendera ekstrapolasi; [x] tanpa login/input data/estimasi runtime.
 - 2026-11-23 (Danen, D-130): hal. 2 + `national_calibrated` & H2 `asymmetry`; hal. 4 Kendall sebagai metrik, forest meta-regresi per horizon (bukan campuran skala), E2 `regime_profiles`; hal. 5 status & catatan interval PT; hal. 6 ringkasan robustness; `with_status` (lencana + 3 desimal) dan `STRETCH` (lebar penuh lintas versi Streamlit; `use_container_width` usang). Tes `test_app_data` memuat artefak sintetis baru.
 - 2026-11-23 (Danen, D-134, PLAN.md §18): `viz/style.py` (palet tervalidasi, label bahasa pengguna, format angka Indonesia); hal. 2
