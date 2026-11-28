@@ -59,11 +59,11 @@ if got:
         st.plotly_chart(plots.scenario_paths(pt, shocks, x, title=f"{name}: perubahan harga setelah rupiah melemah"),
                         **STRETCH)
         with st.expander("Cara menghitung"):
-            st.markdown("Perubahan harga = exp(PT(h) × ln(1 + x/100)) − 1, dengan x besar pelemahan rupiah (%) dan PT(h) "
-                        "penerusan kurs pada minggu ke-h: respons harga dibagi respons kurs terhadap dirinya sendiri. "
-                        "Rumus ini sama dengan tabel batas Rupiah di Laporan lengkap. Rentang PT berasal dari bootstrap blok "
-                        "13 minggu, yang menarik estimasi ke arah nol pada horizon panjang, sehingga rentangnya cenderung "
-                        "lebar.")
+            st.latex(r"\Delta\text{harga}\ (\%) = 100\left[\exp\big(PT(h)\cdot\ln(1 + x/100)\big) - 1\right]")
+            st.markdown("Di sini $x$ adalah besar pelemahan rupiah dalam persen, dan $PT(h)$ penerusan kurs pada minggu ke-$h$, "
+                        "yaitu respons harga dibagi respons kurs terhadap dirinya sendiri. Rumus ini sama dengan tabel batas "
+                        "Rupiah di laporan lengkap. Rentang $PT$ berasal dari bootstrap blok 13 minggu, yang menarik estimasi "
+                        "ke arah nol pada horizon panjang, sehingga rentangnya cenderung lebar.")
             note("Harga acuan Rupiah adalah median antarprovinsi dari rata-rata harga teramati 8 minggu sampai 16 November "
                  "2026. Angka Rupiah hanya tersedia untuk tingkat nasional.")
 

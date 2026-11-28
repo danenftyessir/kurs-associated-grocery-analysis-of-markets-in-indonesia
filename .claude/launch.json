@@ -6,6 +6,13 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "streamlit", "run", "app/Home.py", "--server.port", "8501", "--server.headless", "true"],
       "port": 8501
+    },
+    {
+      "name": "kagami-app-8511",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "streamlit", "run", "app/Home.py", "--server.port", "8511", "--server.headless", "true"],
+      "port": 8511,
+      "autoPort": false
     }
   ]
 }

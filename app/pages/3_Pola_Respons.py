@@ -4,8 +4,8 @@ acak) → apakah provinsi membentuk kelompok (silhouette vs batas data acak) →
 import pandas as pd
 import streamlit as st
 
-from common import (STRETCH, commodity_labels, fmt_num, footer, lead, load, names_list, need, note, page_header, table,
-                    unit_names)
+from common import (STRETCH, commodity_labels, fmt_num, footer, lead, load, names_list, need, note, page_header, show_table,
+                    table, unit_names)
 from kagami.evaluation.planted import DETECTION_RATE, detection_limit
 from kagami.viz import plots
 
@@ -32,16 +32,16 @@ if got:
                             "Setelah koreksi 10 uji (q)": qq["q_fdr"].round(3).to_numpy(),
                             "Hasil": ["berbeda antarprovinsi" if r else "tidak terlihat"
                                       for r in qq["reject"].fillna(False).astype(bool)]})
-        st.dataframe(tab, hide_index=True, **STRETCH)
+        show_table(tab)
         note("Untuk setiap komoditas kami mengukur keragaman respons 8 minggu antarprovinsi, lalu membandingkannya dengan "
              "499 versi data yang urutan waktu kursnya digeser acak. p adalah porsi data acak yang keragamannya sama besar "
-             "atau lebih besar. q mengoreksi p karena 10 komoditas diuji sekaligus (Benjamini–Hochberg); hasil dianggap "
-             "berbeda bila q paling tinggi 0,05.")
+             "atau lebih besar. q mengoreksi p karena 10 komoditas diuji sekaligus (Benjamini–Hochberg). Kami menyebut "
+             "respons berbeda antarprovinsi bila q paling tinggi 0,05.")
         wide = het.pivot_table(index="commodity", columns="statistic", values="value", aggfunc="first").reindex(qq.index)
         with st.expander("Statistik uji lengkap"):
-            st.dataframe(pd.DataFrame({"Komoditas": [labels.get(c, c) for c in qq.index],
-                                       "Q (Cochran)": wide.get("Q"), "τ² (varians antarprovinsi)": wide.get("tau2"),
-                                       "I²": wide.get("I2")}).round(3), hide_index=True, **STRETCH)
+            show_table(pd.DataFrame({"Komoditas": [labels.get(c, c) for c in qq.index],
+                                     "Q (Cochran)": wide.get("Q"), "τ² (varians antarprovinsi)": wide.get("tau2"),
+                                     "I²": wide.get("I2")}).round(3))
             note("τ² = 0 berarti data tidak cukup untuk membedakan provinsi, sehingga semua provinsi ditampilkan sama "
                  "dengan rata-rata nasional.")
     else:
@@ -68,8 +68,9 @@ if got:
     st.plotly_chart(plots.recovery_curve(planted, threshold=DETECTION_RATE), **STRETCH)
     note("Batas ini hanya berlaku untuk bentuk yang kami uji: 2 atau 3 kelompok berukuran hampir sama. Kelompok kecil, gradien "
          "geografis, atau perbedaan yang hanya muncul pada sebagian komoditas belum diuji.")
-    table(planted.rename(columns={"delta": "selisih", "k_true": "jumlah kelompok buatan",
-                                  "recovery_rate": "porsi percobaan yang menemukan"}), "Lihat tabel", status=False)
+    keep = {"delta": "Selisih respons (%)", "k_true": "Jumlah kelompok buatan",
+            "recovery_rate": "Porsi percobaan yang menemukan", "ari_mean": "Kemiripan dengan kelompok asli (ARI)"}
+    table(planted[[c for c in keep if c in planted]].rename(columns=keep), "Lihat tabel", status=False)
 
     if k_star > 1:
         cl = got["clusters"]
@@ -79,7 +80,8 @@ if got:
             st.warning("Ada kelompok dengan stabilitas rendah. Kelompok itu belum layak dibaca sebagai tipe kepekaan.")
         names = unit_names()
         ward = cl[cl["method"] == "ward"].assign(provinsi=lambda d: d["province_id"].astype(str).map(names))
-        table(ward[["cluster", "provinsi", "jaccard", "weak"]].sort_values(["cluster", "provinsi"]),
+        table(ward[["cluster", "provinsi", "jaccard", "weak"]].sort_values(["cluster", "provinsi"]).rename(
+            columns={"cluster": "Kelompok", "provinsi": "Provinsi", "jaccard": "Stabilitas (Jaccard)", "weak": "Lemah"}),
               "Anggota kelompok", status=False)
         st.plotly_chart(plots.coassign_heatmap(got["coassign"]), **STRETCH)
         pc = load("partition_compare")

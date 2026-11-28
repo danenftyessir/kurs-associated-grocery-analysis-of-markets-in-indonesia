@@ -59,7 +59,7 @@ tidak ada yang menunggu.
 | `src/utils/`, `src/cli.py`, `configs/runtime.yaml` | pemilik (infra: config, runtime, Drive, CLI) | perubahan lewat handoff `PERMINTAAN` | – |
 | `src/tracking/`, `logs/`, `app/pages/7_Evaluasi_Eksekusi.py`, `tests/test_tracking.py` | pemilik (log eksekusi & evaluasi, WP-36, D-137) | evaluator tahap miliknya boleh ditambah (aditif) | – |
 | `notebooks/` | `00_stage0_data`, `01_task1_profiles`, `03_task3_association`, `05_robustness` | `02_task2_patterns`, `04_task4_forecast` (Ardell juga menjalankan `01` untuk P2) | – |
-| `app/` (router `Home.py` + `pages/1..9`, D-170, D-171) | – | pemilik | menyediakan teks/copy di `docs/paper/app_copy.md` |
+| `app/` (router `Home.py` + `pages/1..11`, D-170, D-171, D-175) | – | pemilik | menyediakan teks/copy di `docs/paper/app_copy.md` |
 | `configs/params.yaml` | semua bagian kecuali milik Ardell | `clustering`, `association`, `forecast`, `scenario` (parameter `inference` & `shrinkage` dipakai Ardell di WP-16/17 tetapi dibekukan Danen di G6; perubahan lewat handoff `PERMINTAAN`) | – |
 | `configs/commodities.yaml` | pemilik | – | – |
 | `configs/sources.yaml` | – | pemilik entri sumber manual baru | – |
@@ -125,11 +125,11 @@ kirim handoff jenis `TERBIT` (`docs/HANDOFF.md`) + versi pendek di chat.
 | Tanggal berlaku & isi PADG No. 7/2026 (U3) | tanggal + sumber di OPEN_ISSUES U3 (Danen memasukkan ke params) | 21 Nov | Danen |
 | Data manual §6.2 | CSV di `data/raw/manual_*/` | 22–23 Nov | Ardell (WP-07), Danen (WP-10) |
 | Naskah praregistrasi | `docs/PREREGISTRATION.md` bagian naskah | 21 Nov | G6 |
-| Bibliografi: lengkapi & verifikasi rujukan "belum diverifikasi" (U12) | `docs/paper/references.md` | 23 Nov | makalah |
-| Makalah bagian tanpa angka: judul, abstrak draf, pendahuluan, kajian pustaka, dataset, metode, perbedaan dengan solusi sebelumnya, matriks evaluasi | `docs/paper/makalah.md` | 26 Nov | WP-33 |
-| Teks/copy untuk 6 halaman app | `docs/paper/app_copy.md` | 25 Nov | Ardell (WP-31) |
-| Naskah & storyboard video demo | `docs/paper/video_script.md` | 25 Nov | video |
-| Hasil, analisis, kesimpulan + `results/findings.md` (angka dari artefak P5) | makalah lengkap | 27 Nov | WP-33 |
+| ~~Bibliografi: lengkapi & verifikasi rujukan "belum diverifikasi" (U12)~~ | **selesai (Danen, D-177)**: `docs/paper/RUJUKAN.md` | 23 Nov | makalah |
+| ~~Makalah bagian tanpa angka: judul, abstrak draf, pendahuluan, kajian pustaka, dataset, metode, perbedaan dengan solusi sebelumnya, matriks evaluasi~~ | **selesai (Danen, D-177)**: `docs/paper/kagami_makalah.tex` | 26 Nov | WP-33 |
+| ~~Teks/copy untuk 6 halaman app~~ | **selesai (Danen, D-170–D-175)**: teks langsung di `app/` | 25 Nov | Ardell (WP-31) |
+| ~~Naskah & storyboard video demo~~ | **selesai (Danen, D-177)**: `docs/paper/NASKAH_VIDEO.md` | 25 Nov | video |
+| ~~Hasil, analisis, kesimpulan + `results/findings.md` (angka dari artefak P5)~~ | **selesai (Danen)**: makalah lengkap `docs/paper/kagami_makalah.pdf` | 27 Nov | WP-33 |
 | Audit klaim (tabel "Jangan tulis / Tulis", CLAUDE.md §20) pada makalah, app, findings | handoff `PERMINTAAN` berisi daftar koreksi | 28 Nov | G8 |
 | Rekam video, ekspor PDF makalah, unggah ke Drive & form pendaftaran Gelombang 2 | submission | 28–29 Nov | lomba |
 

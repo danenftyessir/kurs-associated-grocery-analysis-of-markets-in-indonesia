@@ -5,18 +5,35 @@ import re
 
 import streamlit as st
 
-from common import DRIVER_LABELS, PAGE, STRETCH, commodity_labels, footer, nav_link, need, note, page_header, picker
+import pandas as pd
+
+from common import (DRIVER_LABELS, PAGE, STRETCH, commodity_labels, footer, math_text, nav_link, need, note, page_header,
+                    picker, plain_names, readable, show_table)
 from kagami.viz import plots
+from kagami.viz.style import CHECK_LABELS
 
 page_header("Laporan temuan lengkap",
-            "Teks lengkap temuan yang ikut dalam paket juri, dengan angka, tingkat bukti, dan keterbatasannya. Dokumen ini "
-            "memakai notasi statistik; artinya ada di Daftar istilah.")
-nav_link(PAGE["data"], "Daftar istilah di halaman Data & metode", ":material/menu_book:")
+            "Teks lengkap temuan untuk pembaca teknis seperti juri dan peneliti, dengan angka, tingkat bukti, dan "
+            "keterbatasannya. Jawaban untuk pembaca umum ada di halaman Hasil penelitian.")
+with st.expander("Cara membaca angka di laporan ini"):
+    st.markdown("Respons harga ditulis $\\beta_e(h)$ untuk kurs rupiah dan $\\omega(h)$ untuk harga dunia dalam rupiah, pada "
+                "minggu ke-$h$. Nilai $-1{,}67$ berarti harga turun sekitar 1,67% untuk setiap 1% pelemahan rupiah. Penerusan "
+                "kurs membagi respons harga dengan respons kurs terhadap dirinya sendiri:")
+    st.latex(r"PT(h) = \frac{\beta_e(h)}{\gamma(h)}")
+    st.markdown("Angka dalam kurung seperti (0,02..0,28) adalah rentang 95%. Rentang yang memuat nol berarti respons belum "
+                "bisa dibedakan dari nol. $q$ adalah nilai $p$ yang dikoreksi untuk banyak uji sekaligus. Laporan ini "
+                "memisahkan tiga tingkat bukti: uji yang didaftarkan sebelum analisis, analisis kepekaan, dan eksplorasi.")
+nav_link(PAGE["data"], "Rumus model dan daftar istilah di halaman Data & metode", ":material/menu_book:")
+
+TIERS = {"1": "Tier 1", "2": "Tier 2", "V": "Validasi"}
+CHECKS = {**CHECK_LABELS, "V4_lp_vs_event_study": "proyeksi lokal vs studi peristiwa",
+          "V2_case_study_events": "studi kasus 2026 (episode)", "V2_case_study_forecast": "studi kasus 2026 (prediksi)",
+          "alternative_exposure_remoteness": "definisi eksposur & keterpencilan alternatif"}
 
 # (judul tab, awalan judul bagian findings.md yang masuk ke tab itu)
 GROUPS = [("Ringkasan", ("Ringkasan", "Makna bagi pengguna")),
-          ("Per pertanyaan", ("RQ", "Eksplorasi")),
-          ("Ketahanan & batas", ("Kalibrasi", "Robustness", "Validasi prospektif", "Keterbatasan")),
+          ("Per pertanyaan", ("Pertanyaan", "RQ", "Eksplorasi")),
+          ("Ketahanan & batas", ("Kalibrasi", "Ketahanan", "Robustness", "Validasi prospektif", "Keterbatasan")),
           ("Data & cara membaca", ("Dataset turunan", "Sumber angka")),
           ("Eksplorasi prediksi (lampiran)", ("Lampiran",))]
 
@@ -50,9 +67,9 @@ def robustness_section() -> None:
             hs = sorted(int(h) for h in rb.loc[(rb["commodity"] == com) & (rb["driver"] == drv), "horizon"].dropna().unique())
             h = picker("Horizon (minggu)", hs, "h", default=8, container=c3)
             st.plotly_chart(plots.robustness_forest(rb, com, drv, h, name=labels.get(com, com)), **STRETCH)
-            note("Tier 1 adalah cek wajib yang kami daftarkan sebelum analisis. Tier 2 adalah cek tambahan: varian harga, "
-                 "cara agregasi, dan sumber harga lain. Dekomposisi kurs memisahkan komponen dolar global dari komponen "
-                 "khusus rupiah.")
+            note("Tier 1 adalah cek wajib yang kami daftarkan sebelum analisis. Tier 2 adalah cek tambahan dengan varian "
+                 "harga, cara agregasi, dan sumber harga lain. Dekomposisi kurs memisahkan komponen dolar global dari "
+                 "komponen khusus rupiah.")
     if {"check_id", "tier", "estimate", "ci_low", "ci_high", "baseline_estimate"} <= set(rb.columns):
         ok = rb[["ci_low", "ci_high", "baseline_estimate"]].notna().all(axis=1)
         d = rb[ok].assign(in_ci=lambda x: ((x["baseline_estimate"] >= x["ci_low"])
@@ -62,19 +79,26 @@ def robustness_section() -> None:
             s = d.groupby(["tier", "check_id"], as_index=False).agg(
                 sel=("in_ci", "size"), baseline_di_dalam_interval=("in_ci", "sum"), interval_tanpa_nol=("excl0", "sum"))
             s["porsi"] = (s["baseline_di_dalam_interval"] / s["sel"]).round(3)
+            s = pd.DataFrame({"Kelompok": s["tier"].astype(str).map(lambda t: TIERS.get(t, t)),
+                              "Cek": s["check_id"].map(lambda c: CHECKS.get(c, c)), "Jumlah sel": s["sel"],
+                              "Estimasi utama di dalam rentang cek": s["baseline_di_dalam_interval"].astype(int),
+                              "Rentang cek tanpa nol": s["interval_tanpa_nol"].astype(int), "Porsi": s["porsi"]})
             with st.expander("Ringkasan per cek ketahanan dan validasi"):
-                st.dataframe(s, hide_index=True, **STRETCH)
-                st.caption("Porsi = sel yang estimasi utamanya berada di dalam interval cek. V4 (LP vs event study) lemah sebagai "
-                           "validasi karena hampir semua interval event memuat nol.")
+                show_table(s)
+                st.caption("Porsi adalah bagian sel yang estimasi utamanya berada di dalam rentang cek. Validasi pembanding "
+                           "proyeksi lokal dengan studi peristiwa lemah karena hampir semua rentang studi peristiwa memuat nol.")
     with st.expander("Tabel ketahanan lengkap"):
-        st.dataframe(rb, hide_index=True, **STRETCH)
+        show_table(rb)
 
 
 fd = need("findings")
 if fd:
-    lead, rest, secs = split_findings(fd["findings"])
+    # tampilan: tanpa kode internal (D-172), notasi sebagai rumus LaTeX & nama berkas sebagai nama pembaca (D-173);
+    # berkas findings.md tidak berubah
+    text = math_text(plain_names(readable(fd["findings"])))
+    lead, rest, secs = split_findings(text)
     if not secs:
-        st.markdown(fd["findings"])
+        st.markdown(text)
     else:
         st.markdown(lead)
         tabs = st.tabs([g for g, _ in GROUPS])

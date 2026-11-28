@@ -153,12 +153,13 @@ if got:
         note("Batas kenaikan adalah ujung atas rentang 95% dari pola historis tingkat nasional. Harga acuan Rupiah adalah "
              "median antarprovinsi selama 8 minggu sampai 16 November 2026.")
         nav_link(PAGE["simulasi"], "Coba simulasi pelemahan rupiah", ":material/tune:")
-        nav_link(PAGE["respons"], "Lihat respons tiap komoditas", ":material/show_chart:")
+        nav_link(PAGE["provinsi"], "Lihat label harga di provinsi Anda", ":material/location_on:")
+        nav_link(PAGE["lini_masa"], "Lihat rupiah dan harga sejak 2018", ":material/timeline:")
     with right:
         if len(pt):
             d = pt.assign(width=pt["ci_high"] - pt["ci_low"]).sort_values("width", ascending=False)
             st.plotly_chart(plots.forest(
-                d, ["komoditas"], f"Perubahan harga {H} minggu setelah rupiah melemah {X}%",
+                d, ["komoditas"], f"Perubahan harga {H} minggu\nsetelah rupiah melemah {X}%",   # kolom sempit
                 x_title="perubahan harga eceran nasional (%)", x_range=(-10, 10),
                 subtitle="Titik: perkiraan. Garis: rentang 95%. Segitiga: rentang melewati batas grafik."), **STRETCH)
 
@@ -176,8 +177,8 @@ if got:
     el = load("eligibility")
     n_el = f"{int(el['eligible'].sum())} dari {len(el)}" if el is not None else "sebagian besar"
     st.markdown(
-        f"Kami meringkas harga harian Bank Indonesia (PIHPS) menjadi harga mingguan; {n_el} seri provinsi dan komoditas "
-        "cukup lengkap untuk dianalisis. Hipotesis dan aturan uji kami bekukan pada 20 November 2026, sebelum hasil "
+        f"Kami meringkas harga harian Bank Indonesia (PIHPS) menjadi harga mingguan. Sebanyak {n_el} seri provinsi dan "
+        "komoditas cukup lengkap untuk dianalisis. Hipotesis dan aturan uji kami bekukan pada 20 November 2026, sebelum hasil "
         f"estimasi dilihat. Setiap hasil kami bandingkan dengan {CFG.params['inference']['placebo_R']} versi data yang urutan "
         "waktu kursnya digeser acak. Dengan cara itu hasil nol pun punya ukuran, yaitu efek terkecil yang akan tertangkap "
         "bila efek itu ada.")

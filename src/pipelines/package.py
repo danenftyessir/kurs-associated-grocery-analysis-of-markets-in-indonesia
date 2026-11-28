@@ -17,7 +17,14 @@ from kagami.utils.config import Config
 CODE_GLOBS = ("pyproject.toml", "requirements.txt", "README.md", "configs/*.yaml", "src/**/*.py", "data/reference/*.csv",
               "data/reference/*.geojson", "notebooks/*.ipynb")
 SUBMISSION_GLOBS = CODE_GLOBS + ("app/**/*.py", ".streamlit/config.toml", "tests/**/*.py", "docs/*.md",
-                                 "logs/*/*.json")   # log eksekusi & evaluasi (WP-36): app hal. 7 terisi di Tingkat A
+                                 "logs/*/*.json",   # log eksekusi & evaluasi (WP-36): app hal. 7 terisi di Tingkat A
+                                 # D-176: laporan audit yang dirujuk findings.md (teks saja; hasil antara & skrip eksperimen
+                                 # tetap di repo, kecuali analisis red flag yang hanya membaca artefak ship=True)
+                                 "docs/audit/**/*.md", "docs/audit/20261127_redflag_juri/scripts/*.py",
+                                 "docs/audit/20261127_redflag_juri/hasil/*.csv",
+                                 # makalah (WP-33): PDF, sumber LaTeX, gambar, dan skrip gambar dari artefak
+                                 "docs/paper/*.pdf", "docs/paper/*.tex", "docs/paper/*.md", "docs/paper/figures/*.pdf",
+                                 "docs/paper/scripts/*.py")
 
 
 def _code_files(cfg: Config, globs: tuple[str, ...]) -> dict[Path, str]:

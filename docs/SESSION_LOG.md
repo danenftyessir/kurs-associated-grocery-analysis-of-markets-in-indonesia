@@ -9,6 +9,53 @@ diubah, yang belum selesai/diblokir. Pesan ke anggota lain (artefak terbit, perm
 
 ## Danen
 
+### 2026-11-28 — Danen: WP-33 ✅, WP-34 ✅ (analisis kekurangan, makalah PDF, bibliografi, D-176, D-177)
+- Permintaan: analisis kekurangan teknis & substansi lalu selesaikan. Baseline pytest 421 lolos. Kekurangan: makalah PDF belum ada, U12 🔴,
+  naskah video belum ada; halaman 10/11 membaca `drivers_weekly`/`panel_weekly` yang di-ignore git (app daring akan "Menunggu hasil");
+  zip juri tanpa `docs/audit/` yang dirujuk findings; judul grafik beranda terpotong di 1280 px.
+- Makalah `docs/paper/kagami_makalah.tex` → `.pdf` (21 hlm, pdflatex `--disable-installer`; MiKTeX AutoInstall "tanya" menggantung),
+  8 gambar dari artefak/app (`docs/paper/scripts/`), 55 rujukan diverifikasi Crossref/arXiv/halaman resmi (`RUJUKAN.md`), Persada dkk.
+  dikoreksi dari teks lengkap, Hidayah & Askar tidak dikutip; naskah video; `tests/test_paper.py`. Float `[t]` terlalu tinggi sempat
+  menumpahkan semua gambar ke akhir dokumen (jebakan §23 no. 35).
+- Teknis: `.gitignore` + tes `test_app_artifacts_not_gitignored`; zip juri + `docs/audit/**/*.md`, red flag, `docs/paper/`; `style.finish`
+  menerima `\n` (judul beranda dua baris). Angka artefak tidak berubah.
+- Berikutnya: konfirmasi afiliasi & baca ulang makalah, commit/push (termasuk dua parquet), video, unggah (WP-35 `[HUMAN]`).
+
+### 2026-11-28 — Danen: WP-31/34 🔶 (halaman lini masa rupiah & profil provinsi, D-175)
+- Riset UX per aktor → celah: kurs tidak pernah tampil, tidak ada tampilan per provinsi, episode hanya tabel. Dibangun
+  `pages/10_Lini_Masa_Rupiah.py` (lini masa JISDOR + 13 episode, kipas episode per komoditas & semua komoditas) dan
+  `pages/11_Profil_Provinsi.py` (label harga 10 komoditas + rentang Rupiah, tren vs median, kelengkapan data, deviasi lolos BH global
+  = 7 seperti findings). Tab episode Respons harga → kipas. Viz baru `episode_fan`, `episode_fan_grid`, `price_trend`, `month_year`.
+- Tes: `test_wiring` 11 halaman, `test_app_data` artefak sintetis baru, `test_viz` grafik baru. Pemeriksa tumpang tindih: 0 di
+  1280/1024/375 px. Angka artefak tidak berubah.
+
+### 2026-11-28 — Danen: WP-33/34 🔶 (findings.md ditulis ulang, D-174)
+- Permintaan: Laporan lengkap masih berpola tulisan AI (contoh "**Batas atas.** …", "**Minyak goreng & harga sawit dunia.** Interval
+  resmi: …"). Semua bagian `results/findings.md` ditulis ulang: subjudul + paragraf berpelaku, tabel untuk angka padat (minyak goreng,
+  daging ayam, Tier 1/2, prediksi beku, istilah daftar pantau, sumber angka), notasi LaTeX di berkas.
+- Verifikasi: setiap angka lama ada di versi baru (kecuali kode & 1,05 di dalam rumus); 0 label tebal, 0 kode, 0 "±", 0 titik koma
+  prosa; tabel batas Rupiah identik (`reference_prices` 10 komoditas). App: 52 rumus, 0 galat KaTeX; GROUPS hal. 6 + "Pertanyaan",
+  "Ketahanan". Pengecualian pembekuan `results/` (teks saja).
+
+### 2026-11-28 — Danen: WP-31/34 🔶 (lampiran untuk semua pembaca, D-173)
+- Permintaan: rumus tampil sebagai teks mentah, Lampiran teknis membingungkan aktor non-teknis, Riwayat eksekusi hanya untuk pengembang.
+- Rumus → KaTeX: Simulasi (`st.latex`), Data & metode (persamaan LP `aligned`, PT, skenario, MDE, simbol istilah), Laporan lengkap
+  (`common.math_text`, 53 rumus, 0 galat KaTeX). `.katex-display` bisa digulir di layar sempit.
+- Data & metode ditulis ulang: 5 langkah pengolahan + "Rumus model"; "Pemeriksaan kualitas data" (kalimat dari tabel laporan Tahap 0)
+  menggantikan laporan pipeline mentah; daftar artefak dihapus. Laporan lengkap: panduan membaca, `plain_names`.
+- Riwayat eksekusi keluar dari menu (env `KAGAMI_DEV=1`); menu "Lampiran" = Data & metode, Laporan lengkap. Tes `test_wiring`,
+  `test_app_data` (math_text, plain_names). Angka artefak & findings.md tidak berubah.
+
+### 2026-11-28 — Danen: WP-31/34 🔶 (app tanpa kode & bebas tumpang tindih, D-172)
+- Permintaan: masih banyak kode (U17, D-019), titik koma mengganggu, kolom "Status" seragam "tidak terdeteksi", pastikan tidak ada overlap.
+- Pindaian teks tampil 9 halaman (DOM, tab & expander): kode dari laporan Tahap 0, `findings.md` (44 kode, 85 titik koma), Riwayat
+  eksekusi, catatan sumber `exposure`. `common.readable` (plain_text + soften_semicolons) saat tampil; berkas tidak diubah (findings 85 → 44
+  titik koma, sisanya pemisah angka). Teks halaman: 0 kode, 0 titik koma (tes AST baru).
+- Tabel: `verdicts` (naik/turun/belum terlihat) menggantikan "Status"; kolom dibuang + catatan bila seragam; `show_table` format Indonesia.
+- Pemeriksa tumpang tindih JS (teks SVG + elemen Streamlit) di 1280/1024/375 px → perbaikan `robustness_forest`, `pipeline_graph`,
+  `forecast_ratios`, `style.finish` (bungkus per thread untuk ponsel, legenda di dasar wadah) → 0 di semua halaman bergrafik.
+- Bug: pemilih horizon Riwayat eksekusi memuat "h = 5 minggu" dari metrik H5 → dibatasi `forecast.horizons`. Angka artefak tidak berubah.
+
 ### 2026-11-27 — Danen: WP-31/34 🔶 (teks & UX app untuk juri dan TPID, D-171)
 - Permintaan: UX D-170 kurang nyaman, teks berpola tulisan AI. Pola dibedah (label tebal + penjelasan, negasi defensif, kode U109/H2/β/M2,
   notasi di kalimat awam, rantai "·", caption "Pertanyaan pengguna") → D-171.

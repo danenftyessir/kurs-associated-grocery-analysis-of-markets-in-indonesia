@@ -7,8 +7,10 @@ Warna mengikuti entitas, bukan urutan (mis. M2 selalu biru).
 
 from __future__ import annotations
 
+import contextvars
 import math
 
+import pandas as pd
 import plotly.graph_objects as go
 
 BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
@@ -18,6 +20,9 @@ BLUE_RAMP = ["#86b6ef", "#3987e5", "#1c5cab", "#104281"]          # ordinal tera
 DIVERGING = [[0.0, "#104281"], [0.25, "#5598e7"], [0.5, "#b4b2ab"], [0.75, "#e8736f"], [1.0, "#a32a2b"]]
 SEQUENTIAL = [[0.0, "#cde2fb"], [0.5, "#3987e5"], [1.0, "#0d366b"]]
 STATUS_COLORS = {"observed": "#104281", "carry_forward": "#6da7ec", "short": "#b7d3f6", "missing": NEUTRAL}
+STATUS_LABELS = {"observed": "teramati", "carry_forward": "rangkaian harga identik", "short": "minggu pendek",
+                 "missing": "kosong"}
+MONTHS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
 MODEL_COLORS = {"M0": NEUTRAL, "M1": NEUTRAL, "M2": BLUE, "M3": ORANGE, "M2_nofx": NEUTRAL}
 SERIES = [BLUE, ORANGE, AQUA]
 
@@ -50,7 +55,17 @@ PATH_LABELS = {"direct_import": "Impor langsung", "imported_input": "Input impor
 FEATURE_LABELS = {"ln_dist_hub": "Jarak ke hub logistik (ln km)", "rice_sufficiency": "Kecukupan produksi beras",
                   "n_kota": "Jumlah kota sampel PIHPS"}
 CAUSAL_NOTE = "Asosiasi historis, bukan sebab-akibat."
+# Lebar bungkus (karakter per baris) untuk (judul, subjudul) grafik. Plotly tidak membungkus teks, jadi judul panjang
+# terpotong di layar ponsel. Default desktop: judul satu baris, subjudul 72 karakter. App menyetel (34, 50) untuk browser
+# ponsel lewat `set_wrap`; ContextVar = per thread skrip Streamlit, jadi sesi lain tidak ikut berubah (D-172).
+WRAP: contextvars.ContextVar[tuple[int | None, int]] = contextvars.ContextVar("kagami_wrap", default=(None, 72))
 MINUS = "−"
+
+
+def month_year(ts) -> str:
+    """Tanggal → "Mar 2020" (bulan Indonesia singkat); NaT → "tidak tersedia"."""
+    t = pd.Timestamp(ts) if ts is not None else pd.NaT
+    return "tidak tersedia" if pd.isna(t) else f"{MONTHS[t.month - 1]} {t.year}"
 
 
 def fmt_num(x: float, digits: int = 2, sign: bool = False, pct: bool = False) -> str:
@@ -97,34 +112,70 @@ def rgba(hex_color: str, alpha: float) -> str:
     return f"rgba({int(h[0:2], 16)},{int(h[2:4], 16)},{int(h[4:6], 16)},{alpha})"
 
 
+def set_wrap(title_chars: int | None, subtitle_chars: int) -> None:
+    """Atur lebar bungkus judul & subjudul grafik untuk thread ini (None = judul tidak dibungkus)."""
+    WRAP.set((title_chars, subtitle_chars))
+
+
+def wrap_lines(text: str, width: int) -> list[str]:
+    """Bungkus teks per kata menjadi baris ≤ `width` karakter (kata yang lebih panjang tetap utuh); `\n` = baris baru."""
+    rows = []
+    for para in str(text).split("\n"):
+        cur = ""
+        for w in para.split():
+            if cur and len(cur) + 1 + len(w) > width:
+                rows.append(cur)
+                cur = w
+            else:
+                cur = f"{cur} {w}" if cur else w
+        rows.append(cur)
+    return rows
+
+
 def finish(fig: go.Figure, title: str, subtitle: str | None = None, x: str | None = None, y: str | None = None,
            height: int | None = None) -> go.Figure:
     """Tata letak seragam: judul = pertanyaan/temuan, subjudul = satuan/catatan, pemisah angka Indonesia,
     grid tipis solid, legenda di atas. Warna latar & font dibiarkan ke tema Streamlit (terang/gelap)."""
-    t = {"text": title, "x": 0, "xanchor": "left"}
+    tw, sw = WRAP.get()                                # Plotly tidak membungkus teks: bungkus per kata
+    mobile = tw is not None
+    # desktop: satu baris, kecuali baris baru eksplisit "\n" untuk grafik di kolom sempit (beranda, D-176)
+    trows = wrap_lines(title, tw) if mobile else str(title).split("\n")
+    t = {"text": "<br>".join(trows), "x": 0, "xanchor": "left"}
     lines = 0
     if subtitle:
-        rows = []                                      # Plotly tidak membungkus teks: bungkus per kata (± 72 karakter)
-        for para in subtitle.split("\n"):
-            cur = ""
-            for w in para.split():
-                if cur and len(cur) + 1 + len(w) > 72:
-                    rows.append(cur)
-                    cur = w
-                else:
-                    cur = f"{cur} {w}" if cur else w
-            rows.append(cur)
+        rows = wrap_lines(subtitle, sw)
         lines = len(rows)
         t["subtitle"] = {"text": "<br>".join(rows)}
-    fig.update_layout(title=t, separators=",.", hovermode="closest",
-                      legend={"orientation": "h", "yanchor": "top", "y": -0.18, "x": 0, "title": None},
-                      margin={"t": 60 + 18 * lines, "l": 10, "r": 10, "b": 10})
+    bottom = 10
+    if mobile:
+        # Ponsel: legenda dikunci di dasar wadah grafik (yref container), di bawah judul sumbu x. Ruang bawah dipesan
+        # longgar: tick 28 px, judul sumbu 18 px per baris, legenda 26 px per baris (baris ditaksir dari panjang nama
+        # entri ± 7,5 px per huruf + ikon 45 px). Posisi dalam pecahan tinggi plot meleset di layar sempit (D-172).
+        names = list(dict.fromkeys(tr.name for tr in fig.data if tr.name and tr.showlegend is not False))
+        n_rows, used = (1 if names else 0), 0.0
+        for nm in names:
+            w = 7.5 * len(nm) + 45
+            if used and used + w > 320:
+                n_rows, used = n_rows + 1, 0.0
+            used += w
+        x_lines = len(wrap_lines(x, 16)) if x else 0
+        top = 84 + 30 * (len(trows) - 1) + 21 * lines
+        bottom = 10 + 28 + (18 * x_lines + 10 if x_lines else 0) + 26 * n_rows
+        legend = {"orientation": "h", "yref": "container", "yanchor": "bottom", "y": 0, "x": 0, "title": None}
+    else:
+        top = 72 + 19 * lines + 24 * (len(trows) - 1)
+        legend = {"orientation": "h", "yanchor": "top", "y": -0.22, "x": 0, "title": None}
+    fig.update_layout(title=t, separators=",.", hovermode="closest", legend=legend,
+                      margin={"t": top, "l": 10, "r": 10, "b": bottom})
+    if mobile:                       # ponsel: tinggi ditambah selisih margin agar area plot tidak menyusut (baris rapat)
+        height = (height or fig.layout.height or 450) + (top - (72 + 19 * lines)) + (bottom - 10)
     if height:
         fig.update_layout(height=height)
+    axis = (lambda v: "<br>".join(wrap_lines(v, 16))) if mobile else (lambda v: v)   # ponsel: judul sumbu dibungkus
     if x is not None:
-        fig.update_xaxes(title_text=x)
+        fig.update_xaxes(title_text=axis(x))
     if y is not None:
-        fig.update_yaxes(title_text=y)
+        fig.update_yaxes(title_text=axis(y))
     fig.update_xaxes(showgrid=True, gridwidth=1, zeroline=False)
     fig.update_yaxes(showgrid=True, gridwidth=1, zeroline=False)
     return fig

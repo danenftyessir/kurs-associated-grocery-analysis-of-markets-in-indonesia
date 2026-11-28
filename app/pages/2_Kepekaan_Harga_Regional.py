@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from common import (CFG, DRIVER_LABELS, STRETCH, area_level, area_options, commodity_labels, fmt_interval, fmt_num,
-                    footer, lead, load, load_geo, names_list, need, not_detected_badge, note, page_header, picker,
-                    unit_names)
+from common import (CFG, DRIVER_LABELS, PAGE, STRETCH, area_level, area_options, commodity_labels, fmt_interval,
+                    fmt_num, footer, lead, load, load_geo, names_list, nav_link, need, not_detected_badge, note,
+                    page_header, picker, show_table, unit_names, verdicts)
 from kagami.viz import plots
 from kagami.viz.style import AXIS_LABELS
 
@@ -109,15 +109,15 @@ if got:
         r = sel[sel["horizon"] == hk]
         if len(r):
             r = r.iloc[0]
-            rows.append({"Minggu ke-": hk, "Respons (%)": round(r["estimate"], 2),
-                         "Rentang 95%": fmt_interval(r["ci_low"], r["ci_high"], 2),
-                         "Status": not_detected_badge(r["ci_low"], r["ci_high"]),
+            rows.append({"Minggu ke-": hk, "Perkiraan (%)": round(r["estimate"], 2),
+                         "Rentang 95% (%)": fmt_interval(r["ci_low"], r["ci_high"], 2),
+                         "Kesimpulan": verdicts([r["ci_low"]], [r["ci_high"]])[0],
                          "Efek terkecil yang dapat dideteksi (%)": round(_mde(hk), 2)})
     if rows:
         with st.expander("Angka minggu ke-4, 8, dan 12"):
-            st.dataframe(pd.DataFrame(rows).dropna(axis=1, how="all"), hide_index=True, **STRETCH)
-            note("Rentang 95% resmi diambil dari yang lebih lebar antara galat baku dan bootstrap blok 13 minggu, sesuai "
-                 "praregistrasi. Rentang ini cenderung lebar.")
+            show_table(pd.DataFrame(rows).dropna(axis=1, how="all"))
+            note("Kami mengambil rentang 95% resmi dari yang lebih lebar antara galat baku dan bootstrap blok 13 minggu, "
+                 "sesuai praregistrasi. Rentang ini cenderung lebar.")
 
     tab_all, tab_asym, tab_map, tab_ep = st.tabs(["Semua komoditas", "Saat melemah vs menguat", "Peta provinsi",
                                                   "Episode pelemahan rupiah"])
@@ -132,12 +132,21 @@ if got:
                 cmp_.sort_values("estimate"), ["komoditas"],
                 f"Respons {h} minggu terhadap {DRIVER_LABELS[driver].lower()}, semua komoditas ({where.lower() if area == 'ALL' else where})",
                 x_title=AXIS_LABELS[driver]), **STRETCH)
-            tab = cmp_.assign(**{"Respons (%)": cmp_["estimate"].round(2),
-                                 "Rentang 95%": [fmt_interval(a, b, 2) for a, b in zip(cmp_["ci_low"], cmp_["ci_high"])],
-                                 "Status": [not_detected_badge(a, b) for a, b in zip(cmp_["ci_low"], cmp_["ci_high"])]})
+            verd = verdicts(cmp_["ci_low"], cmp_["ci_high"])
+            n_zero = verd.count("belum terlihat")
+            if n_zero == len(verd):
+                note(f"Pada {h} minggu, rentang 95% semua komoditas memuat nol. Artinya data belum bisa membedakan respons "
+                     "setiap komoditas dari tanpa respons. Ujung kanan rentang tetap berguna: kenaikan harga yang lebih "
+                     "besar dari angka itu tidak sejalan dengan data.")
+            elif n_zero:
+                note(f"Rentang 95% memuat nol pada {n_zero} dari {len(verd)} komoditas (titik kosong). Untuk komoditas itu, "
+                     "data belum bisa membedakan respons dari tanpa respons.")
+            tab = pd.DataFrame({"Komoditas": cmp_["komoditas"], "Perkiraan (%)": cmp_["estimate"].round(2),
+                                "Rentang 95% (%)": [fmt_interval(a, b, 2) for a, b in zip(cmp_["ci_low"], cmp_["ci_high"])]})
+            if len(set(verd)) > 1:
+                tab["Kesimpulan"] = verd
             with st.expander("Lihat tabel"):
-                st.dataframe(tab.rename(columns={"komoditas": "Komoditas"})[["Komoditas", "Respons (%)", "Rentang 95%",
-                                                                             "Status"]], hide_index=True, **STRETCH)
+                show_table(tab)
         cal = load("national_calibrated")
         if cal is not None and not cal.empty and level == "national":
             c = cal[(cal["driver"] == driver) & (cal["horizon"] == h)]
@@ -145,13 +154,14 @@ if got:
                 with st.expander("Rentang alternatif dari kalibrasi data acak (analisis tambahan)"):
                     show = pd.DataFrame({
                         "Komoditas": c["commodity"].map(lambda x: labels.get(x, x)),
-                        "Respons (%)": c["estimate"].round(2),
-                        "Rentang resmi": [fmt_interval(a, b, 2) for a, b in zip(c["ci_prereg_low"], c["ci_prereg_high"])],
-                        "Rentang terkalibrasi": [fmt_interval(a, b, 2) for a, b in zip(c["ci_low"], c["ci_high"])],
+                        "Perkiraan (%)": c["estimate"].round(2),
+                        "Rentang resmi (%)": [fmt_interval(a, b, 2) for a, b in zip(c["ci_prereg_low"], c["ci_prereg_high"])],
+                        "Rentang terkalibrasi (%)": [fmt_interval(a, b, 2) for a, b in zip(c["ci_low"], c["ci_high"])],
+                        "Kesimpulan terkalibrasi": verdicts(c["ci_low"], c["ci_high"]),
                         "p": c["p_value"].round(3), "q (koreksi 48 uji)": c["q_fdr"].round(3)})
-                    st.dataframe(show, hide_index=True, **STRETCH)
-                    note("Rentang resmi dipakai di semua grafik. Bootstrap blok menarik estimasi ke arah nol, jadi rentang "
-                         "resmi terlalu lebar; rentang terkalibrasi memakai sebaran hasil 499 data acak sebagai pembanding. "
+                    show_table(show)
+                    note("Semua grafik memakai rentang resmi. Bootstrap blok menarik estimasi ke arah nol, sehingga rentang "
+                         "resmi terlalu lebar. Rentang terkalibrasi memakai sebaran hasil 499 data acak sebagai pembanding. "
                          "Kami melaporkannya sebagai analisis tambahan sesudah praregistrasi.")
 
     with tab_asym:
@@ -164,13 +174,13 @@ if got:
                  "gambaran.")
             a = asym[asym["commodity"] == com].sort_values("horizon")
             with st.expander("Lihat tabel"):
-                st.dataframe(pd.DataFrame({
-                    "Minggu ke-": a["horizon"], "Saat melemah": a["beta_pos"].round(2), "Saat menguat": a["beta_neg"].round(2),
-                    "Selisih": a["estimate"].round(2),
+                show_table(pd.DataFrame({
+                    "Minggu ke-": a["horizon"], "Saat melemah (%)": a["beta_pos"].round(2),
+                    "Saat menguat (%)": a["beta_neg"].round(2), "Selisih (%)": a["estimate"].round(2),
                     "Rentang 95% selisih": [fmt_interval(x, y, 2) for x, y in zip(a["ci_low"], a["ci_high"])],
                     "p (uji Wald)": a["p_value"].round(3),
-                    "Status": [not_detected_badge(x, y) for x, y in zip(a["ci_low"], a["ci_high"])]}),
-                    hide_index=True, **STRETCH)
+                    "Kesimpulan": verdicts(a["ci_low"], a["ci_high"], pos="lebih besar saat melemah",
+                                           neg="lebih besar saat menguat", zero="belum terlihat beda")}))
         else:
             st.caption("Belum ada uji untuk komoditas ini.")
 
@@ -209,18 +219,22 @@ if got:
             rank = feats[(feats["level"] == "province") & (feats["commodity"] == com)].sort_values("R8", ascending=False)
             if len(rank):
                 with st.expander(f"Peringkat provinsi untuk {name.lower()}"):
-                    st.dataframe(pd.DataFrame({
-                        "Provinsi": rank["unit"].astype(str).map(names), "Respons 4 minggu": rank["R4"].round(2),
-                        "Respons 8 minggu": rank["R8"].round(2), "Respons 12 minggu": rank["R12"].round(2),
-                        "Minggu sampai separuh respons": rank["t_half"].round(1)}), hide_index=True, **STRETCH)
+                    show_table(pd.DataFrame({
+                        "Provinsi": rank["unit"].astype(str).map(names), "Respons 4 minggu (%)": rank["R4"].round(2),
+                        "Respons 8 minggu (%)": rank["R8"].round(2), "Respons 12 minggu (%)": rank["R12"].round(2),
+                        "Minggu sampai separuh respons": rank["t_half"].round(1)}))
                     note("Respons provinsi = respons nasional ditambah selisih provinsi yang sudah disusutkan.")
 
     with tab_ep:
         ev, eps = got["events"], load("episodes")
         e = ev[(ev["commodity"] == com) & (ev["level"] == "national") & (ev["horizon"] == H)]
         n_ep = len(eps) if eps is not None else e["episode_id"].nunique()
+        if (ev["commodity"] == com).any():
+            st.plotly_chart(plots.episode_fan(ev, com, eps, name=name), **STRETCH)
         note(f"Kami menandai {n_ep} episode pelemahan rupiah (kurs naik minimal 3% dalam 8 minggu) dan membandingkan "
-             f"perubahan harga {H} minggu sesudahnya dengan 499 jendela waktu tanpa episode.")
+             "perubahan harga sesudahnya dengan 499 jendela waktu tanpa episode. Lini masa kurs dan kipas semua komoditas ada "
+             "di halaman Rupiah dari waktu ke waktu.")
+        nav_link(PAGE["lini_masa"], "Buka lini masa rupiah", ":material/timeline:")
         if len(e):
             show = e.copy()
             if eps is not None:
@@ -234,6 +248,7 @@ if got:
             show["p"] = show["placebo_p"].round(3)
             cols = [c for c in ("Mulai", "Kenaikan kurs (%)", "Perubahan harga (%)", "Rentang 95% data acak (%)", "p")
                     if c in show]
-            st.dataframe(show[cols], hide_index=True, **STRETCH)
+            with st.expander(f"Angka minggu ke-{H} per episode"):
+                show_table(show[cols])
 
 footer("PIHPS dan JISDOR (Bank Indonesia), Pink Sheet (Bank Dunia)")
