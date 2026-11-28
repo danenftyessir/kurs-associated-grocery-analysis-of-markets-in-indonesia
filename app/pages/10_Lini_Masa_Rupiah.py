@@ -40,11 +40,11 @@ if got:
         lead(f"Rupiah berada di Rp{fmt_num(last, 0)} per dolar AS pada {_day(weeks.iloc[-1])}"
              + (", titik terlemahnya sejak 2018. " if weakest else ". ")
              + f"Sejak awal 2018 rupiah melemah {fmt_num(100 * (last / first - 1), 0)}%. Kami menandai {len(eps)} episode "
-             f"pelemahan, dengan kenaikan kurs terbesar {fmt_num(float(big['naik']), 1)}% yang dimulai "
+             f"pelemahan, dengan pelemahan rupiah terbesar {fmt_num(float(big['naik']), 1)}% yang dimulai "
              f"{month_year(big['start_week'])}.")
 
     opts = [0] + list(eps["episode_id"])
-    ep_name = {int(r.episode_id): f"{month_year(r.start_week)}, kurs naik {fmt_num(r.naik, 1)}%" for r in eps.itertuples()}
+    ep_name = {int(r.episode_id): f"{month_year(r.start_week)}, rupiah melemah {fmt_num(r.naik, 1)}%" for r in eps.itertuples()}
     hl = picker("Sorot satu episode", opts, "ep", format_func=lambda e: "Tidak ada" if e == 0 else ep_name.get(int(e), e),
                 default=0, help="Episode yang dipilih ditebalkan di lini masa dan di kipas harga.")
     hl = None if hl == 0 else int(hl)
@@ -58,10 +58,10 @@ if got:
 
         show_table(pd.DataFrame({
             "Mulai": eps["start_week"].map(month_year), "Selesai": eps["end_week"].map(month_year),
-            "Kenaikan kurs (%)": eps["naik"].round(1),
+            "Pelemahan rupiah (%)": eps["naik"].round(1),
             "Kurs di awal (Rp)": [round(_rate(t - pd.Timedelta(days=7))) for t in eps["start_week"]],
             "Kurs di akhir (Rp)": [round(_rate(t)) for t in eps["end_week"]]}))
-        note("Episode dimulai saat kurs naik minimal 3% dalam 8 minggu. Pemicu yang berjarak 8 minggu atau kurang digabung "
+        note("Episode dimulai saat rupiah melemah minimal 3% dalam 8 minggu. Pemicu yang berjarak 8 minggu atau kurang digabung "
              "menjadi satu episode.")
 
     st.markdown("## Harga setelah setiap episode")

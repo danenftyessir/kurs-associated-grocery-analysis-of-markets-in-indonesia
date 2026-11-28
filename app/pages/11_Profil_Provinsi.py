@@ -10,9 +10,8 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from common import (CFG, PAGE, STRETCH, commodity_labels, fmt_num, fmt_rp, footer, lead, load, names_list, nav_link,
-                    need, note, page_header, picker, reference_prices, show_table, unit_names)
-from kagami.stats.meta import bh_fdr
+from common import (CFG, PAGE, STRETCH, commodity_labels, fmt_num, fmt_rp, footer, global_deviations, lead, load,
+                    names_list, nav_link, need, note, page_header, picker, reference_prices, show_table, unit_names)
 from kagami.viz import plots
 from kagami.viz.style import MONTHS
 
@@ -37,14 +36,6 @@ def _bar(lo: float, hi: float) -> str:
             'stroke-linecap="round"/><line x1="100" x2="100" y1="2" y2="18" stroke="#5f5e5a" stroke-width="1.5"/></svg>')
 
 
-def _deviations(pc: pd.DataFrame | None) -> pd.DataFrame:
-    """Deviasi provinsi yang lolos koreksi BH global atas seluruh sel (konsisten dengan findings)."""
-    if pc is None or pc.empty or "p_value" not in pc:
-        return pd.DataFrame(columns=["commodity", "driver", "horizon", "unit", "estimate", "q_global"])
-    pc = pc.assign(q_global=bh_fdr(pc["p_value"].to_numpy(dtype=float)))
-    return pc
-
-
 got = need("panel_weekly", "eligibility", "profiles")
 if got:
     labels, names = commodity_labels(), unit_names()
@@ -65,7 +56,7 @@ if got:
     pt = prof[(prof["level"] == "national") & (prof["unit"].astype(str) == "ALL") & (prof["driver"] == "PT")
               & (prof["horizon"] == H)].set_index("commodity")
     units = {c: u for c, (_, u) in reference_prices().items()}
-    allpc = _deviations(load("province_calibrated"))
+    allpc = global_deviations(load("province_calibrated"))
     dev = allpc[(allpc["unit"].astype(str) == str(pid)) & (allpc["q_global"] < 0.05)]
 
     coms = [c for c in labels if c in set(pw["commodity"])]
@@ -131,8 +122,8 @@ if got:
                     "Selisih dari nasional": rows["estimate"].round(2),
                     "Rentang 95% terkalibrasi": [f"{fmt_num(a, 2, sign=True)} s.d. {fmt_num(b, 2, sign=True)}"
                                                  for a, b in zip(rows["ci_low"], rows["ci_high"])],
-                    "q (koreksi semua sel)": rows["q_global"].round(3),
-                    "Kesimpulan": np.where(rows["q_global"] < 0.05, "berbeda dari nasional", "sama dengan nasional")}))
+                    "q (koreksi banyak perbandingan)": rows["q_global"].round(3),
+                    "Kesimpulan": np.where(rows["q_global"] < 0.05, "berbeda dari nasional", "tidak berbeda nyata")}))
                 note(f"Kami mengoreksi nilai p untuk semua {len(allpc)} kombinasi provinsi, komoditas, penggerak, dan minggu "
                      "sekaligus. Hanya selisih dengan q di bawah 0,05 yang kami sebut berbeda dari nasional.")
     nav_link(PAGE["wilayah"], "Lihat perbedaan antarprovinsi untuk semua komoditas", ":material/map:")

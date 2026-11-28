@@ -20,6 +20,7 @@ if importlib.util.find_spec("kagami") is None:  # jalan tanpa `pip install -e .`
 import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
+from kagami.stats.meta import bh_fdr  # noqa: E402
 from kagami.utils.artifacts import ARTIFACTS  # noqa: E402
 from kagami.utils.config import Config  # noqa: E402
 from kagami.utils.io import ArtifactMissing, find_artifact, read_artifact  # noqa: E402
@@ -38,7 +39,8 @@ PAGE = {"ringkasan": "pages/1_Beranda.py", "respons": "pages/2_Kepekaan_Harga_Re
         "wilayah": "pages/3_Pola_Respons.py", "faktor": "pages/4_Eksposur_dan_Nilai_Prediktif.py",
         "simulasi": "pages/5_Penjelajah_Skenario.py", "laporan": "pages/6_Temuan_Penelitian.py",
         "riwayat": "pages/7_Evaluasi_Eksekusi.py", "data": "pages/8_Data_dan_Metode.py", "prediksi": "pages/9_Prediksi.py",
-        "lini_masa": "pages/10_Lini_Masa_Rupiah.py", "provinsi": "pages/11_Profil_Provinsi.py"}
+        "lini_masa": "pages/10_Lini_Masa_Rupiah.py", "provinsi": "pages/11_Profil_Provinsi.py",
+        "cerita": "pages/12_Cerita_Data.py"}
 
 
 @st.cache_data(show_spinner=False)
@@ -472,3 +474,29 @@ def reference_prices() -> dict[str, tuple[float, str]]:
         if m and m.group(1).lower() in by_name:
             out[by_name[m.group(1).lower()]] = (float(m.group(3).replace(".", "")), m.group(2))
     return out
+
+
+@st.cache_data(show_spinner=False)
+def load_hex() -> pd.DataFrame | None:
+    """Tata letak petak heksagon 34 provinsi (tabel referensi tim `province_hex.csv`: kode ISO 3166-2, kolom, baris)."""
+    p = CFG.reference_dir / "province_hex.csv"
+    return pd.read_csv(p) if p.exists() else None
+
+
+def global_deviations(pc: pd.DataFrame | None) -> pd.DataFrame:
+    """Deviasi provinsi `province_calibrated` + q_global = koreksi BH atas SELURUH sel (konsisten dengan findings: 7
+    deviasi lolos). Penyajian atas p yang tersimpan, bukan estimasi ulang (D-175)."""
+    if pc is None or not isinstance(pc, pd.DataFrame) or pc.empty or "p_value" not in pc:
+        return pd.DataFrame(columns=["commodity", "driver", "horizon", "unit", "estimate", "q_global"])
+    return pc.assign(q_global=bh_fdr(pc["p_value"].to_numpy(dtype=float)))
+
+
+def het_detected(het: pd.DataFrame | None) -> set[str]:
+    """Komoditas yang perbedaan respons antarprovinsinya lolos uji plasebo (statistik Q di artefak `heterogeneity`):
+    kolom `reject` bila ada, selain itu q BH ≤ `inference.fdr_q`."""
+    if het is None or not isinstance(het, pd.DataFrame) or het.empty:
+        return set()
+    q = het[het["statistic"] == "Q"]
+    rej = (q["reject"].fillna(False).astype(bool) if "reject" in q
+           else q["q_fdr"] <= CFG.params["inference"]["fdr_q"])
+    return set(q.loc[rej, "commodity"])

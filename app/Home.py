@@ -18,6 +18,7 @@ inject_style()
 PAGES = {
     "Hasil penelitian": [
         st.Page("pages/1_Beranda.py", title="Ringkasan", icon=":material/home:", default=True),
+        st.Page("pages/12_Cerita_Data.py", title="Cerita data", icon=":material/hexagon:", url_path="Cerita_Data"),
         st.Page("pages/10_Lini_Masa_Rupiah.py", title="Rupiah dari waktu ke waktu", icon=":material/timeline:",
                 url_path="Lini_Masa_Rupiah"),
         st.Page("pages/2_Kepekaan_Harga_Regional.py", title="Respons harga", icon=":material/show_chart:",

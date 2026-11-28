@@ -155,13 +155,13 @@ def fx_drivers(drivers: pd.DataFrame, episodes: pd.DataFrame | None = None, star
             marker=dict(symbol="triangle-down", size=9, color=S.ORANGE),
             customdata=np.c_[[S.month_year(t) for t in ep["start_week"]],
                              100 * np.expm1(ep["cum_dlog_e"]) if "cum_dlog_e" in ep else np.full(n, np.nan)],
-            hovertemplate="Episode %{customdata[0]}<br>kurs naik %{customdata[1]:.1f}% dalam 8 minggu<extra></extra>"))
+            hovertemplate="Episode %{customdata[0]}<br>rupiah melemah %{customdata[1]:.1f}% dalam 8 minggu<extra></extra>"))
     if len(rate):
         fig.add_trace(go.Scatter(x=[d["week"].iloc[-1]], y=[rate.iloc[-1]], mode="markers", showlegend=False,
                                  marker=dict(size=9, color=S.BLUE, line=dict(color="white", width=2)), hoverinfo="skip"))
     fig.update_yaxes(tickformat=",.0f")
     return S.finish(fig, "Kurs rupiah per dolar AS",
-                    f"Arsiran oranye: {n} episode pelemahan, saat kurs naik minimal 3% dalam 8 minggu. Arahkan kursor ke "
+                    f"Arsiran oranye: {n} episode pelemahan, saat rupiah melemah minimal 3% dalam 8 minggu. Arahkan kursor ke "
                     "segitiga untuk melihat besarnya.", x="", y="Rupiah per dolar AS", height=420)
 
 
@@ -274,6 +274,256 @@ def price_trend(panel: pd.DataFrame, province_id: int, commodity: str, episodes:
     return S.finish(fig, f"{name or commodity}: harga eceran di {where}",
                     "Arsiran oranye: episode pelemahan rupiah. Harga mingguan dari PIHPS, minggu kosong tidak diisi.",
                     x="", y=f"Rupiah per {unit}", height=400)
+
+
+HEX_R = 1 / np.sqrt(3)            # heksagon runcing-atas selebar 1 satuan: jarak kolom 1, jarak baris 1,5·R
+HEX_MUTED = "#dcdad3"             # komoditas tanpa perbedaan antarprovinsi yang terdeteksi: semua heksagon sama
+INK, INK_MUTED = "#1f2328", "#6b6a64"
+UP, DOWN = "#a32a2b", "#104281"   # kutub palet divergen: naik / turun
+# Label pulau di peta heksagon: wilayah crosswalk → (nama, posisi). Atas untuk pulau di baris utara, bawah untuk Jawa & Nusa Tenggara.
+ISLANDS = {"Sumatra": ("Sumatra", "top"), "Kalimantan": ("Kalimantan", "top"), "Sulawesi": ("Sulawesi", "top"),
+           "Maluku": ("Maluku", "top"), "Papua": ("Papua", "top"), "Jawa": ("Jawa", "bottom"),
+           "Bali-Nusa Tenggara": ("Bali & Nusa Tenggara", "bottom")}
+
+
+def _hex_centers(hexes: pd.DataFrame) -> pd.DataFrame:
+    """Pusat heksagon dari (col, row) offset baris ganjil: x = col + 0,5·(row ganjil), y = −1,5·R·row."""
+    h = hexes.copy()
+    h["x"] = h["col"] + 0.5 * (h["row"] % 2)
+    h["y"] = -1.5 * HEX_R * h["row"]
+    return h
+
+
+def _hex_path(x: float, y: float, shrink: float = 0.94) -> str:
+    a = np.deg2rad(np.arange(6) * 60 + 30)
+    r = HEX_R * shrink
+    return "M " + " L ".join(f"{x + r * np.cos(t):.4f},{y + r * np.sin(t):.4f}" for t in a) + " Z"
+
+
+def _ink(rgb: str) -> str:
+    """Warna teks yang terbaca di atas isian heksagon (rgb(...) atau #hex)."""
+    if rgb.startswith("#"):
+        v = [int(rgb[i:i + 2], 16) for i in (1, 3, 5)]
+    else:
+        v = [float(t) for t in rgb[rgb.index("(") + 1:rgb.index(")")].split(",")[:3]]
+    return INK if 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2] > 140 else "#ffffff"
+
+
+def _hex_layer(fig: go.Figure, values: pd.DataFrame, hexes: pd.DataFrame, zmin: float, zmax: float, scale,
+               muted: bool, flags: set, ax: str, text: str | None, colorbar: dict | None) -> pd.DataFrame:
+    """Gambar 34 heksagon (shape path, dipasang sekaligus) + satu trace teks/penanda untuk keterangan kursor di sumbu `ax`
+    ("" = sumbu 1). `text` = kolom tata letak yang ditulis di heksagon (label/code) atau None."""
+    from plotly.colors import sample_colorscale
+
+    h = _hex_centers(hexes).merge(values, on="province_id", how="left")
+    z = h["value"].to_numpy(dtype=float)
+    frac = np.clip((z - zmin) / ((zmax - zmin) or 1.0), 0, 1)
+    fills = [HEX_MUTED if muted or np.isnan(v) else sample_colorscale(scale, [f])[0] for v, f in zip(z, frac)]
+    shapes = [dict(type="path", path=_hex_path(r.x, r.y), xref=f"x{ax}", yref=f"y{ax}", fillcolor=fill, layer="below",
+                   line=dict(color=INK if int(r.province_id) in flags else "#ffffff",
+                             width=2.6 if int(r.province_id) in flags else 1))
+              for r, fill in zip(h.itertuples(), fills)]
+    fig.layout.shapes = tuple(fig.layout.shapes) + tuple(shapes)     # sekaligus: add_shape per heksagon ± 19 dtk di grid
+    hover = h["hover"] if "hover" in h else h["code"]
+    fig.add_trace(go.Scatter(
+        x=h["x"], y=h["y"], mode="text" if text else "markers", text=h[text] if text else None, hovertext=hover,
+        textfont=dict(size=10 if text == "label" else 9, color=[_ink(f) for f in fills]),
+        marker=dict(size=18, opacity=0), hovertemplate="%{hovertext}<extra></extra>", showlegend=False,
+        xaxis=f"x{ax}", yaxis=f"y{ax}"))
+    if colorbar is not None:         # skala warna lewat trace kosong (shape tidak punya colorbar)
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", showlegend=False, hoverinfo="skip",
+                                 marker=dict(color=[zmin, zmax], colorscale=scale, cmin=zmin, cmax=zmax, showscale=True,
+                                             colorbar=colorbar), xaxis=f"x{ax}", yaxis=f"y{ax}"))
+    return h
+
+
+def _hex_axes(fig: go.Figure, hexes: pd.DataFrame, ax: str = "", islands: bool = False) -> None:
+    h = _hex_centers(hexes)
+    top, bottom = (0.95, 0.95) if islands else (0.0, 0.0)
+    fig.update_layout({f"xaxis{ax}": dict(visible=False, range=[h["x"].min() - 0.65, h["x"].max() + 0.65],
+                                          constrain="domain", fixedrange=True),
+                       f"yaxis{ax}": dict(visible=False, range=[h["y"].min() - 0.62 - bottom, h["y"].max() + 0.62 + top],
+                                          scaleanchor=f"x{ax}", scaleratio=1, constrain="domain", fixedrange=True)})
+
+
+def _island_labels(fig: go.Figure, h: pd.DataFrame, regions: dict) -> None:
+    """Nama pulau di atas (pulau utara) atau di bawah (Jawa, Nusa Tenggara) kelompok heksagonnya, abu-abu kecil."""
+    h = h.assign(region=h["province_id"].map(regions))
+    y_top, y_bottom = h["y"].max() + 0.85, h["y"].min() - 0.85
+    for reg, (name, where) in ISLANDS.items():
+        g = h[h["region"] == reg]
+        if g.empty:
+            continue
+        y = y_top if where == "top" else (g["y"].min() - 0.85)
+        fig.add_annotation(x=float(g["x"].mean()), y=y if where == "top" else max(y, y_bottom), text=name,
+                           showarrow=False, font=dict(size=11, color=INK_MUTED), xanchor="center")
+
+
+def _callouts(fig: go.Figure, h: pd.DataFrame, items: list[tuple[int, str]]) -> None:
+    """Label langsung untuk beberapa provinsi: teks diletakkan di petak kosong terdekat yang cukup lebar, dengan garis
+    penunjuk ke heksagonnya (koordinat data, jadi tidak bergeser saat lebar layar berubah)."""
+    xs = np.arange(-0.5, h["x"].max() + 1.0, 0.5)
+    rows = np.arange(-1, h["row"].max() + 2)
+    cand = [(x, -1.5 * HEX_R * r) for r in rows for x in xs]
+    occupied = h[["x", "y"]].to_numpy()
+    used: list[tuple[float, float]] = []
+    for pid, text in items:
+        t = h[h["province_id"] == pid]
+        if t.empty:
+            continue
+        tx, ty = float(t["x"].iloc[0]), float(t["y"].iloc[0])
+        free = [(x, y) for x, y in cand
+                if not ((np.abs(occupied[:, 0] - x) < 1.6) & (np.abs(occupied[:, 1] - y) < 0.6)).any()
+                and all(abs(x - ux) > 2.2 or abs(y - uy) > 0.6 for ux, uy in used)
+                and h["x"].min() + 1.2 <= x <= h["x"].max() - 1.2 and h["y"].min() - 0.1 <= y <= h["y"].max() + 0.1]
+        if not free:
+            continue
+        x, y = min(free, key=lambda p: (p[0] - tx) ** 2 + (p[1] - ty) ** 2)
+        used.append((x, y))
+        fig.add_annotation(x=tx, y=ty, ax=x, ay=y, axref="x", ayref="y", text=text, showarrow=True, arrowhead=0,
+                           arrowwidth=1, arrowcolor=INK_MUTED, standoff=7, font=dict(size=11, color=INK),
+                           bgcolor="rgba(255,255,255,0.85)", borderpad=2)
+
+
+def hex_tile_map(values: pd.DataFrame, hexes: pd.DataFrame, title: str, subtitle: str, zmax: float,
+                 legend: str, muted: bool = False, flags: set | None = None, scale=None, zmin: float | None = None,
+                 height: int | None = None, regions: dict | None = None, callouts: list | None = None,
+                 tickformat: str | None = None, text: str | None = "auto") -> go.Figure:
+    """Peta petak heksagon 34 provinsi (tabel referensi `province_hex.csv`): setiap provinsi satu heksagon berukuran sama,
+    jadi DKI Jakarta sama terlihatnya dengan Papua. `values` = province_id, value (+ hover). Skala `scale` dari `zmin`
+    (default −`zmax`, divergen simetris) ke `zmax`; nilai di luar dipotong ke ujung. `muted` = semua heksagon abu-abu
+    (perbedaan tidak terdeteksi, nilai tetap di keterangan kursor); `flags` = provinsi bergaris tebal (lolos uji);
+    `regions` (province_id → wilayah crosswalk) menambah nama pulau; `callouts` = [(province_id, teks)] label langsung.
+    `text` = "label" (singkatan, butuh lebar penuh), "code" (dua huruf, untuk kolom sempit), None, atau "auto" (label di
+    desktop, kode di ponsel). Ponsel tanpa label langsung. Skala warna mendatar di bawah."""
+    fig = go.Figure()
+    scale = scale or S.DIVERGING
+    zmin = -zmax if zmin is None else zmin
+    mobile = S.WRAP.get()[0] is not None
+    bar = None if muted else dict(orientation="h", x=0, xanchor="left", y=-0.02, yanchor="top", len=0.5 if not mobile else 1,
+                                  thickness=10, outlinewidth=0, title=dict(text=legend, side="top"), tickformat=tickformat)
+    text = ("code" if mobile else "label") if text == "auto" else text
+    h = _hex_layer(fig, values, hexes, zmin, zmax, scale, muted, flags or set(), "", text, bar)
+    islands = regions is not None and not mobile           # ponsel: nama pulau bertabrakan → hanya di desktop
+    _hex_axes(fig, hexes, islands=islands)
+    if islands:
+        _island_labels(fig, h, regions)
+    if callouts and not mobile:
+        _callouts(fig, h, callouts)
+    fig = S.finish(fig, title, subtitle, height=height or (500 if not mobile else 330))
+    fig.update_layout(margin_b=fig.layout.margin.b + (0 if muted else 64))
+    return fig.update_layout(plot_bgcolor="rgba(0,0,0,0)", dragmode=False)
+
+
+def hex_tile_grid(values: pd.DataFrame, hexes: pd.DataFrame, labels: dict, detected: set, zmax: float,
+                  legend: str, flags: pd.DataFrame | None = None) -> go.Figure:
+    """Peta heksagon kecil, satu per komoditas (`values` = commodity, province_id, value, hover), skala warna sama untuk
+    semua panel. Komoditas di luar `detected` digambar abu-abu (perbedaan antarprovinsi tidak lebih besar dari derau) dan
+    diletakkan sesudah yang terdeteksi; `flags` = (commodity, province_id) bergaris tebal. Desktop 5 kolom, ponsel 2.
+    Panel terlalu kecil untuk teks, jadi nama provinsi hanya di keterangan kursor."""
+    present = [c for c in labels if c in set(values["commodity"])]
+    coms = [c for c in present if c in detected] + [c for c in present if c not in detected]   # berwarna di depan
+    mobile = S.WRAP.get()[0] is not None
+    cols = 2 if mobile else 5
+    rows = max(1, -(-len(coms) // cols))
+    titles = [f"{labels.get(c, c)}<br><span style='font-size:11px'>"
+              f"{'beda terdeteksi' if c in detected else 'tidak terdeteksi'}</span>" for c in coms]
+    fig = make_subplots(rows=rows, cols=cols, subplot_titles=titles, horizontal_spacing=0.03,
+                        vertical_spacing=min(0.3, 0.9 / rows))
+    fl = flags if flags is not None else pd.DataFrame(columns=["commodity", "province_id"])
+    for i, c in enumerate(coms):
+        ax = "" if i == 0 else str(i + 1)
+        bar = (dict(orientation="h", x=0, xanchor="left", y=-0.04, yanchor="top", len=0.4 if not mobile else 1,
+                    thickness=9, outlinewidth=0, title=dict(text=legend, side="top")) if i == 0 else None)
+        _hex_layer(fig, values[values["commodity"] == c], hexes, -zmax, zmax, S.DIVERGING, c not in detected,
+                   set(fl.loc[fl["commodity"] == c, "province_id"].astype(int)), ax, None, bar)
+        _hex_axes(fig, hexes, ax)
+    fig.update_annotations(font_size=12)
+    fig = S.finish(fig, "Semua komoditas: kepekaan tiap provinsi dibanding nasional",
+                   "Satu heksagon = satu provinsi, skala warna sama untuk semua panel. Label panel: apakah perbedaan "
+                   "antarprovinsi terdeteksi. Abu-abu berarti perbedaannya tidak lebih besar dari kebetulan. Garis tebal: tetap berbeda setelah koreksi banyak perbandingan. "
+                   f"{CAUSAL_NOTE}",
+                   height=(135 if not mobile else 150) * rows + 230)
+    return fig.update_layout(margin_t=fig.layout.margin.t + 78, margin_b=fig.layout.margin.b + 58,
+                             plot_bgcolor="rgba(0,0,0,0)", dragmode=False)
+
+
+def episode_matrix(episodes: pd.DataFrame, events: pd.DataFrame, labels: dict | None = None,
+                   horizon: int = 8) -> go.Figure:
+    """Matriks episode × komoditas (artefak `episodes`, `events`, nasional). Atas: kenaikan kurs per episode (batang satu
+    warna, berurutan menurut waktu tetapi berjarak sama agar episode yang berdekatan tidak bertumpuk). Bawah: satu titik per
+    komoditas dan episode untuk perubahan harga `horizon` minggu sesudah awal episode: merah = naik melewati rentang 95%
+    jendela tanpa episode, biru = turun melewati rentang, abu-abu kecil = di dalam rentang, lingkaran kosong = belum
+    teramati. Kolom kanan: jumlah episode di luar rentang per komoditas."""
+    lab = labels or {}
+    ep = episodes.copy()
+    ep["start_week"] = pd.to_datetime(ep["start_week"])
+    ep = ep.sort_values("start_week").reset_index(drop=True)
+    ep["i"] = np.arange(1, len(ep) + 1)
+    ep["pct"] = 100 * np.expm1(ep["cum_dlog_e"])
+    ep["tick"] = [S.month_year(t) for t in ep["start_week"]]
+    e = events[(events["level"] == "national") & (events["horizon"] == horizon)].dropna(subset=["dlog_price"]).copy()
+    coms = [c for c in lab if c in set(e["commodity"])] or list(dict.fromkeys(e["commodity"]))
+    e = e[e["commodity"].isin(coms)].merge(ep[["episode_id", "i", "tick"]], on="episode_id")
+    e["pct"] = 100 * np.expm1(e["dlog_price"])
+    e["state"] = np.select([e["dlog_price"] > e["placebo_hi"], e["dlog_price"] < e["placebo_lo"]], ["up", "down"], "in")
+    e["name"] = e["commodity"].map(lambda c: lab.get(c, c))
+    names = [lab.get(c, c) for c in coms]
+    mobile = S.WRAP.get()[0] is not None
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, row_heights=[0.26, 0.74], vertical_spacing=0.05)
+    fig.add_trace(go.Bar(x=ep["i"], y=ep["pct"], marker=dict(color=S.BLUE_RAMP[1], cornerradius=3), showlegend=False,
+                         customdata=np.c_[ep["tick"]], width=0.55,
+                         hovertemplate="Episode %{customdata[0]}<br>rupiah melemah %{y:.1f}%<extra></extra>"), row=1, col=1)
+    big = ep.loc[ep["pct"].idxmax()] if len(ep) else None
+    if big is not None:
+        fig.add_annotation(x=big["i"], y=big["pct"], text=f"{S.fmt_num(big['pct'], 1)}%", showarrow=False, yshift=10,
+                           font=dict(size=11, color=INK), row=1, col=1)
+    styles = {"up": dict(color=UP, size=12, symbol="circle", name="harga naik di luar rentang normal"),
+              "down": dict(color=DOWN, size=12, symbol="circle", name="harga turun di luar rentang normal"),
+              "in": dict(color="#c9c7bf", size=6, symbol="circle", name="di dalam rentang normal")}
+    for st_, s in styles.items():
+        g = e[e["state"] == st_]
+        fig.add_trace(go.Scatter(
+            x=g["i"], y=g["name"], mode="markers", name=s["name"],
+            marker=dict(color=s["color"], size=s["size"], line=dict(color="#ffffff", width=1.5)),
+            customdata=np.c_[g["tick"], g["pct"]],
+            hovertemplate="%{y}, episode %{customdata[0]}<br>" + f"{horizon} minggu kemudian: " + "%{customdata[1]:+.1f}%"
+                          + f"<br>{s['name']}<extra></extra>"), row=2, col=1)
+    have = set(zip(e["commodity"], e["episode_id"]))
+    pend = [(r.i, lab.get(c, c)) for r in ep.itertuples() for c in coms if (c, r.episode_id) not in have]
+    if pend:
+        fig.add_trace(go.Scatter(x=[p[0] for p in pend], y=[p[1] for p in pend], mode="markers", name="belum teramati",
+                                 marker=dict(color="rgba(0,0,0,0)", size=8, line=dict(color=S.NEUTRAL, width=1.2)),
+                                 hovertemplate="%{y}<br>harga " + f"{horizon}" + " minggu sesudahnya belum teramati"
+                                               "<extra></extra>"), row=2, col=1)
+    out = e[e["state"] != "in"].groupby("name").size().reindex(names, fill_value=0)
+    n_obs = e.groupby("name").size().reindex(names, fill_value=0)
+    if not mobile:                    # jumlah per komoditas di kanan matriks
+        fig.add_annotation(x=len(ep) + 0.8, y=1.0, xref="x2", yref="y2 domain", yanchor="bottom", xanchor="left",
+                           showarrow=False,
+                           text="di luar<br>rentang", font=dict(size=11, color=INK_MUTED))
+        for nm in names:
+            fig.add_annotation(x=len(ep) + 0.8, y=nm, text=f"{out[nm]} dari {n_obs[nm]}", showarrow=False, xanchor="left",
+                               font=dict(size=11, color=INK if out[nm] else INK_MUTED), row=2, col=1)
+    fig.update_yaxes(categoryorder="array", categoryarray=names[::-1], showgrid=False, row=2, col=1)
+    years = ep["start_week"].dt.year
+    ticks = ([str(y) if k == 0 or y != years.iloc[k - 1] else "" for k, y in enumerate(years)] if mobile   # ponsel: tahun
+             else [t.replace(" ", "<br>") for t in ep["tick"]])
+    fig.update_yaxes(title_text="melemah (%)", rangemode="tozero", row=1, col=1,
+                     range=[0, float(ep["pct"].max()) * 1.3 if len(ep) else 1])
+    fig.update_xaxes(tickmode="array", tickvals=list(ep["i"]),
+                     ticktext=ticks, tickangle=-90 if mobile else 0,
+                     range=[0.4, len(ep) + (0.6 if mobile else 2.2)], showgrid=False, row=2, col=1)
+    fig.update_xaxes(showgrid=False, row=1, col=1)
+    expected = S.fmt_num(len(e) * 0.05, 0)
+    fig = S.finish(fig, f"Harga {horizon} minggu setelah setiap episode pelemahan rupiah",
+                   f"Batang: seberapa jauh rupiah melemah. Titik: satu per komoditas dan episode. {int(out.sum())} dari "
+                   f"{len(e)} titik keluar dari rentang normal, sedangkan kebetulan menghasilkan sekitar {expected}. "
+                   f"{CAUSAL_NOTE}",
+                   height=620 if not mobile else 660)
+    if not mobile:                    # label episode dua baris (bulan, tahun) + legenda di bawahnya
+        fig.update_layout(margin_b=fig.layout.margin.b + 70, legend_y=-0.14)
+    return fig.update_layout(bargap=0.4)
 
 
 def coassign_heatmap(coassign: pd.DataFrame) -> go.Figure:

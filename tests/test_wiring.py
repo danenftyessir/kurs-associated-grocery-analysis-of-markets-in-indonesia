@@ -51,7 +51,8 @@ def test_every_module_used():
 def test_every_viz_function_used():
     from kagami.viz import plots
     text = _consumer_text()
-    funcs = [n for n, f in vars(plots).items() if callable(f) and getattr(f, "__module__", "") == plots.__name__]
+    funcs = [n for n, f in vars(plots).items() if callable(f) and getattr(f, "__module__", "") == plots.__name__
+             and not n.startswith("_")]               # pembantu privat (mis. heksagon, D-178) dipakai fungsi publik
     unused = [f for f in funcs if f"plots.{f}(" not in text]
     assert not unused, f"Fungsi viz tidak dipakai app/notebook: {unused}"
 
@@ -82,7 +83,7 @@ def test_every_artifact_has_producer_and_is_documented():
 
 def test_app_pages_present_and_import_common():
     pages = sorted((ROOT / "app" / "pages").glob("*.py"))
-    assert len(pages) == 11 and (ROOT / "app" / "Home.py").exists()     # D-175: + lini masa rupiah, profil provinsi
+    assert len(pages) == 12 and (ROOT / "app" / "Home.py").exists()     # D-175: + lini masa rupiah, profil provinsi; D-178: cerita data
     home = (ROOT / "app" / "Home.py").read_text(encoding="utf-8")
     for p in pages:                     # D-170: setiap halaman terdaftar di router st.navigation (tidak ada halaman yatim)
         assert f'"pages/{p.name}"' in home, f"{p.name} tidak terdaftar di app/Home.py"

@@ -200,10 +200,11 @@ if got:
                 st.plotly_chart(plots.region_map(geo, mv, maplv, ttl, "Klik titik untuk menampilkan kurva wilayahnya."),
                                 on_select=_map_clicked, selection_mode="points", key="map_sel", **STRETCH)
                 txt = ("Warna adalah perkiraan titik tanpa rentang. Untuk sebagian besar komoditas, perbedaan antarwilayah "
-                       "tidak melebihi hasil kurs acak, jadi warna yang berbeda belum tentu perbedaan nyata. ")
+                       "tidak melebihi kebetulan, jadi warna yang berbeda belum tentu perbedaan nyata. ")
                 if maplv == "province":
-                    txt += ("Nilai provinsi adalah selisih dari rata-rata semua provinsi, sesudah disusutkan ke arah "
-                            "rata-rata (empirical Bayes) agar provinsi dengan data berisik tidak tampak ekstrem. ")
+                    txt += ("Nilai provinsi adalah selisih dari rata-rata semua provinsi, sesudah ditarik ke arah rata-rata, "
+                            "makin kuat bila data provinsinya kurang presisi, agar provinsi dengan data sedikit tidak tampak "
+                            "ekstrem. ")
                     if flat:
                         txt += f"Untuk {name.lower()}, data tidak cukup untuk membedakan provinsi, jadi semua sama. "
                 note(txt + "Geometri provinsi © OpenStreetMap contributors (ODbL), via geoBoundaries.")
@@ -223,7 +224,7 @@ if got:
                         "Provinsi": rank["unit"].astype(str).map(names), "Respons 4 minggu (%)": rank["R4"].round(2),
                         "Respons 8 minggu (%)": rank["R8"].round(2), "Respons 12 minggu (%)": rank["R12"].round(2),
                         "Minggu sampai separuh respons": rank["t_half"].round(1)}))
-                    note("Respons provinsi = respons nasional ditambah selisih provinsi yang sudah disusutkan.")
+                    note("Respons provinsi = respons nasional ditambah selisih provinsi yang sudah ditarik ke arah rata-rata.")
 
     with tab_ep:
         ev, eps = got["events"], load("episodes")
@@ -231,7 +232,7 @@ if got:
         n_ep = len(eps) if eps is not None else e["episode_id"].nunique()
         if (ev["commodity"] == com).any():
             st.plotly_chart(plots.episode_fan(ev, com, eps, name=name), **STRETCH)
-        note(f"Kami menandai {n_ep} episode pelemahan rupiah (kurs naik minimal 3% dalam 8 minggu) dan membandingkan "
+        note(f"Kami menandai {n_ep} episode pelemahan rupiah (rupiah melemah minimal 3% dalam 8 minggu) dan membandingkan "
              "perubahan harga sesudahnya dengan 499 jendela waktu tanpa episode. Lini masa kurs dan kipas semua komoditas ada "
              "di halaman Rupiah dari waktu ke waktu.")
         nav_link(PAGE["lini_masa"], "Buka lini masa rupiah", ":material/timeline:")
@@ -241,12 +242,12 @@ if got:
                 show = show.merge(eps[["episode_id", "start_week", "cum_dlog_e"]], on="episode_id", how="left")
                 t = pd.to_datetime(show["start_week"])
                 show["Mulai"] = [f"{MONTHS[d.month - 1]} {d.year}" for d in t]
-                show["Kenaikan kurs (%)"] = _pct(show["cum_dlog_e"]).round(1)
+                show["Pelemahan rupiah (%)"] = _pct(show["cum_dlog_e"]).round(1)
             show["Perubahan harga (%)"] = _pct(show["dlog_price"]).round(2)
             show["Rentang 95% data acak (%)"] = [f"{fmt_num(a, 2, sign=True)} s.d. {fmt_num(b, 2, sign=True)}"
                                                  for a, b in zip(_pct(show["placebo_lo"]), _pct(show["placebo_hi"]))]
             show["p"] = show["placebo_p"].round(3)
-            cols = [c for c in ("Mulai", "Kenaikan kurs (%)", "Perubahan harga (%)", "Rentang 95% data acak (%)", "p")
+            cols = [c for c in ("Mulai", "Pelemahan rupiah (%)", "Perubahan harga (%)", "Rentang 95% data acak (%)", "p")
                     if c in show]
             with st.expander(f"Angka minggu ke-{H} per episode"):
                 show_table(show[cols])

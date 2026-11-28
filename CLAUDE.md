@@ -315,6 +315,18 @@ Tanggal acuan: 2026-11-28. Papan lengkap: `docs/WORKPLAN.md`.
   di-commit `8c7677a` 10.28 WIB). Unduh PIHPS eceran = snapshot beku (0 revisi). Putaran evaluasi ≥ 2026-11-29 (Minggu, D-155), 2026-12-20, 2027-01-17;
   cek dulu `python -X utf8 docs/audit/20261127_prospective_validation/scripts/integrity_check.py` (harus keluar 0; tanpa `-X utf8` skrip
   beku ini crash cp1252 saat keluaran ke pipa/berkas, D-169).
+- **Audit kata ambigu (D-180, 2026-11-28):** beranda & Cerita data dibaca ulang dari teks render: "kebetulan" menggantikan "hasil kurs
+  acak", "rupiah melemah" menggantikan "kurs naik", "paling banyak" untuk batas atas, "kepekaan" didefinisikan, perubahan "naik/turun x%",
+  model dasar & hub dijelaskan; "sama dengan nasional" → "tidak berbeda nyata". Penjaga istilah di `test_app_data`.
+- **Jawaban beranda (D-179, 2026-11-28):** kelima jawaban pertanyaan penelitian dibuka dengan hal yang bisa dipakai (batas Rupiah
+  lima komoditas, angka nasional berlaku untuk 8 dari 10 komoditas, pelemahan & penguatan bisa diperlakukan sama, pilih pantauan dari
+  respons terukur, riwayat harga lebih berguna daripada kurs untuk prediksi), hasil nol ditulis sebagai batas, bukan vonis "tidak terbukti".
+- **Halaman Cerita data (D-178, 2026-11-28):** `pages/12_Cerita_Data.py` (menu kedua): peta petak heksagon 34 provinsi (tata letak
+  `data/reference/province_hex.csv`) untuk harga terkini (skala Rupiah, label langsung termahal/termurah) vs selisih respons kurs h 8,
+  peta kecil 10 komoditas 5 × 2 (8 abu-abu karena H0-Het tidak ditolak; garis tebal = BH global, 2 sel e h 8), matriks episode × komoditas
+  (14 dari 120 titik di luar rentang 95% plasebo, 6 naik & 8 turun, vs 6,0 dari kebetulan; episode terakhir belum teramati). Desain
+  direfleksikan sekali (palet ganda, judul berlebihan, gelembung redundan diganti). Beranda: peta heksagon daging ayam di jawaban
+  pertanyaan 2. Viz `hex_tile_map`, `hex_tile_grid`, `episode_matrix`. Angka artefak tidak berubah; app daring baru berubah sesudah push.
 - **Makalah & kekurangan tersisa (D-176, D-177, 2026-11-28):** analisis kekurangan teknis & substansi. Makalah PDF dibuat:
   `docs/paper/kagami_makalah.tex` → `.pdf` (21 halaman; pdflatex `--disable-installer` karena MiKTeX AutoInstall "tanya"; 8 gambar dari
   artefak/app lewat `docs/paper/scripts/`; 55 rujukan terverifikasi Crossref/arXiv/halaman resmi di `docs/paper/RUJUKAN.md`, U12 🟢;
@@ -608,7 +620,7 @@ datmin/
 ├── logs/                     log pelacakan JSON (WP-36): runs/, evaluations/, errors/, pipelines/ — tidak pernah ditimpa
 ├── notebooks/                00_stage0_data … 05_robustness (.ipynb, tanpa output)
 ├── src/                      paket kagami (§6, §9)
-├── app/                      Streamlit: Home.py (router st.navigation), pages/1..11 (8 hasil + 2 lampiran + 1 pengembang), common.py
+├── app/                      Streamlit: Home.py (router st.navigation), pages/1..12 (9 hasil + 2 lampiran + 1 pengembang), common.py
 ├── tests/                    §16
 ├── docs/                     proposal & juknis (PDF) + dokumen kerja (§0.2); docs/arsip/ = inventaris dataset xlsx (arsip)
 │   ├── handoff/              satu file per serah-terima antar anggota (format docs/HANDOFF.md, dites)
@@ -1074,6 +1086,9 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `episode_fan` · ✔ · D-175: kipas episode nasional, satu garis per episode 0–12 minggu di atas pita 95% jendela tanpa episode (rerata placebo_lo/hi), sorotan satu episode (app hal. 2 & 10).
 - `episode_fan_grid` · ✔ · D-175: kipas episode semua komoditas, panel berskala sendiri, 5 kolom desktop / 2 kolom ponsel (app hal. 10).
 - `price_trend` · ✔ · D-175: harga eceran mingguan provinsi vs median 34 provinsi + arsiran episode, sumbu Rupiah (app hal. 11).
+- `hex_tile_map` · ✔ · D-178: peta petak heksagon 34 provinsi (`province_hex.csv`), skala `zmin`..`zmax` (default divergen ±zmax), `muted` = semua abu-abu, `flags` bergaris tebal, `regions` = nama pulau, `callouts` = label langsung di petak kosong, `text` label/kode (app hal. 12 & beranda).
+- `hex_tile_grid` · ✔ · D-178: peta heksagon kecil per komoditas, skala sama, terdeteksi di panel pertama & berwarna, sisanya abu-abu; desktop 5 kolom, ponsel 2 (app hal. 12).
+- `episode_matrix` · ✔ · D-178: batang kenaikan kurs per episode + titik per komoditas × episode (naik/turun melewati rentang plasebo pada h, di dalam, belum teramati), jumlah per komoditas di kanan (app hal. 12).
 - `coassign_heatmap` · ✔ · matriks ko-asignasi (app hal. 3, nb02).
 - `recovery_curve` · ✔ · batas deteksi struktur tertanam (app hal. 3, nb02).
 - `forecast_ratios` · ✔ · rasio MAE vs M1 per horizon (panel); margin atas + ruang judul panel (app hal. 9, nb04).
@@ -1271,6 +1286,8 @@ Menunggu diunggah (opsional, U103): `bapanas/panelharga_konsumen_kabkota_snapsho
 - `province_aliases.csv`: alias ejaan BPS/Bapanas + pemekaran Papua.
 - `indonesia_provinces.geojson` (D-134): geometri 34 provinsi untuk peta app, 98 KB; **ODbL** (© OpenStreetMap contributors via
   geoBoundaries), bukan CC BY. Ikut zip juri & bundle (`package.CODE_GLOBS`).
+- `province_hex.csv` (D-178): tata letak petak heksagon 34 provinsi (province_id, kode ISO 3166-2, singkatan `label`, col, row offset baris ganjil; barat
+  → timur) untuk peta heksagon app; buatan tim, CC BY. Ikut zip juri & bundle lewat `data/reference/*.csv`.
 - Hasil WP-07 (`stage0`, 2026-11-21): `concordance.csv`, `exposure.csv`, `regulation.csv`, `province_features.csv`
   (rice_sufficiency 2025: 0,001 DKI .. 3,27 Sulsel; n_kota 1..12; |r| antar fitur Z(r) ≤ 0,34).
 
@@ -1499,14 +1516,14 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_neural.py` | D-142 (eksploratif): jendela latih tanpa target belum terealisasi, PatchTST/TSMixer tidak memakai data sesudah origin (ubah masa depan → ramalan sama), adapter TimesFM hanya konteks s.d. origin (forecaster palsu), baris uji = Task 4, resume |
 | `test_task1.py` | `task1.run` end-to-end pada artefak sintetis (B/R kecil): semua artefak tahap tertulis, interval tidak menyempit, tiga level |
 | `test_synthetic.py` | generator sintetis Task 1 (`tests/synthetic.py`): skema = kontrak artefak, jawaban tertanam pulih |
-| `test_app_data.py` | halaman Streamlit terender dengan artefak sintetis berskema kontrak, termasuk `national_calibrated`, `asymmetry`, `regime_profiles` (WP-31); `load` tidak meng-cache artefak hilang & membaca versi baru (D-136); harga acuan Rupiah = tabel batas Rupiah findings, beranda beras +Rp89, `fmt_rp`, `names_list` (D-171); D-172: `plain_text` membuang kode (kurung, kolom tabel, rentang "s.d."), `soften_semicolons` membiarkan titik koma antarangka/tabel/kode, `verdicts`, `fmt_frame` format Indonesia, literal string halaman app tanpa kode D-/U-/WP- & titik koma; D-173: `math_text` notasi → LaTeX (kode & rumus yang ada dibiarkan), `plain_names`; D-175: artefak sintetis `drivers_weekly`, `panel_weekly`, `province_calibrated` untuk halaman lini masa & profil provinsi |
+| `test_app_data.py` | halaman Streamlit terender dengan artefak sintetis berskema kontrak, termasuk `national_calibrated`, `asymmetry`, `regime_profiles` (WP-31); `load` tidak meng-cache artefak hilang & membaca versi baru (D-136); harga acuan Rupiah = tabel batas Rupiah findings, beranda beras +Rp89, `fmt_rp`, `names_list` (D-171); D-172: `plain_text` membuang kode (kurung, kolom tabel, rentang "s.d."), `soften_semicolons` membiarkan titik koma antarangka/tabel/kode, `verdicts`, `fmt_frame` format Indonesia, literal string halaman app tanpa kode D-/U-/WP- & titik koma; D-173: `math_text` notasi → LaTeX (kode & rumus yang ada dibiarkan), `plain_names`; D-175: artefak sintetis `drivers_weekly`, `panel_weekly`, `province_calibrated` untuk halaman lini masa & profil provinsi; D-178: `het_detected` (`reject` atau q BH) & `global_deviations` (BH semua sel); D-179: lima jawaban beranda tidak dibuka dengan vonis negatif & memuat batas Rupiah beras; D-180: literal string app & `viz/plots.py` tanpa istilah ambigu (hasil kurs acak, kurs naik, koreksi semua sel, disusutkan, berderau, Harga acuan Rupiah, paling tinggi Rp) |
 | `test_package.py` | WP-32: isi zip juri, tanpa data tanpa hak redistribusi, artefak ship hilang dilaporkan, CLI jalan dari folder baru; D-176: laporan `docs/audit/**/*.md` ikut, data audit hanya dari red flag, makalah ikut bila sudah dikompilasi |
 | `test_paper.py` | D-177: makalah memuat semua bagian wajib juknis §2c berurutan, sitasi = `\defref` = daftar pustaka, frasa terlarang §20 tidak ada, angka utama sama di makalah, `findings.md`, dan PDF (PDF tidak basi), gambar yang dirujuk ada, setiap gambar/tabel dirujuk di teks |
 | `test_runtime.py` | lokasi default, tulis out/baca artefak tahap sebelumnya, override raw, deteksi Kaggle, layout Colab, stdout CLI cp1252 (regresi D-138) |
 | `test_notebooks.py` | satu notebook per tahap, valid, sel 0–1 identik, tanpa output, sel setup jalan lokal |
-| `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis; tanpa interval → tanpa pita; format angka & lencana (regresi NaN); peta tanpa subplot geo (offline) & nilai wilayah ke provinsi; V18 hanya Tier 1/2 + komponen dekomposisi; V19 subjudul H2; geometri referensi = 34 provinsi crosswalk; D-169: skenario = transformasi log eksak (bukan PT·x) & angka app = tabel batas Rupiah findings (artefak `profiles`), kalimat DM memuat arah (p kecil + DM negatif = lebih buruk) & nama model bisa diganti, subjudul skenario berlabel "bukan ramalan" (D-171); D-172: grafik ketahanan tanpa anotasi garis & tanpa rantai "·", bungkus judul/subjudul/sumbu di ponsel & legenda di dasar wadah (desktop tetap), angka graf pipeline tidak di kolom simpul; D-175: lini masa kurs (sorotan, label episode), kipas episode (pita + garis per episode, sorotan di atas), kipas semua komoditas 5/2 kolom, tren harga provinsi vs median, kelengkapan data berlabel, `month_year`; D-176: judul desktop dengan `\n` → dua baris + ruang atas 24 px |
+| `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis; tanpa interval → tanpa pita; format angka & lencana (regresi NaN); peta tanpa subplot geo (offline) & nilai wilayah ke provinsi; V18 hanya Tier 1/2 + komponen dekomposisi; V19 subjudul H2; geometri referensi = 34 provinsi crosswalk; D-169: skenario = transformasi log eksak (bukan PT·x) & angka app = tabel batas Rupiah findings (artefak `profiles`), kalimat DM memuat arah (p kecil + DM negatif = lebih buruk) & nama model bisa diganti, subjudul skenario berlabel "bukan ramalan" (D-171); D-172: grafik ketahanan tanpa anotasi garis & tanpa rantai "·", bungkus judul/subjudul/sumbu di ponsel & legenda di dasar wadah (desktop tetap), angka graf pipeline tidak di kolom simpul; D-175: lini masa kurs (sorotan, label episode), kipas episode (pita + garis per episode, sorotan di atas), kipas semua komoditas 5/2 kolom, tren harga provinsi vs median, kelengkapan data berlabel, `month_year`; D-176: judul desktop dengan `\n` → dua baris + ruang atas 24 px; D-178: tata letak heksagon = 34 provinsi crosswalk (unik, barat → timur), peta heksagon (34 shape, skala Rupiah, `muted`, garis tebal, singkatan/kode, nama pulau & label langsung di petak kosong hanya desktop), grid 5 kolom (terdeteksi di depan, < 5 dtk), matriks episode (naik/turun/di dalam/belum teramati, jumlah per komoditas, ponsel sumbu tahun) |
 | `test_app.py` | 7 halaman Streamlit jalan tanpa exception (artefak ada/belum) |
-| `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app (11 halaman, D-175, semua terdaftar di router `app/Home.py`, D-170, D-171), artefak yang dibaca pipeline dideklarasikan REQUIRES/OPTIONAL (D-140), artefak yang dibaca app (`need`/`load`) ship=True dan tidak di-ignore git (D-176; dilewati tanpa repo git) |
+| `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app (12 halaman, D-175, D-178, semua terdaftar di router `app/Home.py`, D-170, D-171), fungsi viz publik terpakai (pembantu `_` dikecualikan), artefak yang dibaca pipeline dideklarasikan REQUIRES/OPTIONAL (D-140), artefak yang dibaca app (`need`/`load`) ship=True dan tidak di-ignore git (D-176; dilewati tanpa repo git) |
 | `test_claude_md.py` | §9 dokumen ini sinkron dengan kode (fungsi publik & status stub) |
 | `test_handoff.py` | format setiap `docs/handoff/*.md`: nama file, frontmatter, bagian wajib, status vs kotak centang |
 | `test_drive.py` | sinkron Drive dengan Drive palsu di memori: path dicerminkan, timpa bukan duplikat, pull ke anggota lain, hanya tahap diminta, lokal tanpa token dilewati, push/pull data mentah bolak-balik (MD5, glob, tidak menimpa) |
@@ -1550,7 +1567,8 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 ## 18. App Streamlit
 
 - `app/Home.py` = router `st.navigation` (D-170, D-171, D-173, D-175): bagian "Hasil penelitian" = `pages/1_Beranda.py` Ringkasan
-  (default), `pages/10_Lini_Masa_Rupiah.py` Rupiah dari waktu ke waktu (lini masa kurs, kipas episode), 2 Respons harga,
+  (default), `pages/12_Cerita_Data.py` Cerita data (peta petak heksagon harga vs respons, peta kecil 10 komoditas, matriks episode × komoditas;
+  D-178), `pages/10_Lini_Masa_Rupiah.py` Rupiah dari waktu ke waktu (lini masa kurs, kipas episode), 2 Respons harga,
   `pages/11_Profil_Provinsi.py` Profil provinsi (label harga, tren, kelengkapan, deviasi lolos BH global), 3 Perbedaan
   antarprovinsi, 4 Faktor penjelas, `pages/9_Prediksi.py` Prediksi (url_path `Prediksi`), 5 Simulasi rupiah; bagian "Lampiran" = `pages/8_Data_dan_Metode.py` (sumber, langkah pengolahan + rumus model, kelengkapan,
   pemeriksaan kualitas data, MDE, daftar istilah bersimbol, reproduksi) dan 6 Laporan lengkap (findings.md, notasi dirender LaTeX).
@@ -1560,7 +1578,8 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 - `common.py`: alias paket, `CFG`, `PAGE` (path halaman untuk tautan), `load` (cache per versi file; ketiadaan tidak di-cache, D-136),
   `need` (label "Menunggu hasil (WP-xx)"), `page_header(judul, kalimat pembuka)`, `lead` (jawaban halaman), `note` (catatan cara
   membaca), `footer(sumber, periode)`, `not_detected_badge`, `commodity_labels`, `names_list`, `unit_names`, `load_geo`, `picker`
-  (pilihan disimpan di URL `?key=`), `area_options`/`area_level` (nasional + 7 wilayah), `reset_button`, `table`, `frame` (tabel
+  (pilihan disimpan di URL `?key=`), `load_hex` (tata letak heksagon), `global_deviations` (q BH semua sel `province_calibrated`),
+  `het_detected` (komoditas H0-Het ditolak), `area_options`/`area_level` (nasional + 7 wilayah), `reset_button`, `table`, `frame` (tabel
   berlabel pembaca; kolom yang tidak ada dilewati), `intervals`, `fmt_rp`, `reference_prices` (harga acuan Rupiah dari tabel batas
   Rupiah findings), `inject_style` (CSS bersama + `chart_wrap`; dipanggil router), `nav_link` (`st.page_link` dengan cadangan teks di
   luar router); D-172: `plain_text`/`soften_semicolons`/`readable` (teks dari berkas tanpa kode & titik koma prosa; berkas tidak diubah),
@@ -1618,6 +1637,8 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | "Sisanya berasal dari faktor lain" (dari hasil nol) | "Bagian yang tidak dijelaskan asosiasi kurs dalam model perlu ditelusuri ke faktor lain (pasokan, musim, kebijakan, faktor tak teramati)" |
 | "DM p = 0,009" tanpa arah | "DM = −2,70: M2 kurang akurat dari M1 (p dua sisi 0,009; p satu sisi untuk keunggulan M2 0,996)" |
 | "Sistem peringatan dini" / "nilai ekonomi daftar pantau" | "Prototipe riset & analitik pendukung keputusan"; tabel rasio biaya = "analisis kepekaan, bukan nilai harapan tervalidasi" |
+| "hasil kurs acak", "kurs naik x%", "paling tinggi Rp89", "berubah −1,67%", "sama dengan nasional" (tidak signifikan), "koreksi semua sel", "disusutkan" | "lebih besar dari kebetulan" (definisikan sekali), "rupiah melemah x%", "paling banyak Rp89", "turun 1,67%", "tidak berbeda nyata", "koreksi banyak perbandingan", "ditarik ke arah angka nasional" (D-180, dijaga tes) |
+| Jawaban dibuka dengan vonis "Tidak terbukti" / "Belum terlihat" | Jawaban dibuka dengan yang bisa dipakai (batas Rupiah, angka nasional yang berlaku, pegangan), lalu hasil nol sebagai batas: "Untuk lima komoditas, kecil dan batasnya bisa dipakai ..." (D-179) |
 | "Tinjauan pustaka sistematis" (tanpa protokol PRISMA) | "Kajian pustaka tematik"; rujukan yang hanya dari cuplikan pencarian dicek full-text dulu (U12) |
 
 Tambahan: setiap angka disertai interval & satuan; hasil nol ditulis sebagai batas atas; Task 4 disebut "evaluasi
@@ -1676,6 +1697,9 @@ hipotesis benar. D-172: kalimat app tanpa titik koma (pecah jadi dua kalimat); t
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-180 | Audit kata ambigu teks app: istilah tunggal "kebetulan", "rupiah melemah", "paling banyak", kepekaan didefinisikan, tanda ditulis naik/turun; dijaga tes | FINAL (teknis) |
+| D-179 | Jawaban beranda dibuka dengan hal yang bisa dipakai (batas, angka nasional yang berlaku, pegangan), hasil nol sebagai batas; rambu §20 | FINAL |
+| D-178 | Halaman Cerita data: peta petak heksagon 34 provinsi (harga vs respons kurs, komoditas tanpa heterogenitas terdeteksi abu-abu) & matriks episode × komoditas; beranda memuat peta heksagon | FINAL (teknis) |
 | D-177 | Makalah lomba `docs/paper/` (LaTeX → PDF, gambar dari artefak & app), 55 rujukan diverifikasi (U12), klaim Persada dikoreksi, Hidayah & Askar tidak dikutip, naskah video | FINAL |
 | D-176 | `drivers_weekly` & `panel_weekly` di-track git (dibaca app hal. 10/11), laporan audit & makalah ikut zip juri, judul grafik beranda dua baris | FINAL (teknis) |
 | D-175 | Halaman Rupiah dari waktu ke waktu (lini masa kurs + kipas episode) & Profil provinsi (label harga, tren, kelengkapan, deviasi lolos BH global); kipas episode di Respons harga | FINAL (teknis) |
@@ -1866,6 +1890,9 @@ Selesai: U1, U2, U18, U23.
     PDF hasil render, bukan hanya log.
 36. **Dua server Streamlit di port yang sama** (D-176): di Windows proses kedua tetap bisa mengikat port 8501, sehingga permintaan bisa
     dilayani server lama dengan kode basi. Cek `netstat -ano | grep :8501`; untuk pemeriksaan pakai `kagami-app-8511`.
+37. **Streamlit tidak memuat ulang `src/`** (D-178): perubahan `src/viz/plots.py` tidak terlihat di server yang sedang jalan (hanya berkas
+    `app/` yang dipantau), jadi grafik tampak "tidak berubah". Restart server sesudah mengubah `src/`. Juga: `fig.add_shape` di dalam loop
+    makin lambat seiring jumlah shape (340 heksagon di 10 subplot = 19 dtk); pasang `fig.layout.shapes` sekaligus.
 
 ---
 

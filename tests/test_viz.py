@@ -208,3 +208,94 @@ def test_timeline_episode_fan_and_province_charts():
     sh = plots.status_share(pan.assign(status=["observed", "carry_forward"] * 90), {"beras": "Beras"})
     assert {t.name for t in sh.data} == {"teramati", "rangkaian harga identik"} and list(sh.data[0].y) == ["Beras"]
     assert style.month_year("2020-03-02") == "Mar 2020" and style.month_year(None) == "tidak tersedia"
+
+
+def _hexes(cfg) -> pd.DataFrame:
+    return pd.read_csv(cfg.reference_dir / "province_hex.csv")
+
+
+def test_hex_layout_covers_crosswalk(cfg):
+    """D-178: tata letak heksagon = 34 provinsi crosswalk, kode ISO & singkatan unik, tanpa dua provinsi di petak yang
+    sama, barat → timur (Aceh paling kiri, Papua paling kanan)."""
+    h = _hexes(cfg)
+    assert sorted(h["province_id"]) == sorted(cfg.regions["province_id"]) and h["code"].is_unique and h["label"].is_unique
+    assert not h.duplicated(["col", "row"]).any() and h["label"].str.len().max() <= 7
+    x = h["col"] + 0.5 * (h["row"] % 2)
+    assert x[h["province_id"] == 1].iloc[0] == x.min() and x[h["province_id"] == 33].iloc[0] == x.max()
+
+
+def test_hex_tile_map_colors_labels_and_callouts(cfg):
+    """D-178: satu heksagon per provinsi (shape), skala warna `zmin`..`zmax`, `muted` = semua abu-abu tanpa skala warna,
+    `flags` bergaris tebal, singkatan provinsi di desktop dan kode di ponsel, nama pulau & label langsung hanya di desktop."""
+    h = _hexes(cfg)
+    regions = dict(zip(cfg.regions["province_id"], cfg.regions["region"]))
+    v = pd.DataFrame({"province_id": h["province_id"], "value": np.linspace(10_000, 50_000, len(h))})
+    v["hover"] = [f"prov {p}" for p in v["province_id"]]
+    fig = plots.hex_tile_map(v, h, "judul", "sub", zmin=10_000, zmax=50_000, scale=style.SEQUENTIAL, legend="Rp",
+                             flags={5}, regions=regions, callouts=[(33, "Papua Rp50.000"), (1, "Aceh Rp10.000")])
+    assert len(fig.layout.shapes) == 34 and len({s.fillcolor for s in fig.layout.shapes}) > 10
+    assert sum(s.line.width > 2 for s in fig.layout.shapes) == 1 and fig.layout.yaxis.scaleanchor == "x"
+    bar = [t for t in fig.data if getattr(t.marker, "showscale", False)]
+    assert bar and bar[0].marker.colorbar.orientation == "h" and bar[0].marker.cmin == 10_000
+    assert list(fig.data[0].text)[:2] == ["Aceh", "Sumut"] and list(fig.data[0].hovertext)[:1] == ["prov 1"]
+    notes = [a.text for a in fig.layout.annotations]
+    assert {"Sumatra", "Papua", "Jawa"} <= set(notes) and "Papua Rp50.000" in notes and "Aceh Rp10.000" in notes
+    arrows = [a for a in fig.layout.annotations if a.showarrow]
+    occupied = {(round(x, 2), round(y, 2)) for x, y in zip(fig.data[0].x, fig.data[0].y)}
+    assert all((round(a.ax, 2), round(a.ay, 2)) not in occupied for a in arrows)      # label di petak kosong
+    muted = plots.hex_tile_map(v.assign(value=0.1), h, "judul", "sub", zmax=1.0, legend="x", muted=True)
+    assert {s.fillcolor for s in muted.layout.shapes} == {plots.HEX_MUTED}
+    assert not any(getattr(t.marker, "showscale", False) for t in muted.data)
+    tok = style.WRAP.set((34, 50))
+    try:
+        phone = plots.hex_tile_map(v, h, "judul", "sub", zmin=10_000, zmax=50_000, legend="Rp", regions=regions,
+                                   callouts=[(33, "Papua")])
+        assert list(phone.data[0].text)[:1] == ["AC"] and not phone.layout.annotations
+    finally:
+        style.WRAP.reset(tok)
+    narrow = plots.hex_tile_map(v, h, "judul", "sub", zmin=10_000, zmax=50_000, legend="Rp", text="code")
+    assert list(narrow.data[0].text)[:1] == ["AC"]
+
+
+def test_hex_tile_grid_detected_first_and_muted(cfg):
+    """D-178: komoditas terdeteksi di panel pertama dan berwarna, sisanya abu-abu; desktop 5 kolom; grid dibangun cepat
+    (shape sekaligus)."""
+    import time
+    h = _hexes(cfg)
+    rows = [{"commodity": c, "province_id": p, "value": (i - 17) / 17}
+            for c in ("beras", "telur_ayam", "gula_pasir") for i, p in enumerate(h["province_id"])]
+    vals = pd.DataFrame(rows)
+    t0 = time.perf_counter()
+    fig = plots.hex_tile_grid(vals, h, {"beras": "Beras", "telur_ayam": "Telur", "gula_pasir": "Gula"}, {"telur_ayam"},
+                              1.0, "x", pd.DataFrame({"commodity": ["telur_ayam"], "province_id": [3]}))
+    assert time.perf_counter() - t0 < 5
+    assert fig.layout.annotations[0].text.startswith("Telur") and len(fig.layout.shapes) == 3 * 34
+    assert fig.layout.xaxis3.domain[0] > 0.3                                            # satu baris, 5 kolom
+    first = [s for s in fig.layout.shapes if s.xref == "x"]
+    rest = [s for s in fig.layout.shapes if s.xref == "x2"]
+    assert len({s.fillcolor for s in first}) > 5 and {s.fillcolor for s in rest} == {plots.HEX_MUTED}
+    assert sum(s.line.width > 2 for s in first) == 1
+
+
+def test_episode_matrix_states_and_pending():
+    """D-178: satu titik per komoditas × episode; merah = naik melewati rentang plasebo, biru = turun, abu-abu = di dalam,
+    lingkaran kosong = belum teramati (bukan "di dalam"); episode berjarak sama, kolom kanan = jumlah di luar rentang."""
+    eps = pd.DataFrame({"episode_id": [1, 2, 3], "start_week": pd.to_datetime(["2018-03-12", "2020-03-02", "2026-11-02"]),
+                        "end_week": pd.to_datetime(["2018-03-19", "2020-04-27", "2026-11-09"]),
+                        "cum_dlog_e": [0.03, 0.18, 0.04]})
+    ev = pd.DataFrame({"episode_id": [1, 1, 2, 2], "level": "national", "unit": "ALL", "horizon": 8,
+                       "commodity": ["beras", "gula_pasir"] * 2, "dlog_price": [0.05, 0.0, -0.05, 0.0],
+                       "placebo_lo": -0.02, "placebo_hi": 0.02})
+    fig = plots.episode_matrix(eps, ev, {"beras": "Beras", "gula_pasir": "Gula Pasir"})
+    by = {t.name: t for t in fig.data if t.name}
+    assert list(by["harga naik di luar rentang normal"].x) == [1] and list(by["harga turun di luar rentang normal"].x) == [2]
+    assert len(by["di dalam rentang normal"].x) == 2 and list(by["belum teramati"].x) == [3, 3]
+    assert list(fig.data[0].x) == [1, 2, 3] and fig.data[0].type == "bar"
+    assert "2 dari 2" in [a.text for a in fig.layout.annotations]                          # beras: naik + turun
+    assert "+5,1" not in by["harga naik di luar rentang normal"].hovertemplate                         # angka lewat customdata
+    tok = style.WRAP.set((34, 50))
+    try:
+        ph = plots.episode_matrix(eps, ev)
+        assert list(ph.layout.xaxis2.ticktext) == ["2018", "2020", "2026"] and ph.layout.xaxis2.tickangle == -90
+    finally:
+        style.WRAP.reset(tok)
