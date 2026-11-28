@@ -65,8 +65,10 @@ dengan sumber kebenaran, ikuti sumber kebenaran lalu perbaiki CLAUDE.md.
 Apakah kepekaan harga pangan eceran terhadap rupiah lebih ditentukan oleh **komoditasnya** atau oleh **lokasinya**?
 
 Konteks: rupiah melemah sepanjang 2026 (JISDOR 18.250 pada 16 Nov 2026; nilai terakhir di data 18.252 pada 18 Nov).
-Bukti agregat menunjukkan pass-through kurs ke harga pangan Indonesia lemah/tidak terdeteksi (Unuvar 2026: −0,012,
-SE 0,150; Persada dkk. 2026; Hidayah & Askar 2026). Nol agregat bisa menyembunyikan komoditas/provinsi yang peka.
+Bukti agregat menunjukkan pass-through kurs ke inflasi pangan Indonesia tidak terdeteksi (Unuvar 2026: −0,012, SE 0,150,
+interval −0,306..0,281, terendah dari 17 negara berkembang). Persada dkk. (2026) = heterogenitas harga beras antarprovinsi, bukan
+estimasi pass-through; Hidayah & Askar (2026) tidak terverifikasi, jangan dikutip (D-177). Nol agregat bisa menyembunyikan
+komoditas/provinsi yang peka.
 Pembingkaian tema: ketahanan harga pangan (SDG 2) — TPID tahu komoditas mana yang historisnya paling peka di
 wilayahnya dan kapan responsnya muncul.
 
@@ -106,7 +108,7 @@ bukan kegagalan. k = 1, asosiasi nol, rasio MAE ≈ 1 adalah hasil sah. Tabel "J
 
 ## 2. Status saat ini (perbarui setiap akhir sesi)
 
-Tanggal acuan: 2026-11-27. Papan lengkap: `docs/WORKPLAN.md`.
+Tanggal acuan: 2026-11-28. Papan lengkap: `docs/WORKPLAN.md`.
 
 - **Selesai:** WP-00 (skeleton v2: src berlapis + 6 notebook), WP-01 (snapshot), WP-02 (loader semua sumber), WP-03 (panel mingguan),
   WP-04 (kelayakan: 337/340 layak), WP-05 (penggerak & harga dunia rupiah), WP-06 (13 episode), WP-08 (panel 7 wilayah),
@@ -115,8 +117,9 @@ Tanggal acuan: 2026-11-27. Papan lengkap: `docs/WORKPLAN.md`.
   WP-27 (evaluasi Task 4 asli, 2026-11-23), WP-28 (Tier 1; artefak `robustness` ditulis bersama validasi, 11 dtk), WP-29 (V2 & V4),
   WP-30 (Tier 2 di artefak `robustness`, 2026-11-23), dan WP jalur B yang ditutup Danen 2026-11-23 (D-130): WP-07, WP-15, WP-16,
   WP-17, WP-19, WP-20, WP-23, WP-24, WP-25, WP-26, WP-31 (app), WP-32 (paket juri; G7 lolos 2026-11-23, Tingkat A & B),
-  WP-36 (log eksekusi & evaluasi terpusat `src/tracking/` + app hal. 7, 2026-11-24, D-137).
-- **Sedang (🔶):** WP-33 (`findings.md` ada, + eksplorasi Task 4 D-139–D-142 pada 2026-11-24; makalah ditunda), WP-34 (audit app & findings selesai; makalah menunggu).
+  WP-36 (log eksekusi & evaluasi terpusat `src/tracking/` + app hal. 7, 2026-11-24, D-137), WP-33 (makalah
+  `docs/paper/kagami_makalah.pdf`, 2026-11-28, D-177), WP-34 (G8 audit klaim findings, app, makalah, 2026-11-28).
+- **Sedang (🔶):** tidak ada. WP-35 (tugas manusia) ⬜: konfirmasi nama & afiliasi penulis, baca ulang makalah, video, commit/push, unggah.
 - **Artefak yang sudah ada (lokal):** `checksums`, `pihps_daily`, `panel_weekly`, `eligibility`, `world_prices_weekly`,
   `episodes`, `drivers_weekly`, `fx_variation`, `panel_weekly_region`, `mde`, `stage0_report`, Task 1–3, Task 4 (`forecast_preds`,
   `forecast_eval`, `ablation`; diunduh dari Drive 2026-11-23), `robustness` (lokal 2026-11-23; di Drive tim `results/` 2026-11-23). Tahap 0 di Drive tim
@@ -312,6 +315,39 @@ Tanggal acuan: 2026-11-27. Papan lengkap: `docs/WORKPLAN.md`.
   di-commit `8c7677a` 10.28 WIB). Unduh PIHPS eceran = snapshot beku (0 revisi). Putaran evaluasi ≥ 2026-11-29 (Minggu, D-155), 2026-12-20, 2027-01-17;
   cek dulu `python -X utf8 docs/audit/20261127_prospective_validation/scripts/integrity_check.py` (harus keluar 0; tanpa `-X utf8` skrip
   beku ini crash cp1252 saat keluaran ke pipa/berkas, D-169).
+- **Makalah & kekurangan tersisa (D-176, D-177, 2026-11-28):** analisis kekurangan teknis & substansi. Makalah PDF dibuat:
+  `docs/paper/kagami_makalah.tex` → `.pdf` (21 halaman; pdflatex `--disable-installer` karena MiKTeX AutoInstall "tanya"; 8 gambar dari
+  artefak/app lewat `docs/paper/scripts/`; 55 rujukan terverifikasi Crossref/arXiv/halaman resmi di `docs/paper/RUJUKAN.md`, U12 🟢;
+  naskah video `docs/paper/NASKAH_VIDEO.md`; penjaga `tests/test_paper.py`). Koreksi substansi: Persada dkk. (2026) bukan bukti
+  pass-through lemah (teks lengkap), Hidayah & Askar (2026) tidak terverifikasi → tidak dikutip. Teknis: `drivers_weekly` &
+  `panel_weekly` dibaca halaman 10/11 tetapi di-ignore git → kini di-track (app daring tidak lagi "Menunggu hasil" sesudah push; tes
+  `test_wiring.test_app_artifacts_not_gitignored`); zip juri + laporan `docs/audit/**/*.md`, skrip & hasil red flag, dan `docs/paper/`;
+  judul grafik beranda terpotong di 1280 px → `viz.style.finish` menerima `\n` di judul desktop. Dua server Streamlit di port 8501
+  (satu basi) → pemeriksaan app memakai `kagami-app-8511` di `.claude/launch.json`. Angka artefak tidak berubah. pytest 428 lolos;
+  `dist/` dibangun ulang (`package` 387 file 48,4 MB, `bundle` 89 file); gladi G7 dari folder bersih: 11/11 halaman tanpa exception & tanpa
+  "Menunggu hasil".
+- **Halaman baru dari riset UX (D-175, 2026-11-28):** "Rupiah dari waktu ke waktu" (`pages/10_Lini_Masa_Rupiah.py`: lini masa JISDOR
+  + 13 episode, kipas episode per komoditas & semua komoditas) dan "Profil provinsi" (`pages/11_Profil_Provinsi.py`: label harga 10
+  komoditas dengan rentang Rupiah, tren harga vs median, kelengkapan data, deviasi lolos BH global = 7 seperti findings). Tab episode di
+  Respons harga kini kipas episode. Viz baru `episode_fan`, `episode_fan_grid`, `price_trend`; `fx_drivers` & `status_share` berlabel
+  pembaca. Artefak yang tadinya tidak tampil: `drivers_weekly`, `panel_weekly`, `province_calibrated`. 0 tumpang tindih di 1280/1024/375 px.
+- **findings.md ditulis ulang (D-174, 2026-11-28):** semua bagian tanpa label tebal + penjelasan, deret angka dalam kurung, titik koma
+  prosa, kode, dan "±"; subjudul + paragraf berpelaku, tabel untuk angka padat, notasi LaTeX di berkas. "RQ1–5" → "Pertanyaan 1–5",
+  "Robustness" → "Ketahanan" (tab app hal. 6 ikut). Angka tetap: setiap angka lama ada di versi baru (kecuali kode & 1,05 dalam rumus);
+  tabel batas Rupiah identik. Pengecualian pembekuan `results/` 27 Nov, teks saja.
+- **Lampiran untuk semua pembaca (D-173, 2026-11-28):** rumus dirender KaTeX (`st.latex`, `$...$`): Simulasi, Data & metode (persamaan LP,
+  PT, skenario, MDE, simbol daftar istilah), Laporan lengkap lewat `common.math_text` (53 rumus, 0 galat). Data & metode ditulis ulang:
+  langkah pengolahan berbahasa biasa + "Rumus model", "Pemeriksaan kualitas data" dari laporan Tahap 0 (kalimat + tabel berlabel)
+  menggantikan laporan pipeline mentah. Laporan lengkap: panduan membaca + nama berkas jadi nama pembaca (`plain_names`). Riwayat
+  eksekusi keluar dari menu (hanya `KAGAMI_DEV=1`); log & `kagami runs` tetap. Menu: "Hasil penelitian" + "Lampiran".
+- **App tanpa kode & bebas tumpang tindih (D-172, 2026-11-28):** pindaian teks tampil 9 halaman: kode (U17, D-019, …) berasal dari
+  laporan Tahap 0, `findings.md`, keterangan Riwayat eksekusi, dan catatan sumber `exposure` → ditampilkan lewat `common.readable`
+  (kode dibuang, titik koma antarklausa jadi titik/koma; titik koma di antara angka berdesimal koma dibiarkan; `findings.md` 85 → 44).
+  Berkas `findings.md` & laporan Tahap 0 tidak diubah. Kolom "Status" seragam "tidak terdeteksi" → "Kesimpulan" (naik/turun/belum
+  terlihat) atau dibuang + catatan bila semua baris sama; angka tabel format Indonesia (`show_table`). Pemeriksa tumpang tindih otomatis
+  (teks SVG plotly + elemen Streamlit) di 1280/1024/375 px: 3 tumpang tindih desktop diperbaiki (anotasi ketahanan, angka graf pipeline,
+  judul panel rasio galat) + judul terpotong di ponsel (bungkus per thread lewat User-Agent, `viz.style.WRAP`) → 0 di ketiga ukuran.
+  Bug pemilih "h = 5 minggu" (metrik H5) di Riwayat eksekusi diperbaiki. Angka artefak tidak berubah. App daring baru berubah sesudah push.
 - **Teks & UX app (D-171, 2026-11-27):** pola tulisan AI dibedah di semua halaman (label tebal + penjelasan, pasangan negasi defensif,
   kode internal U109/H2/β/M2/PT(8) di halaman hasil, notasi di kalimat awam, rantai "·", caption "Pertanyaan pengguna"). Setiap halaman hasil
   kini dibuka dengan jawaban yang dihitung dari artefak; angka dalam "% per 1% pelemahan rupiah" dan Rupiah per kg (harga acuan tabel
@@ -339,10 +375,11 @@ Tanggal acuan: 2026-11-27. Papan lengkap: `docs/WORKPLAN.md`.
   Validasi prospektif, Dataset turunan. Ukuran kalibrasi D-129 di bawah null (leave-one-out, 48 sel): 4,4% per sel vs ±1,96·SE 8,8%;
   ≥ 1 temuan BH palsu 0,5% vs 17,1%. Holm atas 10 perbandingan test 2024+: lolos C1-tuned > TimesFM, daftar pantau > aturan naif, K4 h 4.
   Baru `docs/DATASHEET.md`. Angka artefak tidak berubah; `docs/audit/20261127_redflag_juri/`.
-- **Berikutnya — Danen (semua jalur):** commit perubahan D-169 lalu push lewat `feat/` (app daring baru menampilkan arah DM & skenario eksak
-  sesudah push); bibliografi U12 sebelum makalah; unggah `dist/kagami_code.zip` ke `MyDrive/kagami/` &
-  dataset Kaggle `kagami-code` dan `results/findings.md` ke Drive tim (`[HUMAN]`); sesudah 27 Nov `results/` hanya berubah karena bug; makalah & video
-  (WP-33/34). Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
+- **Berikutnya — Danen (semua jalur):** konfirmasi nama anggota & afiliasi di blok judul makalah, baca ulang bersama tim, kompilasi
+  ulang (`docs/paper/README.md`); commit perubahan D-169–D-177 (termasuk `data/processed/drivers_weekly.parquet` & `panel_weekly.parquet`)
+  lalu push lewat `feat/` agar app daring memuat halaman baru; unggah `dist/kagami_code.zip` ke `MyDrive/kagami/` & dataset Kaggle
+  `kagami-code` dan `results/findings.md` ke Drive tim (`[HUMAN]`); video dengan `docs/paper/NASKAH_VIDEO.md`; unggah makalah + zip + video
+  (WP-35). Sesudah 27 Nov `results/` hanya berubah karena bug. Config beku sejak G6 → perubahan = DEVIASI PRAREGISTRASI.
 - **Izin BI (U13):** diperoleh 2026-11-20, mencakup redistribusi data turunan → `panel_weekly` ikut paket juri (D-104).
 - **Menunggu manusia (WP-35):** cek endpoint PIHPS resmi (U19), setup Kaggle + token Drive per anggota (U100),
   video, unggah.
@@ -488,7 +525,7 @@ cfg = get_config()
 - Data mentah dari Drive tim: `python -m kagami drive-pull-raw` (tidak menimpa). Danen memperbarui: `drive-push-raw`.
 - Log eksekusi (WP-36, D-137): setiap `pipelines.<tahap>.run` tercatat otomatis di `out_dir/logs/`; `python -m kagami evaluate
   [TAHAP|all]` mengevaluasi artefak yang ada tanpa menjalankan ulang; `python -m kagami runs` = riwayat + hasil basi.
-  Matikan dengan env `KAGAMI_TRACKING=0`.
+  Matikan dengan env `KAGAMI_TRACKING=0`. Halaman app Riwayat eksekusi hanya tampil dengan env `KAGAMI_DEV=1` (D-173).
 
 ### 4.5 Jebakan perkakas yang sudah terjadi
 - `Path.write_text` di Windows menulis **CRLF**. Semua file teks project sudah dinormalkan ke LF; saat mengedit lewat
@@ -571,10 +608,12 @@ datmin/
 ├── logs/                     log pelacakan JSON (WP-36): runs/, evaluations/, errors/, pipelines/ — tidak pernah ditimpa
 ├── notebooks/                00_stage0_data … 05_robustness (.ipynb, tanpa output)
 ├── src/                      paket kagami (§6, §9)
-├── app/                      Streamlit: Home.py (router st.navigation), pages/1..9 (6 hasil + 3 lampiran), common.py
+├── app/                      Streamlit: Home.py (router st.navigation), pages/1..11 (8 hasil + 2 lampiran + 1 pengembang), common.py
 ├── tests/                    §16
 ├── docs/                     proposal & juknis (PDF) + dokumen kerja (§0.2); docs/arsip/ = inventaris dataset xlsx (arsip)
-│   └── handoff/              satu file per serah-terima antar anggota (format docs/HANDOFF.md, dites)
+│   ├── handoff/              satu file per serah-terima antar anggota (format docs/HANDOFF.md, dites)
+│   ├── audit/                laporan audit & eksperimen bertanggal (teks .md ikut zip juri, D-176)
+│   └── paper/                makalah lomba: kagami_makalah.tex/.pdf, figures/, scripts/, RUJUKAN.md, NASKAH_VIDEO.md (D-177)
 └── dist/                     (dibuat oleh bundle/package; boleh dihapus)
 ```
 
@@ -1026,33 +1065,39 @@ Saat mengimplementasikan stub: ganti `⬜ WP-xx` menjadi `✔` dan perbarui kete
 - `response_curve` · ✔ · kurva respons h 0..12 + pita interval; tanpa interval → tanpa pita; provinsi berlabel deviasi (app hal. 2, nb01).
 - `region_map` · ✔ · peta Indonesia 7 wilayah / 34 provinsi dari `data/reference/indonesia_provinces.geojson`, sumbu kartesius (offline, tanpa topojson CDN), titik ibu kota = target klik (app hal. 2, D-134).
 - `silhouette_threshold` · ✔ · silhouette maksimum per k vs ambang p95 plasebo, keputusan k (app hal. 3).
-- `robustness_forest` · ✔ · V18: estimasi tiap cek Tier 1/2 vs estimasi utama per komoditas × penggerak × h; e ikut e_global/e_idr (app hal. 6).
+- `robustness_forest` · ✔ · V18: estimasi tiap cek Tier 1/2 vs estimasi utama per komoditas × penggerak × h; e ikut komponen dolar global / khusus rupiah; nilai estimasi utama di subjudul (bukan anotasi garis, D-172) (app hal. 6).
 - `asymmetry_plot` · ✔ · V19: β⁺ (`e_pos`) vs β⁻ (`e_neg`) nasional per h kunci + uji selisih H2 di subjudul (app hal. 2).
 - `scenario_change` · ✔ · perubahan harga (%) = 100·(exp(PT·ln(1 + x/100)) − 1) untuk pelemahan x%; rumus tabel batas Rupiah findings (app hal. 5, D-169).
 - `scenario_paths` · ✔ · jalur skenario `scenario_change` untuk x ∈ shocks_pct, pita hanya bila interval ada; judul opsional (app hal. 5).
-- `fx_drivers` · ✔ · JISDOR mingguan + arsiran episode (nb00).
-- `status_share` · ✔ · porsi status sel per komoditas (nb00).
+- `fx_drivers` · ✔ · kurs JISDOR mingguan (Rp per dolar AS) + arsiran episode, segitiga berketerangan, sorotan satu episode, `start` memotong awal (app hal. 10, nb00).
+- `status_share` · ✔ · kelengkapan data mingguan per komoditas, batang horizontal berlabel pembaca (teramati, rangkaian harga identik, ...) (app hal. 11, nb00).
+- `episode_fan` · ✔ · D-175: kipas episode nasional, satu garis per episode 0–12 minggu di atas pita 95% jendela tanpa episode (rerata placebo_lo/hi), sorotan satu episode (app hal. 2 & 10).
+- `episode_fan_grid` · ✔ · D-175: kipas episode semua komoditas, panel berskala sendiri, 5 kolom desktop / 2 kolom ponsel (app hal. 10).
+- `price_trend` · ✔ · D-175: harga eceran mingguan provinsi vs median 34 provinsi + arsiran episode, sumbu Rupiah (app hal. 11).
 - `coassign_heatmap` · ✔ · matriks ko-asignasi (app hal. 3, nb02).
 - `recovery_curve` · ✔ · batas deteksi struktur tertanam (app hal. 3, nb02).
-- `forecast_ratios` · ✔ · rasio MAE vs M1 (nb04).
-- `forest` · ✔ · forest plot estimasi + interval; `x_range` memotong sumbu dengan segitiga tepi untuk rentang yang melewati batas (app beranda, hal. 2/4; nb03, nb05).
+- `forecast_ratios` · ✔ · rasio MAE vs M1 per horizon (panel); margin atas + ruang judul panel (app hal. 9, nb04).
+- `forest` · ✔ · forest plot estimasi + interval; `x_range` memotong sumbu dengan segitiga tepi untuk rentang yang melewati batas; ponsel: label dibungkus & baris lebih tinggi (app beranda, hal. 2/4; nb03, nb05).
 - `sensitivity_heatmap` · ✔ · peta kepekaan respons kumulatif per komoditas × unit dari `response_features`; `metric_label` untuk judul (app hal. 2).
 - `cluster_sizes` · ✔ · jumlah provinsi per klaster + stabilitas Jaccard, klaster lemah ditandai (app hal. 3).
 - `run_durations` · ✔ · batang waktu eksekusi per run eksekusi berlabel tahap, warna = status; tahap tanpa eksekusi di subjudul (app hal. 7).
 - `metric_trend` · ✔ · satu metrik antar run sebuah tahap; tidak berlaku/gagal ditandai (app hal. 7).
-- `pipeline_graph` · ✔ · graf dependensi tahap dari REQUIRES/OPTIONAL, warna = status tahap (eksekusi vs evaluasi-saja, output tidak sinkron), tanda basi (app hal. 7).
+- `pipeline_graph` · ✔ · graf dependensi tahap dari REQUIRES/OPTIONAL, warna = status tahap (eksekusi vs evaluasi-saja, output tidak sinkron), tanda basi; angka jumlah artefak di antara lapisan, tidak di kolom simpul (D-172) (app hal. 7).
 - `confusion_matrix` · ✔ · confusion matrix arah perubahan Task 4 (baris = aktual, warna = porsi baris) dari log evaluasi (app hal. 7, D-139).
 
 #### src/viz/style.py
 (konstanta palet `BLUE`/`ORANGE`/`AQUA`/`NEUTRAL`, `DIVERGING`, `SEQUENTIAL`, `STATUS_COLORS`, `MODEL_COLORS`; label `DRIVER_LABELS`,
 `LEVEL_LABELS`, `MODEL_LABELS`, `SUBSET_LABELS`, `CHECK_LABELS`, `PATH_LABELS`, `FEATURE_LABELS` (D-170), `UNIT_LABELS`, `AXIS_LABELS` (D-171:
 kosakata pembaca, mis. "Kurs rupiah", "% per 1% pelemahan rupiah", "Model dasar"); D-134. Bukan fungsi grafik → tidak diwajibkan dipanggil app/notebook.)
+- `month_year` · ✔ · tanggal → "Mar 2020" (bulan Indonesia singkat, konstanta `MONTHS`); NaT → "tidak tersedia".
 - `fmt_num` · ✔ · angka format Indonesia (desimal koma, ribuan titik, minus tipografis); NaN → "tidak tersedia".
 - `dm_summary` · ✔ · kalimat uji DM dengan arah: tanda DM, "lebih/kurang akurat", p dua sisi, p satu sisi untuk "model lebih akurat"; nama model bisa diganti (app hal. 9, D-169, D-171).
 - `fmt_interval` · ✔ · "lo s.d. hi" format Indonesia atau "interval tidak tersedia".
 - `detection_status` · ✔ · lencana terdeteksi / tidak terdeteksi / interval tidak tersedia (NaN).
 - `rgba` · ✔ · hex → rgba() untuk pita transparan.
-- `finish` · ✔ · tata letak seragam: judul, subjudul dibungkus per kata (± 72 karakter; baris baru `\n`), pemisah angka Indonesia, legenda di bawah.
+- `set_wrap` · ✔ · D-172: lebar bungkus (judul, subjudul) grafik untuk thread skrip ini (`WRAP` ContextVar; app: ponsel 34/50, desktop None/72).
+- `wrap_lines` · ✔ · bungkus teks per kata menjadi baris ≤ lebar karakter (`\n` = baris baru).
+- `finish` · ✔ · tata letak seragam: judul (satu baris, kecuali `\n` eksplisit untuk grafik kolom sempit, D-176; ponsel dibungkus), subjudul dibungkus per kata (desktop 72 karakter), pemisah angka Indonesia, legenda di bawah plot (ponsel: dikunci di dasar wadah, judul sumbu dibungkus, tinggi + selisih margin).
 
 ### 9.9 Pelacakan eksekusi & log evaluasi (WP-36, D-137; rincian `docs/TRACKING.md`)
 
@@ -1454,13 +1499,14 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 | `test_neural.py` | D-142 (eksploratif): jendela latih tanpa target belum terealisasi, PatchTST/TSMixer tidak memakai data sesudah origin (ubah masa depan → ramalan sama), adapter TimesFM hanya konteks s.d. origin (forecaster palsu), baris uji = Task 4, resume |
 | `test_task1.py` | `task1.run` end-to-end pada artefak sintetis (B/R kecil): semua artefak tahap tertulis, interval tidak menyempit, tiga level |
 | `test_synthetic.py` | generator sintetis Task 1 (`tests/synthetic.py`): skema = kontrak artefak, jawaban tertanam pulih |
-| `test_app_data.py` | halaman Streamlit terender dengan artefak sintetis berskema kontrak, termasuk `national_calibrated`, `asymmetry`, `regime_profiles` (WP-31); `load` tidak meng-cache artefak hilang & membaca versi baru (D-136); harga acuan Rupiah = tabel batas Rupiah findings, beranda beras +Rp89, `fmt_rp`, `names_list` (D-171) |
-| `test_package.py` | WP-32: isi zip juri, tanpa data tanpa hak redistribusi, artefak ship hilang dilaporkan, CLI jalan dari folder baru |
+| `test_app_data.py` | halaman Streamlit terender dengan artefak sintetis berskema kontrak, termasuk `national_calibrated`, `asymmetry`, `regime_profiles` (WP-31); `load` tidak meng-cache artefak hilang & membaca versi baru (D-136); harga acuan Rupiah = tabel batas Rupiah findings, beranda beras +Rp89, `fmt_rp`, `names_list` (D-171); D-172: `plain_text` membuang kode (kurung, kolom tabel, rentang "s.d."), `soften_semicolons` membiarkan titik koma antarangka/tabel/kode, `verdicts`, `fmt_frame` format Indonesia, literal string halaman app tanpa kode D-/U-/WP- & titik koma; D-173: `math_text` notasi → LaTeX (kode & rumus yang ada dibiarkan), `plain_names`; D-175: artefak sintetis `drivers_weekly`, `panel_weekly`, `province_calibrated` untuk halaman lini masa & profil provinsi |
+| `test_package.py` | WP-32: isi zip juri, tanpa data tanpa hak redistribusi, artefak ship hilang dilaporkan, CLI jalan dari folder baru; D-176: laporan `docs/audit/**/*.md` ikut, data audit hanya dari red flag, makalah ikut bila sudah dikompilasi |
+| `test_paper.py` | D-177: makalah memuat semua bagian wajib juknis §2c berurutan, sitasi = `\defref` = daftar pustaka, frasa terlarang §20 tidak ada, angka utama sama di makalah, `findings.md`, dan PDF (PDF tidak basi), gambar yang dirujuk ada, setiap gambar/tabel dirujuk di teks |
 | `test_runtime.py` | lokasi default, tulis out/baca artefak tahap sebelumnya, override raw, deteksi Kaggle, layout Colab, stdout CLI cp1252 (regresi D-138) |
 | `test_notebooks.py` | satu notebook per tahap, valid, sel 0–1 identik, tanpa output, sel setup jalan lokal |
-| `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis; tanpa interval → tanpa pita; format angka & lencana (regresi NaN); peta tanpa subplot geo (offline) & nilai wilayah ke provinsi; V18 hanya Tier 1/2 + komponen dekomposisi; V19 subjudul H2; geometri referensi = 34 provinsi crosswalk; D-169: skenario = transformasi log eksak (bukan PT·x) & angka app = tabel batas Rupiah findings (artefak `profiles`), kalimat DM memuat arah (p kecil + DM negatif = lebih buruk) & nama model bisa diganti, subjudul skenario berlabel "bukan ramalan" (D-171) |
+| `test_viz.py` | semua fungsi viz membangun figure dari artefak sintetis; tanpa interval → tanpa pita; format angka & lencana (regresi NaN); peta tanpa subplot geo (offline) & nilai wilayah ke provinsi; V18 hanya Tier 1/2 + komponen dekomposisi; V19 subjudul H2; geometri referensi = 34 provinsi crosswalk; D-169: skenario = transformasi log eksak (bukan PT·x) & angka app = tabel batas Rupiah findings (artefak `profiles`), kalimat DM memuat arah (p kecil + DM negatif = lebih buruk) & nama model bisa diganti, subjudul skenario berlabel "bukan ramalan" (D-171); D-172: grafik ketahanan tanpa anotasi garis & tanpa rantai "·", bungkus judul/subjudul/sumbu di ponsel & legenda di dasar wadah (desktop tetap), angka graf pipeline tidak di kolom simpul; D-175: lini masa kurs (sorotan, label episode), kipas episode (pita + garis per episode, sorotan di atas), kipas semua komoditas 5/2 kolom, tren harga provinsi vs median, kelengkapan data berlabel, `month_year`; D-176: judul desktop dengan `\n` → dua baris + ruang atas 24 px |
 | `test_app.py` | 7 halaman Streamlit jalan tanpa exception (artefak ada/belum) |
-| `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app (9 halaman, semua terdaftar di router `app/Home.py`, D-170, D-171), artefak yang dibaca pipeline dideklarasikan REQUIRES/OPTIONAL (D-140) |
+| `test_wiring.py` | modul terpakai (CLI/app/notebook), fungsi viz terpakai, todo → WP ada, artefak WP ada, artefak punya produsen & terdokumentasi, halaman app (11 halaman, D-175, semua terdaftar di router `app/Home.py`, D-170, D-171), artefak yang dibaca pipeline dideklarasikan REQUIRES/OPTIONAL (D-140), artefak yang dibaca app (`need`/`load`) ship=True dan tidak di-ignore git (D-176; dilewati tanpa repo git) |
 | `test_claude_md.py` | §9 dokumen ini sinkron dengan kode (fungsi publik & status stub) |
 | `test_handoff.py` | format setiap `docs/handoff/*.md`: nama file, frontmatter, bagian wajib, status vs kotak centang |
 | `test_drive.py` | sinkron Drive dengan Drive palsu di memori: path dicerminkan, timpa bukan duplikat, pull ke anggota lain, hanya tahap diminta, lokal tanpa token dilewati, push/pull data mentah bolak-balik (MD5, glob, tidak menimpa) |
@@ -1503,23 +1549,30 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 
 ## 18. App Streamlit
 
-- `app/Home.py` = router `st.navigation` (D-170, D-171): bagian "Hasil penelitian" = `pages/1_Beranda.py` Ringkasan (default),
-  2 Respons harga, 3 Perbedaan antarprovinsi, 4 Faktor penjelas, `pages/9_Prediksi.py` Prediksi (url_path `Prediksi`), 5 Simulasi
-  rupiah; bagian "Lampiran teknis" = 6 Laporan lengkap (findings.md), `pages/8_Data_dan_Metode.py` (sumber, kelengkapan, MDE, daftar
-  istilah, reproduksi, laporan Tahap 0) dan `pages/7_Evaluasi_Eksekusi.py` (Riwayat eksekusi, WP-36: membaca `logs/`). `url_path`
-  halaman lama dipertahankan. Halaman baru wajib didaftarkan di router (`test_wiring`). Jalankan `python -m kagami app`. Tema di
-  `.streamlit/config.toml` (kertas terang, judul serif, biru tua `#1c5cab`, toolbar minimal).
+- `app/Home.py` = router `st.navigation` (D-170, D-171, D-173, D-175): bagian "Hasil penelitian" = `pages/1_Beranda.py` Ringkasan
+  (default), `pages/10_Lini_Masa_Rupiah.py` Rupiah dari waktu ke waktu (lini masa kurs, kipas episode), 2 Respons harga,
+  `pages/11_Profil_Provinsi.py` Profil provinsi (label harga, tren, kelengkapan, deviasi lolos BH global), 3 Perbedaan
+  antarprovinsi, 4 Faktor penjelas, `pages/9_Prediksi.py` Prediksi (url_path `Prediksi`), 5 Simulasi rupiah; bagian "Lampiran" = `pages/8_Data_dan_Metode.py` (sumber, langkah pengolahan + rumus model, kelengkapan,
+  pemeriksaan kualitas data, MDE, daftar istilah bersimbol, reproduksi) dan 6 Laporan lengkap (findings.md, notasi dirender LaTeX).
+  `pages/7_Evaluasi_Eksekusi.py` (Riwayat eksekusi, WP-36: membaca `logs/`) = alat pengembang, hanya di menu bila env `KAGAMI_DEV=1`.
+  `url_path` halaman lama dipertahankan. Halaman baru wajib didaftarkan di router (`test_wiring`). Jalankan `python -m kagami app`.
+  Tema di `.streamlit/config.toml` (kertas terang, judul serif, biru tua `#1c5cab`, toolbar minimal).
 - `common.py`: alias paket, `CFG`, `PAGE` (path halaman untuk tautan), `load` (cache per versi file; ketiadaan tidak di-cache, D-136),
   `need` (label "Menunggu hasil (WP-xx)"), `page_header(judul, kalimat pembuka)`, `lead` (jawaban halaman), `note` (catatan cara
   membaca), `footer(sumber, periode)`, `not_detected_badge`, `commodity_labels`, `names_list`, `unit_names`, `load_geo`, `picker`
   (pilihan disimpan di URL `?key=`), `area_options`/`area_level` (nasional + 7 wilayah), `reset_button`, `table`, `frame` (tabel
   berlabel pembaca; kolom yang tidak ada dilewati), `intervals`, `fmt_rp`, `reference_prices` (harga acuan Rupiah dari tabel batas
-  Rupiah findings), `inject_style` (CSS bersama; dipanggil router), `nav_link` (`st.page_link` dengan cadangan teks di luar router).
+  Rupiah findings), `inject_style` (CSS bersama + `chart_wrap`; dipanggil router), `nav_link` (`st.page_link` dengan cadangan teks di
+  luar router); D-172: `plain_text`/`soften_semicolons`/`readable` (teks dari berkas tanpa kode & titik koma prosa; berkas tidak diubah),
+  `verdicts` (naik/turun/belum terlihat dari rentang 95%), `fmt_frame`/`show_table` (angka tabel format Indonesia), `chart_wrap`
+  (User-Agent ponsel → bungkus judul grafik); D-173: `math_text` (notasi teks berkas → LaTeX inline), `plain_names` (nama berkas
+  hasil/kolom → nama pembaca), `PLAIN_NAMES`. Rumus baru ditulis LaTeX (`st.latex` / `$...$`), bukan teks seperti exp(...).
 - Juri & TPID (D-170, D-171): yang tampil di bagian hasil hanya jawaban dan bukti; kode internal (nama kolom mentah, `None`, ID
   keputusan/isu, H2/E1/RQ, Tier, M1/M2, β/ω/τ², PT(8), "origin", "plasebo", path server, status lineage) masuk lampiran teknis atau
   expander teknis. Setiap halaman hasil dibuka dengan jawabannya (`lead`, dihitung dari artefak); angka dalam "% per 1% pelemahan
   rupiah" atau Rupiah; tanpa label tebal + penjelasan, pasangan negasi defensif, atau rantai "·". Beranda menghitung semua angkanya
-  dari artefak (tidak ada angka hasil tertulis tangan).
+  dari artefak (tidak ada angka hasil tertulis tangan). D-172: tanpa kode D-/U-/WP- dan tanpa titik koma di teks halaman (dites); tabel
+  lewat `show_table`; kolom kesimpulan hanya bila barisnya berbeda; grafik baru dicek tumpang tindihnya di 1280/1024/375 px.
 - Tampilan (D-134, PLAN.md §18): warna/label/format angka dari `viz.style` (jangan hex atau kode mentah seperti `e_neg` di halaman);
   peta di sumbu kartesius, jangan `go.Choropleth`/`choropleth_map` (mengunduh topojson/tile → gagal offline). Baris provinsi
   `profiles` = deviasi δ, dua versi per sel → pakai `shrunk = True` dan labeli "deviasi".
@@ -1538,7 +1591,8 @@ def nama_fungsi(cfg: Config, df: pd.DataFrame) -> pd.DataFrame:
 
 - Mentah dengan `redistribute: false` (PIHPS, JISDOR, BPS, Comtrade, Bapanas, BPS pangan) tidak boleh masuk zip juri.
 - Zip juri (`python -m kagami package`): kode, configs, app, tes, docs/*.md, data/reference, artefak `ship=True`,
-  mentah `redistribute: true`, log `logs/*/*.json` (WP-36; tanpa data mentah, path relatif). Gagal bila artefak ship belum ada (kecuali `--allow-missing`).
+  mentah `redistribute: true`, log `logs/*/*.json` (WP-36; tanpa data mentah, path relatif), laporan `docs/audit/**/*.md` + skrip & hasil
+  red flag (D-176), dan makalah `docs/paper/` (PDF, .tex, gambar, skrip gambar, D-177). Gagal bila artefak ship belum ada (kecuali `--allow-missing`).
 - Dataset Kaggle mentah wajib **privat**; jangan membagikan tautan (U24). Izin BI (U13) mencakup redistribusi data turunan: `panel_weekly` ikut paket (D-104); PIHPS mentah & `pihps_daily` tidak.
 - Saat menyebut data: "Dataset turunan kami yang dibangun dari PIHPS (Bank Indonesia)", bukan "dataset kami".
 - Tiga tingkat reproduksi: A app dari results; B semua tahap dari data turunan yang dikirim (panel provinsi + wilayah, D-104);
@@ -1572,7 +1626,8 @@ tidak boleh dikutip sebelum dicek. Jangan memakai "±" untuk "sekitar" di teks u
 interval asimetris ditulis batas bawah..batas atas. `carry_forward` = "rangkaian harga identik", bukan "kekakuan harga" atau "imputasi".
 Teks app untuk juri/TPID (D-171): kalimat aktif dengan pelaku ("kami"); jawaban dulu; tanpa label tebal + penjelasan, pasangan negasi
 defensif ("bukan X dan bukan Y"), daftar tiga dalam kurung, judul klaim pembelaan, atau kode internal; p tidak ditulis sebagai peluang
-hipotesis benar.
+hipotesis benar. D-172: kalimat app tanpa titik koma (pecah jadi dua kalimat); titik koma hanya boleh memisahkan angka berdesimal koma
+("DM −1,90; p 0,062"); kolom berisi nilai yang sama untuk semua baris diganti satu kalimat penjelas.
 
 ---
 
@@ -1621,6 +1676,12 @@ hipotesis benar.
 | D-117 | Pesan commit & PR tanpa `Co-Authored-By`/atribusi AI (permintaan user) | FINAL |
 | D-118 | LP cepat: bagian desain tanpa horizon dibangun sekali, numpy per horizon; hasil identik; `national_profiles` ± 6 dtk | FINAL (teknis) |
 | D-119 | `ols_cluster` membuang baris dengan grup kosong (NaT/NaN) alih-alih crash (regresi D-118) | FINAL (teknis) |
+| D-177 | Makalah lomba `docs/paper/` (LaTeX → PDF, gambar dari artefak & app), 55 rujukan diverifikasi (U12), klaim Persada dikoreksi, Hidayah & Askar tidak dikutip, naskah video | FINAL |
+| D-176 | `drivers_weekly` & `panel_weekly` di-track git (dibaca app hal. 10/11), laporan audit & makalah ikut zip juri, judul grafik beranda dua baris | FINAL (teknis) |
+| D-175 | Halaman Rupiah dari waktu ke waktu (lini masa kurs + kipas episode) & Profil provinsi (label harga, tren, kelengkapan, deviasi lolos BH global); kipas episode di Respons harga | FINAL (teknis) |
+| D-174 | `results/findings.md` ditulis ulang tanpa pola tulisan AI (teks saja, setiap angka lama dipertahankan; tabel batas Rupiah identik; "Pertanyaan 1–5", "Ketahanan & validasi") | FINAL |
+| D-173 | Lampiran untuk semua pembaca: rumus dirender LaTeX (KaTeX), Data & metode ditulis ulang (pemeriksaan kualitas data menggantikan laporan pipeline mentah), Laporan lengkap dengan panduan membaca & nama pembaca, Riwayat eksekusi hanya untuk pengembang (`KAGAMI_DEV=1`) | FINAL (teknis) |
+| D-172 | App tanpa kode internal & titik koma prosa (teks berkas dibersihkan saat tampil, berkas tidak diubah), "Status" → "Kesimpulan" / catatan, angka tabel format Indonesia, grafik tanpa tumpang tindih di 1280/1024/375 px (bungkus per thread untuk ponsel) | FINAL (teknis) |
 | D-171 | Teks & UX app untuk juri dan TPID: jawaban dulu per halaman, kosakata pembaca (% per 1%, Rupiah), kode & notasi ke lampiran/expander, Daftar istilah, Respons harga 3 pemilih + tab, Eksposur dipecah jadi Faktor penjelas + Prediksi, Laporan lengkap ke lampiran | FINAL (teknis) |
 | D-170 | App untuk juri: navigasi berkelompok (hasil vs lampiran teknis), beranda jawaban-dulu dari artefak, isi teknis dipindah ke lampiran, label terbaca, tema terang serif; sinkron lineage mengabaikan beda ujung baris (21 artefak "tidak sinkron" palsu di app daring) | FINAL (teknis) |
 | D-169 | Tanggapan review eksternal: arah DM di app, skenario eksak = findings, carry_forward = rangkaian harga identik (FAQ PIHPS), batas Rupiah asimetris, batas deteksi & proksi dibatasi, waktu origin didokumentasikan, status PV-2b & `integrity_check` (`-X utf8`) disinkronkan; angka artefak tidak berubah | FINAL (teknis) |
@@ -1696,7 +1757,7 @@ hipotesis benar.
 | U9 | Daya deteksi heterogenitas provinsi: G-het menolak untuk telur & daging ayam (2026-11-22) | 🟡 |
 | U10 | Varian representatif dibekukan di G6 | 🟢 |
 | U11 | Kecukupan produksi hanya beras | 🟡 |
-| U12 | Bibliografi belum lengkap (wajib sebelum submit: DOI/sumber resmi, full-text untuk klaim penting; bukan SLR) | 🔴 |
+| U12 | Bibliografi makalah: 55 rujukan diverifikasi Crossref/arXiv/halaman resmi, klaim kuantitatif dicek teks lengkap (D-177, `docs/paper/RUJUKAN.md`) | 🟢 |
 | U13 | Izin BI diperoleh 2026-11-20, mencakup redistribusi data turunan (panel provinsi dikirim, D-104) | 🟢 |
 | U14 | Populasi provinsi 2025 (tabel BPS, D-123) | 🟢 |
 | U15 | `n_kota` per provinsi (situs PIHPS, 110 kota, D-123) | 🟢 |
@@ -1788,8 +1849,23 @@ Selesai: U1, U2, U18, U23.
 31. **Hash CRLF vs checkout Linux** (D-170): artefak CSV/MD ditulis CRLF di Windows dan hash-nya dicatat begitu; git menyimpan LF, jadi di
     Streamlit Cloud/clone Linux semua artefak teks tampak "tidak sinkron" (21 di app daring) walau isinya identik. Bandingkan hash dalam
     varian LF & CRLF (`tracking.store`); jangan menyimpulkan lineage rusak dari hash teks lintas OS.
+32. **Teks plotly bertumpuk tidak tertangkap tes** (D-172): anotasi `add_vline(annotation_position="top")` masuk margin atas dan menimpa
+    subjudul; titik tengah garis yang melompati lapisan jatuh tepat di kolom simpul; judul panel `facet_col` & legenda berposisi pecahan
+    tinggi plot menabrak teks lain di layar sempit; Plotly tidak membungkus judul sehingga terpotong di ponsel. Periksa di browser: kotak
+    setiap `text` SVG beririsan atau keluar bingkai (tab & expander dibuka) di 1280/1024/375 px. `st.dataframe` digambar di kanvas.
 30. **Dua rumus untuk angka yang sama** (D-169): app memakai PT·x, findings exp(PT·ln(1 + x)) − 1 → angka berbeda di ekor. Satu fungsi
     (`viz.plots.scenario_change`) + tes yang mencocokkan angka app dengan tabel findings.
+33. **Artefak app di folder yang di-ignore git** (D-176): halaman baru membaca `data/processed/` yang seluruhnya di-ignore, sehingga app
+    daring (membaca repo) akan "Menunggu hasil" walaupun lokal normal. Setiap artefak baru di `need(...)`/`load(...)` harus ikut git
+    (`test_wiring.test_app_artifacts_not_gitignored`).
+34. **MiKTeX menggantung tanpa pesan** (D-177): AutoInstall "tanya" memunculkan dialog GUI untuk paket yang belum terpasang, dan
+    `kpsewhich`/`pdflatex` dari shell agent diam menunggu. Selalu `pdflatex --disable-installer`; cek paket dengan `find` di folder
+    MiKTeX, bukan `kpsewhich`. Tidak terpasang: `natbib`, `multirow`, `unicode-math`, `placeins`, `threeparttable`.
+35. **Float LaTeX `[t]` yang terlalu tinggi menahan semua gambar sesudahnya** (D-177): gambar > `\topfraction` tanpa opsi `p` tidak pernah
+    bisa ditempatkan, lalu seluruh antrean gambar tumpah sesudah daftar pustaka. Pakai `[!tbp]`, pecah gambar tinggi, dan periksa halaman
+    PDF hasil render, bukan hanya log.
+36. **Dua server Streamlit di port yang sama** (D-176): di Windows proses kedua tetap bisa mengikat port 8501, sehingga permintaan bisa
+    dilayani server lama dengan kode basi. Cek `netstat -ano | grep :8501`; untuk pemeriksaan pakai `kagami-app-8511`.
 
 ---
 

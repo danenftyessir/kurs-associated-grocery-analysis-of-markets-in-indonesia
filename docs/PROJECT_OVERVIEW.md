@@ -9,9 +9,10 @@ Lomba Data Mining INDONERIS 2026 (Gelombang 2, batas 30 Nov 2026; target submit 
 ## 1. Pertanyaan pemandu
 Apakah kepekaan harga pangan eceran terhadap rupiah lebih ditentukan oleh **komoditasnya** atau oleh **lokasinya**?
 
-Konteks: rupiah melemah sepanjang 2026 (JISDOR 18.250 pada 16 Nov 2026). Bukti agregat: pass-through kurs ke harga
-pangan Indonesia lemah/tidak terdeteksi (Unuvar 2026: −0,012, SE 0,150; Persada dkk. 2026; Hidayah & Askar 2026).
-Nol agregat bisa menyembunyikan komoditas/provinsi yang peka. Tema lomba dibingkai sebagai **ketahanan harga pangan (SDG 2)**:
+Konteks: rupiah melemah sepanjang 2026 (JISDOR 18.250 pada 16 Nov 2026). Bukti agregat: pass-through kurs ke inflasi
+pangan Indonesia tidak terdeteksi (Unuvar 2026: −0,012, SE 0,150, interval −0,306..0,281, terendah dari 17 negara berkembang).
+Persada dkk. (2026) menunjukkan heterogenitas harga beras antarprovinsi surplus dan defisit, bukan estimasi pass-through
+(diverifikasi dari teks lengkap, D-177; rincian rujukan `docs/paper/RUJUKAN.md`). Nol agregat bisa menyembunyikan komoditas/provinsi yang peka. Tema lomba dibingkai sebagai **ketahanan harga pangan (SDG 2)**:
 TPID bisa tahu komoditas mana yang historisnya paling peka di wilayahnya dan kapan responsnya muncul.
 
 ## 2. Jalur transmisi (dasar pemilihan penggerak & komoditas)
@@ -97,4 +98,6 @@ Konten wajib orisinal dan tidak melanggar hak cipta → alasan kebijakan data tu
   (4) Eksposur & Nilai Prediktif, (5) Penjelajah Skenario Bersyarat, (6) Temuan Penelitian; ditambah (7) Evaluasi & Riwayat
   Eksekusi (WP-36, D-137) untuk pembuktian reproduksibilitas. Sejak D-170/D-171 app dikelompokkan menjadi Hasil penelitian (Ringkasan,
   Respons harga, Perbedaan antarprovinsi, Faktor penjelas, Prediksi, Simulasi rupiah; satu pertanyaan per halaman, bahasa pembaca) dan
-  Lampiran teknis (Laporan lengkap, Data & metode dengan daftar istilah, Riwayat eksekusi).
+  Lampiran (Data & metode dengan rumus dan daftar istilah, Laporan lengkap). Sejak D-175 ada halaman Rupiah dari waktu ke waktu
+  (lini masa kurs + kipas episode) dan Profil provinsi (label harga per provinsi). Sejak D-173 Riwayat eksekusi menjadi alat pengembang
+  (hanya tampil dengan env `KAGAMI_DEV=1`); log tetap ikut paket juri dan dibaca dengan `python -m kagami runs`.

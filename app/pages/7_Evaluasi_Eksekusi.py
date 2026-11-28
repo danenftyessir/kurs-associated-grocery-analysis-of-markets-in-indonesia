@@ -7,7 +7,7 @@ import json
 import pandas as pd
 import streamlit as st
 
-from common import CFG, STRETCH, commodity_labels, page_header, picker
+from common import CFG, STRETCH, commodity_labels, page_header, picker, plain_text, readable
 from kagami.tracking import assessment, registry, store
 from kagami.viz import plots
 from kagami.viz.style import fmt_num
@@ -61,10 +61,10 @@ def fmt_ci(lo, hi) -> str:
 def metric_view(m: pd.DataFrame) -> pd.DataFrame:
     ref = [("–" if pd.isna(v) else fmt_value(v)) + (f" ({lab})" if isinstance(lab, str) and lab else "")
            for v, lab in zip(m["reference"], m["reference_label"])]
-    return pd.DataFrame({"kelompok": m["group"], "metrik": m["name"], "nilai": m["value"].map(fmt_value),
+    return pd.DataFrame({"kelompok": m["group"].map(plain_text), "metrik": m["name"], "nilai": m["value"].map(fmt_value),
                          "acuan": ref, "interval 95%": [fmt_ci(a, b) for a, b in zip(m["ci_low"], m["ci_high"])],
                          "q (BH)": m["q_value"].map(lambda v: "–" if pd.isna(v) else fmt_num(v, 3)),
-                         "penilaian": m["assessment"].map(ASSESS), "interpretasi": m["interpretation"].fillna(""),
+                         "penilaian": m["assessment"].map(ASSESS), "interpretasi": m["interpretation"].fillna("").map(readable),
                          "status hitung": m["status"].map(STATUS_LABEL), "konteks data": m["context"]})
 
 
@@ -169,9 +169,9 @@ if section == "Ringkasan":
                      "penilaian metrik (evaluasi terbaru)": assess_counts(metrics[metrics["run_id"] == rid])
                      if rid else "–"})
     st.dataframe(pd.DataFrame(rows), hide_index=True, **STRETCH)
-    st.caption("Status tahap: **dieksekusi** = run eksekusi terakhir sukses dan semua artefaknya sama dengan file sekarang; "
-               "**output tidak sinkron** = file sekarang bukan hasil run eksekusi terakhir; **hanya dievaluasi** = belum "
-               "ada run eksekusi tercatat, hanya evaluasi artefak lama.")
+    st.caption("Sebuah tahap berstatus dieksekusi bila run eksekusi terakhirnya sukses dan semua artefaknya sama dengan "
+               "file sekarang. Statusnya output tidak sinkron bila file sekarang bukan hasil run itu, dan hanya dievaluasi "
+               "bila belum ada run eksekusi tercatat.")
 
     st.subheader("Temuan evaluasi yang perlu diperhatikan")
     if flagged.empty:
@@ -180,7 +180,8 @@ if section == "Ringkasan":
         st.dataframe(pd.DataFrame({"tahap": flagged["task_id"].map(LABELS), "metrik": flagged["name"],
                                    "nilai": flagged["value"].map(fmt_value),
                                    "penilaian": flagged["assessment"].map(ASSESS),
-                                   "interpretasi": flagged["interpretation"]}), hide_index=True, **STRETCH)
+                                   "interpretasi": flagged["interpretation"].fillna("").map(readable)}),
+                     hide_index=True, **STRETCH)
     if len(unsynced):
         st.warning("Artefak tidak sinkron dengan run eksekusi terakhir: " + ", ".join(
             f"`{a}` (sekarang {fmt_value(r1)} baris, run eksekusi {fmt_value(r2)} baris)"
@@ -207,7 +208,7 @@ if section == "Evaluasi per tahap":
     rec = records[rid]
     dirty = {True: "ada perubahan belum di-commit", False: "bersih", None: "tidak diketahui"}[rec.git_dirty]
     st.caption(f"Jenis run: {RUN_TYPE.get(rec.run_type, rec.run_type)} · {rec.kind} · algoritma: "
-               f"{'; '.join(rec.algorithms)} · dataset {rec.dataset_id} · commit {(rec.git_commit or '–')[:8]} "
+               f"{', '.join(rec.algorithms)} · dataset {rec.dataset_id} · commit {(rec.git_commit or '–')[:8]} "
                f"(working tree {dirty}) · code hash {(rec.code_sha256 or '–')[:12]} · platform {rec.platform}"
                + (f" · {rec.note}" if rec.note else ""))
     if rec.status == "failed":
@@ -229,43 +230,44 @@ if section == "Evaluasi per tahap":
         cc[1].metric("Belum terbukti berbeda", int(ac.get("inconclusive", 0)))
         cc[2].metric("Lebih buruk dari acuan", int(ac.get("worse", 0)))
         cc[3].metric("Perlu ditinjau", int(ac.get("review", 0)))
-        st.caption("Dua lapis: **status hitung** hanya menyatakan metrik berhasil dihitung; **penilaian** membandingkan "
-                   "nilai dengan acuan eksplisit (peluang, baseline kelas mayoritas, α, rasio 1 terhadap M1, p95 plasebo). "
-                   "'Lebih baik/buruk' hanya bila interval atau uji mendukung; selain itu 'belum terbukti berbeda'. "
-                   "Perbandingan eksploratif (beda berpasangan, metrik arah vs acuan, rasio MAE model eksploratif) dikoreksi "
-                   "Benjamini–Hochberg per keluarga (q < 0,05, D-143); uji resmi praregistrasi tidak dikoreksi di sini.")
-        hs = sorted({n.split("_")[0] for n in m["name"] if n.startswith("h") and n.split("_")[0][1:].isdigit()})
+        st.caption("Status hitung hanya menyatakan metrik berhasil dihitung. Penilaian membandingkan nilai dengan acuan "
+                   "eksplisit, misalnya peluang, baseline kelas mayoritas, α, rasio 1 terhadap M1, atau p95 plasebo. Kami "
+                   "menulis 'lebih baik' atau 'lebih buruk' hanya bila interval atau uji mendukung, selain itu 'belum terbukti "
+                   "berbeda'. Perbandingan eksploratif dikoreksi Benjamini–Hochberg per keluarga (q < 0,05). Uji resmi "
+                   "praregistrasi tidak dikoreksi di sini.")
+        horizons = {f"h{h}" for h in CFG.params["forecast"]["horizons"]}     # "h5_..." = uji H5, bukan horizon 5
+        hs = sorted({n.split("_")[0] for n in m["name"]} & horizons, key=lambda x: int(x[1:]))
         if task == "task4" and hs:
             st.subheader("Perbandingan model (Task 4)")
             hb = st.radio("Horizon", hs, index=len(hs) - 1, horizontal=True, key="bench_h",
                           format_func=lambda x: x.replace("h", "h = ") + " minggu")
             st.dataframe(benchmark_table(m, hb), hide_index=True, **STRETCH)
-            st.caption("MAE / M1 < 1 = lebih akurat dari ridge dasar (DM HAC; model eksploratif dikoreksi BH). Metrik "
-                       "klasifikasi = arah naik/turun pada baris dengan perubahan harga ≠ 0 (cakupan = porsi baris yang "
-                       "dievaluasi); 'akurasi termasuk perubahan nol' menghitung minggu tanpa perubahan sebagai salah. "
-                       "M2 vs M1 adalah uji resmi; C, PTST, TSMX, TFM eksploratif (D-141, D-142). Evaluasi bersyarat "
-                       "pseudo-real-time, bukan ramalan.")
+            st.caption("MAE / M1 di bawah 1 berarti lebih akurat dari ridge dasar (uji DM HAC, model eksploratif "
+                       "dikoreksi BH). Metrik klasifikasi menilai arah naik atau turun pada baris dengan perubahan harga ≠ 0, "
+                       "dan cakupan adalah porsi baris yang dinilai. 'Akurasi termasuk perubahan nol' menghitung minggu tanpa "
+                       "perubahan sebagai salah. M2 vs M1 adalah uji resmi, sedangkan C, PTST, TSMX, dan TFM eksploratif. "
+                       "Ini evaluasi bersyarat pseudo-real-time, bukan ramalan.")
         adv = st.toggle("Tampilkan diagnostik lanjutan", value=task != "task4", key=f"adv_{task}")
         scal = m[~m["name"].str.endswith(TABLE_METRICS)]
         groups = list(dict.fromkeys(scal["group"]))
         f1, f2 = st.columns(2)
-        pick = f1.multiselect("Kelompok metrik", groups, default=groups, key="eval_groups")
+        pick = f1.multiselect("Kelompok metrik", groups, default=groups, key="eval_groups", format_func=plain_text)
         present = [a for a in ASSESS_ORDER if a in set(scal["assessment"])]
         judged = [a for a in present if a not in ("info", "not_computed")]
         pick_a = f2.multiselect("Penilaian", present, default=judged or present, format_func=ASSESS.get,
                                 key=f"eval_assess_{task}")
         st.dataframe(metric_view(scal[scal["group"].isin(pick) & scal["assessment"].isin(pick_a)]),
                      hide_index=True, **STRETCH)
-        st.caption(f"{int(scal['group'].isin(pick).sum())} metrik pada kelompok terpilih; default hanya metrik yang punya "
-                   "penilaian terhadap acuan (tambahkan 'informasi' untuk melihat semuanya).")
+        st.caption(f"{int(scal['group'].isin(pick).sum())} metrik pada kelompok terpilih. Awalnya hanya metrik yang punya "
+                   "penilaian terhadap acuan yang tampil. Tambahkan 'informasi' untuk melihat semuanya.")
 
         dm = m[m["name"].str.contains("_dir_") & ~m["name"].str.endswith(TABLE_METRICS)].copy()
         if adv and len(dm[dm["status"] == "ok"]):
             st.subheader("Arah perubahan harga (diagnostik klasifikasi)")
             st.caption("Ramalan regresi Task 4 diubah menjadi arah (naik/turun) dan dibandingkan dengan arah aktual. "
-                       "Diagnostik tambahan, bukan uji praregistrasi (D-139). Interval 95% dari bootstrap blok origin "
-                       "(unit = origin, karena seri dalam satu origin berbagi guncangan nasional dan origin bertumpuk; "
-                       "D-140). Acuan akurasi = selalu menebak arah terbanyak.")
+                       "Diagnostik tambahan, bukan uji praregistrasi. Interval 95% dari bootstrap blok origin, karena seri "
+                       "dalam satu origin berbagi guncangan nasional dan origin bertumpuk. Acuan akurasi adalah selalu menebak "
+                       "arah terbanyak.")
             dm["key"] = dm["name"].str.extract(r"^(h\d+_.+?)_dir_")[0]
             dm["metric"] = dm["name"].str.extract(r"_dir_(.+)$")[0]
             ok_ = dm[dm["status"] == "ok"]
@@ -307,11 +309,11 @@ if section == "Evaluasi per tahap":
 
         dpm = m[m["group"].str.startswith("model deep") & (m["status"] == "ok")]
         if adv and len(dpm):
-            st.subheader("Model deep learning & foundation (eksploratif, D-142)")
+            st.subheader("Model deep learning & foundation (eksploratif)")
             st.caption("Bukan uji praregistrasi. PTST = PatchTST, TSMX = TSMixer (harga saja), TSMX_fx = TSMixer + kurs & "
-                       "harga dunia; ketiganya dilatih ulang tiap 16 minggu dari data s.d. origin. TFM = TimesFM 3.0 zero-shot "
+                       "harga dunia. Ketiganya dilatih ulang tiap 16 minggu dari data s.d. origin. TFM = TimesFM 3.0 zero-shot "
                        "(google/timesfm-3.0-pytorch, lisensi non-komersial), TFM_fx = + kovariat masa lalu kurs & harga dunia. "
-                       "Origin & baris uji sama dengan M0–M3; uji resmi H5 tetap M2 vs M1.")
+                       "Origin & baris uji sama dengan M0–M3. Uji resmi H5 tetap M2 vs M1.")
             rows = []
             for name in sorted(dpm.loc[dpm["name"].str.startswith("mae_ratio_vs_m1_h"), "name"]):
                 h, mo = name.replace("mae_ratio_vs_m1_", "").split("_", 1)
@@ -332,8 +334,8 @@ if section == "Evaluasi per tahap":
         if adv and (len(cls) or len(sel)):
             st.subheader("Perbandingan berpasangan & klasifier arah (eksploratif)")
             st.caption("Bukan uji praregistrasi. C1 = HistGradientBoostingClassifier dengan fitur dasar + identitas seri "
-                       "(tanpa kurs); C2 = C1 + fitur kurs & harga dunia (= fitur M3), dilatih langsung untuk arah naik/turun "
-                       "(D-141). Setiap baris = selisih akurasi arah A − B pada baris uji yang sama, interval bootstrap blok "
+                       "(tanpa kurs). C2 = C1 + fitur kurs & harga dunia (= fitur M3), dilatih langsung untuk arah naik/turun. "
+                       "Setiap baris = selisih akurasi arah A − B pada baris uji yang sama, interval bootstrap blok "
                        "origin berpasangan. Uji resmi H5 tetap MAE & DM.")
         if adv and len(cls):
             st.dataframe(pd.DataFrame({
@@ -366,8 +368,8 @@ if section == "Evaluasi per tahap":
         if adv and len(seg):
             st.subheader("Arah & galat per segmen")
             st.caption("Agregat semua komoditas bisa menutupi kegagalan per komoditas. Baseline = arah terbanyak di "
-                       "segmen itu; interval selisih dari bootstrap blok origin. Segmen 'kaku' = porsi sel carry_forward "
-                       "(rangkaian harga identik) ≥ 50%, U22. MAE / M1 > 1 = lebih buruk dari ridge dasar.")
+                       "segmen itu. Interval selisih dari bootstrap blok origin. Segmen 'kaku' = porsi sel carry_forward "
+                       "(rangkaian harga identik) ≥ 50%. MAE / M1 > 1 = lebih buruk dari ridge dasar.")
             hs = list(seg["name"])
             s1, s2, s3 = st.columns(3)
             hname = s1.selectbox("Horizon", hs, index=len(hs) - 1, key=f"seg_h_{task}",
@@ -398,15 +400,15 @@ if section == "Evaluasi per tahap":
                                                                                "gap_ci_high": "ci_high"})
             if len(fd):
                 st.plotly_chart(plots.forest(fd, ["segmen"], f"Akurasi arah − baseline mayoritas · {smodel} · {stype}",
-                                             "selisih akurasi", "Titik penuh = interval 95% (bootstrap blok origin) tidak "
-                                             "memuat nol; kiri nol = lebih buruk dari selalu menebak arah terbanyak"),
+                                             "selisih akurasi", "Titik penuh: interval 95% (bootstrap blok origin) tidak "
+                                             "memuat nol. Kiri nol berarti lebih buruk dari selalu menebak arah terbanyak."),
                                 **STRETCH)
 
         srep = m[m["name"].str.endswith("_seed_replication") & (m["status"] == "ok")]
         if adv and len(srep):
-            st.subheader("Replikasi seed model deep (D-144)")
+            st.subheader("Replikasi seed model deep")
             st.caption("PatchTST & TSMixer dilatih ulang dengan seed berbeda pada origin, jendela, dan jadwal refit yang sama. "
-                       "Rentang antar seed = ketidakpastian pelatihan; selisih antarmodel yang lebih kecil dari rentang ini "
+                       "Rentang antar seed = ketidakpastian pelatihan. Selisih antarmodel yang lebih kecil dari rentang ini "
                        "tidak bermakna.")
             for name, val in zip(srep["name"], srep["value"]):
                 sd = pd.DataFrame(val)
@@ -422,7 +424,7 @@ if section == "Evaluasi per tahap":
 
         bsen = m[m["name"].str.endswith("_block_sensitivity") & (m["status"] == "ok")]
         if adv and len(bsen):
-            st.subheader("Kepekaan panjang blok bootstrap & lag DM (D-144)")
+            st.subheader("Kepekaan panjang blok bootstrap & lag DM")
             bn = st.selectbox("Horizon", list(bsen["name"]), index=len(bsen) - 1, key=f"blk_{task}",
                               format_func=lambda n: n.split("_")[0].replace("h", "h = "))
             bt = pd.DataFrame(bsen.loc[bsen["name"] == bn, "value"].iloc[0])
@@ -465,7 +467,7 @@ if section == "Evaluasi per tahap":
                            "(run membaca artefak yang sama).")
     with st.expander(f"Input ({len(rec.inputs)}) & output ({len(rec.outputs)}) run ini"):
         if rec.inputs:
-            st.markdown("**Input** (sha256 saat dibaca; run produsen = run yang menulis file dengan hash sama)")
+            st.markdown("**Input** (sha256 saat dibaca, run produsen = run yang menulis file dengan hash sama)")
             st.dataframe(ref_view(rec.inputs), hide_index=True, **STRETCH)
         if rec.outputs:
             st.markdown("**Output** (= file sekarang: apakah file di lokasi baca masih hasil run ini)")
@@ -615,9 +617,9 @@ if section == "Riwayat":
         "detail": st.column_config.LinkColumn("detail", display_text="buka evaluasi"),
         "algoritma": st.column_config.TextColumn("algoritma", width="large")})
     st.caption(f"{len(view)} dari {len(runs)} run · 'buka evaluasi' membuka bagian Evaluasi per tahap untuk run itu · "
-               "working tree kotor = kode/config berubah tanpa commit saat run (commit saja tidak mewakili kodenya; "
-               "pakai code hash).")
+               "working tree kotor = kode/config berubah tanpa commit saat run. Commit saja tidak mewakili kodenya, jadi "
+               "pakai code hash.")
 
-st.caption("Sumber: log pelacakan `logs/runs`, `logs/evaluations`, `logs/errors`, `logs/pipelines` (WP-36) · waktu dalam "
-           "UTC · metrik dihitung dari artefak hasil saat evaluasi; penilaian terhadap acuan dihitung saat halaman dibaca "
-           "(D-140).")
+st.caption("Sumber: log pelacakan `logs/runs`, `logs/evaluations`, `logs/errors`, `logs/pipelines`. Waktu dalam UTC. "
+           "Metrik dihitung dari artefak hasil saat evaluasi, sedangkan penilaian terhadap acuan dihitung saat halaman "
+           "dibaca.")

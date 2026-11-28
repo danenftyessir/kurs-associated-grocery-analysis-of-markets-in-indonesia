@@ -38,7 +38,7 @@ data/interim/       antara, boleh dihapus (pihps_daily; `forecast_preds` ikut di
 data/processed/     panel & penggerak mingguan
 results/            keluaran analisis per tahap (dibaca app)
 logs/               log pelacakan JSON (WP-36, D-137): runs/ · evaluations/ · errors/ · pipelines/ (satu file per run,
-                    tidak pernah ditimpa; dibaca app hal. 7; skema & matriks metrik: TRACKING.md)
+                    tidak pernah ditimpa; dibaca halaman pengembang app (KAGAMI_DEV=1); skema & matriks metrik: TRACKING.md)
 notebooks/          00_stage0_data · 01_task1_profiles · 02_task2_patterns · 03_task3_association
                     04_task4_forecast · 05_robustness
 src/                paket `kagami` (package-dir di pyproject, D-024)
@@ -61,10 +61,13 @@ src/                paket `kagami` (package-dir di pyproject, D-024)
                     evaluators (per tahap) · assessment (penilaian vs acuan, D-140) · registry (spesifikasi tahap, graf
                     dependensi) · store (JSON, sinkron artefak, status tahap) · logger
                     (`@tracked` di setiap pipelines.<tahap>.run, `pipeline`, `evaluate_existing`)
-app/                Home.py (router st.navigation, D-170/D-171) + pages/1..9 + common.py (hasil: 1 Ringkasan, 2 Respons harga, 3 Perbedaan antarprovinsi, 4 Faktor penjelas, 9 Prediksi, 5 Simulasi rupiah; lampiran: 6 Laporan lengkap, 8 Data & metode + daftar istilah, 7 Riwayat eksekusi membaca logs/)
-tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download · tracking · direction · direction_tuned · neural
+app/                Home.py (router st.navigation, D-170/D-171/D-173/D-175) + pages/1..11 + common.py (hasil: 1 Ringkasan, 10 Rupiah dari waktu ke waktu, 2 Respons harga, 11 Profil provinsi, 3 Perbedaan antarprovinsi, 4 Faktor penjelas, 9 Prediksi, 5 Simulasi rupiah; lampiran: 8 Data & metode (rumus LaTeX, daftar istilah), 6 Laporan lengkap; pengembang (KAGAMI_DEV=1): 7 Riwayat eksekusi membaca logs/)
+tests/              config · loaders · stats · weekly · drivers · panel · local_projection · power · event_study · qa · robustness · heterogeneity · planted · forecast_eval · regimes · asymmetry · calibration · reference · deviations · inference · response · clustering · task2 · association · forecast · synthetic · app_data · package · task1 · runtime · notebooks · viz · app · wiring · claude_md · handoff · docs_sync · drive · download · tracking · direction · direction_tuned · neural · paper
 docs/               dokumen ini + NOTEBOOKS, WORKPLAN, METHODS, DATASETS, DECISIONS, OPEN_ISSUES, PREREGISTRATION, SESSION_LOG,
                     PEMBAGIAN_TUGAS, HANDOFF + handoff/ (satu file per serah-terima)
+  paper/            makalah lomba (WP-33, D-177): kagami_makalah.tex/.pdf, figures/ (dibuat scripts/make_figures.py dari artefak,
+                    scripts/capture_app.py dari app), RUJUKAN.md (verifikasi rujukan, U12), NASKAH_VIDEO.md
+  audit/            laporan audit & eksperimen bertanggal (catatan sejarah); teks .md ikut zip juri (D-176)
 ```
 
 Aturan lapisan: `data` → `features` → `models` → `evaluation`; `stats` & `utils` dipakai semua lapisan. Hanya

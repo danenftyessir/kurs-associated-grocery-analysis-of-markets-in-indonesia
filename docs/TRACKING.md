@@ -1,7 +1,8 @@
 # Log eksekusi & evaluasi terpusat (WP-36, D-137)
 
 Setiap eksekusi tahap menghasilkan log terstruktur yang bisa ditelusuri dan dibandingkan dengan eksekusi lain, tanpa mengubah
-hasil analisis. Kode: [`src/tracking/`](../src/tracking/). Dashboard: app halaman 7 *Evaluasi & Riwayat Eksekusi*.
+hasil analisis. Kode: [`src/tracking/`](../src/tracking/). Dashboard: halaman pengembang app *Riwayat eksekusi* (tampil bila env
+`KAGAMI_DEV=1`, D-173); tanpa app: `python -m kagami runs`.
 
 ## 1. Arsitektur
 
@@ -139,7 +140,7 @@ memori puncak proses, algoritma, parameter, dataset ID, dan waktu. Sumber metrik
 python -m kagami task3                 # tahap apa pun → logs/runs, logs/evaluations (atau logs/errors)
 python -m kagami evaluate all          # evaluasi artefak yang ada (mis. hasil Kaggle) tanpa menjalankan ulang
 python -m kagami runs                  # riwayat + hasil basi
-python -m kagami app                   # halaman 7: ringkasan, metrik per tahap, perbandingan, alur pipeline, riwayat
+KAGAMI_DEV=1 python -m kagami app      # halaman pengembang Riwayat eksekusi: ringkasan, metrik, perbandingan, alur, riwayat
 ```
 
 Notebook tidak perlu diubah: `pipelines.<tahap>.run` sudah bertanda `@tracked`. `drive.push` mengunggah log baru, dan `drive.pull`

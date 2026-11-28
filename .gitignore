@@ -9,7 +9,11 @@ data/raw/_redownload/
 # Turunan yang memuat level harga PIHPS per provinsi + artefak hasil generate.
 # Ditukar lewat folder Drive bersama / output Kaggle (PEMBAGIAN_TUGAS §5), bukan git.
 data/interim/
-data/processed/
+data/processed/*
+# Dua artefak turunan yang dibaca app (halaman Rupiah dari waktu ke waktu & Profil provinsi, D-175) di-track agar app
+# daring tidak "Menunggu hasil" (D-176). Keduanya ship=True: izin BI mencakup redistribusi data turunan (D-104).
+!data/processed/drivers_weekly.parquet
+!data/processed/panel_weekly.parquet
 results/*
 # ditulis manual oleh Abi (WP-33) tetap di-track
 !results/findings.md
@@ -38,6 +42,12 @@ results/task4/*
 # --- Hasil build ------------------------------------------------------------------
 dist/
 *.egg-info/
+# berkas antara pdflatex (makalah, D-177); .tex, .pdf, dan figures/ tetap di-track
+docs/paper/*.aux
+docs/paper/*.log
+docs/paper/*.out
+docs/paper/*.toc
+docs/paper/*.synctex.gz
 
 # --- Cache & lingkungan -------------------------------------------------------------
 __pycache__/

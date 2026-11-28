@@ -1,10 +1,15 @@
 """Penjaga skeleton: semua modul terpakai, setiap stub & artefak menunjuk WP yang ada, setiap artefak punya produsen."""
 
+import ast
 import importlib
 import pkgutil
 import re
+import shutil
+import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 import kagami
 from kagami.utils.artifacts import ARTIFACTS
@@ -77,12 +82,41 @@ def test_every_artifact_has_producer_and_is_documented():
 
 def test_app_pages_present_and_import_common():
     pages = sorted((ROOT / "app" / "pages").glob("*.py"))
-    assert len(pages) == 9 and (ROOT / "app" / "Home.py").exists()
+    assert len(pages) == 11 and (ROOT / "app" / "Home.py").exists()     # D-175: + lini masa rupiah, profil provinsi
     home = (ROOT / "app" / "Home.py").read_text(encoding="utf-8")
     for p in pages:                     # D-170: setiap halaman terdaftar di router st.navigation (tidak ada halaman yatim)
         assert f'"pages/{p.name}"' in home, f"{p.name} tidak terdaftar di app/Home.py"
+    dev = home[home.index("KAGAMI_DEV"):]  # D-173: Riwayat eksekusi = alat pengembang, hanya di menu bila KAGAMI_DEV=1
+    assert '"pages/7_Evaluasi_Eksekusi.py"' in dev and home.count('"pages/7_Evaluasi_Eksekusi.py"') == 1
     for p in [ROOT / "app" / "Home.py", *pages]:
         assert "from common import" in p.read_text(encoding="utf-8"), p.name
+
+
+def _app_artifact_names() -> set[str]:
+    """Nama artefak literal di panggilan need(...)/load(...) semua halaman app."""
+    names = set()
+    for p in [ROOT / "app" / "Home.py", ROOT / "app" / "common.py", *sorted((ROOT / "app" / "pages").glob("*.py"))]:
+        for node in ast.walk(ast.parse(p.read_text(encoding="utf-8"))):
+            if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in ("need", "load")):
+                names |= {a.value for a in node.args if isinstance(a, ast.Constant) and isinstance(a.value, str)}
+    return names
+
+
+def test_app_artifacts_not_gitignored():
+    """Regresi D-176: app daring (Streamlit Cloud) hanya melihat berkas yang ada di git (D-135). Halaman Rupiah dari waktu ke
+    waktu & Profil provinsi (D-175) membaca `drivers_weekly` & `panel_weekly` di data/processed/ yang di-ignore, sehingga app
+    daring akan 'Menunggu hasil'. Setiap artefak yang dibaca app harus ship=True dan tidak di-ignore git."""
+    if not (ROOT / ".git").exists() or shutil.which("git") is None:
+        pytest.skip("tanpa repo git (paket juri)")
+    names = _app_artifact_names()
+    assert {"drivers_weekly", "panel_weekly", "profiles"} <= names
+    unknown = names - set(ARTIFACTS)
+    assert not unknown, f"nama artefak tidak dikenal di app: {sorted(unknown)}"
+    assert all(ARTIFACTS[n].ship for n in names), [n for n in names if not ARTIFACTS[n].ship]
+    paths = [ARTIFACTS[n].path for n in sorted(names)]
+    res = subprocess.run(["git", "check-ignore", "--no-index", *paths], cwd=ROOT, capture_output=True, text=True)
+    assert res.returncode in (0, 1), res.stderr        # 0 = ada yang di-ignore, 1 = tidak ada, 128 = galat
+    assert not res.stdout.strip(), f"artefak app di-ignore git: {res.stdout.split()}"
 
 
 def test_pipeline_reads_are_declared():

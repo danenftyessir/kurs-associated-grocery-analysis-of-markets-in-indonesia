@@ -4,14 +4,27 @@ provinsi (meta-regresi; H3), dan respons per periode regulasi HET/HAP (E2). Eval
 
 import re
 
+import pandas as pd
 import streamlit as st
 
-from common import (PAGE, STRETCH, commodity_labels, fmt_interval, fmt_num, footer, frame, intervals, lead, load,
-                    nav_link, need, note, page_header)
+from common import (PAGE, STRETCH, commodity_labels, fmt_interval, fmt_num, footer, frame, intervals, lead, load, nav_link,
+                    need, note, page_header, plain_text, show_table)
 from kagami.viz import plots, style
 
 page_header("Faktor yang berkaitan dengan kepekaan")
 CONF = {"high": "tinggi", "medium": "sedang", "low": "rendah"}
+
+
+def _source_text(s: str) -> str:
+    """Catatan sumber rasio impor untuk tabel: tanpa kode internal; nama item FAOSTAT (yang memuat koma) digabung dengan +."""
+    s = plain_text(s).replace("; ", " + ").replace("[", "").replace("]", "")
+    return re.sub(r"\((\d+) thn\)", r"(\1 tahun)", s)
+
+
+def _regime_text(s: str) -> str:
+    """Label periode regulasi: keputusan pertama saja (rincian dasar hukum ada di laporan lengkap)."""
+    return str(s).split("; ")[0].strip()
+
 
 got = need("exposure", "response_features", "assoc")
 if got:
@@ -44,14 +57,13 @@ if got:
         expo["confidence"] = expo["confidence"].map(lambda c: CONF.get(c, c))
     expo = expo.assign(commodity=expo["commodity"].map(lambda c: labels.get(c, c)),
                        exposure_path=expo["exposure_path"].map(lambda p: style.PATH_LABELS.get(p, p)),
-                       source=expo["source"].astype(str).map(lambda s: re.sub(r"\s*\(U\d+\)", "", s)))
+                       source=expo["source"].astype(str).map(_source_text))
     ren = {"commodity": "Komoditas", "exposure_path": "Jalur", "import_ratio_direct": "Porsi impor",
            "imported_input_ordinal": "Input impor (0–2)", "PT8": "Penerusan kurs", "W8": "Respons harga dunia",
            "confidence": "Keyakinan kode", "source": "Sumber porsi impor"}
-    st.dataframe(expo[[c for c in ren if c in expo]].rename(columns=ren), hide_index=True, **STRETCH,
-                 column_config={"Porsi impor": st.column_config.NumberColumn(format="percent"),
-                                "Penerusan kurs": st.column_config.NumberColumn(format="%.2f"),
-                                "Respons harga dunia": st.column_config.NumberColumn(format="%.2f")})
+    if "import_ratio_direct" in expo:
+        expo["import_ratio_direct"] = [fmt_num(100 * v, 1, pct=True) if v == v else "–" for v in expo["import_ratio_direct"]]
+    show_table(expo[[c for c in ren if c in expo]].rename(columns=ren), digits={"Penerusan kurs": 2, "Respons harga dunia": 2})
     if len(ken):
         k = ken.iloc[0]
         st.markdown(f"Urutan 10 komoditas menurut porsi impor {'tidak ' if k['p_value'] >= 0.05 else ''}sejalan dengan "
@@ -83,22 +95,22 @@ if got:
                                      + ("" if per else ", gabungan 10 komoditas"),
                                      x_title="selisih respons per 1 simpangan baku karakteristik"), **STRETCH)
         with st.expander("Lihat tabel"):
-            st.dataframe(frame(m, {
+            show_table(frame(m, {
                 "Komoditas": lambda d: d["komoditas"], "Karakteristik": lambda d: d["fitur"],
-                "Minggu ke-": lambda d: d["horizon"].astype(int), "Estimasi": lambda d: d["estimate"].round(3),
+                "Minggu ke-": lambda d: d["horizon"].astype(int), "Perkiraan": lambda d: d["estimate"].round(3),
                 "Rentang 95%": lambda d: intervals(d["ci_low"], d["ci_high"], 3), "p": lambda d: d["p_value"].round(3),
-                "q": lambda d: d["q_fdr"].round(3)}), hide_index=True, **STRETCH)
-        note("Ketiga karakteristik adalah proksi. Jarak diukur garis lurus dari ibu kota provinsi ke pusat terdekat; "
-             "kecukupan produksi hanya mencakup beras; jumlah kota sampel PIHPS tidak sama dengan tingkat integrasi pasar. "
-             "Proksi yang tidak berhubungan dengan respons belum berarti logistik atau produksi tidak penting.")
+                "q": lambda d: d["q_fdr"].round(3)}))
+        note("Ketiga karakteristik adalah proksi. Kami mengukur jarak sebagai garis lurus dari ibu kota provinsi ke pusat "
+             "terdekat. Kecukupan produksi hanya mencakup beras, dan jumlah kota sampel PIHPS tidak sama dengan tingkat "
+             "integrasi pasar. Proksi yang tidak berhubungan dengan respons belum berarti logistik atau produksi tidak "
+             "penting.")
     fe = assoc[method == "fe_interaction"]
     if len(fe):
         with st.expander("Pemeriksaan tambahan: model efek tetap komoditas × minggu"):
-            st.dataframe(frame(fe, {
+            show_table(frame(fe, {
                 "Karakteristik": lambda d: d["feature"].map(lambda f: style.FEATURE_LABELS.get(f, f)),
-                "Minggu ke-": lambda d: d["horizon"].astype(int), "Estimasi": lambda d: d["estimate"].round(3),
-                "Rentang 95%": lambda d: intervals(d["ci_low"], d["ci_high"], 3), "p": lambda d: d["p_value"].round(3)}),
-                hide_index=True, **STRETCH)
+                "Minggu ke-": lambda d: d["horizon"].astype(int), "Perkiraan": lambda d: d["estimate"].round(3),
+                "Rentang 95%": lambda d: intervals(d["ci_low"], d["ci_high"], 3), "p": lambda d: d["p_value"].round(3)}))
 
     reg = load("regime_profiles")
     if reg is not None and not reg.empty:
@@ -115,17 +127,19 @@ if got:
                            format_func=lambda d: style.DRIVER_LABELS.get(d, d), key="reg_drv")
         hr = c3.selectbox("Minggu ke-", sorted(reg.loc[reg["commodity"] == com, "horizon"].unique()), key="reg_h")
         r = reg[(reg["commodity"] == com) & (reg["driver"] == drv) & (reg["horizon"] == hr)]
+        if "label" in r:
+            r = r.assign(label=r["label"].map(_regime_text))
         st.plotly_chart(plots.forest(r, ["label"] if "label" in r else ["regime_id"],
                                      f"{labels.get(com, com)}: respons per periode regulasi, {hr} minggu",
                                      x_title=style.AXIS_LABELS.get(drv, "respons")), **STRETCH)
         with st.expander("Lihat tabel"):
-            st.dataframe(frame(r, {
-                "Periode": lambda d: d["label"], "Mulai": lambda d: d["regime_start"], "Selesai": lambda d: d["regime_end"],
-                "Jumlah minggu": lambda d: d["n_weeks"], "Respons": lambda d: d["estimate"].round(2),
+            show_table(frame(r, {
+                "Periode": lambda d: d["label"], "Mulai": lambda d: pd.to_datetime(d["regime_start"]).dt.strftime("%Y-%m-%d"),
+                "Selesai": lambda d: pd.to_datetime(d["regime_end"]).dt.strftime("%Y-%m-%d"),
+                "Jumlah minggu": lambda d: d["n_weeks"], "Respons (%)": lambda d: d["estimate"].round(2),
                 "Rentang 95%": lambda d: intervals(d["ci_low"], d["ci_high"]),
-                "Respons seluruh periode": lambda d: d["baseline_estimate"].round(2),
-                "p uji acak": lambda d: d["p_placebo"].round(3), "q": lambda d: d["q_fdr"].round(3)}),
-                hide_index=True, **STRETCH)
+                "Respons seluruh periode (%)": lambda d: d["baseline_estimate"].round(2),
+                "p uji acak": lambda d: d["p_placebo"].round(3), "q": lambda d: d["q_fdr"].round(3)}))
         note("Periode pendek memberi rentang lebar. Rentang ini dikalibrasi dengan data acak karena galat baku biasa terlalu "
              "sempit pada periode pendek. Perbedaan antarperiode, bila ada, tidak membuktikan efek regulasi.")
 

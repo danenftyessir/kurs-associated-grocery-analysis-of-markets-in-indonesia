@@ -48,6 +48,14 @@ def test_submission_contents_and_data_rights(cfg, tmp_path):
                    for n in names)
     assert not any(n.startswith(("docs/handoff", "docs/arsip", "docs/spec", ".git", "dist/")) for n in names)
     assert not any(n.endswith((".pyc", ".json")) and "token" in n for n in names)
+    # D-176: laporan audit yang dirujuk findings.md ikut (teks), hasil antara eksperimen tidak (kecuali red flag, dari
+    # artefak ship=True); makalah ikut bila sudah dikompilasi
+    assert "docs/audit/20261127_redflag_juri/REPORT.md" in names
+    assert "docs/audit/20261127_prospective_validation/SUMMARY.md" in names
+    audit_data = {n for n in names if n.startswith("docs/audit/") and not n.endswith(".md")}
+    assert all(n.startswith("docs/audit/20261127_redflag_juri/") for n in audit_data), sorted(audit_data)
+    if (cfg.root / "docs" / "paper" / "kagami_makalah.pdf").exists():
+        assert {"docs/paper/kagami_makalah.pdf", "docs/paper/kagami_makalah.tex"} <= names
 
 
 def test_missing_ship_artifacts_are_reported_and_blocked(cfg, tmp_path):

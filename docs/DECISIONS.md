@@ -415,6 +415,118 @@ Hasil (data asli, h = 8): beras −0,14 (−0,55..0,26) p 0,49; daging sapi −0
 daging ayam (q 0,050, tepat di ambang fdr_q → rapuh, tulis apa adanya); 8 komoditas lain tidak terdeteksi. Clustering tetap jalan (D-004):
 k = 1. Batas deteksi struktur tertanam belum boleh dikutip (U105).
 
+### D-177 — Makalah lomba, verifikasi bibliografi (U12), naskah video · FINAL · 2026-11-28 (WP-33, WP-34) · Danen
+Analisis kekurangan per 2026-11-28 menemukan makalah PDF (wajib juknis §2e, bobot kelengkapan laporan 15%) belum ada sama sekali dan
+bibliografi belum diverifikasi (U12 🔴). Atas permintaan Danen dibuat `docs/paper/kagami_makalah.tex` → `kagami_makalah.pdf` (21 halaman)
+dengan struktur juknis §2c, angka dari artefak resmi lewat `results/findings.md` dan analisis red flag (D-168), tiga tingkat bukti
+(D-168), dan rambu §20. Gambar dibuat ulang dari artefak (`docs/paper/scripts/make_figures.py`, matplotlib, PDF vektor) dan dari app
+(`scripts/capture_app.py`, Playwright + Chrome sistem); tidak ada estimasi baru. Toolchain: pdflatex + newtx dengan
+`--disable-installer`, karena MiKTeX Danen disetel AutoInstall "tanya" (paket hilang memunculkan dialog dan kompilasi menggantung) dan
+`natbib`, `multirow`, `unicode-math` tidak terpasang; sitasi penulis-tahun memakai makro `\citep`/`\citet` sendiri. Ditolak: memasang
+paket MiKTeX (mengunduh tanpa izin), Markdown → PDF (tidak ada pandoc). Bibliografi: 55 rujukan dicocokkan dengan Crossref, arXiv,
+atau halaman resmi (`docs/paper/RUJUKAN.md`). Koreksi substansi dari teks lengkap: Persada dkk. (2026) meneliti heterogenitas harga beras
+26 provinsi (HPP hanya berasosiasi di provinsi defisit, CBP hanya di provinsi surplus), bukan bukti penerusan kurs lemah seperti
+tertulis di proposal, PROJECT_OVERVIEW §1, dan CLAUDE.md §1.2 (keduanya dikoreksi); angka Unuvar (2026) benar (Indonesia −0,012, SE 0,150,
+interval −0,306..0,281, terendah dari 17 negara). Tidak dikutip: Hidayah & Askar (2026, CELIOS, tidak ditemukan), "Sistemasi 2026",
+IMF (2019, isi tidak dicek), Bell & McCaffrey (2002, halaman resmi 403; CR2 dirujuk ke Pustejovsky & Tipton 2018). Almuzara & Sancibrián
+dikutip versi FRBNY Staff Report 1090 (2024), bukan IGIER WP 732 yang tidak ditemukan. Ditambahkan empat studi data mining harga pangan
+Indonesia terverifikasi (Rahkmawati & Annisa 2023, Sumertajaya dkk. 2024, Amatullah dkk. 2025, Saputra dkk. 2026) untuk bagian perbedaan
+dengan solusi sebelumnya. Naskah video `docs/paper/NASKAH_VIDEO.md`. Penjaga `tests/test_paper.py` (bagian wajib, sitasi = daftar
+pustaka, frasa terlarang §20, angka utama sama dengan findings.md dan PDF). Nama anggota diambil dari tabel anggota README. Sisa `[HUMAN]`:
+konfirmasi afiliasi, baca ulang tim, keputusan pernyataan bantuan AI, rekam video, unggah. U12 → 🟢.
+
+### D-176 — Artefak app di `data/processed/` ikut git, laporan audit & makalah ikut zip juri, judul grafik beranda dua baris · FINAL (teknis) · 2026-11-28 (WP-31, WP-32) · Danen
+(1) Halaman Rupiah dari waktu ke waktu & Profil provinsi (D-175) membaca `drivers_weekly` & `panel_weekly`, sedangkan `.gitignore`
+mengabaikan seluruh `data/processed/`. App daring (Streamlit Cloud membaca repo, D-135) akan menampilkan "Menunggu hasil" di kedua
+halaman sesudah push. Kedua berkas (47 KB + 778 KB, `ship=True`) kini dikecualikan dari ignore, konsisten dengan D-135 (artefak ship
+yang dibaca app di-track); redistribusi `panel_weekly` sudah tercakup izin BI (D-104). Tes regresi `test_wiring.test_app_artifacts_not_gitignored`
+membaca semua literal `need(...)`/`load(...)` di app dan memeriksa `git check-ignore`. (2) `findings.md` merujuk `docs/audit/` yang tidak
+ada di zip juri (keputusan tertunda sejak D-169). Zip kini memuat semua laporan `docs/audit/**/*.md` (teks, tanpa data) serta skrip &
+hasil analisis red flag (hanya membaca artefak `ship=True`), dan makalah (`docs/paper/`). Hasil antara eksperimen lain tetap hanya di
+repo. (3) Judul grafik beranda "Perubahan harga 8 minggu setelah rupiah melemah 5%" terpotong di kolom kanan pada 1280 px ("…melemah 5").
+`viz.style.finish` kini menerima baris baru eksplisit `\n` di judul desktop (+24 px ruang atas); judul tanpa `\n` identik dengan sebelumnya.
+Catatan lingkungan: dua proses Streamlit mendengarkan port 8501 (satu dari sesi lama), sehingga permintaan bisa dilayani server basi;
+`.claude/launch.json` mendapat konfigurasi `kagami-app-8511` untuk pemeriksaan.
+
+### D-175 — Halaman baru Rupiah dari waktu ke waktu & Profil provinsi, visual kipas episode · FINAL (teknis) · 2026-11-28 (WP-31, WP-34) · Danen
+Hasil riset UX (penelusuran per aktor: juri, TPID, jurnalis/publik): app belum menjawab "rupiah sekarang selemah apa", "bagaimana
+di provinsi saya", dan "apa yang terjadi pada harga saat rupiah melemah sebelumnya". Artefak yang sudah dikirim tetapi tidak dipakai
+halaman mana pun: `drivers_weekly`, `panel_weekly`, `province_calibrated`, `placebo_stats`, `regulation`, `world_prices_weekly`.
+Atas permintaan Danen dibangun: (a) `pages/10_Lini_Masa_Rupiah.py` "Rupiah dari waktu ke waktu": kalimat pembuka dari artefak
+(JISDOR Rp18.255 pada 16 Nov 2026, titik terlemah sejak 2018, melemah 35% sejak awal 2018, 13 episode, terbesar 20,3% Mar 2020),
+lini masa kurs dengan arsiran episode dan sorotan satu episode, daftar episode, kipas episode per komoditas (`plots.episode_fan`:
+satu garis per episode di atas pita 95% dari 499 jendela tanpa episode, kalimat "k dari n episode di dalam pita pada minggu ke-8"),
+dan kipas semua komoditas (`plots.episode_fan_grid`, 5 kolom desktop, 2 kolom ponsel). (b) `pages/11_Profil_Provinsi.py` "Profil
+provinsi": label harga 10 komoditas (harga terkini PIHPS, perubahan setahun, batang rentang Rupiah = skenario PT(8) nasional resmi ×
+harga provinsi untuk rupiah melemah 1/3/5%), penanda "rentang lebar" bila batas atas > 5% (sama dengan tabel batas Rupiah findings),
+penanda deviasi provinsi hanya untuk deviasi yang lolos BH **global** atas 1.623 sel `province_calibrated` (7 deviasi, sama dengan
+findings; BH per sel akan menandai 36), tren harga provinsi vs median 34 provinsi (`plots.price_trend`), kelengkapan data
+(`plots.status_share` kini berlabel pembaca), dan rincian deviasi. (c) Tab "Episode pelemahan rupiah" di Respons harga memakai kipas
+episode, tabel pindah ke expander. Menu "Hasil penelitian": Ringkasan, Rupiah dari waktu ke waktu, Respons harga, Profil provinsi,
+Perbedaan antarprovinsi, Faktor penjelas, Prediksi, Simulasi rupiah. `fx_drivers` berlabel pembaca dengan sumbu Rupiah. Koreksi BH
+atas p tersimpan adalah penyajian, tanpa estimasi ulang (D-010). Ditolak untuk sekarang: jarum di tumpukan jerami (plasebo), cek
+kenaikan harga, sidik jari data (usulan riset UX berikutnya). Angka artefak tidak berubah.
+
+### D-174 — `results/findings.md` ditulis ulang tanpa pola tulisan AI (teks saja, angka tetap) · FINAL · 2026-11-28 (WP-33, WP-34) · Danen
+Atas permintaan Danen, laporan temuan ditulis ulang di semua bagian. Pembersihan saat tampil (D-172) tidak menghapus pola kalimatnya.
+Yang dibuang: butir berlabel tebal + penjelasan ("**Batas atas.** …", "**Minyak goreng & harga sawit dunia.** …", sekitar 30 butir),
+deret angka dalam kurung (daftar estimasi, interval resmi, interval terkalibrasi, dan q dalam satu kalimat), titik koma antarklausa,
+kode keputusan/isu, "±" untuk simpangan baku dan "sekitar", serta pasangan negasi defensif. Penggantinya: subjudul `###` dengan paragraf
+berpelaku ("kami"); tabel untuk minyak goreng $\omega(h)$, daging ayam $\beta_e(h)$, cek Tier 1/Tier 2, prediksi beku, istilah
+daftar pantau, dan sumber angka; notasi ditulis LaTeX langsung di berkas (dirender juga oleh GitHub). Judul bagian "RQ1–RQ5" menjadi
+"Pertanyaan 1–5", "Robustness & validasi" menjadi "Ketahanan & validasi" (pemetaan tab app hal. 6 ikut diperbarui). Isi tetap:
+tiga tingkat bukti, setiap interval & batas klaim (§20), tabel batas Rupiah identik (dibaca `common.reference_prices`). Verifikasi:
+setiap angka di versi lama ada di versi baru kecuali kode keputusan dan 1,05 yang kini di dalam rumus skenario. Di versi baru:
+0 label tebal, 0 kode, 0 "±", 0 titik koma di prosa (satu titik koma tersisa di dalam rumus max(1,96; kuantil) karena koma
+di situ desimal). Ini pengecualian dari pembekuan `results/` 27 Nov: teks saja, tidak ada angka artefak yang berubah.
+
+### D-173 — Lampiran untuk semua pembaca: rumus dirender LaTeX, Data & metode ditulis ulang, Riwayat eksekusi jadi alat pengembang · FINAL (teknis) · 2026-11-28 (WP-31, WP-34, WP-36) · Danen
+Danen: rumus tampil sebagai teks mentah dan sulit dibaca, Lampiran teknis membingungkan bagi aktor non-teknis, dan Riwayat eksekusi
+terlihat seperti alat pengembang. Keputusan: (a) Rumus ditampilkan dengan KaTeX bawaan Streamlit (`st.latex` untuk rumus blok,
+`$...$` di markdown). Simulasi: rumus skenario. Data & metode: persamaan proyeksi lokal (tiga baris `aligned`), $PT(h)=\beta(h)/\gamma(h)$,
+rumus skenario, MDE, dan simbol di daftar istilah (tabel markdown). Laporan lengkap: `common.math_text` mengubah notasi `findings.md`
+(PT(h) = β_e(h)/γ(h), ±1,96·SE, exp(PT(8) · ln 1,05) − 1, β_e(h), ω(h), γ(h), τ², τ-b, β⁺ − β⁻) menjadi LaTeX saat tampil:
+53 rumus, 0 galat KaTeX. Rumus blok panjang bisa digulir horizontal di layar sempit. (b) Data & metode ditulis ulang untuk pembaca
+umum: lima langkah pengolahan dalam kalimat biasa + expander "Rumus model". Laporan pipeline Tahap 0 mentah (nama kolom
+`n_rows`/`median_bias_log`, kode G-power/H2) diganti "Pemeriksaan kualitas data", berisi lima kalimat yang angkanya dihitung dari tabel
+laporan: 8 sumber, 800.642 harga harian, 59 lonjakan ditandai, impor 241/241 cocok, korelasi PIHPS–Bapanas 0,59–0,93, Comtrade–BPS
+14/15. Tabel berlabel pembaca ada di expander. Daftar artefak mentah dihapus, dan bagian reproduksi menyebut log `logs/` serta
+`python -m kagami runs`. (c) Laporan lengkap tetap teks lengkap untuk pembaca teknis (juri, peneliti), dengan panduan "Cara membaca
+angka" dan nama berkas hasil/kolom yang ditampilkan sebagai nama pembaca (`common.plain_names`: `profiles` → profil respons).
+Path audit, hash commit, dan perintah tetap kode karena merupakan rujukan yang bisa diperiksa. `findings.md` tidak diubah.
+(d) Riwayat eksekusi keluar dari menu app dan hanya tampil bila env `KAGAMI_DEV=1` (bagian "Pengembang"). Halaman, log `logs/`, dan
+`python -m kagami runs` tetap ada sehingga reproduksibilitas tetap bisa diperiksa. Menu bagian kedua bernama "Lampiran" (Data & metode
+lebih dulu). Ditolak: menghapus halaman 7 (alat diagnostik pengembang tetap berguna) dan menulis ulang `findings.md` (dibekukan
+27 Nov). Angka artefak tidak berubah.
+
+### D-172 — App tanpa kode internal & titik koma prosa, kesimpulan tabel dari rentang 95%, angka tabel format Indonesia, grafik tanpa teks bertumpuk · FINAL (teknis) · 2026-11-28 (WP-31, WP-34) · Danen
+Danen masih melihat kode (U17, D-019, dst.), titik koma yang mengganggu, kolom "Status" yang seragam "tidak terdeteksi", dan meminta
+tidak ada elemen bertumpuk. Pindaian teks tampil 9 halaman (DOM, termasuk tab & expander) menemukan sumber kode: laporan Tahap 0
+(hal. Data & metode), `findings.md` (hal. Laporan lengkap, 44 kode, 85 titik koma), keterangan & nama kelompok metrik di Riwayat
+eksekusi, dan catatan sumber `exposure`. Keputusan: (a) teks dari berkas ditampilkan lewat `common.readable` = `plain_text` (buang
+"(D-129)", "(D-139 s.d. D-167)", "; U17" di dalam kurung, kolom tabel yang isinya hanya kode; kalimat bersubjek kode diganti frasa) +
+`soften_semicolons` (titik koma antarklausa → titik di luar kurung, koma di dalam kurung). Titik koma di antara angka berdesimal koma
+("DM −1,90; p 0,062"), di tabel, dan di kode dibiarkan karena di sana koma bisa terbaca sebagai desimal: `findings.md` 85 → 44.
+**Berkas `findings.md` & laporan Tahap 0 tidak diubah** (pembekuan 27 Nov). (b) Teks yang ditulis di halaman: tanpa kode & titik koma
+(dijaga `test_app_text_has_no_internal_codes_or_semicolons`). (c) Kolom "Status" diganti "Kesimpulan" (`common.verdicts`: naik / turun /
+belum terlihat dari rentang 95%); bila semua baris sama (8 minggu: 10/10 memuat nol), kolom dibuang dan satu catatan menjelaskan artinya
+(data belum bisa membedakan respons dari tanpa respons; ujung kanan rentang = batas kenaikan). (d) Angka tabel lewat `common.show_table`
+/ `fmt_frame` (desimal koma, ribuan titik, minus tipografis; dulu "0.01"); porsi impor dalam persen; label periode regulasi = keputusan
+pertama; tabel lengkap Prediksi & ketahanan berlabel pembaca. (e) Grafik: pemeriksa otomatis (kotak setiap teks SVG plotly + kotak elemen
+Streamlit, tab & expander dibuka) di 1280 / 1024 / 375 px menemukan & memperbaiki: anotasi "estimasi utama" menimpa subjudul
+(`robustness_forest` → nilai di subjudul, label tanpa "·"); angka jumlah artefak di graf pipeline jatuh di kolom simpul ("Task 1") dan
+saling menimpa (`pipeline_graph` → posisi antarlapisan + jarak minimum); judul panel "prediksi 4 minggu" menimpa subjudul
+(`forecast_ratios` → margin atas +24). Ponsel: judul grafik terpotong karena Plotly tidak membungkus teks → `viz.style.WRAP`
+(ContextVar per thread skrip, disetel `common.chart_wrap` dari User-Agent): judul 34 / subjudul 50 karakter, judul sumbu 16, label
+grafik hutan 18 (tinggi baris ikut bertambah), legenda dikunci di dasar wadah (`yref="container"`, ruang bawah dipesan) karena posisi
+pecahan tinggi plot menabrak judul sumbu yang dibungkus, tinggi grafik ditambah selisih margin agar area plot tidak menyusut. Desktop
+tetap: judul satu baris, legenda y −0,22. Hasil akhir pemeriksa pada semua halaman bergrafik (Ringkasan, Respons harga 5 tab,
+Perbedaan antarprovinsi, Faktor penjelas ± per komoditas, Prediksi, Simulasi, Laporan lengkap 5 tab, Alur pipeline): 0 tumpang tindih
+dan 0 teks keluar bingkai di 1280, 1024, dan 375 px. Tabel `st.dataframe` digambar di kanvas, jadi pemeriksa tidak menilainya.
+(f) Bug lama: pemilih horizon Riwayat eksekusi
+menampilkan "h = 5 minggu" karena metrik uji H5 (`h5_*`) terbaca sebagai horizon → dibatasi ke `params.forecast.horizons`. Angka
+artefak tidak berubah.
+
 ### D-171 — Teks & UX app untuk juri dan TPID: kosakata pembaca, tanpa kode internal, satu pertanyaan per halaman, angka dalam % per 1% dan Rupiah · FINAL (teknis) · 2026-11-27 (WP-31, WP-34) · Danen
 Danen menilai app D-170 masih kurang nyaman dan teksnya berpola tulisan AI. Pola yang dibedah di semua halaman: (1) label tebal +
 penjelasan ("**Status produk.** KAGAMI adalah ..."); (2) pasangan negasi defensif ("bukan sistem peringatan dini dan bukan rekomendasi",

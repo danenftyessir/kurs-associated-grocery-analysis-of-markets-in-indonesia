@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 from kagami.viz import style as S
 
@@ -127,27 +128,152 @@ def cluster_sizes(clusters: pd.DataFrame, method: str = "ward") -> go.Figure:
     return S.finish(fig, f"Ukuran & stabilitas klaster ({method})", x="klaster", y="jumlah provinsi")
 
 
-def fx_drivers(drivers: pd.DataFrame, episodes: pd.DataFrame | None = None) -> go.Figure:
-    """Kurs JISDOR mingguan (Rp/USD) dengan arsiran episode depresiasi (artefak `drivers_weekly`, `episodes`)."""
-    fig = go.Figure(go.Scatter(x=drivers["week"], y=np.exp(drivers["log_e"]), name="JISDOR (rerata mingguan)",
-                               line=dict(color=S.BLUE, width=2)))
-    if episodes is not None:
+def fx_drivers(drivers: pd.DataFrame, episodes: pd.DataFrame | None = None, start=None,
+               highlight: int | None = None) -> go.Figure:
+    """Kurs JISDOR mingguan (Rp per dolar AS) dengan arsiran episode pelemahan (artefak `drivers_weekly`, `episodes`).
+    `start` memotong awal seri (mis. awal periode analisis), `highlight` = episode_id yang arsirannya ditebalkan. Penanda
+    segitiga di atas tiap episode membawa keterangan saat kursor diarahkan; nilai terakhir diberi label."""
+    d = drivers.dropna(subset=["log_e"]).copy()
+    d["week"] = pd.to_datetime(d["week"])
+    if start is not None:
+        d = d[d["week"] >= pd.Timestamp(start)]
+    rate = np.exp(d["log_e"])
+    fig = go.Figure(go.Scatter(x=d["week"], y=rate, name="Kurs JISDOR (rerata mingguan)", line=dict(color=S.BLUE, width=2),
+                               hovertemplate="%{x|%d-%m-%Y}<br>Rp%{y:,.0f} per dolar AS<extra></extra>"))
+    n = 0
+    if episodes is not None and len(episodes):
+        ep = episodes.copy()
+        ep["start_week"], ep["end_week"] = pd.to_datetime(ep["start_week"]), pd.to_datetime(ep["end_week"])
+        n = len(ep)
+        for r in ep.itertuples():
+            strong = highlight is not None and r.episode_id == highlight
+            fig.add_vrect(x0=r.start_week, x1=r.end_week + pd.Timedelta(days=6), line_width=0,
+                          fillcolor=S.rgba(S.ORANGE, 0.5 if strong else 0.2))
+        top = float(rate.max()) * 1.015 if len(rate) else 0.0
+        fig.add_trace(go.Scatter(
+            x=ep["start_week"], y=[top] * n, mode="markers", showlegend=False,
+            marker=dict(symbol="triangle-down", size=9, color=S.ORANGE),
+            customdata=np.c_[[S.month_year(t) for t in ep["start_week"]],
+                             100 * np.expm1(ep["cum_dlog_e"]) if "cum_dlog_e" in ep else np.full(n, np.nan)],
+            hovertemplate="Episode %{customdata[0]}<br>kurs naik %{customdata[1]:.1f}% dalam 8 minggu<extra></extra>"))
+    if len(rate):
+        fig.add_trace(go.Scatter(x=[d["week"].iloc[-1]], y=[rate.iloc[-1]], mode="markers", showlegend=False,
+                                 marker=dict(size=9, color=S.BLUE, line=dict(color="white", width=2)), hoverinfo="skip"))
+    fig.update_yaxes(tickformat=",.0f")
+    return S.finish(fig, "Kurs rupiah per dolar AS",
+                    f"Arsiran oranye: {n} episode pelemahan, saat kurs naik minimal 3% dalam 8 minggu. Arahkan kursor ke "
+                    "segitiga untuk melihat besarnya.", x="", y="Rupiah per dolar AS", height=420)
+
+
+def status_share(panel_weekly: pd.DataFrame, labels: dict | None = None, title: str | None = None) -> go.Figure:
+    """Porsi status sel mingguan per komoditas (artefak `panel_weekly`), batang horizontal bertumpuk berlabel pembaca.
+    Rangkaian harga identik (carry_forward) bisa berarti harga kaku atau harga hari sebelumnya dari sumber; keduanya tidak
+    dapat dibedakan (U22), jadi diwarnai biru muda sebagai penanda, bukan peringatan."""
+    share = (panel_weekly.groupby("commodity")["status"].value_counts(normalize=True).rename("share").reset_index())
+    share["komoditas"] = share["commodity"].map(lambda c: (labels or {}).get(c, c))
+    share["status_label"] = share["status"].map(lambda s: S.STATUS_LABELS.get(s, s))
+    order = [S.STATUS_LABELS[s] for s in STATUS_ORDER]
+    fig = px.bar(share, y="komoditas", x="share", color="status_label", orientation="h",
+                 category_orders={"status_label": order},
+                 color_discrete_map={S.STATUS_LABELS[s]: c for s, c in S.STATUS_COLORS.items()},
+                 custom_data=["status_label"])
+    fig.update_traces(hovertemplate="%{y}: %{customdata[0]} %{x:.0%}<extra></extra>")
+    fig.update_xaxes(tickformat=".0%", range=[0, 1])
+    return S.finish(fig, title or "Kelengkapan data mingguan per komoditas",
+                    "Rangkaian harga identik: harga yang sama minimal 5 hari teramati. Penyebabnya tidak bisa dibedakan, "
+                    "jadi kami menandainya tanpa membuangnya.", x="porsi minggu", y="",
+                    height=max(320, 30 * share["komoditas"].nunique() + 170))
+
+
+def episode_fan(events: pd.DataFrame, commodity: str, episodes: pd.DataFrame | None = None, name: str | None = None,
+                highlight: int | None = None) -> go.Figure:
+    """Kipas episode (artefak `events`, tingkat nasional): perubahan harga 0–12 minggu sesudah awal setiap episode pelemahan
+    rupiah, satu garis per episode, di atas pita 95% perubahan harga pada 499 jendela waktu tanpa episode. `highlight` =
+    episode_id yang ditebalkan biru (digambar paling atas); episode lain abu-abu."""
+    d = events[(events["commodity"] == commodity) & (events["level"] == "national")].copy()
+    d["pct"] = 100 * np.expm1(d["dlog_price"])
+    names = ({} if episodes is None else {r.episode_id: S.month_year(r.start_week) for r in episodes.itertuples()})
+    fig = go.Figure()
+    if len(d):        # pita = rerata placebo_lo/hi antar-episode per horizon, dalam persen
+        b = d.groupby("horizon")[["placebo_lo", "placebo_hi"]].mean().sort_index()
+        h, lo, hi = b.index.to_numpy(), 100 * np.expm1(b["placebo_lo"]).to_numpy(), 100 * np.expm1(b["placebo_hi"]).to_numpy()
+        fig.add_trace(go.Scatter(x=np.r_[h, h[::-1]], y=np.r_[hi, lo[::-1]], fill="toself", mode="lines",
+                                 fillcolor=S.rgba(S.BLUE, 0.16), line=dict(width=0), hoverinfo="skip",
+                                 name="Rentang 95% jendela tanpa episode"))
+    fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", line=dict(color=S.NEUTRAL, width=1.5), name="Satu episode"))
+    ids = sorted(d["episode_id"].unique(), key=lambda e: e == highlight)
+    for eid in ids:
+        g = d[d["episode_id"] == eid].sort_values("horizon")
+        strong = bool(eid == highlight)
+        lab = names.get(eid, f"Episode {eid}")
+        fig.add_trace(go.Scatter(
+            x=g["horizon"], y=g["pct"], mode="lines", showlegend=strong, name=lab,
+            line=dict(color=S.BLUE if strong else S.NEUTRAL, width=3 if strong else 1.3),
+            opacity=1.0 if strong or highlight is None else 0.45,
+            hovertemplate=f"{lab}<br>minggu ke-%{{x}}: %{{y:+.2f}}%<extra></extra>"))
+    fig.add_hline(y=0, line_color=S.NEUTRAL, line_width=1)
+    fig.update_xaxes(dtick=2, range=[-0.3, 12.3])
+    return S.finish(fig, f"{name or commodity}: harga setelah episode pelemahan rupiah",
+                    "Setiap garis adalah satu episode. Pita biru: rentang 95% perubahan harga pada 499 jendela waktu tanpa "
+                    f"episode. {CAUSAL_NOTE}", x="minggu sejak awal episode", y="% perubahan harga nasional", height=440)
+
+
+def episode_fan_grid(events: pd.DataFrame, labels: dict | None = None) -> go.Figure:
+    """Kipas episode untuk semua komoditas sekaligus (artefak `events`, nasional): satu panel per komoditas dengan skala
+    sendiri. Desktop 5 kolom, ponsel 2 kolom (`style.WRAP`)."""
+    d = events[events["level"] == "national"].copy()
+    d["pct"] = 100 * np.expm1(d["dlog_price"])
+    coms = list(dict.fromkeys(d["commodity"]))
+    cols = 2 if S.WRAP.get()[0] else 5
+    rows = max(1, -(-len(coms) // cols))
+    fig = make_subplots(rows=rows, cols=cols, subplot_titles=[(labels or {}).get(c, c) for c in coms],
+                        horizontal_spacing=0.05 if cols == 5 else 0.1, vertical_spacing=min(0.2, 0.32 / rows))
+    for i, c in enumerate(coms):
+        r, k = divmod(i, cols)
+        g = d[d["commodity"] == c]
+        b = g.groupby("horizon")[["placebo_lo", "placebo_hi"]].mean().sort_index()
+        h, lo, hi = b.index.to_numpy(), 100 * np.expm1(b["placebo_lo"]).to_numpy(), 100 * np.expm1(b["placebo_hi"]).to_numpy()
+        fig.add_trace(go.Scatter(x=np.r_[h, h[::-1]], y=np.r_[hi, lo[::-1]], fill="toself", mode="lines",
+                                 fillcolor=S.rgba(S.BLUE, 0.16), line=dict(width=0), hoverinfo="skip", showlegend=False),
+                      row=r + 1, col=k + 1)
+        for eid, e in g.groupby("episode_id"):
+            e = e.sort_values("horizon")
+            fig.add_trace(go.Scatter(x=e["horizon"], y=e["pct"], mode="lines", showlegend=False,
+                                     line=dict(color=S.NEUTRAL, width=1), opacity=0.7,
+                                     hovertemplate=f"{(labels or {}).get(c, c)}<br>minggu ke-%{{x}}: %{{y:+.1f}}%"
+                                                   "<extra></extra>"), row=r + 1, col=k + 1)
+    fig.update_xaxes(dtick=4, range=[-0.3, 12.3])
+    fig.update_annotations(font_size=12)
+    fig = S.finish(fig, "Semua komoditas: harga setelah episode pelemahan",
+                   "Setiap panel memakai skala sendiri. Sumbu tegak: % perubahan harga nasional. Sumbu datar: minggu sejak "
+                   f"awal episode. Pita biru: rentang 95% jendela tanpa episode. {CAUSAL_NOTE}",
+                   height=(230 if cols == 5 else 210) * rows + 150)
+    return fig.update_layout(margin_t=fig.layout.margin.t + 30)   # ruang judul panel di bawah subjudul
+
+
+def price_trend(panel: pd.DataFrame, province_id: int, commodity: str, episodes: pd.DataFrame | None = None,
+                name: str | None = None, where: str | None = None, unit: str = "kg") -> go.Figure:
+    """Harga eceran mingguan (Rp) sebuah komoditas di satu provinsi dibanding median 34 provinsi (artefak `panel_weekly`),
+    dengan arsiran episode pelemahan rupiah. Minggu kosong tidak diisi (garis terputus)."""
+    d = panel[panel["commodity"] == commodity].copy()
+    d["week"] = pd.to_datetime(d["week"])
+    nat = d.groupby("week")["price"].median()
+    p = d[d["province_id"] == province_id].set_index("week")["price"].sort_index()
+    where = where or str(province_id)
+    fig = go.Figure()
+    if episodes is not None and len(episodes):
         for r in episodes.itertuples():
-            fig.add_vrect(x0=r.start_week, x1=r.end_week, fillcolor=S.rgba(S.ORANGE, 0.18), line_width=0)
-    return S.finish(fig, "IDR/USD dan episode depresiasi ≥ 3%", "Arsiran = episode (Σ Δlog kurs 8 minggu ≥ 0,03)",
-                    x="minggu", y="Rp per USD")
-
-
-def status_share(panel_weekly: pd.DataFrame) -> go.Figure:
-    """Porsi status sel mingguan per komoditas (artefak `panel_weekly`). carry_forward = rangkaian harga teramati identik
-    (kekakuan harga atau harga hari sebelumnya dari sumber; tidak dapat dibedakan, U22), bukan peringatan → biru muda."""
-    share = (panel_weekly.groupby("commodity")["status"].value_counts(normalize=True)
-             .rename("share").reset_index())
-    fig = px.bar(share, x="commodity", y="share", color="status", category_orders={"status": STATUS_ORDER},
-                 color_discrete_map=S.STATUS_COLORS)
-    return S.finish(fig, "Status sel mingguan per komoditas",
-                    "carry_forward = rangkaian harga identik ≥ 5 hari teramati (penanda, bukan filter)",
-                    x="", y="porsi sel")
+            fig.add_vrect(x0=pd.Timestamp(r.start_week), x1=pd.Timestamp(r.end_week) + pd.Timedelta(days=6), line_width=0,
+                          fillcolor=S.rgba(S.ORANGE, 0.14))
+    fig.add_trace(go.Scatter(x=nat.index, y=nat, mode="lines", name="Median 34 provinsi",
+                             line=dict(color=S.NEUTRAL, width=1.5),
+                             hovertemplate="%{x|%d-%m-%Y}<br>median Rp%{y:,.0f}<extra></extra>"))
+    fig.add_trace(go.Scatter(x=p.index, y=p, mode="lines", name=where, line=dict(color=S.BLUE, width=2),
+                             hovertemplate="%{x|%d-%m-%Y}<br>" + where + " Rp%{y:,.0f}<extra></extra>"))
+    fig.update_yaxes(tickformat=",.0f")
+    return S.finish(fig, f"{name or commodity}: harga eceran di {where}",
+                    "Arsiran oranye: episode pelemahan rupiah. Harga mingguan dari PIHPS, minggu kosong tidak diisi.",
+                    x="", y=f"Rupiah per {unit}", height=400)
 
 
 def coassign_heatmap(coassign: pd.DataFrame) -> go.Figure:
@@ -211,10 +337,11 @@ def forecast_ratios(forecast_eval: pd.DataFrame, subset: str = "all", labels: di
     fig.for_each_annotation(lambda a: a.update(text=a.text.replace("horizon=", "prediksi ") + " minggu"))
     n = d["n_origins"].dropna() if "n_origins" in d else pd.Series(dtype=float)
     n_txt = (f"{int(n.min())}" if n.min() == n.max() else f"{int(n.min())}–{int(n.max())}") if len(n) else "?"
-    return S.finish(fig, f"Galat relatif terhadap model dasar, {S.SUBSET_LABELS.get(subset, subset)}",
-                    f"Kiri dari garis 1 berarti lebih akurat dari model dasar. {n_txt} titik prediksi, evaluasi "
-                    "pseudo-real-time.", x="rasio MAE terhadap model dasar", y="",
-                    height=max(320, 34 * d["komoditas"].nunique() + 140))
+    fig = S.finish(fig, f"Galat relatif terhadap model dasar, {S.SUBSET_LABELS.get(subset, subset)}",
+                   f"Kiri dari garis 1 berarti lebih akurat dari model dasar. {n_txt} titik prediksi, evaluasi "
+                   "pseudo-real-time.", x="rasio MAE terhadap model dasar", y="",
+                   height=max(320, 34 * d["komoditas"].nunique() + 160))
+    return fig.update_layout(margin_t=fig.layout.margin.t + 24)   # ruang judul panel di bawah subjudul (tidak bertumpuk)
 
 
 def forest(df: pd.DataFrame, label_cols: list[str], title: str, x_title: str | None = None,
@@ -223,6 +350,8 @@ def forest(df: pd.DataFrame, label_cols: list[str], title: str, x_title: str | N
     interval tidak memuat nol, titik kosong = memuat nol (pengkodean kedua selain posisi). `x_range` memotong sumbu agar
     interval sempit tetap terbaca; interval yang melewati batas diberi segitiga di tepi grafik (nilainya di hover)."""
     d = df.assign(label=df[label_cols].astype(str).agg(", ".join, axis=1))
+    if S.WRAP.get()[0]:                          # ponsel: label panjang dibungkus agar area plot tidak terlalu sempit
+        d["label"] = d["label"].map(lambda v: "<br>".join(S.wrap_lines(v, 18)))
     excl = (d["ci_low"] > 0) | (d["ci_high"] < 0)
     fig = go.Figure(go.Scatter(
         x=d["estimate"], y=d["label"], mode="markers", showlegend=False,
@@ -245,7 +374,8 @@ def forest(df: pd.DataFrame, label_cols: list[str], title: str, x_title: str | N
                     hovertemplate="%{y}<br>rentang melewati batas grafik: %{customdata[0]:.2f} s.d. %{customdata[1]:.2f}"
                                   "<extra></extra>"))
     sub = subtitle or "Titik penuh: rentang 95% tidak memuat nol. Titik kosong: memuat nol."
-    return S.finish(fig, title, f"{sub} {CAUSAL_NOTE}", x=x_title, height=max(300, 30 * len(d) + 120))
+    row_px = 30 + 15 * (int(d["label"].str.count("<br>").max()) if len(d) else 0)   # label dibungkus → baris lebih tinggi
+    return S.finish(fig, title, f"{sub} {CAUSAL_NOTE}", x=x_title, height=max(300, row_px * len(d) + 120))
 
 
 def robustness_forest(robustness: pd.DataFrame, commodity: str, driver: str, horizon: int,
@@ -259,8 +389,9 @@ def robustness_forest(robustness: pd.DataFrame, commodity: str, driver: str, hor
                    & robustness["estimate"].notna()].copy()
     d["cek"] = d["check_id"].map(lambda c: S.CHECK_LABELS.get(c, c))
     var = d["variant"].fillna("").astype(str) if "variant" in d else ""
-    comp = np.where(d["driver"] != driver, " · " + d["driver"].astype(str), "")
-    d["label"] = d["cek"] + np.where(var != "", " · " + var, "") + comp
+    comp_names = {"e_global": "komponen dolar global", "e_idr": "komponen khusus rupiah"}
+    comp = np.where(d["driver"] != driver, ", " + d["driver"].map(lambda x: comp_names.get(x, x)).astype(str), "")
+    d["label"] = d["cek"] + np.where(var != "", ", " + var, "") + comp
     d = d.sort_values(["tier", "cek", "label"], ascending=[False, True, True])
     fig = go.Figure()
     for tier, color in (("1", S.BLUE), ("2", S.ORANGE)):
@@ -282,14 +413,14 @@ def robustness_forest(robustness: pd.DataFrame, commodity: str, driver: str, hor
             hovertemplate="%{y}<br><b>%{x:.2f}</b><br>rentang 95%: %{customdata[0]:.2f} s.d. %{customdata[1]:.2f}"
                           "<br>%{customdata[2]}<extra></extra>"))
     base = d.loc[d["driver"] == driver, "baseline_estimate"].dropna()
-    if len(base):
-        fig.add_vline(x=float(base.iloc[0]), line_dash="dash", line_color=S.NEUTRAL, line_width=1,
-                      annotation_text=f"estimasi utama {S.fmt_num(float(base.iloc[0]), 3)}",
-                      annotation_position="top")
+    base_txt = "Garis putus: estimasi utama."
+    if len(base):                       # nilai di subjudul, bukan anotasi garis: anotasi "top" menimpa baris subjudul
+        fig.add_vline(x=float(base.iloc[0]), line_dash="dash", line_color=S.NEUTRAL, line_width=1)
+        base_txt = f"Garis putus: estimasi utama ({S.fmt_num(float(base.iloc[0]), 2)})."
     fig.add_vline(x=0, line_color=S.NEUTRAL, line_width=1)
     return S.finish(fig, f"{name or commodity}: respons terhadap {S.DRIVER_LABELS.get(driver, driver).lower()} pada setiap "
                          f"cek ketahanan ({horizon} minggu)",
-                    f"Titik kosong: rentang 95% memuat nol. Garis putus: estimasi utama. {CAUSAL_NOTE}",
+                    f"Titik kosong: rentang 95% memuat nol. {base_txt} {CAUSAL_NOTE}",
                     x=S.AXIS_LABELS.get(driver, "respons kumulatif"), height=max(320, 26 * len(d) + 160))
 
 
@@ -379,7 +510,7 @@ def run_durations(runs: pd.DataFrame, labels: dict[str, str] | None = None) -> g
     # format="ISO8601": log lama tanpa mikrodetik bercampur log baru dengan mikrodetik (D-138)
     d["t"] = pd.to_datetime(d["started_at"], format="ISO8601", utc=True)
     d = d.sort_values("t")
-    d["label"] = [f"{(labels or {}).get(t, t)} · {x:%d %b %H:%M}" for t, x in zip(d["task_id"], d["t"])]
+    d["label"] = [f"{(labels or {}).get(t, t)}, {x:%d %b %H:%M}" for t, x in zip(d["task_id"], d["t"])]
     never = [(labels or {}).get(t, t) for t in dict.fromkeys(runs["task_id"]) if t not in set(d["task_id"])]
     fig = go.Figure()
     for status, g in d.groupby("status"):
@@ -391,7 +522,7 @@ def run_durations(runs: pd.DataFrame, labels: dict[str, str] | None = None) -> g
     fig.update_yaxes(categoryorder="array", categoryarray=list(d["label"]))
     sub = f"{len(d)} run eksekusi"
     if never:
-        sub += " · belum ada waktu eksekusi tercatat: " + ", ".join(never)
+        sub += ". Belum ada waktu eksekusi tercatat untuk " + ", ".join(never) + "."
     return S.finish(fig, "Waktu eksekusi per run", sub, x="detik", height=max(260, 40 * len(d) + 140))
 
 
@@ -411,7 +542,7 @@ def metric_trend(metrics: pd.DataFrame, runs: pd.DataFrame, task_id: str, name: 
         fig.add_trace(go.Scatter(x=bad["x"], y=[good["v"].min() if len(good) else 0] * len(bad), mode="markers",
                                  name="tidak berlaku / gagal", marker=dict(symbol="x", size=9, color=S.NEUTRAL),
                                  customdata=bad["reason"], hovertemplate="%{customdata}<extra></extra>"))
-    return S.finish(fig, f"{name} antar run · {task_id}", f"{len(good)} nilai dari {len(m)} run",
+    return S.finish(fig, f"{name} antar run ({task_id})", f"{len(good)} nilai dari {len(m)} run",
                     x="waktu mulai run (UTC)", y=name)
 
 
@@ -457,6 +588,7 @@ def pipeline_graph(edges: pd.DataFrame, status: dict[str, str], stale: set[str] 
         for i, n in enumerate(members):
             pos[n] = (lv, (len(members) - 1) / 2 - i)
     fig = go.Figure()
+    placed: list[tuple[float, float]] = []
     for r in pairs.itertuples():
         if r.producer == r.consumer:
             continue
@@ -464,7 +596,19 @@ def pipeline_graph(edges: pd.DataFrame, status: dict[str, str], stale: set[str] 
         fig.add_trace(go.Scatter(x=[x0, x1], y=[y0, y1], mode="lines", showlegend=False, hoverinfo="skip",
                                  line=dict(color=S.NEUTRAL, width=1 + min(r.n, 6) / 2,
                                            dash="solid" if r.required else "dot")))
-        fig.add_annotation(x=(x0 + x1) / 2, y=(y0 + y1) / 2, text=str(r.n), showarrow=False,   # kontras (D-140)
+        # Angka jumlah artefak di antara dua lapisan (x0 + 0.5, x0 + 1.5, ...), bukan di titik tengah: garis yang
+        # melompati lapisan punya titik tengah tepat di kolom simpul dan menimpa labelnya. Posisi yang sudah dipakai
+        # angka lain dilewati (garis segaris dari simpul yang sama).
+        span = max(x1 - x0, 1)
+        cands = [k + 0.5 for k in range(int(span))] + [k + f for k in range(int(span)) for f in (0.3, 0.7)]
+        lx, ly = x0 + cands[0], y0 + (y1 - y0) * cands[0] / span
+        for c in cands:
+            cx, cy = x0 + c, y0 + (y1 - y0) * c / span
+            if all(abs(cx - px) > 0.18 or abs(cy - py) > 0.45 for px, py in placed):
+                lx, ly = cx, cy
+                break
+        placed.append((lx, ly))
+        fig.add_annotation(x=lx, y=ly, text=str(r.n), showarrow=False,   # kontras (D-140)
                            font=dict(size=12, color="#1a1a1a"), bgcolor="#ffffff", bordercolor=S.NEUTRAL,
                            borderpad=2, hovertext=r.artifacts)
     for st_name in dict.fromkeys(status.get(n, "belum ada run") for n in nodes):
@@ -472,7 +616,7 @@ def pipeline_graph(edges: pd.DataFrame, status: dict[str, str], stale: set[str] 
         fig.add_trace(go.Scatter(
             x=[pos[n][0] for n in members], y=[pos[n][1] for n in members], mode="markers+text",
             name=RUN_STATUS_LABELS.get(st_name, st_name),
-            text=[(labels or {}).get(n, n) + (" · basi" if n in stale else "") for n in members],
+            text=[(labels or {}).get(n, n) + (" (basi)" if n in stale else "") for n in members],
             textposition="bottom center", marker=dict(size=26, color=RUN_STATUS_COLORS.get(st_name, S.NEUTRAL),
                                                    line=dict(width=2, color="white")),
             hovertemplate="%{text}<extra></extra>"))
@@ -480,7 +624,7 @@ def pipeline_graph(edges: pd.DataFrame, status: dict[str, str], stale: set[str] 
     y_abs = max([abs(p[1]) for p in pos.values()] + [0.5])
     fig.update_xaxes(visible=False, range=[-0.7, x_max + 0.7])           # ruang untuk label simpul di tepi
     fig.update_yaxes(visible=False, range=[-y_abs - 0.6, y_abs + 0.4])
-    fig = S.finish(fig, "Alur data antar-tahap", "garis penuh = input wajib · titik-titik = input opsional · angka = "
-                   "jumlah artefak · warna = status tahap (eksekusi dipisah dari evaluasi-saja)", height=380)
+    fig = S.finish(fig, "Alur data antar-tahap", "Garis penuh menandai input wajib, garis titik-titik input opsional. "
+                   "Angka di garis adalah jumlah artefak, warna simpul adalah status tahap.", height=380)
     fig.update_xaxes(showgrid=False)
     return fig

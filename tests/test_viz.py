@@ -133,7 +133,9 @@ def test_robustness_and_asymmetry_plots():
         "ci_high": [-.5, -.8, .1, 0., .7], "baseline_estimate": -1.67, "note": "x"})
     fig = plots.robustness_forest(rob, "daging_ayam", "e", 8)
     labels = [y for t in fig.data for y in t.y if y is not None]
-    assert len(labels) == 3 and any("e_idr" in lb for lb in labels) and [t.name for t in fig.data if t.showlegend is not False] == ["Tier 1", "Tier 2"]
+    assert len(labels) == 3 and any("komponen khusus rupiah" in lb for lb in labels) and [t.name for t in fig.data if t.showlegend is not False] == ["Tier 1", "Tier 2"]
+    assert not any("·" in lb for lb in labels) and not fig.layout.annotations      # D-172: tanpa rantai "·", tanpa anotasi garis
+    assert "estimasi utama (−1,67)" in fig.layout.title.subtitle.text.replace("<br>", " ")
     h = np.array([4, 8, 12])
     prof = pd.DataFrame({"commodity": "beras", "level": "national", "unit": "ALL", "horizon": np.tile(h, 2),
                          "driver": np.repeat(["e_pos", "e_neg"], 3), "estimate": [.1, .2, .3, .0, .1, .1],
@@ -143,3 +145,66 @@ def test_robustness_and_asymmetry_plots():
     fig = plots.asymmetry_plot(prof, asym, "beras", "Beras")
     assert len(fig.data) == 2 and "uji konfirmatori" in fig.layout.title.subtitle.text
     assert "tidak terdeteksi" in fig.layout.title.subtitle.text
+
+
+def test_chart_text_wraps_on_phone_and_keeps_desktop_layout():
+    """D-172: di ponsel (`style.set_wrap(34, 50)`) judul, subjudul, dan judul sumbu dibungkus dan legenda dikunci di dasar
+    wadah; di desktop judul satu baris dan legenda di bawah plot seperti sebelumnya. Grafik pipeline: angka jumlah
+    artefak tidak jatuh di kolom simpul (dulu menimpa label "Task 1")."""
+    title = "Respons 8 minggu terhadap kurs rupiah, semua komoditas (nasional)"
+    sub = "Titik penuh: rentang 95% tidak memuat nol. Titik kosong: memuat nol. Asosiasi historis, bukan sebab-akibat."
+    fig = go.Figure(go.Scatter(x=[1, 2], y=[1, 2], name="pelemahan 1%"))
+    desk = style.finish(go.Figure(fig), title, sub, x="% per 1% pelemahan rupiah")
+    assert "<br>" not in desk.layout.title.text and desk.layout.legend.y == -0.22
+    tok = style.WRAP.set((34, 50))
+    try:
+        ph = style.finish(go.Figure(fig), title, sub, x="% per 1% pelemahan rupiah")
+    finally:
+        style.WRAP.reset(tok)
+    assert all(len(r) <= 34 for r in ph.layout.title.text.split("<br>")) and ph.layout.title.text.count("<br>") >= 1
+    assert all(len(r) <= 50 for r in ph.layout.title.subtitle.text.split("<br>"))
+    assert "<br>" in ph.layout.xaxis.title.text and ph.layout.legend.yref == "container"
+    assert ph.layout.margin.t > desk.layout.margin.t and ph.layout.margin.b > desk.layout.margin.b
+    assert style.wrap_lines("satu dua tiga", 8) == ["satu dua", "tiga"]
+    # D-176: grafik kolom sempit (beranda) memecah judul desktop dengan "\n" → dua baris + ruang atas; tanpa "\n" tetap
+    two = style.finish(go.Figure(fig), "Perubahan harga 8 minggu\nsetelah rupiah melemah 5%", sub)
+    assert two.layout.title.text == "Perubahan harga 8 minggu<br>setelah rupiah melemah 5%"
+    assert two.layout.margin.t == desk.layout.margin.t + 24
+    edges = pd.DataFrame({"producer": ["stage0", "stage0", "stage0", "task1"], "consumer": ["task1", "task3", "task2", "task2"],
+                          "artifact": ["a", "b", "c", "d"], "required": True})
+    g = plots.pipeline_graph(edges, {})
+    node_x = {round(v, 6) for t in g.data if t.mode == "markers+text" for v in t.x}
+    assert not any(round(a.x, 6) in node_x for a in g.layout.annotations)
+
+
+def test_timeline_episode_fan_and_province_charts():
+    """D-175: lini masa kurs (episode berlabel bulan, sorotan), kipas episode (pita data acak + satu garis per episode, sorotan
+    digambar paling atas), kipas semua komoditas (5 kolom desktop, 2 kolom ponsel), tren harga provinsi vs median, kelengkapan
+    data berlabel pembaca."""
+    weeks = pd.date_range("2018-01-01", periods=60, freq="W-MON")
+    drv = pd.DataFrame({"week": weeks, "log_e": np.log(14000 + np.arange(60))})
+    eps = pd.DataFrame({"episode_id": [1, 2], "start_week": [weeks[5], weeks[30]], "end_week": [weeks[8], weeks[32]],
+                        "cum_dlog_e": [0.04, 0.18]})
+    fig = plots.fx_drivers(drv, eps, start="2018-02-01", highlight=2)
+    assert len(fig.layout.shapes) == 2 and fig.layout.shapes[1].fillcolor != fig.layout.shapes[0].fillcolor
+    assert pd.Timestamp(fig.data[0].x[0]) >= pd.Timestamp("2018-02-01") and fig.data[1].customdata[1][0] == "Jul 2018"
+    ev = pd.DataFrame([{"episode_id": e, "level": "national", "unit": "ALL", "commodity": c, "horizon": h,
+                        "dlog_price": 0.002 * h * e, "placebo_lo": -0.01, "placebo_hi": 0.01, "placebo_p": 0.4}
+                       for c in ("beras", "gula_pasir", "telur_ayam") for e in (1, 2) for h in range(13)])
+    fan = plots.episode_fan(ev, "beras", eps, name="Beras", highlight=1)
+    lines = [t for t in fan.data if t.mode == "lines" and t.x is not None and t.x[0] is not None and t.fill != "toself"]
+    assert fan.data[0].fill == "toself" and len(lines) == 2 and lines[-1].name == "Feb 2018" and lines[-1].line.width == 3
+    grid = plots.episode_fan_grid(ev, {"beras": "Beras"})
+    assert [a.text for a in grid.layout.annotations][:1] == ["Beras"] and grid.layout.xaxis3 is not None
+    tok = style.WRAP.set((34, 50))
+    try:
+        assert plots.episode_fan_grid(ev).layout.xaxis3.domain[0] < 0.5          # ponsel: 2 kolom, panel ke-3 di kiri
+    finally:
+        style.WRAP.reset(tok)
+    pan = pd.DataFrame([{"week": w, "province_id": p, "commodity": "beras", "price": 10000 + p * 100 + i,
+                         "status": "observed"} for p in (1, 2, 3) for i, w in enumerate(weeks)])
+    tr = plots.price_trend(pan, 2, "beras", eps, name="Beras", where="Riau")
+    assert [t.name for t in tr.data] == ["Median 34 provinsi", "Riau"] and tr.data[0].y[0] == 10200
+    sh = plots.status_share(pan.assign(status=["observed", "carry_forward"] * 90), {"beras": "Beras"})
+    assert {t.name for t in sh.data} == {"teramati", "rangkaian harga identik"} and list(sh.data[0].y) == ["Beras"]
+    assert style.month_year("2020-03-02") == "Mar 2020" and style.month_year(None) == "tidak tersedia"

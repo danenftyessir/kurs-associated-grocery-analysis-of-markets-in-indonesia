@@ -69,8 +69,8 @@ WP-07 (paralel dengan WP-05) → WP-22/23
 | WP-30 | Robustness Tier 2 | ✅ | Danen | 28 | opsional |
 | WP-31 | Halaman Streamlit final | ✅ | Danen ← Ardell | 17–29 | 27 Nov |
 | WP-32 | Paket juri & uji jalan ulang (G7) | ✅ | Danen ← Ardell | 31 | 28 Nov |
-| WP-33 | Temuan & makalah | 🔶 | Danen ← Abi | 17–29 | 28 Nov |
-| WP-34 | Audit klaim (G8) | 🔶 | Danen ← Abi | 31, 33 | 28 Nov |
+| WP-33 | Temuan & makalah | ✅ | Danen ← Abi | 17–29 | 28 Nov |
+| WP-34 | Audit klaim (G8) | ✅ | Danen ← Abi | 31, 33 | 28 Nov |
 | WP-35 | Tugas manusia | ⬜ | Danen ← Abi | – | lihat item |
 | WP-36 | Log eksekusi & evaluasi terpusat + app hal. 7 | ✅ | Danen | 31 | 24 Nov |
 
@@ -389,6 +389,16 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - 2026-11-27 (Danen, D-171): teks & UX untuk juri dan TPID: jawaban dulu di setiap halaman hasil, kosakata pembaca (% per 1% pelemahan
   rupiah, Rupiah per kg dari harga acuan findings), kode internal & notasi ke lampiran/expander, Daftar istilah; Respons harga 3 pemilih +
   tab; Eksposur dipecah jadi Faktor penjelas + Prediksi (`pages/9_Prediksi.py`); Temuan lengkap → Lampiran "Laporan lengkap".
+- 2026-11-28 (Danen, D-172): teks dari berkas (findings.md, laporan Tahap 0, interpretasi log) ditampilkan tanpa kode internal &
+  titik koma prosa (`common.readable`; berkas tidak diubah); "Status" → "Kesimpulan"/catatan; angka tabel format Indonesia
+  (`show_table`); 3 tumpang tindih grafik desktop + judul terpotong di ponsel diperbaiki (0 di 1280/1024/375 px); bug "h = 5 minggu".
+- 2026-11-28 (Danen, D-173): rumus dirender LaTeX (Simulasi, Data & metode, Laporan lengkap 53 rumus); Data & metode ditulis ulang
+  (langkah pengolahan, rumus model, pemeriksaan kualitas data menggantikan laporan pipeline mentah); Laporan lengkap dengan panduan
+  membaca; Riwayat eksekusi hanya untuk pengembang (`KAGAMI_DEV=1`).
+- 2026-11-28 (Danen, D-174): `results/findings.md` ditulis ulang tanpa pola tulisan AI (label tebal, deret angka dalam kurung, titik
+  koma, kode); angka diverifikasi sama dengan versi lama; tab app hal. 6 memetakan "Pertanyaan" dan "Ketahanan".
+- 2026-11-28 (Danen, D-175): halaman Rupiah dari waktu ke waktu (`pages/10_Lini_Masa_Rupiah.py`) dan Profil provinsi
+  (`pages/11_Profil_Provinsi.py`); kipas episode di tab Respons harga; viz `episode_fan`, `episode_fan_grid`, `price_trend`.
 - File: `app/`. Selesai bila: [x] 6 halaman menampilkan artefak nyata; [x] setiap grafik: sumber, satuan, periode, interval, label "asosiasi, bukan kausalitas"; [x] lencana "tidak terdeteksi"; [x] halaman 3 menangani k=1; [x] halaman 5 bendera ekstrapolasi; [x] tanpa login/input data/estimasi runtime.
 - 2026-11-23 (Danen, D-130): hal. 2 + `national_calibrated` & H2 `asymmetry`; hal. 4 Kendall sebagai metrik, forest meta-regresi per horizon (bukan campuran skala), E2 `regime_profiles`; hal. 5 status & catatan interval PT; hal. 6 ringkasan robustness; `with_status` (lencana + 3 desimal) dan `STRETCH` (lebar penuh lintas versi Streamlit; `use_container_width` usang). Tes `test_app_data` memuat artefak sintetis baru.
 - 2026-11-23 (Danen, D-134, PLAN.md §18): `viz/style.py` (palet tervalidasi, label bahasa pengguna, format angka Indonesia); hal. 2
@@ -416,18 +426,30 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
   `redistribute: true` (termasuk NASA POWER); `bundle` 89 file. Diekstrak ke folder bersih dan paket didaftarkan dari `src/` zip (bukan instalasi
   proyek): 7/7 halaman tanpa exception & tanpa "Menunggu hasil", `test_app` + `test_package` + `test_calibration` 19 lolos. Tingkat B tidak diulang
   (task3, task4, robustness baru saja dijalankan ulang dari data turunan yang sama, D-162/D-163).
+- Gladi G7 2026-11-28 (Danen, D-176/D-177): `package` 387 file, 48,4 MB, tanpa artefak hilang (+ 62 laporan `docs/audit/**/*.md`, skrip & hasil
+  red flag, `docs/paper/`); `bundle` 89 file. Diekstrak ke folder bersih, `kagami` dari `src/` zip: 11/11 halaman tanpa exception & tanpa
+  "Menunggu hasil"; `test_app` + `test_app_data` + `test_package` + `test_paper` + `test_wiring` + `test_calibration` 57 lolos, 1 dilewati
+  (cek git-ignore, tanpa repo). Tingkat B tidak diulang (kode analisis tidak berubah sejak gladi 26 Nov).
 
-### WP-33 — Temuan & makalah 🔶
+### WP-33 — Temuan & makalah ✅
 - 2026-11-23 (D-130): `results/findings.md` ditulis dari artefak (RQ1–RQ5, E2, robustness, keterbatasan, daftar artefak sumber). Makalah PDF ditunda.
 - 2026-11-24: `findings.md` + Ringkasan butir 6, bagian "Eksplorasi Task 4" (arah perubahan D-139/D-140, klasifier D-141, model deep &
   TimesFM 3.0 D-142) dan keterbatasan model eksploratif (risiko kontaminasi pralatih TimesFM, lisensi). Versi di Drive tim basi.
+- 2026-11-28 (D-177): makalah `docs/paper/kagami_makalah.tex` → `kagami_makalah.pdf` (21 halaman, pdflatex, 8 gambar, 12 tabel,
+  55 rujukan terverifikasi). Gambar dari artefak (`docs/paper/scripts/make_figures.py`) dan dari app (`scripts/capture_app.py`);
+  angka dari artefak resmi lewat `findings.md` dan analisis red flag (D-168). Naskah video `docs/paper/NASKAH_VIDEO.md`.
+  Penjaga `tests/test_paper.py`. Nama anggota diambil dari tabel anggota README. Sisa `[HUMAN]` (WP-35): konfirmasi afiliasi, baca ulang tim, rekam video, unggah.
 - Output: `results/findings.md` (dibaca app hal. 6) + makalah PDF sesuai struktur juknis: judul, abstrak, pendahuluan (latar belakang, tujuan & manfaat, batasan), kajian pustaka, solusi usulan (deskripsi, dataset, metode, perbedaan dengan solusi sebelumnya, matriks evaluasi), hasil eksperimen & pengujian, analisis, kesimpulan & saran, daftar pustaka.
-- Selesai bila: [ ] setiap angka di makalah berasal dari artefak (sebutkan nama artefak di komentar sumber); [ ] rujukan "belum diverifikasi" (U12) dicek atau dihapus.
+- Selesai bila: [x] setiap angka di makalah berasal dari artefak (nama artefak di keterangan tabel/gambar; angka utama dites sama
+  dengan `findings.md` dan PDF); [x] rujukan "belum diverifikasi" (U12) dicek atau dihapus (`docs/paper/RUJUKAN.md`).
 
-### WP-34 — Audit klaim (G8) 🔶
+### WP-34 — Audit klaim (G8) ✅
 - 2026-11-23: findings.md, teks app, dan README dipindai terhadap tabel §20 (frasa kausal/prediktif, "pertama", "rentan", "dataset kami", "tervalidasi"); satu pertanyaan halaman 4 dirumuskan ulang. Makalah menunggu.
 - 2026-11-27 (D-169, review eksternal): arah DM di app hal. 4, rumus skenario app = findings (eksak), carry_forward = rangkaian harga identik, batas Rupiah asimetris, batas deteksi & proksi dibatasi, waktu origin, rasio biaya K4 = analisis kepekaan, status prototipe riset; tabel §20 + 5 baris (PROJECT_OVERVIEW §6). Sisa: makalah, bibliografi (U12).
-- Selesai bila: [ ] setiap kalimat temuan di findings.md, makalah, app lolos tabel "Jangan tulis/Tulis" (PROJECT_OVERVIEW §6); [ ] setiap angka punya interval; [ ] hasil nol ditulis sebagai batas atas.
+- 2026-11-28 (D-177): makalah ditulis mengikuti tabel §20 dan diaudit: frasa terlarang dites otomatis (`tests/test_paper.py`), p DM
+  selalu dengan statistik & p satu sisi, hasil nol sebagai batas atas, interval tidak simetris ditulis bawah..atas, kajian pustaka
+  "tematik, bukan tinjauan sistematis". Klaim Persada dkk. (2026) dikoreksi dari teks lengkap (bukan bukti penerusan kurs).
+- Selesai bila: [x] setiap kalimat temuan di findings.md, makalah, app lolos tabel "Jangan tulis/Tulis" (PROJECT_OVERVIEW §6); [x] setiap angka punya interval; [x] hasil nol ditulis sebagai batas atas.
 
 ### WP-35 — Tugas manusia `[HUMAN]`
 - [x] **Abi** · Izin BI (U13) — sudah diperoleh (dikonfirmasi Danen 2026-11-20).
@@ -439,7 +461,11 @@ Pipeline `pipelines.robustness` · notebook `05_robustness` · sedang–berat �
 - [ ] **Danen & Ardell** · Token Drive masing-masing (`drive-auth`) + Kaggle Secret `KAGAMI_DRIVE_TOKEN` (`docs/NOTEBOOKS.md` §Persiapan 2).
 - [ ] **Danen/Abi** · Wawancara validasi kebutuhan TPID (U109) dengan `docs/PANDUAN_WAWANCARA_TPID.md`; hasil → catatan `docs/audit/` + D-xxx.
 - [ ] **Abi** · Pastikan jendela revisi harga harian PIHPS untuk `available_at` (U110).
-- [ ] **Abi** · Rekam video demonstrasi (alur: masalah → app 6 halaman → Tingkat A/B).
+- [ ] **Danen** · Konfirmasi nama anggota & afiliasi di blok judul `docs/paper/kagami_makalah.tex`, baca ulang makalah bersama
+      tim, kompilasi ulang (`docs/paper/README.md`), putuskan pernyataan bantuan AI (D-177).
+- [ ] **Danen** · Commit + push perubahan D-170–D-177 (termasuk `data/processed/drivers_weekly.parquet` & `panel_weekly.parquet`,
+      D-176) agar app daring menampilkan halaman Rupiah dari waktu ke waktu & Profil provinsi.
+- [ ] **Abi** · Rekam video demonstrasi dengan naskah `docs/paper/NASKAH_VIDEO.md` (± 6–7 menit).
 - [ ] **Abi** · Unggah makalah PDF + zip + video ke Google Drive dan form pendaftaran Gelombang 2.
 
 ### WP-36 — Log eksekusi & evaluasi terpusat ✅

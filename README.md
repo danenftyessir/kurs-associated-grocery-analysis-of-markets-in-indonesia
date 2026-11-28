@@ -537,14 +537,18 @@ masuk [app/Home.py](app/Home.py) hanya memasang menu; isi halaman ada di `app/pa
 | Bagian | Halaman | Isi |
 | --- | --- | --- |
 | Hasil penelitian | Ringkasan | Kalimat pembuka dalam Rupiah per kg (batas atas kenaikan harga beras untuk rupiah melemah 5%), grafik batas perubahan harga 10 komoditas, lima pertanyaan penelitian beserta jawabannya (dihitung dari artefak), cara menguji, status prototipe |
+| | Rupiah dari waktu ke waktu | Lini masa kurs JISDOR 2018–2026 dengan 13 episode pelemahan, kipas episode per komoditas (perubahan harga setelah tiap episode di atas pita 499 jendela tanpa episode), kipas semua komoditas |
 | | Respons harga | Satu kurva respons (nasional atau 7 wilayah, terhadap kurs atau harga dunia) dalam % per 1% dengan kalimat cara membaca; tab semua komoditas, saat melemah vs menguat, peta provinsi, episode pelemahan |
+| | Profil provinsi | Label harga 10 komoditas per provinsi (harga terkini, perubahan setahun, rentang Rupiah untuk rupiah melemah 1/3/5%), tren harga dibanding median 34 provinsi, kelengkapan data, deviasi provinsi yang lolos koreksi |
 | | Perbedaan antarprovinsi | Komoditas dengan respons berbeda antarprovinsi (vs data acak), pengelompokan provinsi vs batas data acak, batas deteksi |
 | | Faktor penjelas | Jalur impor dan korelasi peringkat dengan penerusan kurs, karakteristik provinsi (meta-regresi), respons per periode HET/HAP |
 | | Prediksi | Perubahan galat prediksi 4 dan 8 minggu setelah kurs ditambahkan, uji Diebold–Mariano dengan arah, komoditas impor saat kurs bergerak besar |
 | | Simulasi rupiah | $\Delta \text{harga} = \exp(PT(h)\ln(1 + x/100)) - 1$ untuk $x \in \lbrace 1, 3, 5 \rbrace$ persen, dalam persen dan Rupiah per kg (rumus dan harga acuan sama dengan tabel batas Rupiah di temuan), label "skenario bersyarat, bukan ramalan" |
-| Lampiran teknis | Laporan lengkap | `results/findings.md` dalam tab (ringkasan, per pertanyaan, ketahanan & batas, data, eksplorasi) + grafik ketahanan |
-| | Data & metode | Sumber data, kelengkapan seri, efek terkecil yang dapat dideteksi (MDE), daftar istilah, reproduksi, laporan pemeriksaan data Tahap 0 |
-| | Riwayat eksekusi | Log eksekusi dan evaluasi setiap tahap (`logs/`), perbandingan run, alur pipeline; untuk pembuktian reproduksibilitas |
+| Lampiran | Data & metode | Sumber data, langkah pengolahan dengan rumus model (LaTeX), kelengkapan seri, pemeriksaan kualitas data, efek terkecil yang dapat dideteksi (MDE), daftar istilah bersimbol, reproduksi |
+| | Laporan lengkap | `results/findings.md` untuk pembaca teknis, dalam tab (ringkasan, per pertanyaan, ketahanan & batas, data, eksplorasi), notasi dirender sebagai rumus, + grafik ketahanan |
+
+Halaman Riwayat eksekusi (log `logs/`, perbandingan run, alur pipeline) adalah alat pengembang dan hanya tampil di menu bila
+aplikasi dijalankan dengan env `KAGAMI_DEV=1`. Riwayat yang sama bisa dibaca juri dengan `python -m kagami runs`.
 
 Setiap grafik mencantumkan sumber, satuan, periode, rentang 95%, dan label "asosiasi historis, bukan sebab-akibat". Jika rentang
 sebuah respons memuat nol, aplikasi menyebutnya "tidak terdeteksi".
@@ -610,7 +614,8 @@ python -m kagami robustness
 ```
 
 Analisis eksploratif tambahan (bukan uji praregistrasi, D-141): klasifier arah perubahan harga dengan rolling-origin yang
-sama dengan Task 4. Hasilnya tampil di app halaman 7 (Evaluasi per tahap → Task 4).
+sama dengan Task 4. Hasilnya tercatat di log evaluasi (`python -m kagami runs`, atau halaman pengembang Riwayat eksekusi dengan
+`KAGAMI_DEV=1`).
 
 ```powershell
 python -m kagami task4 --direction
@@ -652,8 +657,9 @@ python -m pytest -q
 ```
 
 Tes kami memeriksa mesin statistik terhadap jawaban yang diketahui, estimator pada data sintetis dengan parameter tertanam,
-pencegahan kebocoran di Task 4, kontrak artefak, aplikasi, paket juri, dan kesesuaian dokumen dengan kode. Tes yang memerlukan
-data mentah otomatis dilewati jika data mentah tidak ada.
+pencegahan kebocoran di Task 4, kontrak artefak, aplikasi, paket juri, kesesuaian dokumen dengan kode, serta kelengkapan makalah
+(bagian wajib juknis, rujukan, dan angka yang sama dengan laporan temuan). Tes yang memerlukan data mentah otomatis dilewati jika
+data mentah tidak ada.
 
 ### 10.5 Perintah lain
 
@@ -681,9 +687,11 @@ datmin/
 ├── results/             artefak hasil Tahap 0 dan Task 1–4, robustness, findings.md
 ├── src/                 paket kagami: utils, stats, data, features, models, evaluation, pipelines, viz, cli
 ├── notebooks/           00_stage0_data sampai 05_robustness (satu per tahap; lokal, Kaggle, Colab)
-├── app/                 aplikasi Streamlit (6 halaman hasil + 3 lampiran teknis)
+├── app/                 aplikasi Streamlit (8 halaman hasil + 2 lampiran; Riwayat eksekusi hanya dengan KAGAMI_DEV=1)
 ├── tests/               tes pytest
 └── docs/                metode, dataset, arsitektur, praregistrasi, keputusan, isu terbuka, rencana kerja
+    ├── paper/           makalah lomba (kagami_makalah.pdf + sumber LaTeX, gambar dari artefak, verifikasi rujukan, naskah video)
+    └── audit/           laporan audit & eksperimen bertanggal yang dirujuk results/findings.md
 ```
 
 ## 12. Batasan dan cara menulis hasil
@@ -731,6 +739,10 @@ Pink Sheet (Bank Dunia) dan FAOSTAT berlisensi CC BY 4.0, dan data FRED mengikut
 
 | Dokumen                                             | Isi                                                |
 | --------------------------------------------------- | -------------------------------------------------- |
+| [docs/paper/kagami_makalah.pdf](docs/paper/kagami_makalah.pdf) | Makalah lomba (struktur juknis)          |
+| [docs/paper/RUJUKAN.md](docs/paper/RUJUKAN.md)       | Verifikasi setiap rujukan makalah                  |
+| [docs/paper/NASKAH_VIDEO.md](docs/paper/NASKAH_VIDEO.md) | Naskah video demo                              |
+| [results/findings.md](results/findings.md)           | Laporan temuan lengkap (juga di app, Laporan lengkap) |
 | [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | Ringkasan desain penelitian                        |
 | [docs/METHODS.md](docs/METHODS.md)                   | Spesifikasi metode dan rumus lengkap               |
 | [docs/DATASETS.md](docs/DATASETS.md)                 | Sumber data, format, keanehan, hak data            |
